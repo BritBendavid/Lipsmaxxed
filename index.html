@@ -1,0 +1,4962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Language Chat</title>
+
+  <style>
+    * {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #030303;
+  --panel: rgba(255, 255, 255, 0.07);
+  --text: #f8fafc;
+  --muted: #9ca3af;
+  --accent: #60a5fa;
+  --translated: #facc15;
+  --danger: #ef4444;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(250, 204, 21, 0.08), transparent 25%),
+    var(--bg);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  gap: 18px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Header */
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: nowrap;
+  z-index: 5;
+  width: 100%;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  min-width: max-content;
+}
+
+.brand h1 {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.brand p {
+  display: block;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  margin-left: auto;
+  min-width: 0;
+}
+
+.control-card {
+  background: var(--panel);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 9px 11px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(16px);
+  flex: 0 0 auto;
+}
+
+.control-card label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+/* Stacked Learn / Fluent selector */
+
+.language-stack-card {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  padding: 11px 13px;
+}
+
+.stacked-control-row {
+  display: grid;
+  grid-template-columns: 58px minmax(120px, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.stacked-control-row + .stacked-control-row {
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.stacked-control-row label {
+  color: var(--muted);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.language-stack-card select {
+  width: 100%;
+}
+
+select {
+  appearance: none;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding-right: 18px;
+}
+
+select option {
+  background: #111827;
+  color: white;
+}
+
+.select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.select-wrap::after {
+  content: "⌄";
+  position: absolute;
+  right: 0;
+  color: var(--muted);
+  pointer-events: none;
+  transform: translateY(-2px);
+}
+
+/* Writing / Speech mode toggle */
+
+.mode-card {
+  gap: 12px;
+}
+
+.input-mode-toggle {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 3px;
+}
+
+.input-mode-option {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 13px;
+  background: transparent;
+  color: #9ca3af;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.input-mode-option.active {
+  background: white;
+  color: black;
+}
+
+/* Account card */
+
+.account-card {
+  min-height: 44px;
+  flex: 0 0 auto;
+}
+
+.auth-open-button {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 900;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.auth-open-button {
+  background: white;
+  color: black;
+}
+
+.account-card {
+  min-height: 44px;
+  flex: 0 0 auto;
+  position: relative;
+}
+
+.account-menu-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.account-avatar-button {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.18), transparent 30%),
+    linear-gradient(145deg, rgba(148, 163, 184, 0.28), rgba(71, 85, 105, 0.22));
+  color: #e5e7eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.32),
+    inset 0 0 18px rgba(255, 255, 255, 0.04);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
+}
+
+.account-avatar-button:hover {
+  transform: translateY(-1px) scale(1.03);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 16px 42px rgba(0, 0, 0, 0.42),
+    0 0 24px rgba(148, 163, 184, 0.14),
+    inset 0 0 18px rgba(255, 255, 255, 0.05);
+}
+
+.account-avatar-icon {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+.account-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 230px;
+  background:
+    radial-gradient(circle at top left, rgba(148, 163, 184, 0.14), transparent 34%),
+    rgba(17, 24, 39, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+  padding: 12px;
+  z-index: 80;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(16px);
+}
+
+.account-dropdown::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  right: 15px;
+  width: 12px;
+  height: 12px;
+  background: rgba(17, 24, 39, 0.98);
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  transform: rotate(45deg);
+}
+
+.account-display-name {
+  color: white;
+  font-weight: 950;
+  font-size: 0.96rem;
+  line-height: 1.25;
+  padding: 7px 8px 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-menu-logout {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
+  font-weight: 900;
+  cursor: pointer;
+  text-align: center;
+}
+
+.account-menu-logout:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: white;
+}
+
+/* Message area */
+
+.message-history {
+  width: 100%;
+  flex: 1;
+  padding: 22px 4vw 130px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  scroll-behavior: smooth;
+}
+
+.message-card {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+}
+
+.user-card {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.user-bubble {
+  max-width: 760px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 22px;
+  padding: 16px 20px;
+  font-size: 1.05rem;
+  line-height: 1.45;
+}
+
+.user-bubble.user-annotated {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.user-text-part {
+  white-space: pre-wrap;
+}
+
+.user-foreign-part {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: top;
+  margin: 0 0.12em 0.25em;
+  color: #f87171;
+  font-weight: 800;
+}
+
+.user-foreign-original {
+  display: inline-block;
+}
+
+.user-foreign-translation {
+  color: #fca5a5;
+  font-size: 0.78em;
+  line-height: 1.1;
+  margin-top: 0.18em;
+  font-weight: 700;
+  max-width: 180px;
+  word-break: break-word;
+}
+
+.bot-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.bot-message-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 24px;
+}
+
+.bot-words {
+  color: white;
+  font-size: clamp(2rem, 5vw, 4.8rem);
+  line-height: 1.22;
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  min-width: 0;
+}
+
+.word-unit {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: top;
+  margin: 0 0.13em 0.25em;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: color 160ms ease;
+}
+
+.main-word {
+  display: inline-block;
+}
+
+.word-unit:hover .main-word {
+  color: var(--accent);
+}
+
+.word-unit.active-word .main-word {
+  color: var(--accent);
+}
+
+.word-unit.translated .main-word {
+  color: var(--translated);
+}
+
+.translation {
+  display: none;
+  font-size: clamp(0.8rem, 1.3vw, 1.05rem);
+  letter-spacing: normal;
+  line-height: 1.1;
+  font-weight: 600;
+  color: var(--translated);
+  margin-top: 0.25em;
+  max-width: 180px;
+  word-break: break-word;
+}
+
+.word-unit.translated .translation,
+.word-unit.translating .translation {
+  display: block;
+}
+
+.thinking-card {
+  color: #9ca3af;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Composer */
+
+.composer-shell {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 10;
+  padding: 12px 0 4px;
+  background:
+    linear-gradient(
+      to top,
+      rgba(3, 3, 3, 0.98),
+      rgba(3, 3, 3, 0.82),
+      rgba(3, 3, 3, 0)
+    );
+}
+
+form {
+  width: min(960px, 100%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--panel);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 10px;
+  backdrop-filter: blur(16px);
+}
+
+#userInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: white;
+  font-size: 1.05rem;
+  padding: 12px 10px;
+  min-width: 0;
+}
+
+#userInput::placeholder {
+  color: #6b7280;
+}
+
+.icon-button,
+.send-button {
+  border: none;
+  border-radius: 999px;
+  height: 46px;
+  cursor: pointer;
+  font-weight: 800;
+  transition: transform 160ms ease, background 160ms ease, opacity 160ms ease;
+}
+
+.icon-button {
+  width: 46px;
+  min-width: 46px;
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  font-size: 1.1rem;
+}
+
+.send-button {
+  padding: 0 24px;
+  background: white;
+  color: black;
+  font-size: 0.95rem;
+}
+
+.icon-button:hover,
+.send-button:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.send-button:hover {
+  background: #e5e7eb;
+}
+
+.send-button:disabled,
+.icon-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Speech input mode */
+
+.speech-shell {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 0 8px;
+  background:
+    linear-gradient(
+      to top,
+      rgba(3, 3, 3, 0.98),
+      rgba(3, 3, 3, 0.82),
+      rgba(3, 3, 3, 0)
+    );
+}
+
+.speech-record-button {
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.22), transparent 28%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05));
+  color: white;
+  font-size: 2.2rem;
+  cursor: pointer;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 20px 70px rgba(0, 0, 0, 0.45),
+    inset 0 0 30px rgba(255, 255, 255, 0.05);
+  transition:
+    transform 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.speech-record-button:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.14),
+    0 26px 80px rgba(0, 0, 0, 0.52),
+    0 0 36px rgba(96, 165, 250, 0.16),
+    inset 0 0 30px rgba(255, 255, 255, 0.06);
+}
+
+.speech-record-button.recording {
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.24), transparent 28%),
+    linear-gradient(145deg, rgba(239, 68, 68, 0.95), rgba(127, 29, 29, 0.95));
+  animation: recordPulse 1.15s infinite;
+}
+
+.speech-record-button.processing {
+  opacity: 0.72;
+  cursor: wait;
+}
+
+.mic-symbol {
+  display: inline-block;
+  transform: translateY(2px);
+}
+
+.speech-status {
+  color: #9ca3af;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+@keyframes recordPulse {
+  0% {
+    box-shadow:
+      0 0 0 0 rgba(239, 68, 68, 0.55),
+      0 20px 70px rgba(0, 0, 0, 0.45);
+  }
+
+  70% {
+    box-shadow:
+      0 0 0 18px rgba(239, 68, 68, 0),
+      0 20px 70px rgba(0, 0, 0, 0.45);
+  }
+
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(239, 68, 68, 0),
+      0 20px 70px rgba(0, 0, 0, 0.45);
+  }
+}
+
+/* Correction / Perfect cards */
+
+.speech-review-card {
+  width: min(900px, 100%);
+  margin: 0 auto;
+  background: rgba(239, 68, 68, 0.09);
+  border: 1px solid rgba(248, 113, 113, 0.28);
+  border-radius: 24px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.speech-review-card.perfect-card {
+  background: rgba(34, 197, 94, 0.10);
+  border: 1px solid rgba(187, 247, 208, 0.34);
+}
+
+.speech-review-title {
+  color: #fecaca;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.86rem;
+}
+
+.speech-review-card.perfect-card .speech-review-title {
+  color: #bbf7d0;
+}
+
+.speech-review-text {
+  color: white;
+  font-size: 1.15rem;
+  line-height: 1.5;
+}
+
+.speech-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.correction-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.speech-review-button {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 15px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.speech-review-button.primary {
+  background: white;
+  color: black;
+}
+
+.speech-review-button.secondary {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+}
+
+.correction-layout {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.correction-side-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.correction-text-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.correction-line {
+  color: white;
+  font-size: clamp(1.8rem, 4vw, 3.8rem);
+  line-height: 1.22;
+  font-weight: 800;
+  letter-spacing: -0.055em;
+}
+
+.correction-word-unit {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: top;
+  margin: 0 0.13em 0.25em;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: color 160ms ease;
+}
+
+.correction-word-unit .main-word {
+  display: inline-block;
+}
+
+.correction-word-unit.native-word .main-word,
+.correction-word-unit.native-word .translation {
+  color: #bbf7d0;
+}
+
+.correction-word-unit.corrected-word .main-word,
+.correction-word-unit.corrected-word .translation {
+  color: #f87171;
+}
+
+.speech-review-card.perfect-card .correction-word-unit .main-word,
+.speech-review-card.perfect-card .correction-word-unit .translation {
+  color: #bbf7d0;
+}
+
+.correction-word-unit.active-word .main-word,
+.correction-word-unit.active-word .translation,
+.correction-word-unit.native-word.active-word .main-word,
+.correction-word-unit.native-word.active-word .translation,
+.correction-word-unit.corrected-word.active-word .main-word,
+.correction-word-unit.corrected-word.active-word .translation {
+  color: var(--accent) !important;
+}
+
+.correction-word-unit:hover .main-word,
+.correction-word-unit:hover .translation {
+  color: var(--accent);
+}
+
+.correction-word-unit .translation {
+  display: block;
+  font-size: clamp(0.8rem, 1.3vw, 1.05rem);
+  letter-spacing: normal;
+  line-height: 1.1;
+  font-weight: 700;
+  color: #fca5a5;
+  margin-top: 0.25em;
+  max-width: 220px;
+  word-break: break-word;
+}
+
+.correction-word-unit.multi-word-token .main-word {
+  white-space: nowrap;
+}
+
+/* Shared play / slow controls */
+
+.message-audio-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  backdrop-filter: none;
+}
+
+.message-audio-panel {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+}
+
+.bot-message-row .message-audio-controls {
+  justify-self: end;
+  align-self: start;
+  padding-top: 0.35rem;
+}
+
+.message-play-button,
+.correction-play-button {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.22), transparent 28%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.17), rgba(255, 255, 255, 0.06));
+  color: white;
+  cursor: pointer;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 18px 55px rgba(0, 0, 0, 0.42),
+    inset 0 0 28px rgba(255, 255, 255, 0.05);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.message-play-button:hover,
+.correction-play-button:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.14),
+    0 24px 70px rgba(0, 0, 0, 0.52),
+    0 0 34px rgba(96, 165, 250, 0.18),
+    inset 0 0 28px rgba(255, 255, 255, 0.06);
+}
+
+.message-play-button.loading,
+.correction-play-button.loading {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.message-play-button.playing,
+.correction-play-button.playing {
+  /* Intentionally no color change while playing. */
+}
+
+.playback-icon {
+  width: 28px;
+  height: 28px;
+  fill: currentColor;
+  display: block;
+}
+
+.message-slow-toggle,
+.correction-slow-toggle {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #d1d5db;
+  font-weight: 900;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.message-slow-toggle.active,
+.correction-slow-toggle.active {
+  background: white;
+  color: black;
+}
+
+/* Auth modal */
+
+.auth-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+}
+
+.auth-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(12px);
+}
+
+.auth-panel {
+  position: relative;
+  width: min(430px, 100%);
+  height: min(680px, calc(100vh - 44px));
+  background:
+    radial-gradient(circle at top left, rgba(96, 165, 250, 0.16), transparent 34%),
+    rgba(17, 24, 39, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 28px;
+  padding: 26px;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-close-button {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.auth-title {
+  font-size: 1.35rem;
+  font-weight: 950;
+  letter-spacing: -0.03em;
+}
+
+.auth-subtitle {
+  color: #9ca3af;
+  margin-top: 6px;
+  line-height: 1.4;
+  font-size: 0.95rem;
+}
+
+.auth-tabs {
+  display: inline-flex;
+  margin-top: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 4px;
+  width: max-content;
+}
+
+.auth-tab {
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: #9ca3af;
+  padding: 9px 14px;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.auth-tab.active {
+  background: white;
+  color: black;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 22px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  backdrop-filter: none;
+  width: 100%;
+  min-height: 0;
+}
+
+.auth-scroll-area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth-scroll-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.auth-scroll-area::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+}
+
+.auth-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.auth-field-group.sign-in-hidden {
+  display: none;
+}
+
+.auth-label {
+  color: #d1d5db;
+  font-size: 0.8rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
+.centered-auth-label {
+  text-align: center;
+}
+
+.optional-label {
+  color: #64748b;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  margin-left: 4px;
+}
+
+.auth-input,
+.password-field-wrap {
+  width: 100%;
+}
+
+.auth-input {
+  height: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  padding: 0 14px;
+  outline: none;
+  font-size: 1rem;
+  line-height: 48px;
+}
+
+.auth-input:focus {
+  border-color: rgba(96, 165, 250, 0.75);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.16);
+}
+
+.password-field-wrap {
+  position: relative;
+}
+
+.password-input {
+  padding-right: 52px;
+}
+
+.toggle-password-button {
+  position: absolute;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.toggle-password-button:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: white;
+  transform: translateY(-50%) scale(1.04);
+}
+
+.toggle-password-button.password-visible {
+  background: rgba(96, 165, 250, 0.18);
+  color: white;
+}
+
+.eye-icon {
+  width: 21px;
+  height: 21px;
+  fill: currentColor;
+  display: block;
+}
+
+.forgot-password-button {
+  border: none;
+  background: transparent;
+  color: #93c5fd;
+  font-weight: 800;
+  cursor: pointer;
+  align-self: center;
+  padding: 4px 8px;
+  margin-top: 2px;
+  width: max-content;
+}
+
+.forgot-password-button:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+.forgot-password-button.hidden {
+  display: none;
+}
+
+.auth-submit-button,
+.google-auth-button {
+  min-height: 48px;
+}
+
+.auth-submit-button {
+  border: none;
+  border-radius: 999px;
+  padding: 13px 18px;
+  background: white;
+  color: black;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.auth-submit-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.auth-divider {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  color: #64748b;
+  margin: 6px 0;
+}
+
+.auth-divider span {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.auth-divider em {
+  font-style: normal;
+  font-size: 0.8rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.google-auth-button {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  font-weight: 950;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition:
+    background 160ms ease,
+    transform 160ms ease,
+    border-color 160ms ease;
+}
+
+.google-auth-button:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.26);
+  transform: translateY(-1px);
+}
+
+.google-mark {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: white;
+  color: #111827;
+  display: inline-grid;
+  place-items: center;
+  font-weight: 950;
+  font-family: Arial, sans-serif;
+}
+
+.auth-message {
+  min-height: 22px;
+  margin-top: 14px;
+  color: #d1d5db;
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+
+.auth-message.error {
+  color: #fca5a5;
+}
+
+.auth-message.success {
+  color: #bbf7d0;
+}
+
+.auth-scroll-area,
+.auth-field-group,
+.auth-input,
+.password-field-wrap,
+.auth-submit-button,
+.google-auth-button,
+.forgot-password-button,
+.auth-divider {
+  width: 100%;
+}
+
+/* Gender selector */
+
+.gender-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.gender-option {
+  min-height: 92px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.07);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  cursor: pointer;
+  font-weight: 950;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.gender-option:hover {
+  transform: translateY(-1px);
+}
+
+.gender-option.gender-man.selected {
+  background: rgba(59, 130, 246, 0.18);
+  border-color: rgba(147, 197, 253, 0.85);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+}
+
+.gender-option.gender-woman.selected {
+  background: rgba(236, 72, 153, 0.18);
+  border-color: rgba(249, 168, 212, 0.85);
+  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.14);
+}
+
+.gender-man .gender-icon {
+  color: #93c5fd;
+}
+
+.gender-woman .gender-icon {
+  color: #f9a8d4;
+}
+
+.gender-icon {
+  width: 34px;
+  height: 34px;
+  fill: currentColor;
+}
+
+.gender-note {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.auth-modal.recovery-locked .auth-tabs {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.auth-modal.recovery-locked .auth-close-button {
+  display: none !important;
+}
+
+.recovery-backdrop-locked {
+  cursor: not-allowed;
+}
+
+/* System messages */
+
+.system-message {
+  position: fixed;
+  left: 50%;
+  bottom: 98px;
+  transform: translateX(-50%);
+  background: rgba(17, 24, 39, 0.94);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  z-index: 20;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.35);
+  max-width: min(700px, 90vw);
+  text-align: center;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.42);
+  }
+
+  70% {
+    box-shadow: 0 0 0 12px rgba(239, 68, 68, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+/* Responsive */
+
+@media (max-width: 760px) {
+  .app {
+    padding: 16px;
+  }
+
+  .top-bar {
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .top-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .brand h1 {
+    font-size: 0.92rem;
+    letter-spacing: 0.1em;
+  }
+
+  .brand p {
+    font-size: 0.78rem;
+  }
+
+  .controls {
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    margin-left: auto;
+    width: auto;
+  }
+
+  .control-card {
+    width: auto;
+    justify-content: flex-start;
+  }
+
+  .control-card label {
+    font-size: 0.66rem;
+  }
+
+  select {
+    font-size: 0.86rem;
+  }
+
+  .bot-words {
+    font-size: clamp(2rem, 11vw, 4rem);
+  }
+
+  .bot-message-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .bot-message-row .message-audio-controls {
+    justify-self: start;
+  }
+
+  .correction-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .correction-side-controls {
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+
+  .auth-panel {
+    height: min(680px, calc(100vh - 28px));
+    padding: 22px;
+  }
+
+  .gender-options {
+    grid-template-columns: 1fr;
+  }
+}
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header class="top-bar">
+      <div class="brand">
+        <h1>Language Chat</h1>
+        <p>Read, listen, click words, and learn in context.</p>
+      </div>
+
+      <div class="controls">
+  <div class="control-card language-stack-card">
+  <div class="stacked-control-row">
+    <label for="languageSelect">Learn</label>
+    <div class="select-wrap">
+      <select id="languageSelect">
+        <option value="English" selected>🇺🇸 English</option>
+        <option value="Hebrew">🇮🇱 Hebrew</option>
+        <option value="Spanish">🇪🇸 Spanish</option>
+        <option value="French">🇫🇷 French</option>
+        <option value="German">🇩🇪 German</option>
+        <option value="Arabic">🇸🇦 Arabic</option>
+        <option value="Russian">🇷🇺 Russian</option>
+        <option value="Italian">🇮🇹 Italian</option>
+        <option value="Portuguese">🇵🇹 Portuguese</option>
+        <option value="Chinese">🇨🇳 Chinese</option>
+        <option value="Japanese">🇯🇵 Japanese</option>
+        <option value="Korean">🇰🇷 Korean</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="stacked-control-row">
+    <label for="fluentLanguageSelect">Fluent</label>
+    <div class="select-wrap">
+      <select id="fluentLanguageSelect">
+        <option value="English" selected>🇺🇸 English</option>
+        <option value="Hebrew">🇮🇱 Hebrew</option>
+        <option value="Spanish">🇪🇸 Spanish</option>
+        <option value="French">🇫🇷 French</option>
+        <option value="German">🇩🇪 German</option>
+        <option value="Arabic">🇸🇦 Arabic</option>
+        <option value="Russian">🇷🇺 Russian</option>
+        <option value="Italian">🇮🇹 Italian</option>
+        <option value="Portuguese">🇵🇹 Portuguese</option>
+        <option value="Chinese">🇨🇳 Chinese</option>
+        <option value="Japanese">🇯🇵 Japanese</option>
+        <option value="Korean">🇰🇷 Korean</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+  <div class="control-card mode-card">
+    <label>Mode</label>
+    <div class="input-mode-toggle">
+      <button id="writingModeButton" class="input-mode-option active" type="button">
+        Writing
+      </button>
+      <button id="speechModeButton" class="input-mode-option" type="button">
+        Speech
+      </button>
+    </div>
+  </div>
+
+  <div class="control-card account-card">
+  <button id="authOpenButton" class="auth-open-button" type="button">
+    Sign in
+  </button>
+
+  <div id="accountMenuWrap" class="account-menu-wrap hidden">
+    <button id="accountAvatarButton" class="account-avatar-button" type="button" aria-label="Open account menu">
+      <svg class="account-avatar-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 12.2a4.4 4.4 0 1 0 0-8.8 4.4 4.4 0 0 0 0 8.8Zm0 2c-4.5 0-8.2 2.8-8.2 6.2 0 .8.6 1.4 1.4 1.4h13.6c.8 0 1.4-.6 1.4-1.4 0-3.4-3.7-6.2-8.2-6.2Z"></path>
+      </svg>
+    </button>
+
+    <div id="accountDropdown" class="account-dropdown hidden">
+      <div id="accountDisplayName" class="account-display-name"></div>
+      <button id="signOutButton" class="account-menu-logout" type="button">
+        Log out
+      </button>
+    </div>
+  </div>
+</div>
+</div>
+    </header>
+
+    <main id="messageHistory" class="message-history"></main>
+
+    <div id="composerShell" class="composer-shell">
+  <form id="chatForm" onsubmit="return false;">
+    <input id="userInput" autocomplete="off" placeholder="Ask something..." />
+
+    <button id="sendButton" class="send-button" type="button">
+      Send
+    </button>
+  </form>
+</div>
+
+<div id="speechShell" class="speech-shell hidden">
+  <button id="speechRecordButton" class="speech-record-button" type="button" title="Record speech">
+    <span class="mic-symbol">🎤</span>
+  </button>
+
+  <div id="speechStatus" class="speech-status">
+    Tap to speak
+  </div>
+</div>
+  </div>
+
+  <div id="authModal" class="auth-modal hidden">
+  <div class="auth-backdrop" id="authBackdrop"></div>
+
+  <div class="auth-panel">
+    <button id="authCloseButton" class="auth-close-button" type="button">
+      ×
+    </button>
+
+    <div class="auth-title">My Account</div>
+    <div class="auth-subtitle">
+      Sign in to keep your language practice connected to your account.
+    </div>
+
+    <div class="auth-tabs">
+      <button id="authSignInTab" class="auth-tab active" type="button">
+        Sign in
+      </button>
+      <button id="authSignUpTab" class="auth-tab" type="button">
+        Create account
+      </button>
+    </div>
+
+  <form id="authForm" class="auth-form" onsubmit="return false;">
+  <div class="auth-scroll-area">
+    <div id="authNameGroup" class="auth-field-group">
+      <label class="auth-label centered-auth-label" for="authName">Username <span class="optional-label">Optional</span></label>
+      <input
+        id="authName"
+        class="auth-input"
+        type="text"
+        autocomplete="username"
+      />
+    </div>
+
+    <div class="auth-field-group">
+      <label class="auth-label" for="authEmail">Email</label>
+      <input id="authEmail" class="auth-input" type="email" autocomplete="email" />
+    </div>
+
+    <div class="auth-field-group">
+      <label class="auth-label" for="authPassword">Password</label>
+
+      <div class="password-field-wrap">
+        <input
+          id="authPassword"
+          class="auth-input password-input"
+          type="password"
+          autocomplete="current-password"
+        />
+
+        <button
+          id="togglePasswordButton"
+          class="toggle-password-button"
+          type="button"
+          aria-label="Show password"
+          title="Show password"
+        >
+          <svg class="eye-icon eye-open-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 5.2c5.1 0 8.7 4.2 10 6.3.2.3.2.7 0 1-1.3 2.1-4.9 6.3-10 6.3s-8.7-4.2-10-6.3a1 1 0 0 1 0-1c1.3-2.1 4.9-6.3 10-6.3Zm0 2c-3.8 0-6.7 2.8-7.9 4.8 1.2 2 4.1 4.8 7.9 4.8s6.7-2.8 7.9-4.8c-1.2-2-4.1-4.8-7.9-4.8Zm0 2.2a2.6 2.6 0 1 1 0 5.2 2.6 2.6 0 0 1 0-5.2Z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="authConfirmPasswordGroup" class="auth-field-group">
+      <label class="auth-label centered-auth-label" for="authConfirmPassword">Confirm password</label>
+
+      <div class="password-field-wrap">
+        <input
+          id="authConfirmPassword"
+          class="auth-input password-input"
+          type="password"
+          autocomplete="new-password"
+        />
+
+        <button
+          id="toggleConfirmPasswordButton"
+          class="toggle-password-button"
+          type="button"
+          aria-label="Show confirm password"
+          title="Show confirm password"
+        >
+          <svg class="eye-icon eye-open-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 5.2c5.1 0 8.7 4.2 10 6.3.2.3.2.7 0 1-1.3 2.1-4.9 6.3-10 6.3s-8.7-4.2-10-6.3a1 1 0 0 1 0-1c1.3-2.1 4.9-6.3 10-6.3Zm0 2c-3.8 0-6.7 2.8-7.9 4.8 1.2 2 4.1 4.8 7.9 4.8s6.7-2.8 7.9-4.8c-1.2-2-4.1-4.8-7.9-4.8Zm0 2.2a2.6 2.6 0 1 1 0 5.2 2.6 2.6 0 0 1 0-5.2Z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+  <div id="newPasswordGroup" class="auth-field-group sign-in-hidden">
+  <label class="auth-label centered-auth-label" for="newPasswordInput">
+    New password
+  </label>
+
+  <div class="password-field-wrap">
+    <input
+      id="newPasswordInput"
+      class="auth-input password-input"
+      type="password"
+      autocomplete="new-password"
+    />
+
+    <button
+      id="toggleNewPasswordButton"
+      class="toggle-password-button"
+      type="button"
+      aria-label="Show new password"
+      title="Show new password"
+    >
+      <svg class="eye-icon eye-open-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 5.2c5.1 0 8.7 4.2 10 6.3.2.3.2.7 0 1-1.3 2.1-4.9 6.3-10 6.3s-8.7-4.2-10-6.3a1 1 0 0 1 0-1c1.3-2.1 4.9-6.3 10-6.3Zm0 2c-3.8 0-6.7 2.8-7.9 4.8 1.2 2 4.1 4.8 7.9 4.8s6.7-2.8 7.9-4.8c-1.2-2-4.1-4.8-7.9-4.8Zm0 2.2a2.6 2.6 0 1 1 0 5.2 2.6 2.6 0 0 1 0-5.2Z"></path>
+      </svg>
+    </button>
+  </div>
+
+  <label class="auth-label centered-auth-label" for="confirmNewPasswordInput">
+    Confirm new password
+  </label>
+
+  <div class="password-field-wrap">
+    <input
+      id="confirmNewPasswordInput"
+      class="auth-input password-input"
+      type="password"
+      autocomplete="new-password"
+    />
+
+    <button
+      id="toggleConfirmNewPasswordButton"
+      class="toggle-password-button"
+      type="button"
+      aria-label="Show confirm new password"
+      title="Show confirm new password"
+    >
+      <svg class="eye-icon eye-open-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 5.2c5.1 0 8.7 4.2 10 6.3.2.3.2.7 0 1-1.3 2.1-4.9 6.3-10 6.3s-8.7-4.2-10-6.3a1 1 0 0 1 0-1c1.3-2.1 4.9-6.3 10-6.3Zm0 2c-3.8 0-6.7 2.8-7.9 4.8 1.2 2 4.1 4.8 7.9 4.8s6.7-2.8 7.9-4.8c-1.2-2-4.1-4.8-7.9-4.8Zm0 2.2a2.6 2.6 0 1 1 0 5.2 2.6 2.6 0 0 1 0-5.2Z"></path>
+      </svg>
+    </button>
+  </div>
+</div>
+
+    <div id="authGenderGroup" class="auth-field-group">
+      <div class="auth-label centered-auth-label">
+  Gender
+</div>
+
+      <div class="gender-options">
+        <button id="genderManButton" class="gender-option gender-man" type="button" data-gender="man">
+          <svg class="gender-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 11.5a4.2 4.2 0 1 0 0-8.4 4.2 4.2 0 0 0 0 8.4Zm0 2c-4.2 0-7.6 2.6-7.6 5.9 0 .9.7 1.5 1.6 1.5h12c.9 0 1.6-.6 1.6-1.5 0-3.3-3.4-5.9-7.6-5.9Z"></path>
+          </svg>
+          <span>I am a man</span>
+        </button>
+
+        <button id="genderWomanButton" class="gender-option gender-woman" type="button" data-gender="woman">
+          <svg class="gender-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 11.2a4.1 4.1 0 1 0 0-8.2 4.1 4.1 0 0 0 0 8.2Zm-5.9 8.5c-.7 0-1.2-.7-.9-1.4l2-4.1c.7-1.5 2.2-2.4 3.8-2.4h1.8c1.6 0 3.1.9 3.8 2.4l2 4.1c.3.7-.2 1.4-.9 1.4h-2.6v1.1a1 1 0 0 1-2 0v-1.1h-2.2v1.1a1 1 0 0 1-2 0v-1.1H6.1Z"></path>
+          </svg>
+          <span>I am a woman</span>
+        </button>
+      </div>
+
+      <p class="gender-note">
+  Helps the chatbot address you naturally in languages with masculine and feminine forms.
+</p>
+    </div>
+  </div>
+
+  <button id="forgotPasswordButton" class="forgot-password-button" type="button">
+    Forgot password?
+  </button>
+
+  <button id="authSubmitButton" class="auth-submit-button" type="button">
+    Sign in
+  </button>
+
+  <div class="auth-divider">
+    <span></span>
+    <em>or</em>
+    <span></span>
+  </div>
+
+  <button id="googleAuthButton" class="google-auth-button" type="button">
+    <span class="google-mark">G</span>
+    <span id="googleAuthText">Sign in with Google</span>
+  </button>
+</form>
+
+    <div id="authMessage" class="auth-message"></div>
+  </div>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <script>
+  const SUPABASE_URL = "https://tyzvxrlimbhmvmjenjxy.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_BdJd1R8Pkbggf5X_oOZL3w_DgoDyhNH";
+
+  const form = document.getElementById("chatForm");
+const input = document.getElementById("userInput");
+const sendButton = document.getElementById("sendButton");
+
+const composerShell = document.getElementById("composerShell");
+const speechShell = document.getElementById("speechShell");
+const speechRecordButton = document.getElementById("speechRecordButton");
+const speechStatus = document.getElementById("speechStatus");
+
+const writingModeButton = document.getElementById("writingModeButton");
+const speechModeButton = document.getElementById("speechModeButton");
+
+const messageHistory = document.getElementById("messageHistory");
+const languageSelect = document.getElementById("languageSelect");
+const fluentLanguageSelect = document.getElementById("fluentLanguageSelect");
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+const authOpenButton = document.getElementById("authOpenButton");const accountMenuWrap = document.getElementById("accountMenuWrap");
+const accountAvatarButton = document.getElementById("accountAvatarButton");
+const accountDropdown = document.getElementById("accountDropdown");
+const accountDisplayName = document.getElementById("accountDisplayName");
+const signOutButton = document.getElementById("signOutButton");
+
+const authModal = document.getElementById("authModal");
+const authBackdrop = document.getElementById("authBackdrop");
+const authCloseButton = document.getElementById("authCloseButton");
+const authSignInTab = document.getElementById("authSignInTab");
+const authSignUpTab = document.getElementById("authSignUpTab");
+const authForm = document.getElementById("authForm");
+const authEmail = document.getElementById("authEmail");
+const authPassword = document.getElementById("authPassword");
+const authSubmitButton = document.getElementById("authSubmitButton");
+const authMessage = document.getElementById("authMessage");
+
+const togglePasswordButton = document.getElementById("togglePasswordButton");
+const toggleConfirmPasswordButton = document.getElementById("toggleConfirmPasswordButton");
+
+const authNameGroup = document.getElementById("authNameGroup");
+const authName = document.getElementById("authName");
+
+const authConfirmPasswordGroup = document.getElementById("authConfirmPasswordGroup");
+const authConfirmPassword = document.getElementById("authConfirmPassword");
+
+const authGenderGroup = document.getElementById("authGenderGroup");
+const genderManButton = document.getElementById("genderManButton");
+const genderWomanButton = document.getElementById("genderWomanButton");
+
+const forgotPasswordButton = document.getElementById("forgotPasswordButton");
+const googleAuthButton = document.getElementById("googleAuthButton");
+const googleAuthText = document.getElementById("googleAuthText");
+
+const newPasswordGroup = document.getElementById("newPasswordGroup");
+const newPasswordInput = document.getElementById("newPasswordInput");
+const confirmNewPasswordInput = document.getElementById("confirmNewPasswordInput");
+
+const toggleNewPasswordButton = document.getElementById("toggleNewPasswordButton");
+const toggleConfirmNewPasswordButton = document.getElementById("toggleConfirmNewPasswordButton");
+
+let selectedGender = "";
+    
+let authMode = "sign-in";
+let currentSession = null;
+let currentUser = null;
+
+let inputMode = "writing";
+
+  const messages = [];
+  const translationCache = new Map();
+  const wordClickTimers = new WeakMap();
+  const messageState = new Map();
+  const userMessageState = new Map();
+
+  const WORD_DOUBLE_CLICK_DELAY = 260;
+
+  let messageCounter = 0;
+  let userMessageCounter = 0;
+
+  let mediaRecorder = null;
+  let recordedChunks = [];
+  let isRecording = false;
+
+  let audioContext = null;
+  let scheduledSources = [];
+  let currentPlaybackToken = 0;
+  let currentFullAudio = null;
+
+  let activeSpeechCorrection = null;
+let pendingBackgroundBot = null;
+
+    let correctionCounter = 0;
+const correctionState = new Map();
+
+    let correctionRetryMode = false;
+
+    let activePlayback = null;
+
+    let passwordRecoveryLocked = false;
+let thisTabIsRecoveryTab = false;
+
+    let activeCorrectionUserMessageId = null;
+
+function getEmailName(email) {
+  return String(email || "")
+    .split("@")[0]
+    .replace(/[._-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getAccountDisplayName(user) {
+  const username = user?.user_metadata?.username;
+  const fullName = user?.user_metadata?.full_name || user?.user_metadata?.name;
+  const emailName = getEmailName(user?.email);
+
+  return String(username || fullName || emailName || "Account").trim();
+}
+
+function closeAccountDropdown() {
+  accountDropdown?.classList.add("hidden");
+}
+
+function toggleAccountDropdown() {
+  accountDropdown?.classList.toggle("hidden");
+}
+    
+ function setPasswordFieldVisibility(inputEl, buttonEl, isVisible, labelText) {
+  if (!inputEl || !buttonEl) return;
+
+  inputEl.type = isVisible ? "text" : "password";
+  buttonEl.classList.toggle("password-visible", isVisible);
+
+  buttonEl.setAttribute(
+    "aria-label",
+    isVisible ? `Hide ${labelText}` : `Show ${labelText}`
+  );
+
+  buttonEl.setAttribute(
+    "title",
+    isVisible ? `Hide ${labelText}` : `Show ${labelText}`
+  );
+
+  buttonEl.innerHTML = isVisible
+    ? `
+      <svg class="eye-icon eye-closed-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3.3 2.3 21.7 20.7l-1.4 1.4-3.2-3.2A11.5 11.5 0 0 1 12 20.2c-5.1 0-8.7-4.2-10-6.3a1 1 0 0 1 0-1 16 16 0 0 1 4.1-4.4L1.9 3.7l1.4-1.4Zm4.3 7.6A13.3 13.3 0 0 0 4.1 13.4c1.2 2 4.1 4.8 7.9 4.8 1.2 0 2.3-.3 3.3-.7l-2-2a3.3 3.3 0 0 1-4.4-4.4L7.6 9.9Zm4.1-5.3c5.2 0 8.9 4.2 10.2 6.3.2.3.2.7 0 1a15.5 15.5 0 0 1-3 3.5l-1.4-1.4a13.6 13.6 0 0 0 2.4-2.6c-1.2-2-4.1-4.8-8.2-4.8-.9 0-1.8.2-2.6.5L7.5 5.5a11.8 11.8 0 0 1 4.2-.9Zm.3 3.4a3.3 3.3 0 0 1 3.3 3.3c0 .5-.1 1-.3 1.4L10.6 8.3c.4-.2.9-.3 1.4-.3Z"></path>
+      </svg>
+    `
+    : `
+      <svg class="eye-icon eye-open-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 5.2c5.1 0 8.7 4.2 10 6.3.2.3.2.7 0 1-1.3 2.1-4.9 6.3-10 6.3s-8.7-4.2-10-6.3a1 1 0 0 1 0-1c1.3-2.1 4.9-6.3 10-6.3Zm0 2c-3.8 0-6.7 2.8-7.9 4.8 1.2 2 4.1 4.8 7.9 4.8s6.7-2.8 7.9-4.8c-1.2-2-4.1-4.8-7.9-4.8Zm0 2.2a2.6 2.6 0 1 1 0 5.2 2.6 2.6 0 0 1 0-5.2Z"></path>
+      </svg>
+    `;
+}
+    
+  function urlLooksLikePasswordRecovery() {
+  const query = new URLSearchParams(window.location.search);
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+
+  return (
+    query.get("auth") === "recovery" ||
+    query.get("type") === "recovery" ||
+    hash.get("type") === "recovery"
+  );
+}
+
+  function openPasswordRecoveryUi() {
+  passwordRecoveryLocked = true;
+  thisTabIsRecoveryTab = true;
+
+  openAuthModal("recovery");
+
+  authModal?.classList.add("recovery-locked");
+
+  authCloseButton?.classList.add("hidden");
+  authBackdrop?.classList.add("recovery-backdrop-locked");
+
+  authSignInTab.disabled = true;
+  authSignUpTab.disabled = true;
+
+  setAuthMessage("Enter a new password to finish resetting your account.", "success");
+
+  if (newPasswordInput) {
+    setTimeout(() => newPasswordInput.focus(), 60);
+  }
+}
+    
+    function setAuthMessage(text, type = "") {
+  if (!authMessage) return;
+
+  authMessage.textContent = text || "";
+  authMessage.classList.remove("error", "success");
+
+  if (type) {
+    authMessage.classList.add(type);
+  }
+}
+
+function openAuthModal(mode = "sign-in") {
+  setAuthMode(mode);
+
+  if (authModal) {
+    authModal.classList.remove("hidden");
+  }
+
+  setAuthMessage("");
+
+  setTimeout(() => {
+    authEmail?.focus();
+  }, 50);
+}
+
+function closeAuthModal() {
+  if (passwordRecoveryLocked) {
+    setAuthMessage("Please choose a new password to finish resetting your account.", "error");
+    return;
+  }
+
+  if (authModal) {
+    authModal.classList.add("hidden");
+  }
+
+  if (authPassword) {
+    authPassword.value = "";
+  }
+
+  if (authConfirmPassword) {
+    authConfirmPassword.value = "";
+  }
+
+  if (newPasswordInput) {
+    newPasswordInput.value = "";
+  }
+
+  if (confirmNewPasswordInput) {
+    confirmNewPasswordInput.value = "";
+  }
+
+  setPasswordVisibility(false);
+
+  if (typeof setConfirmPasswordVisibility === "function") {
+    setConfirmPasswordVisibility(false);
+  }
+
+  if (newPasswordInput) {
+  newPasswordInput.value = "";
+}
+
+if (confirmNewPasswordInput) {
+  confirmNewPasswordInput.value = "";
+}
+
+if (typeof setNewPasswordVisibility === "function") {
+  setNewPasswordVisibility(false);
+}
+
+if (typeof setConfirmNewPasswordVisibility === "function") {
+  setConfirmNewPasswordVisibility(false);
+}
+    
+  setAuthMessage("");
+}
+
+function setAuthMode(mode) {
+  if (passwordRecoveryLocked && mode !== "recovery") {
+    setAuthMessage("Please choose a new password to finish resetting your account.", "error");
+    return;
+  }
+
+  authMode =
+    mode === "sign-up" ? "sign-up" :
+    mode === "recovery" ? "recovery" :
+    "sign-in";
+
+  const isSignUp = authMode === "sign-up";
+  const isRecovery = authMode === "recovery";
+  const isSignIn = authMode === "sign-in";
+
+  authSignInTab?.classList.toggle("active", isSignIn);
+  authSignUpTab?.classList.toggle("active", isSignUp);
+
+  authNameGroup?.classList.toggle("sign-in-hidden", !isSignUp);
+  authConfirmPasswordGroup?.classList.toggle("sign-in-hidden", !isSignUp);
+  authGenderGroup?.classList.toggle("sign-in-hidden", !isSignUp);
+
+  newPasswordGroup?.classList.toggle("sign-in-hidden", !isRecovery);
+
+  authEmail?.closest(".auth-field-group")?.classList.toggle("sign-in-hidden", isRecovery);
+  authPassword?.closest(".auth-field-group")?.classList.toggle("sign-in-hidden", isRecovery);
+
+  forgotPasswordButton?.classList.toggle("hidden", !isSignIn);
+  googleAuthButton?.classList.toggle("hidden", isRecovery);
+  document.querySelector(".auth-divider")?.classList.toggle("hidden", isRecovery);
+
+  if (authSubmitButton) {
+    authSubmitButton.textContent =
+      isRecovery ? "Update password" :
+      isSignUp ? "Create account" :
+      "Sign in";
+  }
+
+  if (googleAuthText) {
+    googleAuthText.textContent = isSignUp
+      ? "Create account with Google"
+      : "Sign in with Google";
+  }
+
+  setAuthMessage("");
+}
+
+function setSelectedGender(gender) {
+  selectedGender = gender === "man" || gender === "woman" ? gender : "";
+
+  genderManButton?.classList.toggle("selected", selectedGender === "man");
+  genderWomanButton?.classList.toggle("selected", selectedGender === "woman");
+}
+
+function getUserGenderInstruction() {
+  const gender =
+    currentUser?.user_metadata?.gender ||
+    selectedGender ||
+    "";
+
+  if (gender === "man") {
+    return "The user selected: I am a man. In gendered languages, address the user with masculine forms when grammar requires it.";
+  }
+
+  if (gender === "woman") {
+    return "The user selected: I am a woman. In gendered languages, address the user with feminine forms when grammar requires it.";
+  }
+
+  return "";
+}
+
+function updateAuthUi(session) {
+  currentSession = session || null;
+  currentUser = session?.user || null;
+
+  if (currentUser) {
+    authOpenButton?.classList.add("hidden");
+    accountMenuWrap?.classList.remove("hidden");
+
+    if (accountDisplayName) {
+      accountDisplayName.textContent = getAccountDisplayName(currentUser);
+    }
+  } else {
+    authOpenButton?.classList.remove("hidden");
+    accountMenuWrap?.classList.add("hidden");
+    closeAccountDropdown();
+
+    if (accountDisplayName) {
+      accountDisplayName.textContent = "";
+    }
+  }
+}
+
+function setPasswordVisibility(isVisible) {
+  setPasswordFieldVisibility(
+    authPassword,
+    togglePasswordButton,
+    isVisible,
+    "password"
+  );
+}
+
+function setConfirmPasswordVisibility(isVisible) {
+  setPasswordFieldVisibility(
+    authConfirmPassword,
+    toggleConfirmPasswordButton,
+    isVisible,
+    "confirm password"
+  );
+}
+
+function setNewPasswordVisibility(isVisible) {
+  setPasswordFieldVisibility(
+    newPasswordInput,
+    toggleNewPasswordButton,
+    isVisible,
+    "new password"
+  );
+}
+
+function setConfirmNewPasswordVisibility(isVisible) {
+  setPasswordFieldVisibility(
+    confirmNewPasswordInput,
+    toggleConfirmNewPasswordButton,
+    isVisible,
+    "confirm new password"
+  );
+}
+
+async function handleAuthSubmit() {
+  /*
+    Recovery mode must come first.
+    Otherwise the regular sign-in validation will complain:
+    "Enter an email and password."
+  */
+  if (authMode === "recovery") {
+    const newPassword = newPasswordInput?.value || "";
+    const confirmNewPassword = confirmNewPasswordInput?.value || "";
+
+    if (newPassword.length < 6) {
+      setAuthMessage("Password should be at least 6 characters.", "error");
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      setAuthMessage("Passwords do not match.", "error");
+      return;
+    }
+
+    authSubmitButton.disabled = true;
+    setAuthMessage("Updating password...");
+
+    try {
+      const { error } = await supabaseClient.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) throw error;
+
+      passwordRecoveryLocked = false;
+
+      authModal?.classList.remove("recovery-locked");
+      authCloseButton?.classList.remove("hidden");
+      authBackdrop?.classList.remove("recovery-backdrop-locked");
+
+      if (authSignInTab) authSignInTab.disabled = false;
+      if (authSignUpTab) authSignUpTab.disabled = false;
+
+      if (newPasswordInput) newPasswordInput.value = "";
+      if (confirmNewPasswordInput) confirmNewPasswordInput.value = "";
+
+      if (typeof setNewPasswordVisibility === "function") {
+        setNewPasswordVisibility(false);
+      }
+
+      if (typeof setConfirmNewPasswordVisibility === "function") {
+        setConfirmNewPasswordVisibility(false);
+      }
+
+      setAuthMessage("Password updated successfully.", "success");
+
+      const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+      window.history.replaceState({}, document.title, cleanUrl);
+
+      setTimeout(() => {
+        closeAuthModal();
+        setAuthMode("sign-in");
+      }, 900);
+    } catch (error) {
+      setAuthMessage(getReadableError(error), "error");
+    } finally {
+      authSubmitButton.disabled = false;
+    }
+
+    return;
+  }
+
+  const email = authEmail?.value.trim();
+  const password = authPassword?.value || "";
+  const confirmPassword = authConfirmPassword?.value || "";
+  const username = authName?.value.trim() || "";
+
+  if (!email || !password) {
+    setAuthMessage("Enter an email and password.", "error");
+    return;
+  }
+
+  if (password.length < 6) {
+    setAuthMessage("Password should be at least 6 characters.", "error");
+    return;
+  }
+
+  if (authMode === "sign-up" && password !== confirmPassword) {
+    setAuthMessage("Passwords do not match.", "error");
+    return;
+  }
+
+  authSubmitButton.disabled = true;
+  setAuthMessage(authMode === "sign-in" ? "Signing in..." : "Creating account...");
+
+  try {
+    if (authMode === "sign-in") {
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      updateAuthUi(data.session);
+      closeAuthModal();
+      return;
+    }
+
+    const confirmRedirectUrl =
+  `${window.location.origin}${window.location.pathname}`;
+
+const { data, error } = await supabaseClient.auth.signUp({
+  email,
+  password,
+  options: {
+    emailRedirectTo: confirmRedirectUrl,
+    data: {
+      username,
+      gender: selectedGender
+    }
+  }
+});
+
+    if (error) throw error;
+
+    if (data.session) {
+      updateAuthUi(data.session);
+      closeAuthModal();
+    } else {
+      setAuthMessage(
+        "Account created. Check your email to confirm your account, then sign in.",
+        "success"
+      );
+      setAuthMode("sign-in");
+    }
+  } catch (error) {
+    setAuthMessage(getReadableError(error), "error");
+  } finally {
+    authSubmitButton.disabled = false;
+  }
+}
+
+async function handleForgotPassword() {
+  const email = authEmail?.value.trim();
+
+  if (!email) {
+    setAuthMessage("Enter your email first, then press Forgot password.", "error");
+    authEmail?.focus();
+    return;
+  }
+
+  forgotPasswordButton.disabled = true;
+  setAuthMessage("Sending password reset email...");
+
+  try {
+    const resetRedirectUrl =
+      `${window.location.origin}${window.location.pathname}?auth=recovery`;
+
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: resetRedirectUrl
+    });
+
+    if (error) throw error;
+
+    setAuthMessage("Password reset email sent. Check your inbox.", "success");
+  } catch (error) {
+    setAuthMessage(getReadableError(error), "error");
+  } finally {
+    forgotPasswordButton.disabled = false;
+  }
+}
+
+async function handleGoogleAuth() {
+  try {
+    setAuthMessage("Opening Google...");
+
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.href
+      }
+    });
+
+    if (error) throw error;
+  } catch (error) {
+    setAuthMessage(getReadableError(error), "error");
+  }
+}
+
+async function handleSignOut() {
+  try {
+    closeAccountDropdown();
+    stopAllSpeech();
+
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) throw error;
+
+    updateAuthUi(null);
+  } catch (error) {
+    showSystemMessage(getReadableError(error));
+  }
+}
+
+async function initAuth() {
+  thisTabIsRecoveryTab = urlLooksLikePasswordRecovery();
+
+  const { data, error } = await supabaseClient.auth.getSession();
+
+  if (error) {
+    showSystemMessage(getReadableError(error));
+  }
+
+  updateAuthUi(data?.session || null);
+
+  if (thisTabIsRecoveryTab) {
+    openPasswordRecoveryUi();
+  }
+
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    updateAuthUi(session || null);
+
+    /*
+      Supabase auth state can sync across tabs.
+      Only the tab that actually has the recovery URL should open the reset modal.
+    */
+    if (event === "PASSWORD_RECOVERY" && urlLooksLikePasswordRecovery()) {
+      openPasswordRecoveryUi();
+    }
+  });
+}
+    
+    function normalizeCorrectionCompare(text) {
+  return String(text || "")
+    .toLowerCase()
+    .replace(/[’']/g, "")
+    .replace(/[^\p{L}\p{M}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getNativeChatLanguageWordsFromParts(parts) {
+  const nativeWords = [];
+
+  for (const part of parts || []) {
+    if (part && part.isChatLanguage === true) {
+      const words = splitCorrectionTranslationWords(part.text);
+
+      for (const word of words) {
+        nativeWords.push(normalizeCorrectionCompare(word));
+      }
+    }
+  }
+
+  return nativeWords.filter(Boolean);
+}
+
+function playIconSvg() {
+  return `
+    <svg class="playback-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M8 5.8c0-.8.9-1.3 1.6-.9l8.2 5.2c.7.4.7 1.4 0 1.8l-8.2 5.2c-.7.4-1.6-.1-1.6-.9V5.8z"></path>
+    </svg>
+  `;
+}
+
+function pauseIconSvg() {
+  return `
+    <svg class="playback-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="7" y="5" width="3.8" height="14" rx="1.2"></rect>
+      <rect x="13.2" y="5" width="3.8" height="14" rx="1.2"></rect>
+    </svg>
+  `;
+}
+
+function setPlayIcon(button) {
+  if (button) {
+    button.innerHTML = playIconSvg();
+  }
+}
+
+function setPauseIcon(button) {
+  if (button) {
+    button.innerHTML = pauseIconSvg();
+  }
+}
+
+function setLoadingIcon(button) {
+  if (button) {
+    button.textContent = "…";
+  }
+}
+    
+function buildCorrectionPairsFromCorrectedTextAndParts(correctedText, parts) {
+  const correctedWords = splitCorrectionTranslationWords(correctedText);
+  const nativeWords = getNativeChatLanguageWordsFromParts(parts);
+
+  /*
+    We consume native words in order. This avoids making every repeated word green
+    merely because it appeared once in the user's chat-language speech.
+  */
+  let nativeIndex = 0;
+
+  return correctedWords.map(word => {
+    const normalizedWord = normalizeCorrectionCompare(word);
+    const expectedNativeWord = nativeWords[nativeIndex];
+
+    const wasNative =
+      expectedNativeWord &&
+      normalizedWord === expectedNativeWord;
+
+    if (wasNative) {
+      nativeIndex++;
+    }
+
+    return {
+      correctedWord: word,
+      originalWord: "",
+      wasTranslated: !wasNative
+    };
+  });
+}
+
+    function buildChatLanguageSuggestion(parts) {
+  return parts
+    .map(part => {
+      if (part.isChatLanguage === false && part.translation) {
+        return part.translation;
+      }
+
+      return part.text || "";
+    })
+    .join("")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function hasForeignLanguageParts(parts) {
+  return parts.some(part => part && part.isChatLanguage === false);
+}
+
+function removeSpeechReviewCard() {
+  const existing = document.querySelector(".speech-review-card");
+  if (existing) {
+    existing.remove();
+  }
+}
+
+function splitCorrectionTranslationWords(text) {
+  return text.match(/[\p{L}\p{M}]+(?:['’][\p{L}\p{M}]+)?|[\p{N}]+/gu) || [];
+}
+
+function buildCorrectionPairsFromCorrectedText(correctedText) {
+  return splitCorrectionTranslationWords(correctedText).map(word => ({
+    correctedWord: word,
+    originalWord: "",
+    wasTranslated: false
+  }));
+}
+    
+function buildCorrectionWordPairs(parts) {
+  const pairs = [];
+
+  for (const part of parts) {
+    if (!part) continue;
+
+    if (part.isChatLanguage === false) {
+      const wordTranslations = Array.isArray(part.wordTranslations)
+        ? part.wordTranslations
+        : [];
+
+      if (wordTranslations.length) {
+        for (const item of wordTranslations) {
+          const original = String(item.original || "").trim();
+          const translation = String(item.translation || "").trim();
+
+          if (!translation) continue;
+
+          /*
+            Important:
+            Do NOT split multi-word translations here.
+            If one fluent-language word maps to multiple chat-language words,
+            that whole translation should remain one token and be read together.
+          */
+          pairs.push({
+            correctedWord: translation,
+            originalWord: original,
+            wasTranslated: true
+          });
+        }
+      } else if (part.translation) {
+        /*
+          Fallback:
+          If the backend did not provide wordTranslations,
+          keep the full translated segment grouped.
+        */
+        pairs.push({
+          correctedWord: String(part.translation || "").trim(),
+          originalWord: String(part.text || "").trim(),
+          wasTranslated: true
+        });
+      }
+    } else {
+      /*
+        Native chat-language text can still be split into words,
+        because those words were already spoken correctly.
+      */
+      const chatWords = splitCorrectionTranslationWords(part.text);
+
+      for (const word of chatWords) {
+        pairs.push({
+          correctedWord: word,
+          originalWord: "",
+          wasTranslated: false
+        });
+      }
+    }
+  }
+
+  return pairs;
+}
+
+function correctionPairsToText(pairs) {
+  return pairs
+    .map(pair => String(pair.correctedWord || "").trim())
+    .filter(Boolean)
+    .join(" ");
+}
+
+function createCorrectionTokensFromPairs(pairs, correctionId, correctionText) {
+  return pairs
+    .filter(pair => pair.correctedWord)
+    .map((pair, index) => ({
+      tokenId: `${correctionId}-tok-${index}`,
+      word: pair.correctedWord,
+      sentence: correctionText
+    }));
+}
+
+function renderCorrectionLine(container, correctionId, pairs) {
+  container.innerHTML = "";
+
+  pairs.forEach((pair, index) => {
+    if (!pair.correctedWord) return;
+
+    const tokenId = `${correctionId}-tok-${index}`;
+
+    const unit = document.createElement("span");
+    unit.className = "correction-word-unit";
+    unit.classList.add(pair.wasTranslated ? "corrected-word" : "native-word");
+
+    if (String(pair.correctedWord).trim().includes(" ")) {
+      unit.classList.add("multi-word-token");
+    }
+
+    unit.dataset.tokenId = tokenId;
+    unit.dataset.word = pair.correctedWord;
+
+    const mainWord = document.createElement("span");
+    mainWord.className = "main-word";
+    mainWord.textContent = pair.correctedWord;
+
+    const translation = document.createElement("span");
+    translation.className = "translation";
+    translation.textContent = "";
+
+    unit.appendChild(mainWord);
+    unit.appendChild(translation);
+
+    unit.addEventListener("click", () => {
+      playCorrectionWord(correctionId, tokenId, unit).catch(error => {
+        showSystemMessage(getReadableError(error));
+      });
+    });
+
+    container.appendChild(unit);
+    container.appendChild(document.createTextNode(" "));
+  });
+}
+
+async function showPerfectCorrectionThenRevealBot({
+  transcript,
+  parts,
+  correctedText,
+  prepared
+}) {
+  const finalText = correctedText || transcript;
+
+  /*
+    Perfect card appears silently.
+    Do not call playCorrection(...) here.
+  */
+  addSpeechReviewCard({
+    transcript,
+    suggestion: finalText,
+    parts,
+    correctedText: finalText,
+    isPerfect: true
+  });
+
+  /*
+    Bot reply should still autoplay when it appears.
+  */
+  if (prepared) {
+    await revealPreparedBotResponse(prepared, {
+      autoplay: true
+    });
+  }
+}
+
+async function playCorrectionWord(correctionId, tokenId, unit) {
+  const state = correctionState.get(correctionId);
+  if (!state) return;
+
+  stopAllSpeech();
+  await unlockAudioContext();
+
+  await getCorrectionWordClips(state);
+
+  const clip = state.wordClipMap?.get(tokenId);
+
+  if (!clip || !clip.audioBase64) {
+    throw new Error("This correction word is not ready yet.");
+  }
+
+  const context = getAudioContext();
+
+  let audioBuffer;
+
+  if (clip.audioBuffer) {
+    audioBuffer = clip.audioBuffer;
+  } else {
+    const arrayBuffer = base64ToArrayBuffer(clip.audioBase64);
+    const rawBuffer = await context.decodeAudioData(arrayBuffer);
+    audioBuffer = trimAudioBufferSilence(rawBuffer);
+    clip.audioBuffer = audioBuffer;
+  }
+
+  unit.classList.add("active-word");
+
+  const source = context.createBufferSource();
+  source.buffer = audioBuffer;
+  source.connect(context.destination);
+  scheduledSources = [source];
+
+  source.start(context.currentTime + 0.04);
+
+  return new Promise(resolve => {
+    source.addEventListener("ended", () => {
+      scheduledSources = [];
+      unit.classList.remove("active-word");
+      resolve();
+    });
+  });
+}
+
+function assignCorrectionScheduleToWords(state) {
+  const scheduleMap = new Map(
+    state.wordSchedule
+      .filter(item => item && item.tokenId)
+      .map(item => [item.tokenId, item])
+  );
+
+  const units = [...state.lineEl.querySelectorAll(".correction-word-unit")];
+
+  units.forEach(unit => {
+    const tokenId = unit.dataset.tokenId;
+    const timing = scheduleMap.get(tokenId);
+
+    if (timing) {
+      unit.dataset.playStart = String(timing.playStart);
+      unit.dataset.playEnd = String(timing.playEnd);
+    } else {
+      unit.dataset.playStart = "";
+      unit.dataset.playEnd = "";
+    }
+  });
+}
+
+function addSpeechReviewCard({
+  transcript,
+  suggestion,
+  parts,
+  correctedText,
+  isPerfect = false,
+  onRetry,
+  onContinue
+}) {
+  removeSpeechReviewCard();
+
+  const correctionId = `correction-${++correctionCounter}`;
+
+  const correctionText = correctedText || suggestion || transcript;
+  const pairs = isPerfect
+    ? buildCorrectionPairsFromCorrectedText(correctionText).map(pair => ({
+        ...pair,
+        wasTranslated: false
+      }))
+    : buildCorrectionPairsFromCorrectedTextAndParts(correctionText, parts);
+
+  const tokens = createCorrectionTokensFromPairs(pairs, correctionId, correctionText);
+
+  const card = document.createElement("div");
+  card.className = "speech-review-card";
+  card.dataset.correctionId = correctionId;
+
+  if (isPerfect) {
+    card.classList.add("perfect-card");
+  }
+
+  const title = document.createElement("div");
+  title.className = "speech-review-title";
+  title.textContent = isPerfect
+    ? "Perfect!"
+    : `Try again in ${languageSelect.value}`;
+
+  const layout = document.createElement("div");
+  layout.className = "correction-layout";
+
+  const sideControls = document.createElement("div");
+  sideControls.className = "correction-side-controls";
+
+  const playButton = document.createElement("button");
+  playButton.type = "button";
+  playButton.className = "correction-play-button";
+  setPlayIcon(playButton);
+  playButton.dataset.correctionPlay = correctionId;
+
+  const slowToggle = document.createElement("button");
+  slowToggle.type = "button";
+  slowToggle.className = "correction-slow-toggle";
+  slowToggle.textContent = "Slow";
+
+  sideControls.appendChild(playButton);
+  sideControls.appendChild(slowToggle);
+
+  const textZone = document.createElement("div");
+  textZone.className = "correction-text-zone";
+
+  const correctionLine = document.createElement("div");
+  correctionLine.className = "correction-line";
+  correctionLine.setAttribute("dir", "auto");
+
+  renderCorrectionLine(correctionLine, correctionId, pairs);
+
+  textZone.appendChild(correctionLine);
+
+  layout.appendChild(sideControls);
+  layout.appendChild(textZone);
+
+  card.appendChild(title);
+  card.appendChild(layout);
+
+  if (!isPerfect) {
+    const actions = document.createElement("div");
+    actions.className = "speech-review-actions correction-actions-row";
+
+    const retryButton = document.createElement("button");
+    retryButton.type = "button";
+    retryButton.className = "speech-review-button primary";
+    retryButton.textContent = "Re-record";
+
+    const continueButton = document.createElement("button");
+    continueButton.type = "button";
+    continueButton.className = "speech-review-button secondary";
+    continueButton.textContent = "Continue anyway";
+
+    retryButton.addEventListener("click", async () => {
+  if (typeof onRetry === "function") {
+    onRetry();
+  }
+
+  await startCorrectionRetryRecording();
+});
+
+   continueButton.addEventListener("click", async () => {
+  const actions = continueButton.closest(".speech-review-actions");
+
+  continueButton.disabled = true;
+  continueButton.textContent = "Continuing...";
+
+  try {
+    if (typeof onContinue === "function") {
+      await onContinue();
+    }
+
+    /*
+      Only remove the buttons after the chatbot reply successfully starts revealing.
+      The correction box itself stays.
+    */
+    if (actions) {
+      actions.remove();
+    }
+  } catch (error) {
+    continueButton.disabled = false;
+    continueButton.textContent = "Continue anyway";
+    showSystemMessage(getReadableError(error));
+  }
+});
+
+    actions.appendChild(retryButton);
+    actions.appendChild(continueButton);
+    card.appendChild(actions);
+  }
+
+  messageHistory.appendChild(card);
+
+  correctionState.set(correctionId, {
+    id: correctionId,
+    transcript,
+    suggestion,
+    parts,
+    correctionText,
+    tokens,
+    lineEl: correctionLine,
+    slow: false,
+    fullSpeech: null,
+    fullSpeechPromise: fetchFullSpeech(correctionText),
+    wordClips: null,
+    wordClipMap: null,
+    wordClipsPromise: fetchIndividualWordSpeechForTokens(tokens)
+      .then(clips => {
+        const state = correctionState.get(correctionId);
+
+        if (state) {
+          state.wordClips = clips;
+          state.wordClipMap = new Map(
+            clips
+              .filter(clip => clip && clip.tokenId)
+              .map(clip => [clip.tokenId, clip])
+          );
+        }
+
+        return clips;
+      })
+      .catch(() => {
+        const state = correctionState.get(correctionId);
+
+        if (state) {
+          state.wordClipsPromise = null;
+        }
+
+        return null;
+      }),
+    wordSchedule: null
+  });
+
+  playButton.addEventListener("click", async () => {
+    await playCorrection(correctionId);
+  });
+
+  slowToggle.addEventListener("click", () => {
+    const state = correctionState.get(correctionId);
+    if (!state) return;
+
+    state.slow = !state.slow;
+    slowToggle.classList.toggle("active", state.slow);
+  });
+
+  translateCorrectionTokens(correctionId).catch(() => {});
+
+  scrollMessagesToBottom();
+
+  return card;
+}
+
+  function setInputMode(mode) {
+  inputMode = mode === "speech" ? "speech" : "writing";
+
+  const isSpeech = inputMode === "speech";
+
+  writingModeButton.classList.toggle("active", !isSpeech);
+  speechModeButton.classList.toggle("active", isSpeech);
+
+  composerShell.classList.toggle("hidden", isSpeech);
+  speechShell.classList.toggle("hidden", !isSpeech);
+
+  if (!isSpeech) {
+    input.focus();
+  }
+}
+
+function setSpeechStatus(text) {
+  if (speechStatus) {
+    speechStatus.textContent = text;
+  }
+}
+
+function resetSpeechButton() {
+  if (!speechRecordButton) return;
+
+  speechRecordButton.disabled = false;
+  speechRecordButton.classList.remove("recording", "processing");
+  speechRecordButton.innerHTML = `<span class="mic-symbol">🎤</span>`;
+}
+    
+  function getReadableError(error) {
+    if (!error) return "Unknown error";
+    if (typeof error === "string") return error;
+    if (error instanceof Error && error.message) return error.message;
+    if (typeof error.message === "string") return error.message;
+    if (typeof error.error === "string") return error.error;
+    if (error.error && typeof error.error.message === "string") return error.error.message;
+    if (typeof error.details === "string") return error.details;
+
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return String(error);
+    }
+  }
+
+  function throwApiError(data, fallback) {
+    throw new Error(getReadableError(data) || fallback);
+  }
+
+  function showSystemMessage(text) {
+    const existing = document.querySelector(".system-message");
+    if (existing) existing.remove();
+
+    const div = document.createElement("div");
+    div.className = "system-message";
+    div.textContent = getReadableError(text);
+    document.body.appendChild(div);
+
+    setTimeout(() => div.remove(), 5200);
+  }
+
+    function createCorrectionTokens(text, correctionId) {
+  const parts = splitTextIntoParts(text);
+  const tokens = [];
+  let tokenIndex = 0;
+
+  for (const part of parts) {
+    if (isClickableWord(part)) {
+      tokens.push({
+        tokenId: `${correctionId}-tok-${tokenIndex}`,
+        word: part,
+        sentence: text
+      });
+
+      tokenIndex++;
+    }
+  }
+
+  return tokens;
+}
+
+async function getCorrectionFullSpeech(state) {
+  if (state.fullSpeech) {
+    return state.fullSpeech;
+  }
+
+  if (state.fullSpeechPromise) {
+    state.fullSpeech = await state.fullSpeechPromise;
+    return state.fullSpeech;
+  }
+
+  state.fullSpeechPromise = fetchFullSpeech(state.correctionText);
+  state.fullSpeech = await state.fullSpeechPromise;
+  return state.fullSpeech;
+}
+
+async function getCorrectionWordClips(state) {
+  if (state.wordClips) {
+    return state.wordClips;
+  }
+
+  if (state.wordClipsPromise) {
+    state.wordClips = await state.wordClipsPromise;
+    state.wordClipMap = new Map(
+      state.wordClips
+        .filter(clip => clip && clip.tokenId)
+        .map(clip => [clip.tokenId, clip])
+    );
+
+    return state.wordClips;
+  }
+
+  state.wordClipsPromise = fetchIndividualWordSpeechForTokens(state.tokens);
+  state.wordClips = await state.wordClipsPromise;
+  state.wordClipMap = new Map(
+    state.wordClips
+      .filter(clip => clip && clip.tokenId)
+      .map(clip => [clip.tokenId, clip])
+  );
+
+  return state.wordClips;
+}
+
+async function buildCorrectionWordSchedule(state) {
+  const context = getAudioContext();
+  const pause = getSlowPauseSeconds();
+
+  await getCorrectionWordClips(state);
+
+  const clipMap = state.wordClipMap || new Map();
+  const schedule = [];
+  let playhead = 0;
+
+  for (const token of state.tokens || []) {
+    const clip = clipMap.get(token.tokenId);
+
+    if (!clip || !clip.audioBase64) {
+      continue;
+    }
+
+    let audioBuffer;
+
+    if (clip.audioBuffer) {
+      audioBuffer = clip.audioBuffer;
+    } else {
+      const arrayBuffer = base64ToArrayBuffer(clip.audioBase64);
+      const rawBuffer = await context.decodeAudioData(arrayBuffer);
+      audioBuffer = trimAudioBufferSilence(rawBuffer);
+      clip.audioBuffer = audioBuffer;
+    }
+
+    schedule.push({
+      tokenId: token.tokenId,
+      word: token.word,
+      audioBuffer,
+      duration: audioBuffer.duration,
+      playStart: playhead,
+      playEnd: playhead + audioBuffer.duration
+    });
+
+    playhead += audioBuffer.duration + pause;
+  }
+
+  return schedule;
+}
+
+async function playCorrection(correctionId) {
+  const state = correctionState.get(correctionId);
+  if (!state) return;
+
+  const playButton = document.querySelector(`[data-correction-play="${correctionId}"]`);
+
+  if (isSamePlayback(playButton, "correction", correctionId)) {
+  stopAllSpeech();
+  return;
+}
+
+  try {
+    stopAllSpeech();
+    setPlaybackButtonLoading(playButton);
+    await unlockAudioContext();
+
+    if (state.slow) {
+      if (!state.wordSchedule) {
+        state.wordSchedule = await buildCorrectionWordSchedule(state);
+      }
+
+      playCorrectionWordSchedule(state, playButton);
+    } else {
+      const speech = await getCorrectionFullSpeech(state);
+
+      if (!speech.audioBuffer) {
+        const arrayBuffer = base64ToArrayBuffer(speech.audioBase64);
+        const context = getAudioContext();
+        speech.audioBuffer = await context.decodeAudioData(arrayBuffer);
+      }
+
+      playFullAudioBuffer(speech.audioBuffer, playButton, "correction", correctionId);
+    }
+  } catch (error) {
+    setPlaybackButtonStopped(playButton);
+    showSystemMessage(getReadableError(error));
+  }
+}
+
+function playCorrectionWordSchedule(state, button = null) {
+  const context = getAudioContext();
+  const playbackToken = currentPlaybackToken;
+  const startAt = context.currentTime + 0.08;
+
+  scheduledSources = [];
+
+  if (button) {
+    setPlaybackButtonPlaying(button, "correction", state.id);
+  }
+
+  const card = document.querySelector(`[data-correction-id="${state.id}"]`);
+  const root = card || state.lineEl || document;
+
+  const units = [...root.querySelectorAll(".correction-word-unit")];
+
+  const unitsByTokenId = new Map(
+    units
+      .filter(unit => unit.dataset.tokenId)
+      .map(unit => [unit.dataset.tokenId, unit])
+  );
+
+  units.forEach(unit => unit.classList.remove("active-word"));
+
+  state.wordSchedule.forEach(item => {
+    const source = context.createBufferSource();
+    source.buffer = item.audioBuffer;
+    source.connect(context.destination);
+
+    source.start(startAt + item.playStart);
+    scheduledSources.push(source);
+
+    const unit = unitsByTokenId.get(item.tokenId);
+
+    if (!unit) return;
+
+    window.setTimeout(() => {
+      if (playbackToken === currentPlaybackToken) {
+        unit.classList.add("active-word");
+      }
+    }, Math.max(0, item.playStart * 1000 + 80));
+
+    window.setTimeout(() => {
+      if (playbackToken === currentPlaybackToken) {
+        unit.classList.remove("active-word");
+      }
+    }, Math.max(0, item.playEnd * 1000 + 180));
+  });
+
+  const totalDuration =
+    state.wordSchedule.length > 0
+      ? state.wordSchedule[state.wordSchedule.length - 1].playEnd
+      : 0;
+
+  window.setTimeout(() => {
+    if (playbackToken === currentPlaybackToken) {
+      scheduledSources = [];
+
+      units.forEach(unit => {
+        unit.classList.remove("active-word");
+      });
+
+      if (button) {
+        setPlaybackButtonStopped(button);
+      }
+    }
+  }, totalDuration * 1000 + 1200);
+}
+
+  async function parseJsonResponse(response, label) {
+    const rawText = await response.text();
+
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      throw new Error(`${label} returned non-JSON response: ${rawText}`);
+    }
+
+    if (!response.ok) {
+      throwApiError(data, `${label} failed with status ${response.status}`);
+    }
+
+    return data;
+  }
+
+  function chatFunctionUrl() {
+  return `${SUPABASE_URL.replace(/\/$/, "")}/functions/v1/chat`;
+}
+
+async function callChatFunction(payload, label = "Chat") {
+  let response;
+
+  try {
+    response = await fetch(chatFunctionUrl(), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify(payload)
+    });
+  } catch (error) {
+    throw new Error(`${label} request failed: ${getReadableError(error)}`);
+  }
+
+  return await parseJsonResponse(response, label);
+}
+
+  function scrollMessagesToBottom() {
+    if (messageHistory) {
+      messageHistory.scrollTop = messageHistory.scrollHeight;
+    }
+  }
+
+  function getAudioContext() {
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioContext;
+  }
+
+  async function unlockAudioContext() {
+    const context = getAudioContext();
+    if (context.state === "suspended") {
+      await context.resume();
+    }
+  }
+
+  async function unlockAudio() {
+    try {
+      await unlockAudioContext();
+    } catch {
+      // Browser may still require another user gesture.
+    }
+  }
+
+  function base64ToArrayBuffer(base64) {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+
+    return bytes.buffer;
+  }
+
+  function stopAllSpeech() {
+  if (currentFullAudio) {
+    currentFullAudio.pause();
+    currentFullAudio.currentTime = 0;
+    currentFullAudio = null;
+  }
+
+  scheduledSources.forEach(source => {
+    try {
+      source.stop();
+    } catch {}
+  });
+
+  scheduledSources = [];
+  currentPlaybackToken++;
+
+  clearActivePlaybackButton();
+}
+
+ function clearActivePlaybackButton() {
+  if (activePlayback?.button) {
+    activePlayback.button.classList.remove("playing", "loading");
+    setPlayIcon(activePlayback.button);
+  }
+
+  activePlayback = null;
+}
+
+function setPlaybackButtonLoading(button) {
+  if (!button) return;
+
+  button.classList.add("loading");
+  button.classList.remove("playing");
+  setLoadingIcon(button);
+}
+
+function setPlaybackButtonPlaying(button, type, id) {
+  if (!button) return;
+
+  activePlayback = {
+    button,
+    type,
+    id
+  };
+
+  button.classList.remove("loading");
+  button.classList.add("playing");
+  setPauseIcon(button);
+}
+
+function setPlaybackButtonStopped(button) {
+  if (!button) return;
+
+  if (activePlayback?.button === button) {
+    activePlayback = null;
+  }
+
+  button.classList.remove("loading", "playing");
+  setPlayIcon(button);
+}
+
+function isSamePlayback(button, type, id) {
+  return (
+    activePlayback &&
+    activePlayback.button === button &&
+    activePlayback.type === type &&
+    activePlayback.id === id
+  );
+}
+
+function isSamePlayback(button, type, id) {
+  return (
+    activePlayback &&
+    activePlayback.button === button &&
+    activePlayback.type === type &&
+    activePlayback.id === id
+  );
+}
+
+  function splitTextIntoParts(text) {
+    return text.match(/[\p{L}\p{M}]+(?:['’][\p{L}\p{M}]+)?|[\p{N}]+|[^\s\p{L}\p{M}\p{N}]|\s+/gu) || [];
+  }
+
+  function isClickableWord(part) {
+    return /[\p{L}\p{M}]/u.test(part);
+  }
+
+  function addUserMessage(text) {
+    const id = `user-${++userMessageCounter}`;
+
+    const card = document.createElement("div");
+    card.className = "message-card user-card";
+    card.dataset.userMessageId = id;
+
+    const bubble = document.createElement("div");
+    bubble.className = "user-bubble";
+    bubble.textContent = text;
+
+    card.appendChild(bubble);
+    messageHistory.appendChild(card);
+
+    userMessageState.set(id, { id, text, bubble });
+
+    scrollMessagesToBottom();
+
+    /*analyzeAndRenderUserMessageLanguage(id).catch(() => {
+      // Keep plain message if analysis fails.
+    });*/
+
+    return id;
+  }
+
+  function updateUserMessageText(userMessageId, text) {
+  const state = userMessageState.get(userMessageId);
+  if (!state) return;
+
+  state.text = text;
+
+  if (state.bubble) {
+    state.bubble.classList.remove("user-annotated");
+    state.bubble.textContent = text;
+  }
+}
+
+  function addThinkingMessage() {
+    const card = document.createElement("div");
+    card.className = "message-card thinking-card";
+    card.textContent = "Thinking…";
+    messageHistory.appendChild(card);
+    scrollMessagesToBottom();
+    return card;
+  }
+
+    async function prepareBotResponseInBackground(userText) {
+  messages.push({
+    role: "user",
+    content: userText
+  });
+
+  const responsePromise = callChatFunction(
+  {
+    messages,
+    language: languageSelect.value,
+    userGenderInstruction: getUserGenderInstruction()
+  },
+  "Chat"
+);
+
+  return {
+    userText,
+    responsePromise
+  };
+}
+
+  async function translateCorrectionTokens(correctionId) {
+  const state = correctionState.get(correctionId);
+  if (!state) return;
+
+  const units = [...state.lineEl.querySelectorAll(".correction-word-unit")];
+
+  await Promise.allSettled(
+    units.map(async unit => {
+      const word = unit.dataset.word || "";
+      const translationEl = unit.querySelector(".translation");
+
+      if (!word || !translationEl) return;
+
+      const cacheKey = `correction|${word}|${languageSelect.value}|${fluentLanguageSelect.value}|${state.correctionText}`;
+
+      if (translationCache.has(cacheKey)) {
+        translationEl.textContent = translationCache.get(cacheKey);
+        return;
+      }
+
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+          action: "translate-word",
+          word,
+          sentence: state.correctionText,
+          chatLanguage: languageSelect.value,
+          fluentLanguage: fluentLanguageSelect.value
+        })
+      });
+
+      const data = await parseJsonResponse(response, "Correction word translation");
+      const translated = data.translation || "";
+
+      translationCache.set(cacheKey, translated);
+      translationEl.textContent = translated;
+    })
+  );
+}
+    
+  async function revealPreparedBotResponse(prepared, options = {}) {
+  const autoplay = options.autoplay !== false;
+
+  const thinkingCard = addThinkingMessage();
+
+  try {
+    const data = await prepared.responsePromise;
+
+    messages.push({
+      role: "assistant",
+      content: data.reply
+    });
+
+    const fullSpeechPromise = fetchFullSpeech(data.reply);
+    const fullSpeech = await fullSpeechPromise;
+
+    thinkingCard.remove();
+
+    const botMessageId = addBotMessage(data.reply, {
+      fullSpeech,
+      fullSpeechPromise
+    });
+
+    const state = messageState.get(botMessageId);
+
+    if (state) {
+      state.wordClipsPromise = fetchIndividualWordSpeechForTokens(state.speakableTokens)
+        .then(clips => {
+          state.wordClips = clips;
+          state.wordClipMap = new Map(
+            clips
+              .filter(clip => clip && clip.tokenId)
+              .map(clip => [clip.tokenId, clip])
+          );
+
+          return clips;
+        })
+        .catch(() => null);
+
+      if (autoplay) {
+        const button = document.querySelector(`[data-message-play="${botMessageId}"]`);
+
+        if (button) {
+          await handleMessagePlayButton(botMessageId, button);
+        } else {
+          await playConversationalMessage(state);
+        }
+      }
+    }
+  } catch (error) {
+    thinkingCard.remove();
+    showSystemMessage(getReadableError(error));
+  }
+}
+
+  async function startCorrectionRetryRecording() {
+  removeSpeechReviewCard();
+
+  correctionRetryMode = true;
+
+  setSpeechStatus("Recording");
+
+  try {
+    await unlockAudio();
+    await startRecording();
+  } catch (error) {
+    correctionRetryMode = false;
+    showSystemMessage(getReadableError(error));
+    resetSpeechButton();
+    setSpeechStatus("Tap to speak");
+  }
+}
+    
+  async function handleSpeechTranscript(transcript) {
+  if (!transcript.trim()) return;
+
+  const isCorrectionRetry = correctionRetryMode;
+correctionRetryMode = false;
+
+if (!isCorrectionRetry) {
+  activeCorrectionUserMessageId = addUserMessage(transcript);
+
+  /*
+    The bot receives the original message immediately.
+    Re-recording is only for practice.
+  */
+  pendingBackgroundBot = await prepareBotResponseInBackground(transcript);
+} else {
+  /*
+    Retry should replace the original speech bubble, not create a new one.
+  */
+  if (activeCorrectionUserMessageId) {
+    updateUserMessageText(activeCorrectionUserMessageId, transcript);
+  }
+}
+
+  let analysis;
+
+  try {
+    analysis = await analyzeUserMessageLanguageParts(transcript);
+  } catch {
+    await revealPreparedBotResponse(pendingBackgroundBot);
+    pendingBackgroundBot = null;
+    return;
+  }
+
+  const parts = analysis.parts || [];
+  const correctedText = analysis.correctedText || transcript;
+
+  if (!hasForeignLanguageParts(parts)) {
+    const prepared = pendingBackgroundBot;
+
+    activeSpeechCorrection = null;
+    pendingBackgroundBot = null;
+    activeCorrectionUserMessageId = null;
+
+    await showPerfectCorrectionThenRevealBot({
+      transcript,
+      parts,
+      correctedText,
+      prepared
+    });
+
+    return;
+  }
+
+  const suggestion = correctedText;
+
+  activeSpeechCorrection = {
+    transcript,
+    parts,
+    suggestion,
+    correctedText,
+    prepared: pendingBackgroundBot
+  };
+
+  const correctionCard = addSpeechReviewCard({
+    transcript,
+    suggestion,
+    parts,
+    correctedText,
+    isPerfect: false,
+    onRetry: () => {
+      setSpeechStatus("Recording");
+    },
+    onContinue: async () => {
+      const prepared = activeSpeechCorrection?.prepared || pendingBackgroundBot;
+
+      activeSpeechCorrection = null;
+      pendingBackgroundBot = null;
+      activeCorrectionUserMessageId = null;
+
+      if (prepared) {
+        await revealPreparedBotResponse(prepared);
+      }
+    }
+  });
+
+  const correctionId = correctionCard.dataset.correctionId;
+
+  if (correctionId) {
+    playCorrection(correctionId).catch(() => {});
+  }
+}
+
+  async function analyzeUserMessageLanguageParts(text) {
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+    },
+    body: JSON.stringify({
+      action: "translate-message-parts",
+      text,
+      chatLanguage: languageSelect.value
+    })
+  });
+
+  const data = await parseJsonResponse(response, "User language analysis");
+
+  return {
+    parts: Array.isArray(data.parts) ? data.parts : [],
+    correctedText: data.correctedText || ""
+  };
+}
+
+  async function analyzeAndRenderUserMessageLanguage(userMessageId) {
+  const state = userMessageState.get(userMessageId);
+  if (!state) return;
+
+  const analysis = await analyzeUserMessageLanguageParts(state.text);
+  const parts = analysis.parts || [];
+
+  if (!parts.length) return;
+
+  const hasForeignPart = parts.some(part => part && part.isChatLanguage === false);
+  if (!hasForeignPart) return;
+
+  renderAnalyzedUserMessage(state.bubble, parts);
+}
+
+  function renderAnalyzedUserMessage(container, parts) {
+    container.innerHTML = "";
+    container.classList.add("user-annotated");
+
+    for (const part of parts) {
+      if (!part || typeof part.text !== "string") continue;
+
+      if (part.isChatLanguage === false && part.translation) {
+        const foreign = document.createElement("span");
+        foreign.className = "user-foreign-part";
+
+        const original = document.createElement("span");
+        original.className = "user-foreign-original";
+        original.textContent = part.text;
+
+        const translation = document.createElement("span");
+        translation.className = "user-foreign-translation";
+        translation.textContent = part.translation;
+
+        foreign.appendChild(original);
+        foreign.appendChild(translation);
+        container.appendChild(foreign);
+      } else {
+        const normal = document.createElement("span");
+        normal.className = "user-text-part";
+        normal.textContent = part.text;
+        container.appendChild(normal);
+      }
+    }
+
+    scrollMessagesToBottom();
+  }
+
+  function addBotMessage(text, options = {}) {
+    const id = `bot-${++messageCounter}`;
+
+    const card = document.createElement("div");
+    card.className = "message-card bot-card";
+    card.dataset.messageId = id;
+
+    const wordsEl = document.createElement("div");
+    wordsEl.className = "bot-words";
+    wordsEl.setAttribute("dir", "auto");
+
+    messageState.set(id, {
+      id,
+      text,
+      wordsEl,
+      mode: "conversational",
+
+      speakableTokens: [],
+
+      fullSpeech: options.fullSpeech || null,
+      fullSpeechPromise: options.fullSpeechPromise || null,
+
+      wordClips: null,
+      wordClipMap: null,
+      wordClipsPromise: null,
+      wordSchedule: null,
+
+      loadingFullSpeech: false,
+      loadingWordSpeech: false
+    });
+
+    const speakableTokens = renderWordsIntoElement(text, wordsEl, id);
+    const state = messageState.get(id);
+    if (state) state.speakableTokens = speakableTokens;
+
+    const controls = createMessageAudioControls(id);
+
+    const row = document.createElement("div");
+row.className = "bot-message-row";
+
+row.appendChild(wordsEl);
+row.appendChild(controls);
+
+card.appendChild(row);
+
+messageHistory.appendChild(card);
+
+    scrollMessagesToBottom();
+    return id;
+  }
+
+  function renderWordsIntoElement(text, container, messageId) {
+    container.innerHTML = "";
+
+    const parts = splitTextIntoParts(text);
+    const speakableTokens = [];
+    let tokenIndex = 0;
+
+    for (const part of parts) {
+      if (/^\s+$/.test(part)) {
+        container.appendChild(document.createTextNode(" "));
+        continue;
+      }
+
+      if (isClickableWord(part)) {
+        const tokenId = `${messageId}-tok-${tokenIndex}`;
+
+        const unit = document.createElement("span");
+        unit.className = "word-unit";
+        unit.dataset.word = part;
+        unit.dataset.tokenId = tokenId;
+
+        const mainWord = document.createElement("span");
+        mainWord.className = "main-word";
+        mainWord.textContent = part;
+
+        const translation = document.createElement("span");
+        translation.className = "translation";
+
+        unit.appendChild(mainWord);
+        unit.appendChild(translation);
+
+        unit.addEventListener("click", () => {
+          handleBotWordClick(unit, part, messageId, text);
+        });
+
+        container.appendChild(unit);
+
+        speakableTokens.push({
+          tokenId,
+          word: part,
+          sentence: text
+        });
+
+        tokenIndex++;
+      } else {
+        const punct = document.createElement("span");
+        punct.className = "punct";
+        punct.textContent = part;
+        container.appendChild(punct);
+      }
+    }
+
+    return speakableTokens;
+  }
+
+  function createMessageAudioControls(messageId) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "message-audio-controls";
+
+  const panel = document.createElement("div");
+  panel.className = "message-audio-panel";
+
+  const playButton = document.createElement("button");
+  playButton.type = "button";
+  playButton.className = "message-play-button";
+  playButton.dataset.messagePlay = messageId;
+  setPlayIcon(playButton);
+
+  const slowButton = document.createElement("button");
+  slowButton.type = "button";
+  slowButton.className = "message-slow-toggle";
+  slowButton.textContent = "Slow";
+
+  slowButton.addEventListener("click", () => {
+    const state = messageState.get(messageId);
+    if (!state) return;
+
+    state.mode = state.mode === "slow" ? "conversational" : "slow";
+    slowButton.classList.toggle("active", state.mode === "slow");
+
+    if (state.mode === "slow") {
+      preloadSlowSpeech(state).catch(error => {
+        showSystemMessage(getReadableError(error));
+      });
+    }
+  });
+
+  playButton.addEventListener("click", async () => {
+    await handleMessagePlayButton(messageId, playButton);
+  });
+
+  panel.appendChild(playButton);
+  panel.appendChild(slowButton);
+  wrapper.appendChild(panel);
+
+  return wrapper;
+}
+
+async function handleMessagePlayButton(messageId, button) {
+  if (isSamePlayback(button, "message", messageId)) {
+  stopAllSpeech();
+  return;
+}
+
+  try {
+    stopAllSpeech();
+    setPlaybackButtonLoading(button);
+
+    const state = messageState.get(messageId);
+    if (!state) return;
+
+    if (state.mode === "slow") {
+      await playSlowMessage(state, button);
+    } else {
+      await playConversationalMessage(state, button);
+    }
+
+    setPlaybackButtonPlaying(button, "message", messageId);
+  } catch (error) {
+    setPlaybackButtonStopped(button);
+    showSystemMessage(getReadableError(error));
+  }
+}
+
+  function setMessageMode(messageId, mode) {
+    const state = messageState.get(messageId);
+    if (!state) return;
+
+    state.mode = mode;
+
+    const card = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (!card) return;
+
+    const buttons = card.querySelectorAll(".mode-option");
+
+    buttons.forEach(button => {
+      button.classList.toggle(
+        "active",
+        button.textContent.toLowerCase() === mode
+      );
+    });
+
+    if (mode === "slow") {
+      preloadSlowSpeech(state).catch(error => showSystemMessage(getReadableError(error)));
+    }
+  }
+
+  async function fetchFullSpeech(text) {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({
+        action: "speak-full",
+        text,
+        language: languageSelect.value
+      })
+    });
+
+    const data = await parseJsonResponse(response, "Speech");
+
+    return {
+      ...data,
+      audioBuffer: null
+    };
+  }
+
+  async function fetchIndividualWordSpeechForTokens(tokens) {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({
+        action: "speak-words",
+        items: tokens,
+        language: languageSelect.value
+      })
+    });
+
+    const data = await parseJsonResponse(response, "Word speech");
+    return data.clips || [];
+  }
+
+  async function getFullSpeechForMessage(state) {
+    if (state.fullSpeech) return state.fullSpeech;
+
+    if (state.fullSpeechPromise) {
+      state.fullSpeech = await state.fullSpeechPromise;
+      return state.fullSpeech;
+    }
+
+    state.fullSpeechPromise = fetchFullSpeech(state.text);
+    state.fullSpeech = await state.fullSpeechPromise;
+    return state.fullSpeech;
+  }
+
+  async function preloadSlowSpeech(state) {
+    if (state.wordClips || state.wordClipsPromise) return;
+
+    const tokens = state.speakableTokens || [];
+    if (!tokens.length) return;
+
+    state.wordClipsPromise = fetchIndividualWordSpeechForTokens(tokens)
+      .then(clips => {
+        state.wordClips = clips;
+        state.wordClipMap = new Map(
+          clips
+            .filter(clip => clip && clip.tokenId)
+            .map(clip => [clip.tokenId, clip])
+        );
+        return clips;
+      })
+      .catch(error => {
+        state.wordClipsPromise = null;
+        throw error;
+      });
+  }
+
+  async function getWordClipsForMessage(state) {
+    if (state.wordClips) return state.wordClips;
+
+    if (state.wordClipsPromise) {
+      state.wordClips = await state.wordClipsPromise;
+      state.wordClipMap = new Map(
+        state.wordClips
+          .filter(clip => clip && clip.tokenId)
+          .map(clip => [clip.tokenId, clip])
+      );
+      return state.wordClips;
+    }
+
+    const tokens = state.speakableTokens || [];
+    if (!tokens.length) {
+      throw new Error("No speakable words were found for this message.");
+    }
+
+    state.wordClipsPromise = fetchIndividualWordSpeechForTokens(tokens);
+    state.wordClips = await state.wordClipsPromise;
+    state.wordClipMap = new Map(
+      state.wordClips
+        .filter(clip => clip && clip.tokenId)
+        .map(clip => [clip.tokenId, clip])
+    );
+
+    return state.wordClips;
+  }
+
+  function playFullAudioBuffer(audioBuffer, button = null, type = null, id = null) {
+  const context = getAudioContext();
+  const playbackToken = currentPlaybackToken;
+  const source = context.createBufferSource();
+
+  source.buffer = audioBuffer;
+  source.connect(context.destination);
+
+  scheduledSources = [source];
+
+  source.start(context.currentTime + 0.04);
+
+  if (button && type && id) {
+    setPlaybackButtonPlaying(button, type, id);
+  }
+
+  source.addEventListener("ended", () => {
+    if (playbackToken === currentPlaybackToken) {
+      scheduledSources = [];
+      if (button) {
+        setPlaybackButtonStopped(button);
+      }
+    }
+  });
+}
+
+  async function playConversationalMessage(state, button = null) {
+  await unlockAudioContext();
+
+  clearActiveWords(state.wordsEl);
+
+  const speech = await getFullSpeechForMessage(state);
+
+  if (!speech.audioBuffer) {
+    const arrayBuffer = base64ToArrayBuffer(speech.audioBase64);
+    const context = getAudioContext();
+    speech.audioBuffer = await context.decodeAudioData(arrayBuffer);
+  }
+
+  playFullAudioBuffer(speech.audioBuffer, button, "message", state.id);
+}
+
+  function trimAudioBufferSilence(audioBuffer, threshold = 0.012, paddingSeconds = 0.015) {
+    const sampleRate = audioBuffer.sampleRate;
+    const numberOfChannels = audioBuffer.numberOfChannels;
+    const length = audioBuffer.length;
+
+    let firstSound = 0;
+    let lastSound = length - 1;
+
+    function sampleIsSound(index) {
+      for (let channel = 0; channel < numberOfChannels; channel++) {
+        const data = audioBuffer.getChannelData(channel);
+        if (Math.abs(data[index]) > threshold) return true;
+      }
+      return false;
+    }
+
+    while (firstSound < length && !sampleIsSound(firstSound)) firstSound++;
+    while (lastSound > firstSound && !sampleIsSound(lastSound)) lastSound--;
+
+    const paddingSamples = Math.floor(paddingSeconds * sampleRate);
+    const start = Math.max(0, firstSound - paddingSamples);
+    const end = Math.min(length, lastSound + paddingSamples);
+
+    const trimmedLength = Math.max(1, end - start);
+    const context = getAudioContext();
+
+    const trimmedBuffer = context.createBuffer(
+      numberOfChannels,
+      trimmedLength,
+      sampleRate
+    );
+
+    for (let channel = 0; channel < numberOfChannels; channel++) {
+      const oldData = audioBuffer.getChannelData(channel);
+      const newData = trimmedBuffer.getChannelData(channel);
+
+      for (let i = 0; i < trimmedLength; i++) {
+        newData[i] = oldData[start + i] || 0;
+      }
+    }
+
+    return trimmedBuffer;
+  }
+
+  function getSlowPauseSeconds() {
+    return 0.18;
+  }
+
+  async function buildIndividualWordScheduleForMessage(state) {
+    const context = getAudioContext();
+    const pause = getSlowPauseSeconds();
+
+    await getWordClipsForMessage(state);
+
+    const clipMap = state.wordClipMap || new Map();
+    const schedule = [];
+    let playhead = 0;
+
+    for (const token of state.speakableTokens || []) {
+      const clip = clipMap.get(token.tokenId);
+      if (!clip || !clip.audioBase64) continue;
+
+      let audioBuffer;
+
+      if (clip.audioBuffer) {
+        audioBuffer = clip.audioBuffer;
+      } else {
+        const arrayBuffer = base64ToArrayBuffer(clip.audioBase64);
+        const rawBuffer = await context.decodeAudioData(arrayBuffer);
+        audioBuffer = trimAudioBufferSilence(rawBuffer);
+        clip.audioBuffer = audioBuffer;
+      }
+
+      schedule.push({
+        tokenId: token.tokenId,
+        word: token.word,
+        audioBuffer,
+        duration: audioBuffer.duration,
+        playStart: playhead,
+        playEnd: playhead + audioBuffer.duration
+      });
+
+      playhead += audioBuffer.duration + pause;
+    }
+
+    return schedule;
+  }
+
+  async function playSlowMessage(state, button = null) {
+  await unlockAudioContext();
+
+  if (!state.wordSchedule) {
+    state.wordSchedule = await buildIndividualWordScheduleForMessage(state);
+  }
+
+  assignScheduleToVisibleWords(state.wordsEl, state.wordSchedule);
+  playIndividualWordAudio(state.wordSchedule, state.wordsEl, button, "message", state.id);
+}
+
+  function clearActiveWords(container) {
+    container.querySelectorAll(".word-unit").forEach(unit => {
+      unit.classList.remove("active-word");
+    });
+  }
+
+  function assignScheduleToVisibleWords(container, schedule) {
+    const scheduleMap = new Map(
+      schedule
+        .filter(item => item && item.tokenId)
+        .map(item => [item.tokenId, item])
+    );
+
+    const units = [...container.querySelectorAll(".word-unit")];
+
+    units.forEach(unit => {
+      const tokenId = unit.dataset.tokenId;
+      const timing = scheduleMap.get(tokenId);
+
+      if (timing) {
+        unit.dataset.playStart = String(timing.playStart);
+        unit.dataset.playEnd = String(timing.playEnd);
+      } else {
+        unit.dataset.playStart = "";
+        unit.dataset.playEnd = "";
+      }
+    });
+  }
+
+  function playIndividualWordAudio(wordSchedule, wordsEl, button = null, type = null, id = null) {
+  const context = getAudioContext();
+  const playbackToken = currentPlaybackToken;
+  const startAt = context.currentTime + 0.08;
+
+  scheduledSources = [];
+
+  if (button && type && id) {
+    setPlaybackButtonPlaying(button, type, id);
+  }
+
+  wordSchedule.forEach(item => {
+    const source = context.createBufferSource();
+    source.buffer = item.audioBuffer;
+    source.connect(context.destination);
+
+    source.start(startAt + item.playStart);
+
+    scheduledSources.push(source);
+  });
+
+  const visualStart = performance.now() + 80;
+
+  function syncFrame() {
+    if (playbackToken !== currentPlaybackToken) return;
+
+    const elapsed = (performance.now() - visualStart) / 1000;
+    const units = [...wordsEl.querySelectorAll(".word-unit")];
+
+    for (const unit of units) {
+      const start = Number(unit.dataset.playStart);
+      const end = Number(unit.dataset.playEnd);
+
+      if (!Number.isFinite(start) || !Number.isFinite(end)) {
+        unit.classList.remove("active-word");
+        continue;
+      }
+
+      if (elapsed >= start && elapsed <= end + 0.04) {
+        unit.classList.add("active-word");
+      } else {
+        unit.classList.remove("active-word");
+      }
+    }
+
+    const lastEnd =
+      wordSchedule.length > 0
+        ? wordSchedule[wordSchedule.length - 1].playEnd
+        : 0;
+
+    if (elapsed <= lastEnd + 0.5) {
+      requestAnimationFrame(syncFrame);
+    } else {
+      clearActiveWords(wordsEl);
+      if (button) {
+        setPlaybackButtonStopped(button);
+      }
+    }
+  }
+
+  requestAnimationFrame(syncFrame);
+
+  const totalDuration =
+    wordSchedule.length > 0
+      ? wordSchedule[wordSchedule.length - 1].playEnd
+      : 0;
+
+  setTimeout(() => {
+    if (playbackToken === currentPlaybackToken) {
+      scheduledSources = [];
+      clearActiveWords(wordsEl);
+
+      if (button) {
+        setPlaybackButtonStopped(button);
+      }
+    }
+  }, totalDuration * 1000 + 1000);
+}
+
+  async function playMessage(messageId) {
+  const state = messageState.get(messageId);
+  if (!state) return;
+
+  const button = document.querySelector(`[data-message-play="${messageId}"]`);
+
+  if (button) {
+    await handleMessagePlayButton(messageId, button);
+    return;
+  }
+
+  try {
+    stopAllSpeech();
+
+    if (state.mode === "slow") {
+      await playSlowMessage(state);
+    } else {
+      await playConversationalMessage(state);
+    }
+  } catch (error) {
+    showSystemMessage(getReadableError(error));
+  }
+}
+
+  function handleBotWordClick(unit, word, messageId, fallbackSentence) {
+    const existingTimer = wordClickTimers.get(unit);
+
+    if (existingTimer) {
+      clearTimeout(existingTimer);
+      wordClickTimers.delete(unit);
+
+      const state = messageState.get(messageId);
+      handleBotWordDoubleClick(unit, word, messageId, state?.text || fallbackSentence);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      wordClickTimers.delete(unit);
+      handleBotWordSingleClick(unit, word, messageId);
+    }, WORD_DOUBLE_CLICK_DELAY);
+
+    wordClickTimers.set(unit, timer);
+  }
+
+  async function handleBotWordSingleClick(unit, word, messageId) {
+    try {
+      unit.classList.add("active-word");
+
+      await playPreloadedWord(unit, word, messageId);
+
+      setTimeout(() => {
+        unit.classList.remove("active-word");
+      }, 250);
+    } catch (error) {
+      unit.classList.remove("active-word");
+      showSystemMessage(getReadableError(error));
+    }
+  }
+
+  async function handleBotWordDoubleClick(unit, word, messageId, sentence) {
+    try {
+      unit.classList.add("active-word");
+
+      await Promise.allSettled([
+        playPreloadedWord(unit, word, messageId),
+        translateWordUnit(unit, word, sentence)
+      ]);
+
+      unit.classList.remove("active-word");
+    } catch (error) {
+      unit.classList.remove("active-word");
+      showSystemMessage(getReadableError(error));
+    }
+  }
+
+  async function playPreloadedWord(unit, word, messageId) {
+    stopAllSpeech();
+    await unlockAudioContext();
+
+    const state = messageState.get(messageId);
+    if (!state) throw new Error("Could not find this message.");
+
+    const tokenId = unit.dataset.tokenId;
+    if (!tokenId) throw new Error("Could not find this word token.");
+
+    await getWordClipsForMessage(state);
+
+    const clip = state.wordClipMap?.get(tokenId);
+    if (!clip || !clip.audioBase64) {
+      throw new Error("This word recording is not ready yet.");
+    }
+
+    const context = getAudioContext();
+
+    let audioBuffer;
+
+    if (clip.audioBuffer) {
+      audioBuffer = clip.audioBuffer;
+    } else {
+      const arrayBuffer = base64ToArrayBuffer(clip.audioBase64);
+      const rawBuffer = await context.decodeAudioData(arrayBuffer);
+      audioBuffer = trimAudioBufferSilence(rawBuffer);
+      clip.audioBuffer = audioBuffer;
+    }
+
+    const source = context.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(context.destination);
+
+    scheduledSources = [source];
+
+    source.start(context.currentTime + 0.04);
+
+    return new Promise(resolve => {
+      source.addEventListener("ended", () => {
+        scheduledSources = [];
+        resolve();
+      });
+    });
+  }
+
+  async function translateWordUnit(unit, word, sentence) {
+    const cleanWord = word.trim();
+    if (!cleanWord) return;
+
+    const translationEl = unit.querySelector(".translation");
+    const chatLanguage = languageSelect.value;
+    const fluentLanguage = fluentLanguageSelect.value;
+
+    const cacheKey = `${cleanWord}|${chatLanguage}|${fluentLanguage}|${sentence}`;
+
+    unit.classList.add("translating");
+
+    if (translationEl && !translationEl.textContent) {
+      translationEl.textContent = "…";
+    }
+
+    if (translationCache.has(cacheKey)) {
+      if (translationEl) translationEl.textContent = translationCache.get(cacheKey);
+
+      unit.classList.remove("translating");
+      unit.classList.add("translated");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+          action: "translate-word",
+          word: cleanWord,
+          sentence,
+          chatLanguage,
+          fluentLanguage
+        })
+      });
+
+      const data = await parseJsonResponse(response, "Translation");
+
+      const translated = data.translation || "";
+      translationCache.set(cacheKey, translated);
+
+      if (translationEl) translationEl.textContent = translated;
+
+      unit.classList.remove("translating");
+      unit.classList.add("translated");
+    } catch (error) {
+      if (translationEl) translationEl.textContent = "failed";
+
+      unit.classList.remove("translating");
+      unit.classList.add("translated");
+      showSystemMessage(getReadableError(error));
+    }
+  }
+
+  async function sendToBot(userText) {
+    messages.push({
+      role: "user",
+      content: userText
+    });
+
+    addUserMessage(userText);
+
+    const thinkingCard = addThinkingMessage();
+
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({
+  messages,
+  language: languageSelect.value,
+  userGenderInstruction: getUserGenderInstruction()
+})
+    });
+
+    const data = await parseJsonResponse(response, "Chat");
+
+    messages.push({
+      role: "assistant",
+      content: data.reply
+    });
+
+    const fullSpeechPromise = fetchFullSpeech(data.reply);
+    const fullSpeech = await fullSpeechPromise;
+
+    thinkingCard.remove();
+
+    const botMessageId = addBotMessage(data.reply, {
+      fullSpeech,
+      fullSpeechPromise
+    });
+
+    const state = messageState.get(botMessageId);
+
+    if (state) {
+      state.wordClipsPromise = fetchIndividualWordSpeechForTokens(state.speakableTokens)
+        .then(clips => {
+          state.wordClips = clips;
+          state.wordClipMap = new Map(
+            clips
+              .filter(clip => clip && clip.tokenId)
+              .map(clip => [clip.tokenId, clip])
+          );
+          return clips;
+        })
+        .catch(() => null);
+
+      playConversationalMessage(state).catch(error => {
+        showSystemMessage(getReadableError(error));
+      });
+    }
+  }
+
+  async function handleSend() {
+  await unlockAudio();
+
+  const userText = input.value.trim();
+  if (!userText) return;
+
+  input.value = "";
+  sendButton.disabled = true;
+
+  try {
+    await sendToBot(userText);
+  } catch (error) {
+    showSystemMessage(getReadableError(error));
+  } finally {
+    sendButton.disabled = false;
+    input.focus();
+  }
+}
+
+  function getBestRecordingMimeType() {
+  const candidates = [
+    "audio/webm;codecs=opus",
+    "audio/webm",
+    "audio/mp4;codecs=mp4a.40.2",
+    "audio/mp4",
+    "audio/ogg;codecs=opus",
+    "audio/ogg"
+  ];
+
+  if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return "";
+
+  for (const type of candidates) {
+    if (MediaRecorder.isTypeSupported(type)) return type;
+  }
+
+  return "";
+}
+
+function getAudioFileExtension(mimeType) {
+  const type = (mimeType || "").toLowerCase();
+
+  if (type.includes("webm")) return "webm";
+  if (type.includes("mp4")) return "mp4";
+  if (type.includes("mpeg")) return "mp3";
+  if (type.includes("mp3")) return "mp3";
+  if (type.includes("wav")) return "wav";
+  if (type.includes("ogg")) return "ogg";
+
+  return "webm";
+}
+
+function getAudioFileName(mimeType) {
+  return `recording.${getAudioFileExtension(mimeType)}`;
+}
+
+async function transcribeAudioBlob(audioBlob, mimeType) {
+  if (!audioBlob || audioBlob.size < 1000) {
+    throw new Error("The recording was too short or empty.");
+  }
+
+  const finalMimeType = mimeType || audioBlob.type || "audio/webm";
+  const fileName = getAudioFileName(finalMimeType);
+
+  const audioFile = new File([audioBlob], fileName, {
+    type: finalMimeType
+  });
+
+  const formData = new FormData();
+  formData.append("audio", audioFile);
+  formData.append("chatLanguage", languageSelect.value);
+  formData.append("fluentLanguage", fluentLanguageSelect.value);
+  formData.append(
+    "transcriptionPrompt",
+    `The speaker may switch between languages, especially ${languageSelect.value} and ${fluentLanguageSelect.value}. Transcribe exactly what is spoken. Do not translate. Preserve mixed-language speech.`
+  );
+
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/transcribe-audio`, {
+    method: "POST",
+    headers: {
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+    },
+    body: formData
+  });
+
+  const rawText = await response.text();
+
+  let data;
+  try {
+    data = JSON.parse(rawText);
+  } catch {
+    throw new Error(`Transcription returned non-JSON response: ${rawText}`);
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      data.error ||
+      data.message ||
+      data?.openai?.error?.message ||
+      `Transcription failed with status ${response.status}`
+    );
+  }
+
+  const transcript =
+    data.text ||
+    data.transcript ||
+    data.transcription ||
+    "";
+
+  if (!transcript.trim()) {
+    throw new Error("No transcript was returned.");
+  }
+
+  return transcript.trim();
+}
+
+async function startRecording() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showSystemMessage("Audio recording is not supported in this browser.");
+    return;
+  }
+
+  if (!window.MediaRecorder) {
+    showSystemMessage("MediaRecorder is not supported in this browser.");
+    return;
+  }
+
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+  recordedChunks = [];
+
+  const mimeType = getBestRecordingMimeType();
+  const options = mimeType ? { mimeType } : {};
+
+  try {
+    mediaRecorder = new MediaRecorder(stream, options);
+  } catch {
+    mediaRecorder = new MediaRecorder(stream);
+  }
+
+  mediaRecorder.addEventListener("dataavailable", event => {
+    if (event.data && event.data.size > 0) {
+      recordedChunks.push(event.data);
+    }
+  });
+
+  mediaRecorder.addEventListener("start", () => {
+    isRecording = true;
+
+    speechRecordButton.classList.add("recording");
+    speechRecordButton.classList.remove("processing");
+    speechRecordButton.innerHTML = `<span class="mic-symbol">■</span>`;
+
+    setSpeechStatus("Recording");
+  });
+
+  mediaRecorder.addEventListener("stop", async () => {
+  speechRecordButton.disabled = true;
+  speechRecordButton.classList.remove("recording");
+  speechRecordButton.classList.add("processing");
+  speechRecordButton.innerHTML = `<span class="mic-symbol">…</span>`;
+  setSpeechStatus("Transcribing");
+
+  try {
+    const actualMimeType =
+      mediaRecorder.mimeType ||
+      mimeType ||
+      recordedChunks[0]?.type ||
+      "audio/webm";
+
+    const audioBlob = new Blob(recordedChunks, {
+      type: actualMimeType
+    });
+
+    const transcript = await transcribeAudioBlob(audioBlob, actualMimeType);
+
+    if (inputMode === "speech") {
+      setSpeechStatus("Checking language");
+
+      await handleSpeechTranscript(transcript);
+
+      setSpeechStatus("Tap to speak");
+    } else {
+      input.value = transcript;
+      input.focus();
+      setSpeechStatus("Tap to speak");
+    }
+  } catch (error) {
+    showSystemMessage(getReadableError(error));
+    setSpeechStatus("Tap to speak");
+  } finally {
+    stream.getTracks().forEach(track => track.stop());
+
+    isRecording = false;
+    resetSpeechButton();
+  }
+});
+
+  mediaRecorder.start();
+}
+
+function stopRecording() {
+  if (mediaRecorder && mediaRecorder.state === "recording") {
+    mediaRecorder.stop();
+  }
+}
+
+async function handleSpeechRecordButtonClick(event) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  try {
+    await unlockAudio();
+
+    if (isRecording) {
+      stopRecording();
+      return;
+    }
+
+    /*
+      If a correction is active and the user taps the main mic,
+      behave exactly like Re-record:
+      hide the correction box, start recording, and replace the original bubble.
+    */
+    if (activeSpeechCorrection) {
+      await startCorrectionRetryRecording();
+      return;
+    }
+
+    await startRecording();
+  } catch (error) {
+    showSystemMessage(getReadableError(error));
+
+    isRecording = false;
+    resetSpeechButton();
+    setSpeechStatus("Tap to speak");
+  }
+}
+
+  function attachUiHandlers() {
+  if (form) {
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      return false;
+    });
+  }
+
+  if (sendButton) {
+    sendButton.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      handleSend().catch(error => {
+        showSystemMessage(getReadableError(error));
+      });
+    });
+  }
+
+  if (input) {
+    input.addEventListener("keydown", event => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+
+        handleSend().catch(error => {
+          showSystemMessage(getReadableError(error));
+        });
+      }
+    });
+  }
+
+  if (writingModeButton) {
+    writingModeButton.addEventListener("click", () => {
+      setInputMode("writing");
+    });
+  }
+
+  if (speechModeButton) {
+    speechModeButton.addEventListener("click", () => {
+      setInputMode("speech");
+    });
+  }
+
+  if (speechRecordButton) {
+    speechRecordButton.addEventListener("click", handleSpeechRecordButtonClick);
+  }
+
+  if (authOpenButton) {
+  authOpenButton.addEventListener("click", () => {
+    openAuthModal("sign-in");
+  });
+}
+
+if (authBackdrop) {
+  authBackdrop.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    setAuthMessage("Use the close button to leave this window.", "error");
+  });
+}
+
+if (authCloseButton) {
+  authCloseButton.addEventListener("click", closeAuthModal);
+}
+
+if (authSignInTab) {
+  authSignInTab.addEventListener("click", () => {
+    setAuthMode("sign-in");
+  });
+}
+
+if (authSignUpTab) {
+  authSignUpTab.addEventListener("click", () => {
+    setAuthMode("sign-up");
+  });
+}
+
+if (authSubmitButton) {
+  authSubmitButton.addEventListener("click", () => {
+    handleAuthSubmit();
+  });
+}
+
+if (authForm) {
+  authForm.addEventListener("submit", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    handleAuthSubmit();
+    return false;
+  });
+}
+
+if (authEmail) {
+  authEmail.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleAuthSubmit();
+    }
+  });
+}
+
+if (authPassword) {
+  authPassword.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleAuthSubmit();
+    }
+  });
+}
+
+if (signOutButton) {
+  signOutButton.addEventListener("click", handleSignOut);
+}
+
+if (accountAvatarButton) {
+  accountAvatarButton.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    toggleAccountDropdown();
+  });
+}
+
+document.addEventListener("click", event => {
+  if (
+    accountMenuWrap &&
+    !accountMenuWrap.contains(event.target)
+  ) {
+    closeAccountDropdown();
+  }
+});
+
+if (togglePasswordButton) {
+  togglePasswordButton.addEventListener("click", () => {
+    setPasswordVisibility(authPassword.type === "password");
+  });
+}
+
+if (toggleConfirmPasswordButton) {
+  toggleConfirmPasswordButton.addEventListener("click", () => {
+    setConfirmPasswordVisibility(authConfirmPassword.type === "password");
+  });
+}
+
+if (forgotPasswordButton) {
+  forgotPasswordButton.addEventListener("click", handleForgotPassword);
+}
+
+if (googleAuthButton) {
+  googleAuthButton.addEventListener("click", handleGoogleAuth);
+}
+
+if (authConfirmPassword) {
+  authConfirmPassword.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleAuthSubmit();
+    }
+  });
+}
+
+if (genderManButton) {
+  genderManButton.addEventListener("click", () => {
+    setSelectedGender(selectedGender === "man" ? "" : "man");
+  });
+}
+
+if (genderWomanButton) {
+  genderWomanButton.addEventListener("click", () => {
+    setSelectedGender(selectedGender === "woman" ? "" : "woman");
+  });
+}
+
+if (toggleNewPasswordButton) {
+  toggleNewPasswordButton.addEventListener("click", () => {
+    setNewPasswordVisibility(newPasswordInput.type === "password");
+  });
+}
+
+if (toggleConfirmNewPasswordButton) {
+  toggleConfirmNewPasswordButton.addEventListener("click", () => {
+    setConfirmNewPasswordVisibility(confirmNewPasswordInput.type === "password");
+  });
+}
+
+if (newPasswordInput) {
+  newPasswordInput.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleAuthSubmit();
+    }
+  });
+}
+
+if (confirmNewPasswordInput) {
+  confirmNewPasswordInput.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleAuthSubmit();
+    }
+  });
+}
+  
+  }
+
+  attachUiHandlers();
+  setInputMode("speech");
+  initAuth();
+</script>
+</body>
+</html>
