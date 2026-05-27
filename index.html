@@ -1537,7 +1537,7 @@ form {
   color: white;
 }
 
-.stats-page {
+    .stats-page {
   position: fixed;
   inset: 0;
   z-index: 90;
@@ -1551,7 +1551,7 @@ form {
 }
 
 .stats-shell {
-  width: min(1180px, 100%);
+  width: min(1080px, 100%);
   margin: 0 auto;
 }
 
@@ -1609,7 +1609,7 @@ form {
   border: 1px solid rgba(255, 255, 255, 0.13);
   border-radius: 18px;
   padding: 12px 14px;
-  margin-bottom: 18px;
+  margin-bottom: 26px;
   backdrop-filter: blur(16px);
 }
 
@@ -1625,74 +1625,161 @@ form {
   min-width: 145px;
 }
 
-.stats-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 0 0 22px;
-  color: #cbd5e1;
-  font-size: 0.86rem;
-  font-weight: 800;
-}
+/* Top semicircle cards */
 
-.stats-legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 999px;
-  padding: 7px 10px;
-}
-
-.legend-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.legend-dot.familiar {
-  background: #94a3b8;
-}
-
-.legend-dot.spoken {
-  background: #4ade80;
-}
-
-.legend-dot.translated {
-  background: #facc15;
-}
-
-.stats-grid {
+.stats-summary-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  margin-bottom: 28px;
 }
 
-.stats-section {
+.stats-meter-card {
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 30px;
   background:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.08), transparent 34%),
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.09), transparent 34%),
+    rgba(255, 255, 255, 0.055);
+  color: white;
+  min-height: 260px;
+  padding: 24px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.28);
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.stats-meter-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.24);
+  background:
+    radial-gradient(circle at top left, rgba(96, 165, 250, 0.12), transparent 34%),
+    rgba(255, 255, 255, 0.075);
+  box-shadow: 0 28px 85px rgba(0, 0, 0, 0.36);
+}
+
+.stats-meter-card p {
+  margin: 0;
+  color: #9ca3af;
+  font-weight: 750;
+  text-align: center;
+}
+
+.semi-meter {
+  --meter-color: #94a3b8;
+  --meter-deg: 0deg;
+  width: min(310px, 100%);
+  aspect-ratio: 2 / 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.semi-meter::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px 999px 0 0;
+  background:
+    conic-gradient(
+      from 270deg at 50% 100%,
+      var(--meter-color) 0deg,
+      var(--meter-color) var(--meter-deg),
+      rgba(255, 255, 255, 0.11) var(--meter-deg),
+      rgba(255, 255, 255, 0.11) 180deg,
+      transparent 180deg
+    );
+}
+
+.semi-meter::after {
+  content: "";
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: 0;
+  height: 76%;
+  border-radius: 999px 999px 0 0;
+  background: rgba(8, 13, 24, 0.96);
+  box-shadow: inset 0 0 28px rgba(255, 255, 255, 0.04);
+}
+
+.understood-meter {
+  --meter-color: #94a3b8;
+}
+
+.spoken-meter {
+  --meter-color: #4ade80;
+}
+
+.semi-meter-inner {
+  position: absolute;
+  inset: auto 0 0;
+  height: 72%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(3px);
+  z-index: 2;
+}
+
+.semi-meter-inner strong {
+  font-size: clamp(2.4rem, 5vw, 4.2rem);
+  line-height: 0.9;
+  letter-spacing: -0.08em;
+  font-weight: 950;
+}
+
+.semi-meter-inner span {
+  margin-top: 8px;
+  color: #cbd5e1;
+  font-size: 0.92rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Recently translated */
+
+.stats-recent-section {
+  background:
+    radial-gradient(circle at top left, rgba(250, 204, 21, 0.08), transparent 34%),
     rgba(255, 255, 255, 0.055);
   border: 1px solid rgba(255, 255, 255, 0.13);
-  border-radius: 26px;
-  padding: 18px;
-  min-height: 280px;
+  border-radius: 30px;
+  padding: 22px;
   backdrop-filter: blur(16px);
 }
 
-.stats-section h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  letter-spacing: -0.03em;
+.stats-section-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
 }
 
-.stats-section p {
-  color: #9ca3af;
-  margin: 6px 0 16px;
-  font-size: 0.9rem;
-  line-height: 1.35;
+.stats-section-title-row h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  letter-spacing: -0.04em;
 }
+
+.stats-section-title-row p {
+  color: #9ca3af;
+  margin: 7px 0 0;
+  font-size: 0.95rem;
+}
+
+/* Word cards */
 
 .stats-list {
   display: flex;
@@ -1758,13 +1845,69 @@ form {
   padding: 24px;
 }
 
-@media (max-width: 900px) {
-  .stats-grid {
+/* Detail panel */
+
+.stats-detail-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(10px);
+}
+
+.stats-detail-card {
+  width: min(720px, 100%);
+  max-height: min(760px, calc(100vh - 48px));
+  overflow-y: auto;
+  background:
+    radial-gradient(circle at top left, rgba(96, 165, 250, 0.13), transparent 34%),
+    rgba(17, 24, 39, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 30px;
+  padding: 24px;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.55);
+}
+
+.stats-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.stats-detail-header h3 {
+  margin: 0;
+  font-size: clamp(1.7rem, 4vw, 2.7rem);
+  letter-spacing: -0.06em;
+  line-height: 1;
+}
+
+.stats-empty-inline {
+  color: #9ca3af;
+  font-weight: 800;
+  padding: 16px;
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .stats-page {
+    padding: 20px;
+  }
+
+  .stats-summary-grid {
     grid-template-columns: 1fr;
   }
 
-  .stats-page {
-    padding: 20px;
+  .stats-meter-card {
+    min-height: 230px;
+  }
+
+  .stats-section-title-row {
+    flex-direction: column;
   }
 }
     
@@ -2088,14 +2231,14 @@ form {
   </div>
 </div>
 
-  <section id="statsPage" class="stats-page hidden">
+<section id="statsPage" class="stats-page hidden">
   <div class="stats-shell">
     <header class="stats-header">
       <div>
         <div class="stats-kicker">My stats</div>
         <h2>Word progress</h2>
         <p>
-          Track words you have seen, spoken, and translated while practicing.
+          Track the words you understand, speak, and recently translated.
         </p>
       </div>
 
@@ -2133,30 +2276,58 @@ form {
       No words recorded yet. Start chatting to build your stats.
     </div>
 
-    <div class="stats-legend">
-      <span><i class="legend-dot familiar"></i> Familiar</span>
-      <span><i class="legend-dot spoken"></i> Spoken</span>
-      <span><i class="legend-dot translated"></i> Translated</span>
+    <div class="stats-summary-grid">
+      <button id="understoodStatsButton" class="stats-meter-card" type="button">
+        <div class="semi-meter understood-meter">
+          <div id="understoodMeterFill" class="semi-meter-fill"></div>
+          <div class="semi-meter-inner">
+            <strong id="understoodWordsCount">0</strong>
+            <span>words understood</span>
+          </div>
+        </div>
+
+        <p>Words you have seen or spoken.</p>
+      </button>
+
+      <button id="spokenStatsButton" class="stats-meter-card" type="button">
+        <div class="semi-meter spoken-meter">
+          <div id="spokenMeterFill" class="semi-meter-fill"></div>
+          <div class="semi-meter-inner">
+            <strong id="spokenWordsCount">0</strong>
+            <span>words spoken</span>
+          </div>
+        </div>
+
+        <p>Words you have successfully said.</p>
+      </button>
     </div>
 
-    <div class="stats-grid">
-      <section class="stats-section">
-        <h3>Familiar</h3>
-        <p>Words you have seen but have not spoken yet.</p>
-        <div id="familiarStatsList" class="stats-list"></div>
-      </section>
+    <section class="stats-recent-section">
+      <div class="stats-section-title-row">
+        <div>
+          <h3>Recently translated</h3>
+          <p>Words you translated and have not yet spoken again.</p>
+        </div>
+      </div>
 
-      <section class="stats-section">
-        <h3>Spoken</h3>
-        <p>Words you have said, or translated words later reinforced by speaking.</p>
-        <div id="spokenStatsList" class="stats-list"></div>
-      </section>
+      <div id="recentlyTranslatedList" class="stats-list"></div>
+    </section>
+  </div>
 
-      <section class="stats-section">
-        <h3>Translated</h3>
-        <p>Words you translated and are still reinforcing.</p>
-        <div id="translatedStatsList" class="stats-list"></div>
-      </section>
+  <div id="statsDetailPanel" class="stats-detail-panel hidden">
+    <div class="stats-detail-card">
+      <div class="stats-detail-header">
+        <div>
+          <div id="statsDetailKicker" class="stats-kicker">Words</div>
+          <h3 id="statsDetailTitle">Words</h3>
+        </div>
+
+        <button id="closeStatsDetailButton" class="stats-close-button" type="button">
+          ×
+        </button>
+      </div>
+
+      <div id="statsDetailList" class="stats-list"></div>
     </div>
   </div>
 </section>
@@ -2235,9 +2406,23 @@ const closeStatsButton = document.getElementById("closeStatsButton");
 const statsLanguageSelect = document.getElementById("statsLanguageSelect");
 const statsLoading = document.getElementById("statsLoading");
 const statsEmpty = document.getElementById("statsEmpty");
-const familiarStatsList = document.getElementById("familiarStatsList");
-const spokenStatsList = document.getElementById("spokenStatsList");
-const translatedStatsList = document.getElementById("translatedStatsList");
+
+const understoodStatsButton = document.getElementById("understoodStatsButton");
+const spokenStatsButton = document.getElementById("spokenStatsButton");
+
+const understoodWordsCount = document.getElementById("understoodWordsCount");
+const spokenWordsCount = document.getElementById("spokenWordsCount");
+
+const understoodMeterFill = document.getElementById("understoodMeterFill");
+const spokenMeterFill = document.getElementById("spokenMeterFill");
+
+const recentlyTranslatedList = document.getElementById("recentlyTranslatedList");
+
+const statsDetailPanel = document.getElementById("statsDetailPanel");
+const closeStatsDetailButton = document.getElementById("closeStatsDetailButton");
+const statsDetailKicker = document.getElementById("statsDetailKicker");
+const statsDetailTitle = document.getElementById("statsDetailTitle");
+const statsDetailList = document.getElementById("statsDetailList");
     
 let selectedGender = "";
     
@@ -2282,10 +2467,59 @@ let thisTabIsRecoveryTab = false;
 
     let activeCorrectionUserMessageId = null;
 
+function createStatsWordCard(row) {
+  const familiar = Number(row.familiar_count || 0);
+  const spoken = Number(row.spoken_count || 0);
+  const translated = Number(row.translated_count || 0);
+  const total = Math.max(1, familiar + spoken + translated);
+
+  const card = document.createElement("div");
+  card.className = "stats-word-card";
+
+  const top = document.createElement("div");
+  top.className = "stats-word-top";
+
+  const word = document.createElement("div");
+  word.className = "stats-word";
+  word.textContent = row.word_text;
+
+  const counts = document.createElement("div");
+  counts.className = "stats-counts";
+  counts.textContent = `F ${familiar} · S ${spoken} · T ${translated}`;
+
+  const bar = document.createElement("div");
+  bar.className = "stats-bar";
+
+  const familiarSeg = document.createElement("div");
+  familiarSeg.className = "stats-bar-segment familiar";
+  familiarSeg.style.width = `${(familiar / total) * 100}%`;
+
+  const spokenSeg = document.createElement("div");
+  spokenSeg.className = "stats-bar-segment spoken";
+  spokenSeg.style.width = `${(spoken / total) * 100}%`;
+
+  const translatedSeg = document.createElement("div");
+  translatedSeg.className = "stats-bar-segment translated";
+  translatedSeg.style.width = `${(translated / total) * 100}%`;
+
+  bar.appendChild(familiarSeg);
+  bar.appendChild(spokenSeg);
+  bar.appendChild(translatedSeg);
+
+  top.appendChild(word);
+  top.appendChild(counts);
+
+  card.appendChild(top);
+  card.appendChild(bar);
+
+  return card;
+}
+
+let currentStatsRows = [];
+
 function clearStatsLists() {
-  if (familiarStatsList) familiarStatsList.innerHTML = "";
-  if (spokenStatsList) spokenStatsList.innerHTML = "";
-  if (translatedStatsList) translatedStatsList.innerHTML = "";
+  if (recentlyTranslatedList) recentlyTranslatedList.innerHTML = "";
+  if (statsDetailList) statsDetailList.innerHTML = "";
 }
 
 function createStatsWordCard(row) {
@@ -2336,6 +2570,74 @@ function createStatsWordCard(row) {
   return card;
 }
 
+function getUnderstoodRows(rows) {
+  /*
+    Understood = familiar plus spoken words.
+    That means any word encountered, unless it is currently locked in Translated.
+  */
+  return rows.filter(row => {
+    const category = getWordStatsCategory(row);
+    return category === "familiar" || category === "spoken";
+  });
+}
+
+function getSpokenRows(rows) {
+  return rows.filter(row => getWordStatsCategory(row) === "spoken");
+}
+
+function getTranslatedRows(rows) {
+  return rows.filter(row => getWordStatsCategory(row) === "translated");
+}
+
+function setSemiMeter(meterEl, count, maxCount) {
+  if (!meterEl) return;
+
+  const ratio = maxCount > 0 ? Math.min(1, count / maxCount) : 0;
+  const degrees = Math.round(ratio * 180);
+
+  meterEl.style.setProperty("--meter-deg", `${degrees}deg`);
+}
+
+function renderStatsSummary(rows) {
+  const understoodRows = getUnderstoodRows(rows);
+  const spokenRows = getSpokenRows(rows);
+  const translatedRows = getTranslatedRows(rows);
+
+  const understoodCount = understoodRows.length;
+  const spokenCount = spokenRows.length;
+
+  if (understoodWordsCount) {
+    understoodWordsCount.textContent = String(understoodCount);
+  }
+
+  if (spokenWordsCount) {
+    spokenWordsCount.textContent = String(spokenCount);
+  }
+
+  /*
+    The understood meter fills by total encountered words.
+    The spoken meter fills by spoken / understood.
+  */
+  const totalKnownPool = Math.max(1, rows.length);
+  setSemiMeter(understoodStatsButton?.querySelector(".semi-meter"), understoodCount, totalKnownPool);
+  setSemiMeter(spokenStatsButton?.querySelector(".semi-meter"), spokenCount, Math.max(1, understoodCount));
+
+  if (recentlyTranslatedList) {
+    recentlyTranslatedList.innerHTML = "";
+
+    if (!translatedRows.length) {
+      const empty = document.createElement("div");
+      empty.className = "stats-empty-inline";
+      empty.textContent = "No recently translated words yet.";
+      recentlyTranslatedList.appendChild(empty);
+    } else {
+      translatedRows.forEach(row => {
+        recentlyTranslatedList.appendChild(createStatsWordCard(row));
+      });
+    }
+  }
+}
+
 async function loadStatsPage() {
   if (!currentUser) {
     showSystemMessage("Sign in to view your stats.");
@@ -2346,6 +2648,7 @@ async function loadStatsPage() {
 
   statsLoading?.classList.remove("hidden");
   statsEmpty?.classList.add("hidden");
+  closeStatsDetailPanel();
   clearStatsLists();
 
   const { data, error } = await supabaseClient
@@ -2362,25 +2665,15 @@ async function loadStatsPage() {
     return;
   }
 
-  const rows = Array.isArray(data) ? data : [];
+  currentStatsRows = Array.isArray(data) ? data : [];
 
-  if (!rows.length) {
+  if (!currentStatsRows.length) {
     statsEmpty?.classList.remove("hidden");
+    renderStatsSummary([]);
     return;
   }
 
-  for (const row of rows) {
-    const category = getWordStatsCategory(row);
-    const card = createStatsWordCard(row);
-
-    if (category === "translated") {
-      translatedStatsList?.appendChild(card);
-    } else if (category === "spoken") {
-      spokenStatsList?.appendChild(card);
-    } else {
-      familiarStatsList?.appendChild(card);
-    }
-  }
+  renderStatsSummary(currentStatsRows);
 }
 
 function openStatsPage() {
@@ -2405,6 +2698,49 @@ function openStatsPage() {
 
 function closeStatsPage() {
   statsPage?.classList.add("hidden");
+  closeStatsDetailPanel();
+}
+
+function openStatsDetailPanel(type) {
+  const rows =
+    type === "spoken"
+      ? getSpokenRows(currentStatsRows)
+      : getUnderstoodRows(currentStatsRows);
+
+  if (statsDetailKicker) {
+    statsDetailKicker.textContent =
+      type === "spoken" ? "Spoken words" : "Understood words";
+  }
+
+  if (statsDetailTitle) {
+    statsDetailTitle.textContent =
+      type === "spoken" ? "Words spoken" : "Words understood";
+  }
+
+  if (statsDetailList) {
+    statsDetailList.innerHTML = "";
+
+    if (!rows.length) {
+      const empty = document.createElement("div");
+      empty.className = "stats-empty-inline";
+      empty.textContent = "No words here yet.";
+      statsDetailList.appendChild(empty);
+    } else {
+      rows.forEach(row => {
+        statsDetailList.appendChild(createStatsWordCard(row));
+      });
+    }
+  }
+
+  statsDetailPanel?.classList.remove("hidden");
+}
+
+function closeStatsDetailPanel() {
+  statsDetailPanel?.classList.add("hidden");
+
+  if (statsDetailList) {
+    statsDetailList.innerHTML = "";
+  }
 }
     
 function normalizeStatsWord(word) {
@@ -2446,7 +2782,11 @@ function getWordStatsCategory(row) {
   if (translated > 0) {
     const baseline = Number(row.translated_spoken_baseline || 0);
 
-    if (spoken < baseline + 5) {
+    /*
+      For now, one successful speech after translation is enough
+      to move the word out of Translated and into Spoken.
+    */
+    if (spoken < baseline + 1) {
       return "translated";
     }
   }
@@ -5659,6 +5999,30 @@ if (statsLanguageSelect) {
     loadStatsPage().catch(error => {
       showSystemMessage(getReadableError(error));
     });
+  });
+}
+
+if (understoodStatsButton) {
+  understoodStatsButton.addEventListener("click", () => {
+    openStatsDetailPanel("understood");
+  });
+}
+
+if (spokenStatsButton) {
+  spokenStatsButton.addEventListener("click", () => {
+    openStatsDetailPanel("spoken");
+  });
+}
+
+if (closeStatsDetailButton) {
+  closeStatsDetailButton.addEventListener("click", closeStatsDetailPanel);
+}
+
+if (statsDetailPanel) {
+  statsDetailPanel.addEventListener("click", event => {
+    if (event.target === statsDetailPanel) {
+      closeStatsDetailPanel();
+    }
   });
 }
     
