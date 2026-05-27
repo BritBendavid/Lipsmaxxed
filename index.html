@@ -97,9 +97,10 @@ button {
   overflow: hidden;
 }
 
-.brand-logo-svg {
-  width: 56px;
-  height: 56px;
+.brand-logo-img {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
   display: block;
 }
 
@@ -1486,23 +1487,21 @@ form {
   .gender-options {
     grid-template-columns: 1fr;
   }
+
+  .brand {
+  gap: 10px;
 }
 
-@media (max-width: 760px) {
-  .brand {
-    gap: 10px;
-  }
+.brand-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 15px;
+}
 
-  .brand-logo {
-    width: 48px;
-    height: 48px;
-    border-radius: 15px;
-  }
-
-  .brand-logo-svg {
-    width: 47px;
-    height: 47px;
-  }
+.brand-logo-img {
+  width: 45px;
+  height: 45px;
+}
 }
   </style>
 </head>
@@ -1512,166 +1511,11 @@ form {
     <header class="top-bar">
       <div class="brand">
   <div class="brand-logo" aria-hidden="true">
-    <svg class="brand-logo-svg" viewBox="0 0 160 160" role="img">
-      <defs>
-        <linearGradient id="logoFaceShade" x1="35" y1="25" x2="115" y2="135" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stop-color="#ffffff" />
-          <stop offset="1" stop-color="#dbe7ef" />
-        </linearGradient>
-
-        <linearGradient id="logoBlueStroke" x1="80" y1="70" x2="150" y2="118" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stop-color="#60a5fa" />
-          <stop offset="1" stop-color="#2563eb" />
-        </linearGradient>
-      </defs>
-
-      <!-- Neck / collar -->
-      <path
-        d="M43 130 L69 92 L93 148 L59 150 Z"
-        fill="#111827"
-      />
-      <path
-        d="M62 93 L89 143 L83 98 Z"
-        fill="#64748b"
-        opacity="0.75"
-      />
-
-      <!-- Hair -->
-      <path
-        d="M23 66
-           C23 36 48 18 78 26
-           C89 29 96 19 109 23
-           C123 28 124 43 117 55
-           C127 55 134 50 138 40
-           C143 57 136 70 124 74
-           C131 77 139 77 146 74
-           C141 84 132 90 119 88
-           L113 99
-           C102 88 89 78 74 80
-           C62 82 53 89 44 102
-           L44 75
-           C37 73 30 70 23 66 Z"
-        fill="#111827"
-      />
-
-      <!-- Face -->
-      <path
-        d="M42 68
-           C57 62 72 61 88 63
-           C105 65 114 77 117 94
-           L127 104
-           C130 107 129 111 125 113
-           L114 117
-           C112 126 105 132 95 134
-           L75 136
-           C58 135 45 125 38 109
-           C30 91 30 76 42 68 Z"
-        fill="url(#logoFaceShade)"
-      />
-
-      <!-- Ear -->
-      <path
-        d="M37 86
-           C27 84 21 91 23 102
-           C25 113 36 117 45 110
-           L45 101
-           C40 107 33 105 31 99
-           C29 93 33 89 39 91 Z"
-        fill="#f8fafc"
-      />
-      <path
-        d="M35 94 C40 94 42 98 40 104"
-        fill="none"
-        stroke="#111827"
-        stroke-width="4"
-        stroke-linecap="round"
-      />
-
-      <!-- Stoic eye / brow -->
-      <path
-        d="M70 76 C82 69 96 69 108 75"
-        fill="none"
-        stroke="#111827"
-        stroke-width="6"
-        stroke-linecap="round"
-      />
-      <path
-        d="M77 86 C86 81 96 82 105 87"
-        fill="none"
-        stroke="#111827"
-        stroke-width="4"
-        stroke-linecap="round"
-      />
-      <path
-        d="M91 85 C91 91 88 94 84 94 C80 93 78 90 78 86 Z"
-        fill="#111827"
-      />
-
-      <!-- Nose / mouth -->
-      <path
-        d="M114 83 L126 101 L115 104"
-        fill="none"
-        stroke="#111827"
-        stroke-width="5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-      <path
-        d="M100 117 C109 114 116 114 123 117"
-        fill="none"
-        stroke="#111827"
-        stroke-width="5"
-        stroke-linecap="round"
-      />
-
-      <!-- Speech stream -->
-      <path
-        d="M122 107 C135 102 143 92 153 80"
-        fill="none"
-        stroke="url(#logoBlueStroke)"
-        stroke-width="5"
-        stroke-linecap="round"
-      />
-      <path
-        d="M118 119 C134 122 144 130 153 143"
-        fill="none"
-        stroke="#111827"
-        stroke-width="4"
-        stroke-linecap="round"
-      />
-      <path
-        d="M119 126 C132 135 139 143 145 153"
-        fill="none"
-        stroke="#64748b"
-        stroke-width="3"
-        stroke-linecap="round"
-        opacity="0.8"
-      />
-      <path
-        d="M126 114 C140 111 150 111 158 116"
-        fill="none"
-        stroke="#60a5fa"
-        stroke-width="4"
-        stroke-linecap="round"
-      />
-
-      <!-- Letters / multilingual glyphs -->
-      <text x="132" y="72" fill="#60a5fa" font-size="20" font-weight="800" font-family="Georgia, serif">A</text>
-      <text x="145" y="55" fill="#111827" font-size="22" font-weight="800" font-family="Arial, sans-serif">あ</text>
-      <text x="145" y="94" fill="#2563eb" font-size="21" font-weight="900" font-family="Arial, sans-serif">文</text>
-      <text x="126" y="101" fill="#111827" font-size="19" font-weight="900" font-family="Arial, sans-serif">א</text>
-      <text x="143" y="123" fill="#111827" font-size="16" font-weight="900" font-family="Georgia, serif">ñ</text>
-      <text x="132" y="150" fill="#60a5fa" font-size="20" font-weight="900" font-family="Georgia, serif">Ω</text>
-      <text x="152" y="146" fill="#111827" font-size="19" font-weight="900" font-family="Arial, sans-serif">Д</text>
-      <text x="150" y="133" fill="#111827" font-size="14" font-weight="900" font-family="Arial, sans-serif">語</text>
-      <text x="154" y="112" fill="#111827" font-size="20" font-weight="900" font-family="Arial, sans-serif">ض</text>
-
-      <!-- Decorative dots -->
-      <circle cx="124" cy="111" r="3" fill="#64748b" />
-      <circle cx="150" cy="108" r="4" fill="#60a5fa" />
-      <circle cx="156" cy="128" r="2.5" fill="#111827" />
-      <circle cx="149" cy="151" r="3" fill="#64748b" />
-    </svg>
+    <img
+      src="assets/language-logo.png"
+      alt=""
+      class="brand-logo-img"
+    />
   </div>
 
   <div class="brand-copy">
