@@ -1918,13 +1918,12 @@ form {
 }
 
 .account-points-badge {
-  position: absolute;
-  top: 34px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: fixed;
+  top: 76px;
+  right: 28px;
   width: 58px;
   height: 36px;
-  z-index: 82;
+  z-index: 86;
   pointer-events: none;
   display: grid;
   place-items: center;
@@ -1940,7 +1939,7 @@ form {
   isolation: isolate;
   filter:
     drop-shadow(0 13px 26px rgba(0, 0, 0, 0.42))
-    drop-shadow(0 0 18px rgba(96, 165, 250, 0.10));
+    drop-shadow(0 0 18px rgba(74, 222, 128, 0.12));
 }
 
 .account-points-ring::before {
@@ -1951,8 +1950,8 @@ form {
   background:
     conic-gradient(
       from 270deg at 50% 100%,
-      #60a5fa 0deg,
-      #60a5fa var(--points-fill),
+      #4ade80 0deg,
+      #4ade80 var(--points-fill),
       rgba(255, 255, 255, 0.16) var(--points-fill),
       rgba(255, 255, 255, 0.16) 180deg,
       transparent 180deg
@@ -1973,7 +1972,7 @@ form {
   border: 1px solid rgba(255, 255, 255, 0.07);
   box-shadow:
     inset 0 0 16px rgba(255, 255, 255, 0.045),
-    0 0 16px rgba(96, 165, 250, 0.08);
+    0 0 16px rgba(74, 222, 128, 0.10);
   z-index: -1;
 }
 
@@ -1996,17 +1995,56 @@ form {
 
 @keyframes pointsBadgeBump {
   0% {
-    transform: translateX(-50%) scale(1);
+    transform: scale(1);
   }
 
   38% {
-    transform: translateX(-50%) scale(1.12);
-    filter: drop-shadow(0 0 22px rgba(96, 165, 250, 0.22));
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 22px rgba(74, 222, 128, 0.22));
   }
 
   100% {
-    transform: translateX(-50%) scale(1);
+    transform: scale(1);
   }
+}
+
+@media (max-width: 760px) {
+  .account-points-badge {
+    top: 68px;
+    right: 18px;
+  }
+}
+    
+.speech-review-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+
+.correction-points-earned {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 58px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at top left, rgba(74, 222, 128, 0.24), transparent 36%),
+    rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(74, 222, 128, 0.32);
+  color: #bbf7d0;
+  font-size: 0.92rem;
+  font-weight: 950;
+  letter-spacing: -0.035em;
+  box-shadow:
+    0 12px 34px rgba(0, 0, 0, 0.34),
+    0 0 20px rgba(74, 222, 128, 0.10);
+}
+
+.correction-points-earned.hidden {
+  display: none;
 }
 
 .points-toast {
@@ -2787,7 +2825,7 @@ function showPointsToast(pointsGained, language) {
   }, 2200);
 }
 
-function animatePointsFlyer(pointsGained) {
+function animatePointsFlyer(pointsGained, sourceEl = null) {
   if (!pointsGained || pointsGained <= 0 || !accountPointsBadge) return;
 
   const targetRect = accountPointsBadge.getBoundingClientRect();
@@ -2798,8 +2836,14 @@ function animatePointsFlyer(pointsGained) {
 
   document.body.appendChild(flyer);
 
-  const startX = window.innerWidth / 2;
-  const startY = window.innerHeight - 150;
+  let startX = window.innerWidth / 2;
+  let startY = window.innerHeight - 150;
+
+  if (sourceEl) {
+    const sourceRect = sourceEl.getBoundingClientRect();
+    startX = sourceRect.left + sourceRect.width / 2;
+    startY = sourceRect.top + sourceRect.height / 2;
+  }
 
   const endX = targetRect.left + targetRect.width / 2;
   const endY = targetRect.top + targetRect.height / 2;
@@ -2824,7 +2868,7 @@ function animatePointsFlyer(pointsGained) {
   }, 930);
 }
 
-function showPointsAward(pointsGained, newTotal, language) {
+function showPointsAward(pointsGained, newTotal, language, sourceEl = null) {
   if (!pointsGained || pointsGained <= 0) return;
 
   setPointsBadgeVisible(true);
@@ -2832,7 +2876,7 @@ function showPointsAward(pointsGained, newTotal, language) {
   const oldTotal = currentLanguagePoints;
 
   showPointsToast(pointsGained, language);
-  animatePointsFlyer(pointsGained);
+  animatePointsFlyer(pointsGained, sourceEl);
   animatePointsTotal(oldTotal, newTotal, language);
 }
 
@@ -2988,17 +3032,30 @@ async function recordUserWordsAndAwardPoints(text, languageOverride = null) {
   };
 }
 
-async function awardPointsForUserMessage(text, languageOverride = null) {
+async function awardPointsForUserMessage(text, languageOverride = null, options = {}) {
   const language = languageOverride || languageSelect.value;
+  const animate = options.animate !== false;
+  const sourceEl = options.sourceEl || null;
 
   try {
     const result = await recordUserWordsAndAwardPoints(text, language);
 
-    if (result.pointsGained > 0) {
-      showPointsAward(result.pointsGained, result.newTotal, language);
+    if (result.pointsGained > 0 && animate) {
+      showPointsAward(result.pointsGained, result.newTotal, language, sourceEl);
     }
+
+    return {
+      ...result,
+      language
+    };
   } catch (error) {
     console.warn("points award failed", error);
+
+    return {
+      pointsGained: 0,
+      newTotal: currentLanguagePoints,
+      language
+    };
   }
 }
     
@@ -4000,11 +4057,18 @@ function hasForeignLanguageParts(parts) {
   return parts.some(part => part && part.isChatLanguage === false);
 }
 
-function removeSpeechReviewCard() {
-  const existing = document.querySelector(".speech-review-card");
-  if (existing) {
-    existing.remove();
-  }
+function removeSpeechReviewCard(options = {}) {
+  const includePerfect = options.includePerfect === true;
+
+  const cards = [...document.querySelectorAll(".speech-review-card")];
+
+  cards.forEach(card => {
+    if (!includePerfect && card.classList.contains("perfect-card")) {
+      return;
+    }
+
+    card.remove();
+  });
 }
 
 function splitCorrectionTranslationWords(text) {
@@ -4143,7 +4207,8 @@ async function showPerfectCorrectionThenRevealBot({
   transcript,
   parts,
   correctedText,
-  prepared
+  prepared,
+  pointsAward = null
 }) {
   const finalText = correctedText || transcript;
 
@@ -4151,13 +4216,23 @@ async function showPerfectCorrectionThenRevealBot({
     Perfect card appears silently.
     Do not call playCorrection(...) here.
   */
-  addSpeechReviewCard({
-    transcript,
-    suggestion: finalText,
-    parts,
-    correctedText: finalText,
-    isPerfect: true
-  });
+  const perfectCard = addSpeechReviewCard({
+  transcript,
+  suggestion: finalText,
+  parts,
+  correctedText: finalText,
+  isPerfect: true,
+  pointsAward
+});
+
+if (pointsAward?.pointsGained > 0) {
+  showPointsAward(
+    pointsAward.pointsGained,
+    pointsAward.newTotal,
+    pointsAward.language || languageSelect.value,
+    perfectCard.pointsEarnedEl || null
+  );
+}
 
   /*
     Bot reply should still autoplay when it appears.
@@ -4244,6 +4319,7 @@ function addSpeechReviewCard({
   parts,
   correctedText,
   isPerfect = false,
+  pointsAward = null,
   onRetry,
   onContinue
 }) {
@@ -4269,11 +4345,25 @@ function addSpeechReviewCard({
     card.classList.add("perfect-card");
   }
 
-  const title = document.createElement("div");
-  title.className = "speech-review-title";
-  title.textContent = isPerfect
-    ? "Perfect!"
-    : `Try again in ${languageSelect.value}`;
+  const headerRow = document.createElement("div");
+headerRow.className = "speech-review-header-row";
+
+const title = document.createElement("div");
+title.className = "speech-review-title";
+title.textContent = isPerfect
+  ? "Perfect!"
+  : `Try again in ${languageSelect.value}`;
+
+const pointsEarned = document.createElement("div");
+pointsEarned.className = "correction-points-earned hidden";
+
+if (pointsAward && Number(pointsAward.pointsGained || 0) > 0) {
+  pointsEarned.textContent = `+${pointsAward.pointsGained}`;
+  pointsEarned.classList.remove("hidden");
+}
+
+headerRow.appendChild(title);
+headerRow.appendChild(pointsEarned);
 
   const layout = document.createElement("div");
   layout.className = "correction-layout";
@@ -4309,8 +4399,8 @@ function addSpeechReviewCard({
   layout.appendChild(sideControls);
   layout.appendChild(textZone);
 
-  card.appendChild(title);
-  card.appendChild(layout);
+  card.appendChild(headerRow);
+card.appendChild(layout);
 
   if (!isPerfect) {
     const actions = document.createElement("div");
@@ -4422,6 +4512,8 @@ function addSpeechReviewCard({
 
   scrollMessagesToBottom();
 
+  card.pointsEarnedEl = pointsEarned;
+  
   return card;
 }
 
@@ -5054,7 +5146,13 @@ function isSamePlayback(button, type, id) {
     
   async function handleSpeechTranscript(transcript) {
   if (!transcript.trim()) return;
-  awardPointsForUserMessage(transcript, languageSelect.value);
+  const pointsAward = await awardPointsForUserMessage(
+  transcript,
+  languageSelect.value,
+  {
+    animate: false
+  }
+);
     
   const isCorrectionRetry = correctionRetryMode;
 correctionRetryMode = false;
@@ -5097,11 +5195,12 @@ if (!isCorrectionRetry) {
     activeCorrectionUserMessageId = null;
 
     await showPerfectCorrectionThenRevealBot({
-      transcript,
-      parts,
-      correctedText,
-      prepared
-    });
+  transcript,
+  parts,
+  correctedText,
+  prepared,
+  pointsAward
+});
 
     return;
   }
@@ -5122,6 +5221,7 @@ if (!isCorrectionRetry) {
     parts,
     correctedText,
     isPerfect: false,
+    pointsAward,
     onRetry: () => {
       setSpeechStatus("Recording");
     },
@@ -5137,6 +5237,15 @@ if (!isCorrectionRetry) {
       }
     }
   });
+
+  if (pointsAward?.pointsGained > 0) {
+  showPointsAward(
+    pointsAward.pointsGained,
+    pointsAward.newTotal,
+    pointsAward.language || languageSelect.value,
+    correctionCard.pointsEarnedEl || null
+  );
+}
 
   const correctionId = correctionCard.dataset.correctionId;
 
