@@ -1910,6 +1910,120 @@ form {
     flex-direction: column;
   }
 }
+
+  .account-menu-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.account-points-badge {
+  position: absolute;
+  top: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 96px;
+  padding: 5px 9px 6px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at top left, rgba(96, 165, 250, 0.28), transparent 34%),
+    rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(147, 197, 253, 0.32);
+  color: white;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 5px;
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.38),
+    0 0 22px rgba(96, 165, 250, 0.12);
+  z-index: 82;
+  pointer-events: none;
+}
+
+.account-points-badge span:first-child {
+  font-size: 0.98rem;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+}
+
+.account-points-badge span:last-child {
+  color: #bfdbfe;
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.account-points-badge.points-bump {
+  animation: pointsBadgeBump 520ms ease;
+}
+
+@keyframes pointsBadgeBump {
+  0% {
+    transform: translateX(-50%) scale(1);
+  }
+
+  35% {
+    transform: translateX(-50%) scale(1.14);
+    box-shadow:
+      0 16px 48px rgba(0, 0, 0, 0.44),
+      0 0 32px rgba(96, 165, 250, 0.28);
+  }
+
+  100% {
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+.points-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 132px;
+  transform: translateX(-50%);
+  z-index: 120;
+  background:
+    radial-gradient(circle at top left, rgba(96, 165, 250, 0.25), transparent 36%),
+    rgba(17, 24, 39, 0.96);
+  border: 1px solid rgba(147, 197, 253, 0.24);
+  color: white;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 950;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(16px);
+  animation: pointsToastIn 260ms ease both;
+  pointer-events: none;
+}
+
+.points-toast strong {
+  color: #93c5fd;
+}
+
+@keyframes pointsToastIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+.points-flyer {
+  position: fixed;
+  z-index: 130;
+  background: white;
+  color: #0f172a;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 950;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.38);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
     
   </style>
 </head>
@@ -2000,6 +2114,11 @@ form {
         <path d="M12 12.2a4.4 4.4 0 1 0 0-8.8 4.4 4.4 0 0 0 0 8.8Zm0 2c-4.5 0-8.2 2.8-8.2 6.2 0 .8.6 1.4 1.4 1.4h13.6c.8 0 1.4-.6 1.4-1.4 0-3.4-3.7-6.2-8.2-6.2Z"></path>
       </svg>
     </button>
+
+    <div id="accountPointsBadge" class="account-points-badge hidden">
+  <span id="accountPointsValue">0</span>
+  <span id="accountPointsLabel">points</span>
+</div>
 
     <div id="accountDropdown" class="account-dropdown hidden">
       <div id="accountDisplayName" class="account-display-name"></div>
@@ -2423,6 +2542,13 @@ const closeStatsDetailButton = document.getElementById("closeStatsDetailButton")
 const statsDetailKicker = document.getElementById("statsDetailKicker");
 const statsDetailTitle = document.getElementById("statsDetailTitle");
 const statsDetailList = document.getElementById("statsDetailList");
+
+const accountPointsBadge = document.getElementById("accountPointsBadge");
+const accountPointsValue = document.getElementById("accountPointsValue");
+const accountPointsLabel = document.getElementById("accountPointsLabel");
+
+let currentLanguagePoints = 0;
+let pointsAnimationFrame = null;
     
 let selectedGender = "";
     
@@ -2517,6 +2643,324 @@ function createStatsWordCard(row) {
 
 let currentStatsRows = [];
 
+function getLanguagePointsLabel(language) {
+  return `${language} pts`;
+}
+
+function setPointsBadgeValue(points, language = languageSelect.value) {
+  currentLanguagePoints = Number(points || 0);
+
+  if (accountPointsValue) {
+    accountPointsValue.textContent = String(currentLanguagePoints);
+  }
+
+  if (accountPointsLabel) {
+    accountPointsLabel.textContent = getLanguagePointsLabel(language);
+  }
+}
+
+function setPointsBadgeVisible(isVisible) {
+  accountPointsBadge?.classList.toggle("hidden", !isVisible);
+}
+
+async function loadLanguagePoints(languageOverride = null) {
+  if (!currentUser) {
+    setPointsBadgeVisible(false);
+    setPointsBadgeValue(0, languageSelect.value);
+    return;
+  }
+
+  const language = languageOverride || languageSelect.value;
+
+  const { data, error } = await supabaseClient
+    .from("user_language_points")
+    .select("total_points")
+    .eq("user_id", currentUser.id)
+    .eq("language", language)
+    .maybeSingle();
+
+  if (error) {
+    console.warn("points load failed", error);
+    setPointsBadgeValue(0, language);
+    setPointsBadgeVisible(true);
+    return;
+  }
+
+  setPointsBadgeValue(Number(data?.total_points || 0), language);
+  setPointsBadgeVisible(true);
+}
+
+function animatePointsTotal(fromValue, toValue, language) {
+  if (!accountPointsValue) return;
+
+  if (pointsAnimationFrame) {
+    cancelAnimationFrame(pointsAnimationFrame);
+    pointsAnimationFrame = null;
+  }
+
+  const from = Number(fromValue || 0);
+  const to = Number(toValue || 0);
+  const duration = 720;
+  const start = performance.now();
+
+  function tick(now) {
+    const progress = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const value = Math.round(from + (to - from) * eased);
+
+    accountPointsValue.textContent = String(value);
+
+    if (accountPointsLabel) {
+      accountPointsLabel.textContent = getLanguagePointsLabel(language);
+    }
+
+    if (progress < 1) {
+      pointsAnimationFrame = requestAnimationFrame(tick);
+    } else {
+      currentLanguagePoints = to;
+      accountPointsBadge?.classList.add("points-bump");
+
+      setTimeout(() => {
+        accountPointsBadge?.classList.remove("points-bump");
+      }, 560);
+    }
+  }
+
+  pointsAnimationFrame = requestAnimationFrame(tick);
+}
+
+function showPointsToast(pointsGained, language) {
+  if (!pointsGained || pointsGained <= 0) return;
+
+  const existing = document.querySelector(".points-toast");
+  if (existing) existing.remove();
+
+  const toast = document.createElement("div");
+  toast.className = "points-toast";
+  toast.innerHTML = `Nice work — <strong>+${pointsGained}</strong> ${language} points!`;
+
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 2200);
+}
+
+function animatePointsFlyer(pointsGained) {
+  if (!pointsGained || pointsGained <= 0 || !accountPointsBadge) return;
+
+  const targetRect = accountPointsBadge.getBoundingClientRect();
+
+  const flyer = document.createElement("div");
+  flyer.className = "points-flyer";
+  flyer.textContent = `+${pointsGained}`;
+
+  document.body.appendChild(flyer);
+
+  const startX = window.innerWidth / 2;
+  const startY = window.innerHeight - 150;
+
+  const endX = targetRect.left + targetRect.width / 2;
+  const endY = targetRect.top + targetRect.height / 2;
+
+  flyer.style.left = `${startX}px`;
+  flyer.style.top = `${startY}px`;
+  flyer.style.transform = "translate(-50%, -50%) scale(1)";
+  flyer.style.opacity = "1";
+
+  requestAnimationFrame(() => {
+    flyer.style.transition =
+      "transform 850ms cubic-bezier(0.22, 1, 0.36, 1), opacity 850ms ease";
+
+    flyer.style.transform =
+      `translate(${endX - startX - flyer.offsetWidth / 2}px, ${endY - startY - flyer.offsetHeight / 2}px) scale(0.62)`;
+
+    flyer.style.opacity = "0.15";
+  });
+
+  setTimeout(() => {
+    flyer.remove();
+  }, 930);
+}
+
+function showPointsAward(pointsGained, newTotal, language) {
+  if (!pointsGained || pointsGained <= 0) return;
+
+  setPointsBadgeVisible(true);
+
+  const oldTotal = currentLanguagePoints;
+
+  showPointsToast(pointsGained, language);
+  animatePointsFlyer(pointsGained);
+  animatePointsTotal(oldTotal, newTotal, language);
+}
+
+async function recordUserWordsAndAwardPoints(text, languageOverride = null) {
+  if (!currentUser) {
+    return {
+      pointsGained: 0,
+      newTotal: 0
+    };
+  }
+
+  const language = languageOverride || languageSelect.value;
+  const words = getWordsForStats(text);
+
+  if (!words.length) {
+    return {
+      pointsGained: 0,
+      newTotal: currentLanguagePoints
+    };
+  }
+
+  const now = new Date().toISOString();
+
+  /*
+    Unlike the stats-display helper, this intentionally counts repeated
+    words inside the same message. Example:
+    "שלום שלום" can award +10 and then +1 if it is new.
+  */
+  const wordCounts = new Map();
+
+  for (const rawWord of words) {
+    const wordKey = normalizeStatsWord(rawWord);
+    if (!wordKey) continue;
+
+    const existing = wordCounts.get(wordKey);
+
+    if (existing) {
+      existing.count += 1;
+    } else {
+      wordCounts.set(wordKey, {
+        word_key: wordKey,
+        word_text: rawWord,
+        count: 1
+      });
+    }
+  }
+
+  let pointsGained = 0;
+
+  for (const item of wordCounts.values()) {
+    const { data: existing, error: selectError } = await supabaseClient
+      .from("word_stats")
+      .select("*")
+      .eq("user_id", currentUser.id)
+      .eq("language", language)
+      .eq("word_key", item.word_key)
+      .maybeSingle();
+
+    if (selectError) {
+      console.warn("points word select failed", selectError);
+      continue;
+    }
+
+    const previousSpokenCount = Number(existing?.spoken_count || 0);
+    const occurrenceCount = Number(item.count || 0);
+
+    if (occurrenceCount <= 0) continue;
+
+    /*
+      First produced use = 10 points.
+      Later produced uses = 1 point each.
+    */
+    if (previousSpokenCount === 0) {
+      pointsGained += 10;
+      pointsGained += Math.max(0, occurrenceCount - 1);
+    } else {
+      pointsGained += occurrenceCount;
+    }
+
+    const next = existing || {
+      user_id: currentUser.id,
+      language,
+      word_key: item.word_key,
+      word_text: item.word_text,
+      familiar_count: 0,
+      spoken_count: 0,
+      translated_count: 0,
+      translated_spoken_baseline: null
+    };
+
+    next.word_text = next.word_text || item.word_text;
+    next.spoken_count = previousSpokenCount + occurrenceCount;
+    next.last_encountered_at = now;
+
+    const { error: upsertError } = await supabaseClient
+      .from("word_stats")
+      .upsert(next, {
+        onConflict: "user_id,language,word_key"
+      });
+
+    if (upsertError) {
+      console.warn("points word upsert failed", upsertError);
+    }
+  }
+
+  if (pointsGained <= 0) {
+    return {
+      pointsGained: 0,
+      newTotal: currentLanguagePoints
+    };
+  }
+
+  const { data: existingPoints, error: pointsSelectError } = await supabaseClient
+    .from("user_language_points")
+    .select("*")
+    .eq("user_id", currentUser.id)
+    .eq("language", language)
+    .maybeSingle();
+
+  if (pointsSelectError) {
+    console.warn("points total select failed", pointsSelectError);
+    return {
+      pointsGained,
+      newTotal: currentLanguagePoints + pointsGained
+    };
+  }
+
+  const previousTotal = Number(existingPoints?.total_points || 0);
+  const newTotal = previousTotal + pointsGained;
+
+  const nextPoints = existingPoints || {
+    user_id: currentUser.id,
+    language,
+    total_points: 0
+  };
+
+  nextPoints.total_points = newTotal;
+  nextPoints.updated_at = now;
+
+  const { error: pointsUpsertError } = await supabaseClient
+    .from("user_language_points")
+    .upsert(nextPoints, {
+      onConflict: "user_id,language"
+    });
+
+  if (pointsUpsertError) {
+    console.warn("points total upsert failed", pointsUpsertError);
+  }
+
+  return {
+    pointsGained,
+    newTotal
+  };
+}
+
+async function awardPointsForUserMessage(text, languageOverride = null) {
+  const language = languageOverride || languageSelect.value;
+
+  try {
+    const result = await recordUserWordsAndAwardPoints(text, language);
+
+    if (result.pointsGained > 0) {
+      showPointsAward(result.pointsGained, result.newTotal, language);
+    }
+  } catch (error) {
+    console.warn("points award failed", error);
+  }
+}
+    
 function clearStatsLists() {
   if (recentlyTranslatedList) recentlyTranslatedList.innerHTML = "";
   if (statsDetailList) statsDetailList.innerHTML = "";
@@ -3122,10 +3566,19 @@ function updateAuthUi(session) {
     if (accountDisplayName) {
       accountDisplayName.textContent = getAccountDisplayName(currentUser);
     }
+
+    loadLanguagePoints(languageSelect.value).catch(() => {});
+
+    if (!passwordRecoveryLocked) {
+      closeAuthModal();
+    }
   } else {
     authOpenButton?.classList.remove("hidden");
     accountMenuWrap?.classList.add("hidden");
     closeAccountDropdown();
+
+    setPointsBadgeVisible(false);
+    setPointsBadgeValue(0, languageSelect.value);
 
     if (accountDisplayName) {
       accountDisplayName.textContent = "";
@@ -4560,12 +5013,7 @@ function isSamePlayback(button, type, id) {
     
   async function handleSpeechTranscript(transcript) {
   if (!transcript.trim()) return;
-
-  recordWordStats(
-  uniqueStatsWordsFromText(transcript),
-  "spoken",
-  languageSelect.value
-).catch(() => {});
+  awardPointsForUserMessage(transcript, languageSelect.value);
     
   const isCorrectionRetry = correctionRetryMode;
 correctionRetryMode = false;
@@ -5484,6 +5932,7 @@ async function handleMessagePlayButton(messageId, button) {
     });
 
     addUserMessage(userText);
+    awardPointsForUserMessage(userText, languageSelect.value);
 
     const thinkingCard = addThinkingMessage();
 
@@ -6023,6 +6472,12 @@ if (statsDetailPanel) {
     if (event.target === statsDetailPanel) {
       closeStatsDetailPanel();
     }
+  });
+}
+
+if (languageSelect) {
+  languageSelect.addEventListener("change", () => {
+    loadLanguagePoints(languageSelect.value).catch(() => {});
   });
 }
     
