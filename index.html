@@ -1919,44 +1919,106 @@ form {
 
 .account-points-badge {
   position: absolute;
-  top: 32px;
+  top: 29px;
   left: 50%;
   transform: translateX(-50%);
-  min-width: 96px;
-  padding: 5px 9px 6px;
-  border-radius: 999px;
-  background:
-    radial-gradient(circle at top left, rgba(96, 165, 250, 0.28), transparent 34%),
-    rgba(15, 23, 42, 0.96);
-  border: 1px solid rgba(147, 197, 253, 0.32);
-  color: white;
-  display: inline-flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 5px;
-  box-shadow:
-    0 12px 36px rgba(0, 0, 0, 0.38),
-    0 0 22px rgba(96, 165, 250, 0.12);
+  width: 66px;
+  height: 48px;
   z-index: 82;
   pointer-events: none;
+  display: grid;
+  place-items: center;
 }
 
-.account-points-badge span:first-child {
-  font-size: 0.98rem;
+.account-points-ring {
+  --points-fill: 180deg;
+  width: 66px;
+  height: 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.account-points-ring::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px 999px 0 0;
+  background:
+    conic-gradient(
+      from 270deg at 50% 100%,
+      #60a5fa 0deg,
+      #60a5fa var(--points-fill),
+      rgba(255, 255, 255, 0.14) var(--points-fill),
+      rgba(255, 255, 255, 0.14) 180deg,
+      transparent 180deg
+    );
+  filter: drop-shadow(0 12px 26px rgba(0, 0, 0, 0.42));
+}
+
+.account-points-ring::after {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 0;
+  height: 72%;
+  border-radius: 999px 999px 0 0;
+  background: rgba(15, 23, 42, 0.98);
+  box-shadow:
+    inset 0 0 16px rgba(255, 255, 255, 0.05),
+    0 0 18px rgba(96, 165, 250, 0.12);
+}
+
+.account-points-inner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 4px;
+  height: 34px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.account-points-value {
+  color: white;
+  font-size: 0.9rem;
   font-weight: 950;
-  letter-spacing: -0.04em;
+  line-height: 0.9;
+  letter-spacing: -0.055em;
+  max-width: 54px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.account-points-badge span:last-child {
+.account-points-label {
   color: #bfdbfe;
-  font-size: 0.65rem;
-  font-weight: 900;
+  font-size: 0.48rem;
+  font-weight: 950;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  margin-top: 3px;
 }
 
 .account-points-badge.points-bump {
   animation: pointsBadgeBump 520ms ease;
+}
+
+@keyframes pointsBadgeBump {
+  0% {
+    transform: translateX(-50%) scale(1);
+  }
+
+  35% {
+    transform: translateX(-50%) scale(1.16);
+  }
+
+  100% {
+    transform: translateX(-50%) scale(1);
+  }
 }
 
 @keyframes pointsBadgeBump {
@@ -2115,9 +2177,13 @@ form {
       </svg>
     </button>
 
-    <div id="accountPointsBadge" class="account-points-badge hidden">
-  <span id="accountPointsValue">0</span>
-  <span id="accountPointsLabel">points</span>
+    <div id="accountPointsBadge" class="account-points-badge hidden" aria-label="Language points">
+  <div class="account-points-ring">
+    <div class="account-points-inner">
+      <span id="accountPointsValue" class="account-points-value">0</span>
+      <span id="accountPointsLabel" class="account-points-label">pts</span>
+    </div>
+  </div>
 </div>
 
     <div id="accountDropdown" class="account-dropdown hidden">
@@ -2655,7 +2721,20 @@ function setPointsBadgeValue(points, language = languageSelect.value) {
   }
 
   if (accountPointsLabel) {
-    accountPointsLabel.textContent = getLanguagePointsLabel(language);
+    accountPointsLabel.textContent = `${language.slice(0, 3)} pts`;
+  }
+
+  const ring = accountPointsBadge?.querySelector(".account-points-ring");
+
+  if (ring) {
+    /*
+      This is a visual progress fill, not a hard limit.
+      It fills quickly early, then slows down as points grow.
+    */
+    const visualRatio = Math.min(1, Math.log10(currentLanguagePoints + 1) / 4);
+    const degrees = Math.round(visualRatio * 180);
+
+    ring.style.setProperty("--points-fill", `${degrees}deg`);
   }
 }
 
@@ -2709,6 +2788,13 @@ function animatePointsTotal(fromValue, toValue, language) {
     const value = Math.round(from + (to - from) * eased);
 
     accountPointsValue.textContent = String(value);
+    const ring = accountPointsBadge?.querySelector(".account-points-ring");
+
+if (ring) {
+  const visualRatio = Math.min(1, Math.log10(value + 1) / 4);
+  const degrees = Math.round(visualRatio * 180);
+  ring.style.setProperty("--points-fill", `${degrees}deg`);
+}
 
     if (accountPointsLabel) {
       accountPointsLabel.textContent = getLanguagePointsLabel(language);
