@@ -2714,6 +2714,79 @@ let thisTabIsRecoveryTab = false;
 
     let activeCorrectionUserMessageId = null;
 
+const REVIEW_INTERVALS_MS = [
+  60 * 1000,              // 1 minute
+  5 * 60 * 1000,          // 5 minutes
+  60 * 60 * 1000,         // 1 hour
+  24 * 60 * 60 * 1000,    // 1 day
+  6 * 24 * 60 * 60 * 1000 // 6 days
+];
+
+function getReviewIntervalMs(stage) {
+  const safeStage = Math.max(0, Math.min(stage, REVIEW_INTERVALS_MS.length - 1));
+  return REVIEW_INTERVALS_MS[safeStage];
+}
+
+function getDateAfterMs(ms) {
+  return new Date(Date.now() + ms).toISOString();
+}
+
+async function scheduleWordReview(word, reason = "correction", languageOverride = null) {
+  if (!currentUser) return;
+
+  const language = languageOverride || languageSelect.value;
+  const wordKey = normalizeStatsWord(word);
+  const wordText = String(word || "").trim();
+
+  if (!wordKey || !wordText) return;
+
+  const now = new Date().toISOString();
+
+  const { data: existing, error: selectError } = await supabaseClient
+    .from("word_review_targets")
+    .select("*")
+    .eq("user_id", currentUser.id)
+    .eq("language", language)
+    .eq("word_key", wordKey)
+    .maybeSingle();
+
+  if (selectError) {
+    console.warn("review target select failed", selectError);
+    return;
+  }
+
+  const currentStage = Number(existing?.stage || 0);
+
+  /*
+    If the word already exists, keep its current stage.
+    If this is a new correction/translation problem, start at stage 0.
+  */
+  const stage = existing ? currentStage : 0;
+
+  const next = existing || {
+    user_id: currentUser.id,
+    language,
+    word_key: wordKey,
+    word_text: wordText,
+    stage
+  };
+
+  next.word_text = next.word_text || wordText;
+  next.reason = reason;
+  next.next_due_at = getDateAfterMs(getReviewIntervalMs(stage));
+  next.updated_at = now;
+
+  const { error: upsertError } = await supabaseClient
+    .from("word_review_targets")
+    .upsert(next, {
+      onConflict: "user_id,language,word_key"
+    });
+
+  if (upsertError) {
+    console.warn("review target upsert failed", upsertError);
+  }
+}
+    
 function getNormalizedWordListForCompare(text) {
   return splitCorrectionTranslationWords(text)
     .map(word => ({
@@ -3000,6 +3073,125 @@ function showPointsAward(pointsGained, newTotal, language, sourceEl = null) {
   animatePointsTotal(oldTotal, newTotal, language);
 }
 
+async function markReviewWordSpoken(word, languageOverride = null) {
+  if (!currentUser) return;
+
+  const language = languageOverride || languageSelect.value;
+  const wordKey = normalizeStatsWord(word);
+
+  if (!wordKey) return;
+
+  const now = new Date().toISOString();
+
+  const { data: existing, error: selectError } = await supabaseClient
+    .from("word_review_targets")
+    .select("*")
+    .eq("user_id", currentUser.id)
+    .eq("language", language)
+    .eq("word_key", wordKey)
+    .maybeSingle();
+
+  if (selectError) {
+    console.warn("review spoken select failed", selectError);
+    return;
+  }
+
+  if (!existing) return;
+
+  const currentStage = Number(existing.stage || 0);
+  const nextStage = Math.min(
+    currentStage + 1,
+    REVIEW_INTERVALS_MS.length - 1
+  );
+
+  const { error: updateError } = await supabaseClient
+    .from("word_review_targets")
+    .update({
+      last_spoken_at: now,
+      next_due_at: getDateAfterMs(getReviewIntervalMs(nextStage)),
+      stage: nextStage,
+      reason: "spoken",
+      updated_at: now
+    })
+    .eq("id", existing.id);
+
+  if (updateError) {
+    console.warn("review spoken update failed", updateError);
+  }
+}
+
+async function ensureStaleSpokenWordsAreReviewTargets(languageOverride = null) {
+  if (!currentUser) return;
+
+  const language = languageOverride || languageSelect.value;
+  const sixDaysAgo = new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString();
+
+  const { data, error } = await supabaseClient
+    .from("word_stats")
+    .select("*")
+    .eq("user_id", currentUser.id)
+    .eq("language", language)
+    .gt("spoken_count", 0)
+    .lt("last_encountered_at", sixDaysAgo)
+    .order("last_encountered_at", { ascending: true })
+    .limit(20);
+
+  if (error) {
+    console.warn("stale word lookup failed", error);
+    return;
+  }
+
+  for (const row of data || []) {
+    const wordKey = row.word_key;
+    const wordText = row.word_text;
+
+    if (!wordKey || !wordText) continue;
+
+    const now = new Date().toISOString();
+
+    await supabaseClient
+      .from("word_review_targets")
+      .upsert({
+        user_id: currentUser.id,
+        language,
+        word_key: wordKey,
+        word_text: wordText,
+        reason: "stale",
+        stage: 4,
+        next_due_at: now,
+        updated_at: now
+      }, {
+        onConflict: "user_id,language,word_key"
+      });
+  }
+}
+
+async function getDueReviewTarget(languageOverride = null) {
+  if (!currentUser) return null;
+
+  const language = languageOverride || languageSelect.value;
+  const now = new Date().toISOString();
+
+  await ensureStaleSpokenWordsAreReviewTargets(language);
+
+  const { data, error } = await supabaseClient
+    .from("word_review_targets")
+    .select("*")
+    .eq("user_id", currentUser.id)
+    .eq("language", language)
+    .lte("next_due_at", now)
+    .order("next_due_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.warn("due review target failed", error);
+    return null;
+  }
+
+  return data || null;
+}
+    
 async function recordUserWordsAndAwardPoints(text, languageOverride = null) {
   if (!currentUser) {
     return {
@@ -3100,6 +3292,7 @@ async function recordUserWordsAndAwardPoints(text, languageOverride = null) {
     if (upsertError) {
       console.warn("points word upsert failed", upsertError);
     }
+    await markReviewWordSpoken(item.word_text, language);
   }
 
   if (pointsGained <= 0) {
@@ -4448,6 +4641,17 @@ function addSpeechReviewCard({
     );
 
   const tokens = createCorrectionTokensFromPairs(pairs, correctionId, correctionText);
+  if (!isPerfect) {
+  pairs
+    .filter(pair => pair.wasTranslated && pair.correctedWord)
+    .forEach(pair => {
+      scheduleWordReview(
+        pair.correctedWord,
+        "correction",
+        languageSelect.value
+      ).catch(() => {});
+    });
+}
 
   const card = document.createElement("div");
   card.className = "speech-review-card";
@@ -5123,12 +5327,19 @@ function isSamePlayback(button, type, id) {
     role: "user",
     content: userText
   });
+  const reviewTarget = await getDueReviewTarget(languageSelect.value);
 
   const responsePromise = callChatFunction(
   {
     messages,
     language: languageSelect.value,
-    userGenderInstruction: getUserGenderInstruction()
+    userGenderInstruction: getUserGenderInstruction(),
+    reviewTarget: reviewTarget
+      ? {
+          word: reviewTarget.word_text,
+          reason: reviewTarget.reason
+        }
+      : null
   },
   "Chat"
 );
@@ -6086,6 +6297,7 @@ async function handleMessagePlayButton(messageId, button) {
       "translated",
       languageSelect.value
     ).catch(() => {});
+    scheduleWordReview(word, "translated", languageSelect.value).catch(() => {});
 
     unit.classList.remove("active-word");
   } catch (error) {
@@ -6225,7 +6437,7 @@ async function handleMessagePlayButton(messageId, button) {
   });
 
     const thinkingCard = addThinkingMessage();
-
+    const reviewTarget = await getDueReviewTarget(languageSelect.value);
     const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
       method: "POST",
       headers: {
@@ -6236,7 +6448,13 @@ async function handleMessagePlayButton(messageId, button) {
       body: JSON.stringify({
   messages,
   language: languageSelect.value,
-  userGenderInstruction: getUserGenderInstruction()
+  userGenderInstruction: getUserGenderInstruction(),
+  reviewTarget: reviewTarget
+    ? {
+        word: reviewTarget.word_text,
+        reason: reviewTarget.reason
+      }
+    : null
 })
     });
 
