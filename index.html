@@ -1911,19 +1911,22 @@ form {
   }
 }
 
-  .account-menu-wrap {
+ .account-menu-wrap {
   position: relative;
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
+  gap: 0;
 }
 
 .account-points-badge {
-  position: fixed;
-  top: 76px;
-  right: 28px;
+  position: absolute;
+  top: 31px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 58px;
   height: 36px;
-  z-index: 86;
+  z-index: 82;
   pointer-events: none;
   display: grid;
   place-items: center;
@@ -2663,6 +2666,26 @@ const correctionState = new Map();
 let thisTabIsRecoveryTab = false;
 
     let activeCorrectionUserMessageId = null;
+
+function getChatLanguageTextFromParts(parts) {
+  return (parts || [])
+    .filter(part => part && part.isChatLanguage === true)
+    .map(part => part.text || "")
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+async function getChatLanguageOnlyText(text) {
+  const analysis = await analyzeUserMessageLanguageParts(text);
+  const parts = analysis.parts || [];
+
+  return {
+    parts,
+    correctedText: analysis.correctedText || text,
+    chatLanguageText: getChatLanguageTextFromParts(parts)
+  };
+}
 
 function createStatsWordCard(row) {
   const familiar = Number(row.familiar_count || 0);
@@ -5146,13 +5169,6 @@ function isSamePlayback(button, type, id) {
     
   async function handleSpeechTranscript(transcript) {
   if (!transcript.trim()) return;
-  const pointsAward = await awardPointsForUserMessage(
-  transcript,
-  languageSelect.value,
-  {
-    animate: false
-  }
-);
     
   const isCorrectionRetry = correctionRetryMode;
 correctionRetryMode = false;
@@ -5186,6 +5202,21 @@ if (!isCorrectionRetry) {
 
   const parts = analysis.parts || [];
   const correctedText = analysis.correctedText || transcript;
+  const chatLanguageText = getChatLanguageTextFromParts(parts);
+
+const pointsAward = chatLanguageText
+  ? await awardPointsForUserMessage(
+      chatLanguageText,
+      languageSelect.value,
+      {
+        animate: false
+      }
+    )
+  : {
+      pointsGained: 0,
+      newTotal: currentLanguagePoints,
+      language: languageSelect.value
+    };
 
   if (!hasForeignLanguageParts(parts)) {
     const prepared = pendingBackgroundBot;
@@ -6082,7 +6113,23 @@ async function handleMessagePlayButton(messageId, button) {
     });
 
     addUserMessage(userText);
-    awardPointsForUserMessage(userText, languageSelect.value);
+    getChatLanguageOnlyText(userText)
+  .then(result => {
+    if (result.chatLanguageText) {
+      return awardPointsForUserMessage(
+        result.chatLanguageText,
+        languageSelect.value
+      );
+    }
+
+    return null;
+  })
+  .catch(() => {
+    /*
+      If language analysis fails, do not award points.
+      This prevents accidental foreign-language points.
+    */
+  });
 
     const thinkingCard = addThinkingMessage();
 
