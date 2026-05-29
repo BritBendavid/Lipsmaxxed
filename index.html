@@ -1919,17 +1919,17 @@ form {
   gap: 0;
 }
 
-.account-points-badge {
-  position: absolute;
-  top: 31px;
-  left: 50%;
-  transform: translateX(-50%);
+.conversation-points-meter {
+  position: sticky;
+  top: 14px;
+  align-self: flex-end;
   width: 58px;
   height: 36px;
-  z-index: 82;
+  z-index: 8;
   pointer-events: none;
   display: grid;
   place-items: center;
+  margin: -6px 22px -18px 0;
 }
 
 .account-points-ring {
@@ -1992,7 +1992,7 @@ form {
   transform: translateY(-6px);
 }
 
-.account-points-badge.points-bump {
+.conversation-points-meter.points-bump {
   animation: pointsBadgeBump 520ms ease;
 }
 
@@ -2012,9 +2012,9 @@ form {
 }
 
 @media (max-width: 760px) {
-  .account-points-badge {
-    top: 68px;
-    right: 18px;
+  .conversation-points-meter {
+    top: 10px;
+    margin-right: 10px;
   }
 }
     
@@ -2189,12 +2189,6 @@ form {
       </svg>
     </button>
 
-    <div id="accountPointsBadge" class="account-points-badge hidden" aria-label="Language points">
-  <div class="account-points-ring">
-    <span id="accountPointsValue" class="account-points-value">0</span>
-  </div>
-</div>
-
     <div id="accountDropdown" class="account-dropdown hidden">
       <div id="accountDisplayName" class="account-display-name"></div>
       <button id="myStatsButton" class="account-menu-item" type="button">
@@ -2210,7 +2204,13 @@ form {
 </div>
     </header>
 
-    <main id="messageHistory" class="message-history"></main>
+    <main id="messageHistory" class="message-history">
+  <div id="accountPointsBadge" class="conversation-points-meter hidden" aria-label="Language points">
+    <div class="account-points-ring">
+      <span id="accountPointsValue" class="account-points-value">0</span>
+    </div>
+  </div>
+</main>
 
     <div id="composerShell" class="composer-shell">
   <form id="chatForm" onsubmit="return false;">
