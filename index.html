@@ -27,15 +27,24 @@ html {
 
 body {
   margin: 0;
-  min-height: 100vh;
+  height: 100vh;
   background:
     radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 30%),
     radial-gradient(circle at bottom right, rgba(250, 204, 21, 0.08), transparent 25%),
     var(--bg);
   color: var(--text);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  overflow-y: auto;
-  overflow-x: hidden;
+
+  overflow: hidden;
+}
+
+.app {
+  height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 24px;
+  gap: 18px;
+  overflow: hidden;
 }
 
 button,
@@ -46,14 +55,6 @@ select {
 
 button {
   -webkit-tap-highlight-color: transparent;
-}
-
-.app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  padding: 24px;
-  gap: 18px;
 }
 
 .hidden {
@@ -263,11 +264,6 @@ select option {
 
 /* Account card */
 
-.account-card {
-  min-height: 44px;
-  flex: 0 0 auto;
-}
-
 .auth-open-button {
   border: none;
   border-radius: 999px;
@@ -280,12 +276,6 @@ select option {
 .auth-open-button {
   background: white;
   color: black;
-}
-
-.account-card {
-  min-height: 44px;
-  flex: 0 0 auto;
-  position: relative;
 }
 
 .account-avatar-button {
@@ -382,23 +372,11 @@ select option {
   color: white;
 }
 
-.floating-account-dock {
-  position: sticky;
-  top: 14px;
-  z-index: 45;
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  pointer-events: auto;
-}
-
-.floating-account-dock .account-card {
-  position: relative;
+.account-card {
   min-height: 58px;
-  padding: 9px 11px 18px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
+  flex: 0 0 auto;
+  position: relative;
+  padding-bottom: 18px;
 }
 
 .account-menu-wrap {
@@ -422,31 +400,21 @@ select option {
 }
 
 .message-history {
-  --score-rail-width: 92px;
-
   width: 100%;
-  flex: 1;
-  padding: 44px calc(4vw + var(--score-rail-width)) 130px 4vw;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 22px 4vw 28px;
   display: flex;
   flex-direction: column;
   gap: 28px;
   scroll-behavior: smooth;
-  position: relative;
 }
 
 @media (max-width: 760px) {
   .message-history {
     --score-rail-width: 70px;
     padding: 18px calc(16px + var(--score-rail-width)) 130px 16px;
-  }
-
-  .conversation-points-meter {
-    top: 10px;
-    margin:
-      -16px
-      0
-      -14px
-      var(--points-meter-left, calc(100% - 60px));
   }
 
   .message-card,
@@ -1980,28 +1948,6 @@ form {
   gap: 0;
 }
 
-.conversation-points-meter {
-  position: sticky;
-  top: 14px;
-  width: 58px;
-  height: 36px;
-  z-index: 8;
-  pointer-events: none;
-  display: grid;
-  place-items: center;
-
-  /*
-    JS sets this so the meter lines up with the avatar.
-    Fallback keeps it on the right if JS has not run yet.
-  */
-  align-self: flex-start;
-  margin:
-    -18px
-    0
-    -18px
-    var(--points-meter-left, calc(100% - 76px));
-}
-
 .account-points-ring {
   --points-fill: 0deg;
   position: relative;
@@ -2062,10 +2008,6 @@ form {
   transform: translateY(-6px);
 }
 
-.conversation-points-meter.points-bump {
-  animation: pointsBadgeBump 520ms ease;
-}
-
 @keyframes pointsBadgeBump {
   0% {
     transform: scale(1);
@@ -2078,13 +2020,6 @@ form {
 
   100% {
     transform: scale(1);
-  }
-}
-
-@media (max-width: 760px) {
-  .conversation-points-meter {
-    top: 10px;
-    margin-right: 10px;
   }
 }
     
@@ -2167,6 +2102,36 @@ form {
   box-shadow: 0 18px 55px rgba(0, 0, 0, 0.38);
   pointer-events: none;
   will-change: transform, opacity;
+}
+
+@media (max-width: 760px) {
+  .app {
+    height: 100vh;
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .top-bar {
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .message-history {
+    min-height: 0;
+    overflow-y: auto;
+    padding: 18px 16px 24px;
+  }
+
+  .composer-shell {
+    padding: 10px 0 4px;
+  }
+
+  .speech-shell {
+    padding: 14px 0 6px;
+  }
 }
     
   </style>
@@ -4552,44 +4517,44 @@ card.appendChild(layout);
   messageHistory.appendChild(card);
 
   correctionState.set(correctionId, {
-    id: correctionId,
-    transcript,
-    suggestion,
-    parts,
-    correctionText,
-    tokens,
-    lineEl: correctionLine,
-    slow: false,
-    fullSpeech: null,
-    fullSpeechPromise: fetchFullSpeech(correctionText),
-    wordClips: null,
-    wordClipMap: null,
-    wordClipsPromise: fetchIndividualWordSpeechForTokens(tokens)
-      .then(clips => {
-        const state = correctionState.get(correctionId);
+  id: correctionId,
+  transcript,
+  suggestion,
+  parts,
+  correctionText,
+  tokens,
+  lineEl: correctionLine,
+  slow: false,
+  fullSpeech: null,
+  fullSpeechPromise: fetchFullSpeech(correctionText),
+  wordClips: null,
+  wordClipMap: null,
+  wordClipsPromise: fetchIndividualWordSpeechForTokens(tokens)
+    .then(clips => {
+      const state = correctionState.get(correctionId);
 
-        if (state) {
-          state.wordClips = clips;
-          state.wordClipMap = new Map(
-            clips
-              .filter(clip => clip && clip.tokenId)
-              .map(clip => [clip.tokenId, clip])
-          );
-        }
+      if (state) {
+        state.wordClips = clips;
+        state.wordClipMap = new Map(
+          clips
+            .filter(clip => clip && clip.tokenId)
+            .map(clip => [clip.tokenId, clip])
+        );
+      }
 
-        return clips;
-      })
-      .catch(() => {
-        const state = correctionState.get(correctionId);
+      return clips;
+    })
+    .catch(() => {
+      const state = correctionState.get(correctionId);
 
-        if (state) {
-          state.wordClipsPromise = null;
-        }
+      if (state) {
+        state.wordClipsPromise = null;
+      }
 
-        return null;
-      }),
-    wordSchedule: null
-  });
+      return null;
+    }),
+  wordSchedule: null
+});
 
   playButton.addEventListener("click", async () => {
     await playCorrection(correctionId);
