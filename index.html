@@ -2713,6 +2713,56 @@ const correctionState = new Map();
 let thisTabIsRecoveryTab = false;
 
     let activeCorrectionUserMessageId = null;
+
+function getNormalizedWordListForCompare(text) {
+  return splitCorrectionTranslationWords(text)
+    .map(word => ({
+      original: word,
+      normalized: normalizeCorrectionCompare(word)
+    }))
+    .filter(item => item.normalized);
+}
+
+function buildWordCountMapForCompare(text) {
+  const map = new Map();
+
+  for (const item of getNormalizedWordListForCompare(text)) {
+    map.set(item.normalized, (map.get(item.normalized) || 0) + 1);
+  }
+
+  return map;
+}
+
+function wordExistsAndConsume(wordCountMap, normalizedWord) {
+  const count = wordCountMap.get(normalizedWord) || 0;
+
+  if (count <= 0) {
+    return false;
+  }
+
+  if (count === 1) {
+    wordCountMap.delete(normalizedWord);
+  } else {
+    wordCountMap.set(normalizedWord, count - 1);
+  }
+
+  return true;
+}
+
+function getConfirmedSpokenTextFromCorrection(originalText, correctedText) {
+  const originalWordCounts = buildWordCountMapForCompare(originalText);
+  const correctedWords = getNormalizedWordListForCompare(correctedText);
+
+  const confirmedWords = [];
+
+  for (const item of correctedWords) {
+    if (wordExistsAndConsume(originalWordCounts, item.normalized)) {
+      confirmedWords.push(item.original);
+    }
+  }
+
+  return confirmedWords.join(" ");
+}
     
 function getChatLanguageTextFromParts(parts) {
   return (parts || [])
@@ -4078,33 +4128,21 @@ function setLoadingIcon(button) {
     button.textContent = "…";
   }
 }
-    
-function buildCorrectionPairsFromCorrectedTextAndParts(correctedText, parts) {
+    function buildCorrectionPairsFromCorrectedTextAndParts(correctedText, parts, originalText = "") {
   const correctedWords = splitCorrectionTranslationWords(correctedText);
-  const nativeWords = getNativeChatLanguageWordsFromParts(parts);
-
-  /*
-    We consume native words in order. This avoids making every repeated word green
-    merely because it appeared once in the user's chat-language speech.
-  */
-  let nativeIndex = 0;
+  const originalWordCounts = buildWordCountMapForCompare(originalText);
 
   return correctedWords.map(word => {
     const normalizedWord = normalizeCorrectionCompare(word);
-    const expectedNativeWord = nativeWords[nativeIndex];
 
-    const wasNative =
-      expectedNativeWord &&
-      normalizedWord === expectedNativeWord;
-
-    if (wasNative) {
-      nativeIndex++;
-    }
+    const appearedInOriginal =
+      normalizedWord &&
+      wordExistsAndConsume(originalWordCounts, normalizedWord);
 
     return {
       correctedWord: word,
-      originalWord: "",
-      wasTranslated: !wasNative
+      originalWord: appearedInOriginal ? word : "",
+      wasTranslated: !appearedInOriginal
     };
   });
 }
@@ -4399,11 +4437,15 @@ function addSpeechReviewCard({
 
   const correctionText = correctedText || suggestion || transcript;
   const pairs = isPerfect
-    ? buildCorrectionPairsFromCorrectedText(correctionText).map(pair => ({
-        ...pair,
-        wasTranslated: false
-      }))
-    : buildCorrectionPairsFromCorrectedTextAndParts(correctionText, parts);
+  ? buildCorrectionPairsFromCorrectedText(correctionText).map(pair => ({
+      ...pair,
+      wasTranslated: false
+    }))
+  : buildCorrectionPairsFromCorrectedTextAndParts(
+      correctionText,
+      parts,
+      transcript
+    );
 
   const tokens = createCorrectionTokensFromPairs(pairs, correctionId, correctionText);
 
@@ -5250,11 +5292,14 @@ if (!isCorrectionRetry) {
 
   const parts = analysis.parts || [];
   const correctedText = analysis.correctedText || transcript;
-  const chatLanguageText = getChatLanguageTextFromParts(parts);
+  const confirmedSpokenText = getConfirmedSpokenTextFromCorrection(
+  transcript,
+  correctedText
+);
 
-const pointsAward = chatLanguageText
+const pointsAward = confirmedSpokenText
   ? await awardPointsForUserMessage(
-      chatLanguageText,
+      confirmedSpokenText,
       languageSelect.value,
       {
         animate: false
