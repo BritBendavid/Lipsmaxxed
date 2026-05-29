@@ -288,12 +288,6 @@ select option {
   position: relative;
 }
 
-.account-menu-wrap {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-}
-
 .account-avatar-button {
   width: 42px;
   height: 42px;
@@ -388,6 +382,60 @@ select option {
   color: white;
 }
 
+.floating-account-dock {
+  position: sticky;
+  top: 14px;
+  z-index: 45;
+  height: 0;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 4vw;
+  pointer-events: none;
+}
+
+.floating-account-dock .account-card {
+  pointer-events: auto;
+  position: relative;
+  min-height: 64px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  backdrop-filter: none;
+}
+
+.account-menu-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.account-points-badge {
+  position: absolute;
+  top: 31px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 58px;
+  height: 36px;
+  z-index: 82;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+}
+
+.message-history {
+  --score-rail-width: 92px;
+
+  width: 100%;
+  flex: 1;
+  padding: 44px calc(4vw + var(--score-rail-width)) 130px 4vw;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  scroll-behavior: smooth;
+  position: relative;
+}
+
 @media (max-width: 760px) {
   .message-history {
     --score-rail-width: 70px;
@@ -414,19 +462,6 @@ select option {
 }
 
 /* Message area */
-
-.message-history {
-  --score-rail-width: 92px;
-
-  width: 100%;
-  flex: 1;
-  padding: 22px calc(4vw + var(--score-rail-width)) 130px 4vw;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-  scroll-behavior: smooth;
-  position: relative;
-}
 
 .message-card {
   width: min(1020px, 100%);
@@ -2213,41 +2248,45 @@ form {
       </button>
     </div>
   </div>
-
-  <div class="control-card account-card">
-  <button id="authOpenButton" class="auth-open-button" type="button">
-    Sign in
-  </button>
-
-  <div id="accountMenuWrap" class="account-menu-wrap hidden">
-    <button id="accountAvatarButton" class="account-avatar-button" type="button" aria-label="Open account menu">
-      <svg class="account-avatar-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 12.2a4.4 4.4 0 1 0 0-8.8 4.4 4.4 0 0 0 0 8.8Zm0 2c-4.5 0-8.2 2.8-8.2 6.2 0 .8.6 1.4 1.4 1.4h13.6c.8 0 1.4-.6 1.4-1.4 0-3.4-3.7-6.2-8.2-6.2Z"></path>
-      </svg>
-    </button>
-
-    <div id="accountDropdown" class="account-dropdown hidden">
-      <div id="accountDisplayName" class="account-display-name"></div>
-      <button id="myStatsButton" class="account-menu-item" type="button">
-  My stats
-</button>
-
-<button id="signOutButton" class="account-menu-logout" type="button">
-  Log out
-</button>
-    </div>
-  </div>
-</div>
-</div>
     </header>
 
-    <main id="messageHistory" class="message-history">
-  <div id="accountPointsBadge" class="conversation-points-meter hidden" aria-label="Language points">
-    <div class="account-points-ring">
-      <span id="accountPointsValue" class="account-points-value">0</span>
+    </header>
+
+<div id="floatingAccountDock" class="floating-account-dock">
+  <div class="control-card account-card">
+    <button id="authOpenButton" class="auth-open-button" type="button">
+      Sign in
+    </button>
+
+    <div id="accountMenuWrap" class="account-menu-wrap hidden">
+      <button id="accountAvatarButton" class="account-avatar-button" type="button" aria-label="Open account menu">
+        <svg class="account-avatar-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 12.2a4.4 4.4 0 1 0 0-8.8 4.4 4.4 0 0 0 0 8.8Zm0 2c-4.5 0-8.2 2.8-8.2 6.2 0 .8.6 1.4 1.4 1.4h13.6c.8 0 1.4-.6 1.4-1.4 0-3.4-3.7-6.2-8.2-6.2Z"></path>
+        </svg>
+      </button>
+
+      <div id="accountPointsBadge" class="account-points-badge hidden" aria-label="Language points">
+        <div class="account-points-ring">
+          <span id="accountPointsValue" class="account-points-value">0</span>
+        </div>
+      </div>
+
+      <div id="accountDropdown" class="account-dropdown hidden">
+        <div id="accountDisplayName" class="account-display-name"></div>
+
+        <button id="myStatsButton" class="account-menu-item" type="button">
+          My stats
+        </button>
+
+        <button id="signOutButton" class="account-menu-logout" type="button">
+          Log out
+        </button>
+      </div>
     </div>
   </div>
-</main>
+</div>
+
+<main id="messageHistory" class="message-history"></main>
 
     <div id="composerShell" class="composer-shell">
   <form id="chatForm" onsubmit="return false;">
@@ -2703,28 +2742,6 @@ const correctionState = new Map();
 let thisTabIsRecoveryTab = false;
 
     let activeCorrectionUserMessageId = null;
-
-function positionPointsMeterUnderAvatar() {
-  if (!accountAvatarButton || !accountPointsBadge || !messageHistory) return;
-
-  const avatarRect = accountAvatarButton.getBoundingClientRect();
-  const historyRect = messageHistory.getBoundingClientRect();
-
-  /*
-    Center the 58px meter under the avatar.
-    The -29 is half the meter width.
-  */
-  const meterLeft =
-    avatarRect.left +
-    avatarRect.width / 2 -
-    historyRect.left -
-    29;
-
-  accountPointsBadge.style.setProperty(
-    "--points-meter-left",
-    `${Math.max(0, meterLeft)}px`
-  );
-}
     
 function getChatLanguageTextFromParts(parts) {
   return (parts || [])
@@ -3748,10 +3765,6 @@ function updateAuthUi(session) {
   }
 
   loadLanguagePoints(languageSelect.value).catch(() => {});
-
-  requestAnimationFrame(() => {
-    positionPointsMeterUnderAvatar();
-  });
 
   if (!passwordRecoveryLocked) {
     closeAuthModal();
@@ -6739,24 +6752,12 @@ if (languageSelect) {
   languageSelect.addEventListener("change", () => {
     loadLanguagePoints(languageSelect.value).catch(() => {});
   });
-}
-
-window.addEventListener("resize", () => {
-  positionPointsMeterUnderAvatar();
-});
-
-window.addEventListener("orientationchange", () => {
-  setTimeout(positionPointsMeterUnderAvatar, 120);
-});    
+}    
   }
 
   attachUiHandlers();
   setInputMode("speech");
   initAuth();
-
-  requestAnimationFrame(() => {
-  positionPointsMeterUnderAvatar();
-});
 </script>
 </body>
 </html>
