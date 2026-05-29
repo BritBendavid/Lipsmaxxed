@@ -390,13 +390,17 @@ select option {
 
 @media (max-width: 760px) {
   .message-history {
-    --score-rail-width: 0px;
-    padding: 18px 16px 130px;
+    --score-rail-width: 70px;
+    padding: 18px calc(16px + var(--score-rail-width)) 130px 16px;
   }
 
   .conversation-points-meter {
     top: 10px;
-    margin: -4px 0 -14px auto;
+    margin:
+      -16px
+      0
+      -14px
+      var(--points-meter-left, calc(100% - 60px));
   }
 
   .message-card,
@@ -1945,8 +1949,7 @@ form {
 
 .conversation-points-meter {
   position: sticky;
-  top: 16px;
-  align-self: flex-end;
+  top: 14px;
   width: 58px;
   height: 36px;
   z-index: 8;
@@ -1955,10 +1958,15 @@ form {
   place-items: center;
 
   /*
-    Pulls the meter into the reserved right rail,
-    visually lining it up under the avatar/account area.
+    JS sets this so the meter lines up with the avatar.
+    Fallback keeps it on the right if JS has not run yet.
   */
-  margin: -6px calc(-1 * var(--score-rail-width) + 17px) -18px 0;
+  align-self: flex-start;
+  margin:
+    -18px
+    0
+    -18px
+    var(--points-meter-left, calc(100% - 76px));
 }
 
 .account-points-ring {
@@ -2696,6 +2704,28 @@ let thisTabIsRecoveryTab = false;
 
     let activeCorrectionUserMessageId = null;
 
+function positionPointsMeterUnderAvatar() {
+  if (!accountAvatarButton || !accountPointsBadge || !messageHistory) return;
+
+  const avatarRect = accountAvatarButton.getBoundingClientRect();
+  const historyRect = messageHistory.getBoundingClientRect();
+
+  /*
+    Center the 58px meter under the avatar.
+    The -29 is half the meter width.
+  */
+  const meterLeft =
+    avatarRect.left +
+    avatarRect.width / 2 -
+    historyRect.left -
+    29;
+
+  accountPointsBadge.style.setProperty(
+    "--points-meter-left",
+    `${Math.max(0, meterLeft)}px`
+  );
+}
+    
 function getChatLanguageTextFromParts(parts) {
   return (parts || [])
     .filter(part => part && part.isChatLanguage === true)
@@ -3710,19 +3740,23 @@ function updateAuthUi(session) {
   currentUser = session?.user || null;
 
   if (currentUser) {
-    authOpenButton?.classList.add("hidden");
-    accountMenuWrap?.classList.remove("hidden");
+  authOpenButton?.classList.add("hidden");
+  accountMenuWrap?.classList.remove("hidden");
 
-    if (accountDisplayName) {
-      accountDisplayName.textContent = getAccountDisplayName(currentUser);
-    }
+  if (accountDisplayName) {
+    accountDisplayName.textContent = getAccountDisplayName(currentUser);
+  }
 
-    loadLanguagePoints(languageSelect.value).catch(() => {});
+  loadLanguagePoints(languageSelect.value).catch(() => {});
 
-    if (!passwordRecoveryLocked) {
-      closeAuthModal();
-    }
-  } else {
+  requestAnimationFrame(() => {
+    positionPointsMeterUnderAvatar();
+  });
+
+  if (!passwordRecoveryLocked) {
+    closeAuthModal();
+  }
+} else {
     authOpenButton?.classList.remove("hidden");
     accountMenuWrap?.classList.add("hidden");
     closeAccountDropdown();
@@ -6706,12 +6740,23 @@ if (languageSelect) {
     loadLanguagePoints(languageSelect.value).catch(() => {});
   });
 }
-    
+
+window.addEventListener("resize", () => {
+  positionPointsMeterUnderAvatar();
+});
+
+window.addEventListener("orientationchange", () => {
+  setTimeout(positionPointsMeterUnderAvatar, 120);
+});    
   }
 
   attachUiHandlers();
   setInputMode("speech");
   initAuth();
+
+  requestAnimationFrame(() => {
+  positionPointsMeterUnderAvatar();
+});
 </script>
 </body>
 </html>
