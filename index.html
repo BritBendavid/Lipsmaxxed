@@ -2764,6 +2764,55 @@ const REVIEW_INTERVALS_MS = [
   6 * 24 * 60 * 60 * 1000 // 6 days
 ];
 
+function formatDueIn(nextDueAt) {
+  if (!nextDueAt) return "Due in 6d";
+
+  const ms = new Date(nextDueAt).getTime() - Date.now();
+
+  if (!Number.isFinite(ms)) return "Due in 6d";
+
+  if (ms <= 0) return "Due now";
+
+  const minutes = Math.ceil(ms / (60 * 1000));
+  const hours = Math.ceil(ms / (60 * 60 * 1000));
+  const days = Math.ceil(ms / (24 * 60 * 60 * 1000));
+
+  if (minutes < 60) return `Due in ${minutes}m`;
+  if (hours < 24) return `Due in ${hours}h`;
+
+  return `Due in ${days}d`;
+}
+
+function getFallbackDueAtForStatsRow(row) {
+  const last =
+    row?.last_encountered_at ||
+    row?.updated_at ||
+    row?.created_at ||
+    null;
+
+  if (!last) return null;
+
+  const lastTime = new Date(last).getTime();
+
+  if (!Number.isFinite(lastTime)) return null;
+
+  return new Date(lastTime + 6 * 24 * 60 * 60 * 1000).toISOString();
+}
+
+function getStatsRowDueAt(row) {
+  const target = getReviewTargetForRow(row);
+
+  if (target?.next_due_at) {
+    return target.next_due_at;
+  }
+
+  /*
+    Familiar / understood words that are not yet formal review targets
+    still get a six-day due timer from last encounter.
+  */
+  return getFallbackDueAtForStatsRow(row);
+}
+
 function getReviewIntervalMs(stage) {
   const safeStage = Math.max(0, Math.min(stage, REVIEW_INTERVALS_MS.length - 1));
   return REVIEW_INTERVALS_MS[safeStage];
@@ -2956,13 +3005,13 @@ function getReviewTargetForRow(row) {
 }
 
 function getReviewDueTime(row) {
-  const target = getReviewTargetForRow(row);
+  const dueAt = getStatsRowDueAt(row);
 
-  if (!target?.next_due_at) {
+  if (!dueAt) {
     return Number.POSITIVE_INFINITY;
   }
 
-  const time = new Date(target.next_due_at).getTime();
+  const time = new Date(dueAt).getTime();
 
   return Number.isFinite(time) ? time : Number.POSITIVE_INFINITY;
 }
@@ -3207,7 +3256,6 @@ async function ensureStaleSpokenWordsAreReviewTargets(languageOverride = null) {
     .select("*")
     .eq("user_id", currentUser.id)
     .eq("language", language)
-    .gt("spoken_count", 0)
     .lt("last_encountered_at", sixDaysAgo)
     .order("last_encountered_at", { ascending: true })
     .limit(20);
@@ -3233,7 +3281,7 @@ async function ensureStaleSpokenWordsAreReviewTargets(languageOverride = null) {
         word_key: wordKey,
         word_text: wordText,
         reason: "stale",
-        stage: 4,
+        stage: REVIEW_INTERVALS_MS.length - 1,
         next_due_at: now,
         updated_at: now
       }, {
@@ -3243,9 +3291,16 @@ async function ensureStaleSpokenWordsAreReviewTargets(languageOverride = null) {
 }
 
 async function showReviewCueToast(reviewTarget, languageOverride = null) {
-  if (!reviewTarget?.word_text && !reviewTarget?.word) return;
+  const targetWord =
+    reviewTarget?.word_text ||
+    reviewTarget?.word ||
+    "";
 
-  const targetWord = reviewTarget.word_text || reviewTarget.word;
+  if (!targetWord) {
+    console.warn("review cue skipped: no target word", reviewTarget);
+    return;
+  }
+
   const language = languageOverride || languageSelect.value;
 
   let translated = "";
@@ -3256,7 +3311,8 @@ async function showReviewCueToast(reviewTarget, languageOverride = null) {
       language,
       fluentLanguageSelect.value
     );
-  } catch {
+  } catch (error) {
+    console.warn("review cue translation failed", error);
     translated = "";
   }
 
@@ -3266,9 +3322,11 @@ async function showReviewCueToast(reviewTarget, languageOverride = null) {
   const toast = document.createElement("div");
   toast.className = "review-cue-toast";
 
-  toast.innerHTML = translated
-    ? `Try to say: <strong>${targetWord}</strong> <span>— ${translated}</span>`
-    : `Try to say: <strong>${targetWord}</strong>`;
+  /*
+    Main cue shown in the user's fluent language.
+    Chat-language target stays smaller after the dash for reference.
+  */
+  toast.innerHTML = `Try to say: <strong>${translated || targetWord}</strong>`;
 
   document.body.appendChild(toast);
 
@@ -3542,8 +3600,12 @@ function createStatsWordCard(row) {
   word.textContent = row.word_text;
 
   const counts = document.createElement("div");
-  counts.className = "stats-counts";
-  counts.textContent = `F ${familiar} · S ${spoken} · T ${translated}`;
+counts.className = "stats-counts";
+
+const dueAt = getStatsRowDueAt(row);
+const dueText = formatDueIn(dueAt);
+
+counts.textContent = `F ${familiar} · S ${spoken} · T ${translated} · ${dueText}`;
 
   const bar = document.createElement("div");
   bar.className = "stats-bar";
@@ -3725,7 +3787,7 @@ function openStatsDetailPanel(type) {
   const rows =
   type === "spoken"
     ? sortRowsByReviewExpiration(getSpokenRows(currentStatsRows))
-    : getUnderstoodRows(currentStatsRows);
+    : sortRowsByReviewExpiration(getUnderstoodRows(currentStatsRows));
 
   if (statsDetailKicker) {
     statsDetailKicker.textContent =
