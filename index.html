@@ -386,21 +386,19 @@ select option {
   position: sticky;
   top: 14px;
   z-index: 45;
-  height: 0;
-  display: flex;
-  justify-content: flex-end;
-  padding-right: 4vw;
-  pointer-events: none;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  pointer-events: auto;
 }
 
 .floating-account-dock .account-card {
-  pointer-events: auto;
   position: relative;
-  min-height: 64px;
-  background: transparent;
-  border: none;
-  padding: 0;
-  backdrop-filter: none;
+  min-height: 58px;
+  padding: 9px 11px 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
 }
 
 .account-menu-wrap {
@@ -2238,19 +2236,16 @@ form {
 </div>
 
   <div class="control-card mode-card">
-    <label>Mode</label>
-    <div class="input-mode-toggle">
-      <button id="writingModeButton" class="input-mode-option active" type="button">
-        Writing
-      </button>
-      <button id="speechModeButton" class="input-mode-option" type="button">
-        Speech
-      </button>
-    </div>
+  <label>Mode</label>
+  <div class="input-mode-toggle">
+    <button id="writingModeButton" class="input-mode-option active" type="button">
+      Writing
+    </button>
+    <button id="speechModeButton" class="input-mode-option" type="button">
+      Speech
+    </button>
   </div>
-    </header>
-
-    </header>
+</div>
 
 <div id="floatingAccountDock" class="floating-account-dock">
   <div class="control-card account-card">
@@ -2285,6 +2280,7 @@ form {
     </div>
   </div>
 </div>
+    </header>
 
 <main id="messageHistory" class="message-history"></main>
 
