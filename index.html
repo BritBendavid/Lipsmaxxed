@@ -388,20 +388,44 @@ select option {
   color: white;
 }
 
+@media (max-width: 760px) {
+  .message-history {
+    --score-rail-width: 0px;
+    padding: 18px 16px 130px;
+  }
+
+  .conversation-points-meter {
+    top: 10px;
+    margin: -4px 0 -14px auto;
+  }
+
+  .message-card,
+  .speech-review-card {
+    width: 100%;
+  }
+
+  .user-bubble {
+    max-width: 100%;
+  }
+}
+
 /* Message area */
 
 .message-history {
+  --score-rail-width: 92px;
+
   width: 100%;
   flex: 1;
-  padding: 22px 4vw 130px;
+  padding: 22px calc(4vw + var(--score-rail-width)) 130px 4vw;
   display: flex;
   flex-direction: column;
   gap: 28px;
   scroll-behavior: smooth;
+  position: relative;
 }
 
 .message-card {
-  width: min(1100px, 100%);
+  width: min(1020px, 100%);
   margin: 0 auto;
 }
 
@@ -411,7 +435,7 @@ select option {
 }
 
 .user-bubble {
-  max-width: 760px;
+  max-width: min(760px, calc(100vw - 180px));
   background: rgba(255, 255, 255, 0.12);
   color: #e5e7eb;
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -714,7 +738,7 @@ form {
 /* Correction / Perfect cards */
 
 .speech-review-card {
-  width: min(900px, 100%);
+  width: min(840px, calc(100% - 16px));
   margin: 0 auto;
   background: rgba(239, 68, 68, 0.09);
   border: 1px solid rgba(248, 113, 113, 0.28);
@@ -1921,7 +1945,7 @@ form {
 
 .conversation-points-meter {
   position: sticky;
-  top: 14px;
+  top: 16px;
   align-self: flex-end;
   width: 58px;
   height: 36px;
@@ -1929,7 +1953,12 @@ form {
   pointer-events: none;
   display: grid;
   place-items: center;
-  margin: -6px 22px -18px 0;
+
+  /*
+    Pulls the meter into the reserved right rail,
+    visually lining it up under the avatar/account area.
+  */
+  margin: -6px calc(-1 * var(--score-rail-width) + 17px) -18px 0;
 }
 
 .account-points-ring {
