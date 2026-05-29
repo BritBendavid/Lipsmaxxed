@@ -2143,6 +2143,48 @@ form {
     padding: 14px 0 6px;
   }
 }
+
+.review-cue-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 132px;
+  transform: translateX(-50%);
+  z-index: 125;
+  max-width: min(640px, calc(100vw - 32px));
+  background:
+    radial-gradient(circle at top left, rgba(74, 222, 128, 0.22), transparent 36%),
+    rgba(17, 24, 39, 0.96);
+  border: 1px solid rgba(74, 222, 128, 0.28);
+  color: white;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 950;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(16px);
+  pointer-events: none;
+  animation: reviewCueToastIn 260ms ease both;
+  text-align: center;
+}
+
+.review-cue-toast strong {
+  color: #bbf7d0;
+}
+
+.review-cue-toast span {
+  color: #cbd5e1;
+}
+
+@keyframes reviewCueToastIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
     
   </style>
 </head>
@@ -2906,6 +2948,40 @@ function createStatsWordCard(row) {
 }
 
 let currentStatsRows = [];
+let currentReviewTargetMap = new Map();
+
+function getReviewTargetForRow(row) {
+  const key = row?.word_key || normalizeStatsWord(row?.word_text);
+  return currentReviewTargetMap.get(key) || null;
+}
+
+function getReviewDueTime(row) {
+  const target = getReviewTargetForRow(row);
+
+  if (!target?.next_due_at) {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  const time = new Date(target.next_due_at).getTime();
+
+  return Number.isFinite(time) ? time : Number.POSITIVE_INFINITY;
+}
+
+function sortRowsByReviewExpiration(rows) {
+  return [...rows].sort((a, b) => {
+    const aDue = getReviewDueTime(a);
+    const bDue = getReviewDueTime(b);
+
+    if (aDue !== bDue) {
+      return aDue - bDue;
+    }
+
+    const aLast = new Date(a.last_encountered_at || 0).getTime();
+    const bLast = new Date(b.last_encountered_at || 0).getTime();
+
+    return bLast - aLast;
+  });
+}
 
 function setPointsBadgeValue(points, language = languageSelect.value) {
   currentLanguagePoints = Number(points || 0);
@@ -3164,6 +3240,78 @@ async function ensureStaleSpokenWordsAreReviewTargets(languageOverride = null) {
         onConflict: "user_id,language,word_key"
       });
   }
+}
+
+async function showReviewCueToast(reviewTarget, languageOverride = null) {
+  if (!reviewTarget?.word_text && !reviewTarget?.word) return;
+
+  const targetWord = reviewTarget.word_text || reviewTarget.word;
+  const language = languageOverride || languageSelect.value;
+
+  let translated = "";
+
+  try {
+    translated = await translateReviewTargetForCue(
+      targetWord,
+      language,
+      fluentLanguageSelect.value
+    );
+  } catch {
+    translated = "";
+  }
+
+  const existing = document.querySelector(".review-cue-toast");
+  if (existing) existing.remove();
+
+  const toast = document.createElement("div");
+  toast.className = "review-cue-toast";
+
+  toast.innerHTML = translated
+    ? `Try to say: <strong>${targetWord}</strong> <span>— ${translated}</span>`
+    : `Try to say: <strong>${targetWord}</strong>`;
+
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 3600);
+}
+    
+async function translateReviewTargetForCue(word, languageOverride = null, fluentLanguageOverride = null) {
+  const chatLanguage = languageOverride || languageSelect.value;
+  const fluentLanguage = fluentLanguageOverride || fluentLanguageSelect.value;
+  const cleanWord = String(word || "").trim();
+
+  if (!cleanWord) return "";
+
+  const cacheKey = `review-cue|${cleanWord}|${chatLanguage}|${fluentLanguage}`;
+
+  if (translationCache.has(cacheKey)) {
+    return translationCache.get(cacheKey);
+  }
+
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+    },
+    body: JSON.stringify({
+      action: "translate-word",
+      word: cleanWord,
+      sentence: cleanWord,
+      chatLanguage,
+      fluentLanguage
+    })
+  });
+
+  const data = await parseJsonResponse(response, "Review cue translation");
+  const translated = data.translation || "";
+
+  translationCache.set(cacheKey, translated);
+
+  return translated;
 }
 
 async function getDueReviewTarget(languageOverride = null) {
@@ -3486,9 +3634,9 @@ function renderStatsSummary(rows) {
       empty.textContent = "No recently translated words yet.";
       recentlyTranslatedList.appendChild(empty);
     } else {
-      translatedRows.forEach(row => {
-        recentlyTranslatedList.appendChild(createStatsWordCard(row));
-      });
+      sortRowsByReviewExpiration(translatedRows).forEach(row => {
+  recentlyTranslatedList.appendChild(createStatsWordCard(row));
+});
     }
   }
 }
@@ -3507,11 +3655,17 @@ async function loadStatsPage() {
   clearStatsLists();
 
   const { data, error } = await supabaseClient
-    .from("word_stats")
-    .select("*")
-    .eq("user_id", currentUser.id)
-    .eq("language", language)
-    .order("last_encountered_at", { ascending: false });
+  .from("word_stats")
+  .select("*")
+  .eq("user_id", currentUser.id)
+  .eq("language", language)
+  .order("last_encountered_at", { ascending: false });
+
+const { data: reviewTargets, error: reviewError } = await supabaseClient
+  .from("word_review_targets")
+  .select("*")
+  .eq("user_id", currentUser.id)
+  .eq("language", language);
 
   statsLoading?.classList.add("hidden");
 
@@ -3519,6 +3673,17 @@ async function loadStatsPage() {
     showSystemMessage(getReadableError(error));
     return;
   }
+
+  if (reviewError) {
+  console.warn("review target stats load failed", reviewError);
+  currentReviewTargetMap = new Map();
+} else {
+  currentReviewTargetMap = new Map(
+    (reviewTargets || [])
+      .filter(target => target && target.word_key)
+      .map(target => [target.word_key, target])
+  );
+}
 
   currentStatsRows = Array.isArray(data) ? data : [];
 
@@ -3558,9 +3723,9 @@ function closeStatsPage() {
 
 function openStatsDetailPanel(type) {
   const rows =
-    type === "spoken"
-      ? getSpokenRows(currentStatsRows)
-      : getUnderstoodRows(currentStatsRows);
+  type === "spoken"
+    ? sortRowsByReviewExpiration(getSpokenRows(currentStatsRows))
+    : getUnderstoodRows(currentStatsRows);
 
   if (statsDetailKicker) {
     statsDetailKicker.textContent =
@@ -5345,9 +5510,10 @@ function isSamePlayback(button, type, id) {
 );
 
   return {
-    userText,
-    responsePromise
-  };
+  userText,
+  responsePromise,
+  reviewTarget
+};
 }
 
   async function translateCorrectionTokens(correctionId) {
@@ -5417,6 +5583,10 @@ function isSamePlayback(button, type, id) {
       fullSpeech,
       fullSpeechPromise
     });
+
+    if (prepared.reviewTarget) {
+  showReviewCueToast(prepared.reviewTarget, languageSelect.value).catch(() => {});
+}
 
     const state = messageState.get(botMessageId);
 
@@ -6474,6 +6644,9 @@ async function handleMessagePlayButton(messageId, button) {
       fullSpeech,
       fullSpeechPromise
     });
+    if (reviewTarget) {
+  showReviewCueToast(reviewTarget, languageSelect.value).catch(() => {});
+}
 
     const state = messageState.get(botMessageId);
 
