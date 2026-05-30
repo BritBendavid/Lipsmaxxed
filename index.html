@@ -3033,8 +3033,8 @@ const writingModeButton = document.getElementById("writingModeButton");
 const speechModeButton = document.getElementById("speechModeButton");
 
 const messageHistory = document.getElementById("messageHistory");
-const languageSelect = document.getElementById("languageSelect");
-const fluentLanguageSelect = document.getElementById("fluentLanguageSelect");
+let languageSelect = document.getElementById("languageSelect");
+let fluentLanguageSelect = document.getElementById("fluentLanguageSelect");
 
 const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
@@ -3239,6 +3239,49 @@ let selectedChatLanguage = "English";
 let selectedInputMode = "speech";
 let selectedTopicId = "daily-life";
 let selectedChatMinutes = 20;
+
+if (!languageSelect) {
+  languageSelect = {
+    get value() {
+      return (
+        activeChatSession?.language ||
+        selectedChatLanguage ||
+        chatSetupLanguageSelect?.value ||
+        "English"
+      );
+    },
+    set value(nextValue) {
+      selectedChatLanguage = nextValue || "English";
+
+      if (chatSetupLanguageSelect) {
+        chatSetupLanguageSelect.value = selectedChatLanguage;
+      }
+
+      if (chatSetupLanguageLabel) {
+        chatSetupLanguageLabel.textContent = selectedChatLanguage;
+      }
+    },
+    addEventListener() {}
+  };
+}
+
+if (!fluentLanguageSelect) {
+  fluentLanguageSelect = {
+    get value() {
+      return (
+        currentUser?.user_metadata?.fluentLanguage ||
+        profileFluentLanguageSelect?.value ||
+        "English"
+      );
+    },
+    set value(nextValue) {
+      if (profileFluentLanguageSelect) {
+        profileFluentLanguageSelect.value = nextValue || "English";
+      }
+    },
+    addEventListener() {}
+  };
+}
 
 
 function renderTopicCards() {
