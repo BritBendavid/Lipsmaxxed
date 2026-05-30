@@ -3777,13 +3777,14 @@ function setPointsBadgeVisible(isVisible) {
 }
 
 async function loadLanguagePoints(languageOverride = null) {
+  const fallbackLanguage = getCurrentChatLanguage();
+  const language = languageOverride || fallbackLanguage;
+
   if (!currentUser) {
     setPointsBadgeVisible(false);
-    setPointsBadgeValue(0, languageSelect.value);
+    setPointsBadgeValue(0, language);
     return;
   }
-
-  const language = languageOverride || languageSelect.value;
 
   const { data, error } = await supabaseClient
     .from("user_language_points")
@@ -4429,7 +4430,7 @@ async function loadStatsPage() {
     return;
   }
 
-  const language = statsLanguageSelect?.value || languageSelect.value;
+  const language = statsLanguageSelect?.value || getCurrentChatLanguage();
 
   statsLoading?.classList.remove("hidden");
   statsEmpty?.classList.add("hidden");
@@ -4478,6 +4479,25 @@ const { data: reviewTargets, error: reviewError } = await supabaseClient
   renderStatsSummary(currentStatsRows);
 }
 
+function getCurrentChatLanguage() {
+  return (
+    languageSelect?.value ||
+    activeChatSession?.language ||
+    selectedChatLanguage ||
+    chatSetupLanguageSelect?.value ||
+    "English"
+  );
+}
+
+function getCurrentFluentLanguage() {
+  return (
+    fluentLanguageSelect?.value ||
+    currentUser?.user_metadata?.fluentLanguage ||
+    profileFluentLanguageSelect?.value ||
+    "English"
+  );
+}
+
 function openStatsPage() {
   if (!currentUser) {
     openAuthModal("sign-in");
@@ -4487,7 +4507,7 @@ function openStatsPage() {
   closeAccountDropdown();
 
   if (statsLanguageSelect) {
-    statsLanguageSelect.value = languageSelect.value;
+    statsLanguageSelect.value = getCurrentChatLanguage();
   }
 
   statsPage?.classList.remove("hidden");
@@ -4925,7 +4945,7 @@ function updateAuthUi(session) {
     accountDisplayName.textContent = getAccountDisplayName(currentUser);
   }
 
-  loadLanguagePoints(languageSelect.value).catch(() => {});
+  loadLanguagePoints(getCurrentChatLanguage()).catch(() => {});
 
   if (!passwordRecoveryLocked) {
     closeAuthModal();
@@ -4936,7 +4956,7 @@ function updateAuthUi(session) {
     closeAccountDropdown();
 
     setPointsBadgeVisible(false);
-    setPointsBadgeValue(0, languageSelect.value);
+    setPointsBadgeValue(0, getCurrentChatLanguage());
 
     if (accountDisplayName) {
       accountDisplayName.textContent = "";
@@ -8052,6 +8072,8 @@ if (chatSetupLanguageSelect) {
     if (chatSetupLanguageLabel) {
       chatSetupLanguageLabel.textContent = selectedChatLanguage;
     }
+
+    loadLanguagePoints(selectedChatLanguage).catch(() => {});
   });
 }
 
