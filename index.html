@@ -3410,20 +3410,22 @@ async function startConfiguredChat() {
 async function sendOpeningBotMessage(topic) {
   const thinkingCard = addThinkingMessage();
 
+  const language = getCurrentChatLanguage();
+
   const openingMessages = [
     {
       role: "user",
-      content: `Start a ${languageSelect.value} practice chat. You are playing this role: ${topic.role}. Send the first message and begin naturally.`
+      content: `Start a ${language} practice chat. You are playing this role: ${topic.role}. Send the first message and begin naturally.`
     }
   ];
 
   try {
-    const reviewTarget = await getDueReviewTarget(languageSelect.value);
+    const reviewTarget = await getDueReviewTarget(language);
 
     const data = await callChatFunction(
       {
         messages: openingMessages,
-        language: languageSelect.value,
+        language,
         userGenderInstruction: getUserGenderInstruction(),
         chatRole: topic.role,
         chatTopic: topic.title,
@@ -3444,7 +3446,7 @@ async function sendOpeningBotMessage(topic) {
       content: data.reply
     });
 
-    const fullSpeechPromise = fetchFullSpeech(data.reply);
+    const fullSpeechPromise = fetchFullSpeech(data.reply, language);
     const fullSpeech = await fullSpeechPromise;
 
     thinkingCard.remove();
@@ -3455,13 +3457,16 @@ async function sendOpeningBotMessage(topic) {
     });
 
     if (reviewTarget) {
-      showReviewCueToast(reviewTarget, languageSelect.value).catch(() => {});
+      showReviewCueToast(reviewTarget, language).catch(() => {});
     }
 
     const state = messageState.get(botMessageId);
 
     if (state) {
-      state.wordClipsPromise = fetchIndividualWordSpeechForTokens(state.speakableTokens)
+      state.wordClipsPromise = fetchIndividualWordSpeechForTokens(
+        state.speakableTokens,
+        language
+      )
         .then(clips => {
           state.wordClips = clips;
           state.wordClipMap = new Map(
@@ -6841,47 +6846,47 @@ async function handleMessagePlayButton(messageId, button) {
     }
   }
 
-  async function fetchFullSpeech(text) {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": SUPABASE_ANON_KEY,
-        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-      },
-      body: JSON.stringify({
-        action: "speak-full",
-        text,
-        language: languageSelect.value
-      })
-    });
+  async function fetchFullSpeech(text, languageOverride = null) {
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+    },
+    body: JSON.stringify({
+      action: "speak-full",
+      text,
+      language: languageOverride || getCurrentChatLanguage()
+    })
+  });
 
-    const data = await parseJsonResponse(response, "Speech");
+  const data = await parseJsonResponse(response, "Speech");
 
-    return {
-      ...data,
-      audioBuffer: null
-    };
-  }
+  return {
+    ...data,
+    audioBuffer: null
+  };
+}
 
-  async function fetchIndividualWordSpeechForTokens(tokens) {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": SUPABASE_ANON_KEY,
-        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-      },
-      body: JSON.stringify({
-        action: "speak-words",
-        items: tokens,
-        language: languageSelect.value
-      })
-    });
+  async function fetchIndividualWordSpeechForTokens(tokens, languageOverride = null) {
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+    },
+    body: JSON.stringify({
+      action: "speak-words",
+      items: tokens,
+      language: languageOverride || getCurrentChatLanguage()
+    })
+  });
 
-    const data = await parseJsonResponse(response, "Word speech");
-    return data.clips || [];
-  }
+  const data = await parseJsonResponse(response, "Word speech");
+  return data.clips || [];
+}
 
   async function getFullSpeechForMessage(state) {
     if (state.fullSpeech) return state.fullSpeech;
