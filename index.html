@@ -2185,6 +2185,319 @@ form {
     transform: translateX(-50%) translateY(0) scale(1);
   }
 }
+
+.session-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.new-chat-button {
+  width: 46px;
+  height: 46px;
+  border: none;
+  border-radius: 50%;
+  background: white;
+  color: black;
+  font-size: 1.7rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+}
+
+.active-session-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-timer {
+  min-width: 76px;
+  padding: 10px 13px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  color: white;
+  font-weight: 950;
+  text-align: center;
+  letter-spacing: -0.04em;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+}
+
+.chat-timer.warning {
+  color: #fecaca;
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(248, 113, 113, 0.42);
+  animation: timerWarningPulse 1s infinite;
+}
+
+@keyframes timerWarningPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.0);
+  }
+
+  50% {
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.14);
+  }
+}
+
+.session-action-button {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.11);
+  color: white;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.session-action-button:hover {
+  background: rgba(255, 255, 255, 0.17);
+}
+
+.session-action-button.danger {
+  color: #fecaca;
+  background: rgba(239, 68, 68, 0.14);
+}
+
+.chat-setup-modal,
+.profile-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(96, 165, 250, 0.15), transparent 34%),
+    rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(14px);
+}
+
+.chat-setup-panel,
+.profile-panel {
+  position: relative;
+  width: min(920px, 100%);
+  max-height: min(820px, calc(100vh - 48px));
+  overflow-y: auto;
+  border-radius: 32px;
+  padding: 28px;
+  background:
+    radial-gradient(circle at top left, rgba(96, 165, 250, 0.17), transparent 34%),
+    rgba(17, 24, 39, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.58);
+}
+
+.chat-setup-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1.45rem;
+  cursor: pointer;
+}
+
+.chat-setup-kicker {
+  color: #93c5fd;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.78rem;
+  font-weight: 950;
+  margin-bottom: 8px;
+}
+
+.chat-setup-panel h2,
+.profile-panel h2 {
+  margin: 0 0 24px;
+  color: white;
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 0.95;
+  letter-spacing: -0.07em;
+}
+
+.chat-setup-panel h2 span {
+  color: #dbeafe;
+  font-weight: 500;
+}
+
+.chat-setup-section {
+  margin-top: 22px;
+}
+
+.chat-setup-label {
+  display: block;
+  margin-bottom: 10px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.setup-select-wrap {
+  width: min(260px, 100%);
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+}
+
+.setup-select-wrap select {
+  width: 100%;
+  height: 48px;
+}
+
+.setup-mode-toggle {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.setup-mode-option {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: transparent;
+  color: #9ca3af;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.setup-mode-option.active {
+  background: white;
+  color: black;
+}
+
+.topic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.topic-card {
+  min-height: 164px;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 24px;
+  padding: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.08), transparent 34%),
+    rgba(255, 255, 255, 0.055);
+  color: white;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.topic-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(147, 197, 253, 0.35);
+}
+
+.topic-card.selected {
+  border-color: rgba(147, 197, 253, 0.85);
+  background:
+    radial-gradient(circle at top left, rgba(96, 165, 250, 0.18), transparent 36%),
+    rgba(255, 255, 255, 0.075);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.13);
+}
+
+.topic-emoji {
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.topic-title {
+  font-weight: 950;
+  font-size: 1.05rem;
+  margin-bottom: 7px;
+}
+
+.topic-description {
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.time-limit-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #cbd5e1;
+  font-weight: 850;
+}
+
+.time-limit-input,
+.profile-input {
+  width: 110px;
+  height: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  padding: 0 14px;
+  outline: none;
+  font-size: 1rem;
+  font-weight: 850;
+}
+
+.profile-input {
+  width: min(360px, 100%);
+}
+
+.start-chat-button {
+  margin-top: 26px;
+  width: min(260px, 100%);
+  min-height: 52px;
+  border: none;
+  border-radius: 999px;
+  background: white;
+  color: black;
+  font-weight: 950;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  .session-controls {
+    gap: 8px;
+  }
+
+  .active-session-controls {
+    gap: 6px;
+  }
+
+  .chat-timer {
+    min-width: 66px;
+    padding: 9px 10px;
+  }
+
+  .session-action-button {
+    padding: 9px 10px;
+    font-size: 0.82rem;
+  }
+
+  .topic-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-setup-panel,
+  .profile-panel {
+    padding: 24px;
+  }
+}
     
   </style>
 </head>
@@ -2209,62 +2522,23 @@ form {
   </div>
 </div>
 
-      <div class="controls">
-  <div class="control-card language-stack-card">
-  <div class="stacked-control-row">
-    <label for="languageSelect">Learn</label>
-    <div class="select-wrap">
-      <select id="languageSelect">
-        <option value="English" selected>🇺🇸 English</option>
-        <option value="Hebrew">🇮🇱 Hebrew</option>
-        <option value="Spanish">🇪🇸 Spanish</option>
-        <option value="French">🇫🇷 French</option>
-        <option value="German">🇩🇪 German</option>
-        <option value="Arabic">🇸🇦 Arabic</option>
-        <option value="Russian">🇷🇺 Russian</option>
-        <option value="Italian">🇮🇹 Italian</option>
-        <option value="Portuguese">🇵🇹 Portuguese</option>
-        <option value="Chinese">🇨🇳 Chinese</option>
-        <option value="Japanese">🇯🇵 Japanese</option>
-        <option value="Korean">🇰🇷 Korean</option>
-      </select>
-    </div>
-  </div>
+      <div class="session-controls">
+  <button id="newChatButton" class="new-chat-button" type="button" aria-label="Start new chat">
+    +
+  </button>
 
-  <div class="stacked-control-row">
-    <label for="fluentLanguageSelect">Fluent</label>
-    <div class="select-wrap">
-      <select id="fluentLanguageSelect">
-        <option value="English" selected>🇺🇸 English</option>
-        <option value="Hebrew">🇮🇱 Hebrew</option>
-        <option value="Spanish">🇪🇸 Spanish</option>
-        <option value="French">🇫🇷 French</option>
-        <option value="German">🇩🇪 German</option>
-        <option value="Arabic">🇸🇦 Arabic</option>
-        <option value="Russian">🇷🇺 Russian</option>
-        <option value="Italian">🇮🇹 Italian</option>
-        <option value="Portuguese">🇵🇹 Portuguese</option>
-        <option value="Chinese">🇨🇳 Chinese</option>
-        <option value="Japanese">🇯🇵 Japanese</option>
-        <option value="Korean">🇰🇷 Korean</option>
-      </select>
-    </div>
-  </div>
-</div>
+  <div id="activeSessionControls" class="active-session-controls hidden">
+    <div id="chatTimer" class="chat-timer">20:00</div>
 
-  <div class="control-card mode-card">
-  <label>Mode</label>
-  <div class="input-mode-toggle">
-    <button id="writingModeButton" class="input-mode-option active" type="button">
-      Writing
+    <button id="addTimeButton" class="session-action-button" type="button">
+      +5 min
     </button>
-    <button id="speechModeButton" class="input-mode-option" type="button">
-      Speech
+
+    <button id="endChatButton" class="session-action-button danger" type="button">
+      End
     </button>
   </div>
-</div>
 
-<div id="floatingAccountDock" class="floating-account-dock">
   <div class="control-card account-card">
     <button id="authOpenButton" class="auth-open-button" type="button">
       Sign in
@@ -2288,6 +2562,10 @@ form {
 
         <button id="myStatsButton" class="account-menu-item" type="button">
           My stats
+        </button>
+
+        <button id="myProfileButton" class="account-menu-item" type="button">
+          My profile
         </button>
 
         <button id="signOutButton" class="account-menu-logout" type="button">
@@ -2513,6 +2791,127 @@ form {
     <div id="authMessage" class="auth-message"></div>
   </div>
 </div>
+  
+<section id="chatSetupModal" class="chat-setup-modal hidden">
+  <div class="chat-setup-panel">
+    <button id="closeChatSetupButton" class="chat-setup-close" type="button">
+      ×
+    </button>
+
+    <div class="chat-setup-kicker">New practice session</div>
+
+    <h2>
+      Start a chat in
+      <span id="chatSetupLanguageLabel">English</span>
+    </h2>
+
+    <div class="chat-setup-section">
+      <label class="chat-setup-label" for="chatSetupLanguageSelect">
+        Language
+      </label>
+
+      <div class="select-wrap setup-select-wrap">
+        <select id="chatSetupLanguageSelect">
+          <option value="English" selected>🇺🇸 English</option>
+          <option value="Hebrew">🇮🇱 Hebrew</option>
+          <option value="Spanish">🇪🇸 Spanish</option>
+          <option value="French">🇫🇷 French</option>
+          <option value="German">🇩🇪 German</option>
+          <option value="Arabic">🇸🇦 Arabic</option>
+          <option value="Russian">🇷🇺 Russian</option>
+          <option value="Italian">🇮🇹 Italian</option>
+          <option value="Portuguese">🇵🇹 Portuguese</option>
+          <option value="Chinese">🇨🇳 Chinese</option>
+          <option value="Japanese">🇯🇵 Japanese</option>
+          <option value="Korean">🇰🇷 Korean</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="chat-setup-section">
+      <div class="chat-setup-label">Input mode</div>
+
+      <div class="setup-mode-toggle">
+        <button id="setupWritingButton" class="setup-mode-option" type="button" data-mode="writing">
+          Writing
+        </button>
+
+        <button id="setupSpeechButton" class="setup-mode-option active" type="button" data-mode="speech">
+          Speech
+        </button>
+      </div>
+    </div>
+
+    <div class="chat-setup-section">
+      <div class="chat-setup-label">Choose a role</div>
+
+      <div id="topicGrid" class="topic-grid"></div>
+    </div>
+
+    <div class="chat-setup-section">
+      <label class="chat-setup-label" for="chatMinutesInput">
+        Time limit
+      </label>
+
+      <div class="time-limit-row">
+        <input id="chatMinutesInput" class="time-limit-input" type="number" min="1" max="180" value="20" />
+        <span>minutes</span>
+      </div>
+    </div>
+
+    <button id="startChatButton" class="start-chat-button" type="button">
+      Start chat
+    </button>
+  </div>
+</section>
+
+<section id="profileModal" class="profile-modal hidden">
+  <div class="profile-panel">
+    <button id="closeProfileButton" class="chat-setup-close" type="button">
+      ×
+    </button>
+
+    <div class="chat-setup-kicker">My profile</div>
+    <h2>Profile settings</h2>
+
+    <div class="chat-setup-section">
+      <label class="chat-setup-label" for="profileUsernameInput">
+        Username
+      </label>
+
+      <input id="profileUsernameInput" class="profile-input" type="text" autocomplete="username" />
+    </div>
+
+    <div class="chat-setup-section">
+      <label class="chat-setup-label" for="profileFluentLanguageSelect">
+        Fluent language
+      </label>
+
+      <div class="select-wrap setup-select-wrap">
+        <select id="profileFluentLanguageSelect">
+          <option value="English" selected>🇺🇸 English</option>
+          <option value="Hebrew">🇮🇱 Hebrew</option>
+          <option value="Spanish">🇪🇸 Spanish</option>
+          <option value="French">🇫🇷 French</option>
+          <option value="German">🇩🇪 German</option>
+          <option value="Arabic">🇸🇦 Arabic</option>
+          <option value="Russian">🇷🇺 Russian</option>
+          <option value="Italian">🇮🇹 Italian</option>
+          <option value="Portuguese">🇵🇹 Portuguese</option>
+          <option value="Chinese">🇨🇳 Chinese</option>
+          <option value="Japanese">🇯🇵 Japanese</option>
+          <option value="Korean">🇰🇷 Korean</option>
+        </select>
+      </div>
+    </div>
+
+    <button id="saveProfileButton" class="start-chat-button" type="button">
+      Save profile
+    </button>
+
+    <div id="profileMessage" class="auth-message"></div>
+  </div>
+</section>
 
 <section id="statsPage" class="stats-page hidden">
   <div class="stats-shell">
@@ -2710,6 +3109,30 @@ const statsDetailList = document.getElementById("statsDetailList");
 const accountPointsBadge = document.getElementById("accountPointsBadge");
 const accountPointsValue = document.getElementById("accountPointsValue");
 
+const newChatButton = document.getElementById("newChatButton");
+const activeSessionControls = document.getElementById("activeSessionControls");
+const chatTimer = document.getElementById("chatTimer");
+const addTimeButton = document.getElementById("addTimeButton");
+const endChatButton = document.getElementById("endChatButton");
+
+const chatSetupModal = document.getElementById("chatSetupModal");
+const closeChatSetupButton = document.getElementById("closeChatSetupButton");
+const chatSetupLanguageSelect = document.getElementById("chatSetupLanguageSelect");
+const chatSetupLanguageLabel = document.getElementById("chatSetupLanguageLabel");
+const setupWritingButton = document.getElementById("setupWritingButton");
+const setupSpeechButton = document.getElementById("setupSpeechButton");
+const topicGrid = document.getElementById("topicGrid");
+const chatMinutesInput = document.getElementById("chatMinutesInput");
+const startChatButton = document.getElementById("startChatButton");
+
+const myProfileButton = document.getElementById("myProfileButton");
+const profileModal = document.getElementById("profileModal");
+const closeProfileButton = document.getElementById("closeProfileButton");
+const profileUsernameInput = document.getElementById("profileUsernameInput");
+const profileFluentLanguageSelect = document.getElementById("profileFluentLanguageSelect");
+const saveProfileButton = document.getElementById("saveProfileButton");
+const profileMessage = document.getElementById("profileMessage");
+
 let currentLanguagePoints = 0;
 let pointsAnimationFrame = null;
     
@@ -2763,6 +3186,303 @@ const REVIEW_INTERVALS_MS = [
   24 * 60 * 60 * 1000,    // 1 day
   6 * 24 * 60 * 60 * 1000 // 6 days
 ];
+
+let activeChatSession = null;
+let chatTimerInterval = null;
+
+const CHAT_TOPICS = [
+  {
+    id: "daily-life",
+    title: "Daily Life",
+    role: "friendly day-to-day conversation partner",
+    emoji: "☀️",
+    description: "Talk about your day, plans, food, hobbies, and small moments."
+  },
+  {
+    id: "store-cashier",
+    title: "Store Cashier",
+    role: "cashier at a small store",
+    emoji: "🛒",
+    description: "Practice buying things, asking prices, and simple store conversation."
+  },
+  {
+    id: "job-interview",
+    title: "Job Interview",
+    role: "professional job interviewer",
+    emoji: "💼",
+    description: "Answer interview questions about experience, strengths, and goals."
+  },
+  {
+    id: "teacher",
+    title: "Teacher",
+    role: "patient teacher",
+    emoji: "📚",
+    description: "Explain what you know, answer questions, and practice school language."
+  },
+  {
+    id: "restaurant-server",
+    title: "Restaurant Server",
+    role: "restaurant server",
+    emoji: "🍽️",
+    description: "Order food, ask about the menu, and practice polite requests."
+  },
+  {
+    id: "travel-guide",
+    title: "Travel Guide",
+    role: "local travel guide",
+    emoji: "🧭",
+    description: "Ask about places, directions, plans, transportation, and recommendations."
+  }
+];
+
+let selectedChatLanguage = "English";
+let selectedInputMode = "speech";
+let selectedTopicId = "daily-life";
+let selectedChatMinutes = 20;
+
+
+function renderTopicCards() {
+  if (!topicGrid) return;
+
+  topicGrid.innerHTML = "";
+
+  CHAT_TOPICS.forEach(topic => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "topic-card";
+    button.dataset.topicId = topic.id;
+
+    if (topic.id === selectedTopicId) {
+      button.classList.add("selected");
+    }
+
+    button.innerHTML = `
+      <div class="topic-emoji">${topic.emoji}</div>
+      <div class="topic-title">${topic.title}</div>
+      <div class="topic-description">${topic.description}</div>
+    `;
+
+    button.addEventListener("click", () => {
+      selectedTopicId = topic.id;
+
+      topicGrid.querySelectorAll(".topic-card").forEach(card => {
+        card.classList.toggle("selected", card.dataset.topicId === selectedTopicId);
+      });
+    });
+
+    topicGrid.appendChild(button);
+  });
+}
+
+function getSelectedTopic() {
+  return CHAT_TOPICS.find(topic => topic.id === selectedTopicId) || CHAT_TOPICS[0];
+}
+
+function openChatSetup() {
+  selectedChatLanguage = languageSelect?.value || "English";
+  selectedInputMode = inputMode || "speech";
+  selectedTopicId = selectedTopicId || "daily-life";
+  selectedChatMinutes = 20;
+
+  if (chatSetupLanguageSelect) {
+    chatSetupLanguageSelect.value = selectedChatLanguage;
+  }
+
+  if (chatSetupLanguageLabel) {
+    chatSetupLanguageLabel.textContent = selectedChatLanguage;
+  }
+
+  if (chatMinutesInput) {
+    chatMinutesInput.value = "20";
+  }
+
+  setupWritingButton?.classList.toggle("active", selectedInputMode === "writing");
+  setupSpeechButton?.classList.toggle("active", selectedInputMode === "speech");
+
+  renderTopicCards();
+
+  chatSetupModal?.classList.remove("hidden");
+}
+
+function closeChatSetup() {
+  chatSetupModal?.classList.add("hidden");
+}
+
+function setSetupInputMode(mode) {
+  selectedInputMode = mode === "writing" ? "writing" : "speech";
+
+  setupWritingButton?.classList.toggle("active", selectedInputMode === "writing");
+  setupSpeechButton?.classList.toggle("active", selectedInputMode === "speech");
+}
+
+function formatTimer(ms) {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function updateChatTimer() {
+  if (!activeChatSession || !chatTimer) return;
+
+  const remaining = activeChatSession.endsAt - Date.now();
+
+  chatTimer.textContent = formatTimer(remaining);
+  chatTimer.classList.toggle("warning", remaining <= 5 * 60 * 1000);
+
+  if (remaining <= 0) {
+    endActiveChat("Time is up.");
+  }
+}
+
+function startChatTimer(minutes) {
+  clearInterval(chatTimerInterval);
+
+  activeChatSession.endsAt = Date.now() + minutes * 60 * 1000;
+
+  updateChatTimer();
+
+  chatTimerInterval = setInterval(updateChatTimer, 1000);
+}
+
+function addChatTime(minutes = 5) {
+  if (!activeChatSession) return;
+
+  activeChatSession.endsAt += minutes * 60 * 1000;
+  updateChatTimer();
+}
+
+function endActiveChat(message = "Chat ended.") {
+  clearInterval(chatTimerInterval);
+  chatTimerInterval = null;
+
+  activeChatSession = null;
+
+  activeSessionControls?.classList.add("hidden");
+  newChatButton?.classList.remove("hidden");
+
+  setSpeechStatus("Tap to speak");
+
+  showSystemMessage(message);
+}
+
+async function startConfiguredChat() {
+  const topic = getSelectedTopic();
+
+  selectedChatLanguage = chatSetupLanguageSelect?.value || "English";
+  selectedChatMinutes = Math.max(1, Number(chatMinutesInput?.value || 20));
+
+  if (languageSelect) {
+    languageSelect.value = selectedChatLanguage;
+  }
+
+  setInputMode(selectedInputMode);
+
+  messages.length = 0;
+  messageHistory.innerHTML = "";
+  messageState.clear();
+  userMessageState.clear();
+  correctionState.clear();
+
+  activeChatSession = {
+    language: selectedChatLanguage,
+    inputMode: selectedInputMode,
+    topicId: topic.id,
+    topicRole: topic.role,
+    topicTitle: topic.title,
+    startedAt: Date.now(),
+    endsAt: Date.now() + selectedChatMinutes * 60 * 1000
+  };
+
+  activeSessionControls?.classList.remove("hidden");
+  newChatButton?.classList.add("hidden");
+
+  closeChatSetup();
+
+  startChatTimer(selectedChatMinutes);
+
+  await loadLanguagePoints(selectedChatLanguage).catch(() => {});
+
+  await sendOpeningBotMessage(topic);
+}
+
+async function sendOpeningBotMessage(topic) {
+  const thinkingCard = addThinkingMessage();
+
+  const openingMessages = [
+    {
+      role: "user",
+      content: `Start a ${languageSelect.value} practice chat. You are playing this role: ${topic.role}. Send the first message and begin naturally.`
+    }
+  ];
+
+  try {
+    const reviewTarget = await getDueReviewTarget(languageSelect.value);
+
+    const data = await callChatFunction(
+      {
+        messages: openingMessages,
+        language: languageSelect.value,
+        userGenderInstruction: getUserGenderInstruction(),
+        chatRole: topic.role,
+        chatTopic: topic.title,
+        isOpeningMessage: true,
+        reviewTarget: reviewTarget
+          ? {
+              word: reviewTarget.word_text,
+              word_text: reviewTarget.word_text,
+              reason: reviewTarget.reason
+            }
+          : null
+      },
+      "Chat"
+    );
+
+    messages.push({
+      role: "assistant",
+      content: data.reply
+    });
+
+    const fullSpeechPromise = fetchFullSpeech(data.reply);
+    const fullSpeech = await fullSpeechPromise;
+
+    thinkingCard.remove();
+
+    const botMessageId = addBotMessage(data.reply, {
+      fullSpeech,
+      fullSpeechPromise
+    });
+
+    if (reviewTarget) {
+      showReviewCueToast(reviewTarget, languageSelect.value).catch(() => {});
+    }
+
+    const state = messageState.get(botMessageId);
+
+    if (state) {
+      state.wordClipsPromise = fetchIndividualWordSpeechForTokens(state.speakableTokens)
+        .then(clips => {
+          state.wordClips = clips;
+          state.wordClipMap = new Map(
+            clips
+              .filter(clip => clip && clip.tokenId)
+              .map(clip => [clip.tokenId, clip])
+          );
+
+          return clips;
+        })
+        .catch(() => null);
+
+      playConversationalMessage(state).catch(error => {
+        showSystemMessage(getReadableError(error));
+      });
+    }
+  } catch (error) {
+    thinkingCard.remove();
+    showSystemMessage(getReadableError(error));
+  }
+}
 
 function formatDueIn(nextDueAt) {
   if (!nextDueAt) return "Due in 6d";
@@ -6677,13 +7397,16 @@ async function handleMessagePlayButton(messageId, button) {
         "apikey": SUPABASE_ANON_KEY,
         "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
       },
-      body: JSON.stringify({
+  body: JSON.stringify({
   messages,
   language: languageSelect.value,
   userGenderInstruction: getUserGenderInstruction(),
+  chatRole: activeChatSession?.topicRole || "",
+  chatTopic: activeChatSession?.topicTitle || "",
   reviewTarget: reviewTarget
     ? {
         word: reviewTarget.word_text,
+        word_text: reviewTarget.word_text,
         reason: reviewTarget.reason
       }
     : null
@@ -6731,7 +7454,86 @@ async function handleMessagePlayButton(messageId, button) {
     }
   }
 
+  function openProfileModal() {
+  if (!currentUser) {
+    openAuthModal("sign-in");
+    return;
+  }
+
+  closeAccountDropdown();
+
+  if (profileUsernameInput) {
+    profileUsernameInput.value = currentUser?.user_metadata?.username || "";
+  }
+
+  if (profileFluentLanguageSelect) {
+    profileFluentLanguageSelect.value =
+      currentUser?.user_metadata?.fluentLanguage ||
+      fluentLanguageSelect?.value ||
+      "English";
+  }
+
+  if (profileMessage) {
+    profileMessage.textContent = "";
+    profileMessage.classList.remove("error", "success");
+  }
+
+  profileModal?.classList.remove("hidden");
+}
+
+function closeProfileModal() {
+  profileModal?.classList.add("hidden");
+}
+
+async function saveProfileSettings() {
+  if (!currentUser) return;
+
+  const username = profileUsernameInput?.value.trim() || "";
+  const fluentLanguage = profileFluentLanguageSelect?.value || "English";
+
+  if (profileMessage) {
+    profileMessage.textContent = "Saving...";
+    profileMessage.classList.remove("error", "success");
+  }
+
+  try {
+    const { data, error } = await supabaseClient.auth.updateUser({
+      data: {
+        ...(currentUser.user_metadata || {}),
+        username,
+        fluentLanguage
+      }
+    });
+
+    if (error) throw error;
+
+    currentUser = data.user;
+
+    if (accountDisplayName) {
+      accountDisplayName.textContent = getAccountDisplayName(currentUser);
+    }
+
+    if (fluentLanguageSelect) {
+      fluentLanguageSelect.value = fluentLanguage;
+    }
+
+    if (profileMessage) {
+      profileMessage.textContent = "Profile saved.";
+      profileMessage.classList.add("success");
+    }
+  } catch (error) {
+    if (profileMessage) {
+      profileMessage.textContent = getReadableError(error);
+      profileMessage.classList.add("error");
+    }
+  }
+}
+      
   async function handleSend() {
+  if (!userCanSendMessage()) {
+  openChatSetup();
+  return;
+}
   await unlockAudio();
 
   const userText = input.value.trim();
@@ -6847,6 +7649,10 @@ async function transcribeAudioBlob(audioBlob, mimeType) {
   return transcript.trim();
 }
 
+function userCanSendMessage() {
+  return !!activeChatSession;
+}
+
 async function startRecording() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     showSystemMessage("Audio recording is not supported in this browser.");
@@ -6939,6 +7745,10 @@ function stopRecording() {
 }
 
 async function handleSpeechRecordButtonClick(event) {
+  if (!userCanSendMessage()) {
+  openChatSetup();
+  return;
+}
   event.preventDefault();
   event.stopPropagation();
 
@@ -7222,12 +8032,83 @@ if (languageSelect) {
   languageSelect.addEventListener("change", () => {
     loadLanguagePoints(languageSelect.value).catch(() => {});
   });
+}
+
+if (newChatButton) {
+  newChatButton.addEventListener("click", openChatSetup);
+}
+
+if (closeChatSetupButton) {
+  closeChatSetupButton.addEventListener("click", closeChatSetup);
+}
+
+if (chatSetupLanguageSelect) {
+  chatSetupLanguageSelect.addEventListener("change", () => {
+    selectedChatLanguage = chatSetupLanguageSelect.value;
+
+    if (chatSetupLanguageLabel) {
+      chatSetupLanguageLabel.textContent = selectedChatLanguage;
+    }
+  });
+}
+
+if (setupWritingButton) {
+  setupWritingButton.addEventListener("click", () => {
+    setSetupInputMode("writing");
+  });
+}
+
+if (setupSpeechButton) {
+  setupSpeechButton.addEventListener("click", () => {
+    setSetupInputMode("speech");
+  });
+}
+
+if (startChatButton) {
+  startChatButton.addEventListener("click", () => {
+    startConfiguredChat().catch(error => {
+      showSystemMessage(getReadableError(error));
+    });
+  });
+}
+
+if (addTimeButton) {
+  addTimeButton.addEventListener("click", () => {
+    addChatTime(5);
+  });
+}
+
+if (endChatButton) {
+  endChatButton.addEventListener("click", () => {
+    endActiveChat("Chat ended.");
+  });
+}
+
+if (myProfileButton) {
+  myProfileButton.addEventListener("click", openProfileModal);
+}
+
+if (closeProfileButton) {
+  closeProfileButton.addEventListener("click", closeProfileModal);
+}
+
+if (saveProfileButton) {
+  saveProfileButton.addEventListener("click", () => {
+    saveProfileSettings().catch(error => {
+      if (profileMessage) {
+        profileMessage.textContent = getReadableError(error);
+        profileMessage.classList.add("error");
+      }
+    });
+  });
 }    
+    
   }
 
   attachUiHandlers();
   setInputMode("speech");
   initAuth();
+  renderTopicCards();
 </script>
 </body>
 </html>
