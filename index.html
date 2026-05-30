@@ -5780,19 +5780,22 @@ card.appendChild(layout);
   return card;
 }
 
-  function setInputMode(mode) {
+ function setInputMode(mode) {
   inputMode = mode === "speech" ? "speech" : "writing";
 
   const isSpeech = inputMode === "speech";
 
-  writingModeButton.classList.toggle("active", !isSpeech);
-  speechModeButton.classList.toggle("active", isSpeech);
+  writingModeButton?.classList.toggle("active", !isSpeech);
+  speechModeButton?.classList.toggle("active", isSpeech);
 
-  composerShell.classList.toggle("hidden", isSpeech);
-  speechShell.classList.toggle("hidden", !isSpeech);
+  setupWritingButton?.classList.toggle("active", !isSpeech);
+  setupSpeechButton?.classList.toggle("active", isSpeech);
+
+  composerShell?.classList.toggle("hidden", isSpeech);
+  speechShell?.classList.toggle("hidden", !isSpeech);
 
   if (!isSpeech) {
-    input.focus();
+    input?.focus();
   }
 }
 
