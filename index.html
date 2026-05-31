@@ -500,14 +500,6 @@ select option {
   gap: 14px;
 }
 
-.bot-message-row {
-  width: 100%;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: start;
-  gap: 24px;
-}
-
 .bot-words {
   color: white;
   font-size: clamp(2rem, 5vw, 4.8rem);
@@ -515,6 +507,41 @@ select option {
   font-weight: 800;
   letter-spacing: -0.055em;
   min-width: 0;
+}
+
+.bot-message-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(230px, 310px);
+  align-items: start;
+  gap: 22px;
+}
+
+.bot-message-row .message-audio-controls {
+  justify-self: end;
+  align-self: start;
+  padding-top: 0.35rem;
+}
+
+.bot-message-row .upcoming-words-panel {
+  margin: 0;
+  width: 100%;
+  align-self: start;
+}
+
+@media (max-width: 900px) {
+  .bot-message-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .bot-message-row .message-audio-controls {
+    justify-self: start;
+  }
+
+  .bot-message-row .upcoming-words-panel {
+    width: 100%;
+  }
 }
 
 .word-unit {
@@ -926,12 +953,6 @@ form {
   flex-direction: column;
   align-items: center;
   gap: 9px;
-}
-
-.bot-message-row .message-audio-controls {
-  justify-self: end;
-  align-self: start;
-  padding-top: 0.35rem;
 }
 
 .message-play-button,
@@ -1529,15 +1550,6 @@ form {
 
   .bot-words {
     font-size: clamp(2rem, 11vw, 4rem);
-  }
-
-  .bot-message-row {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-
-  .bot-message-row .message-audio-controls {
-    justify-self: start;
   }
 
   .correction-layout {
@@ -2500,10 +2512,10 @@ form {
 }
 
 .upcoming-words-panel {
-  width: min(1020px, 100%);
-  margin: -4px auto 8px;
-  padding: 18px;
-  border-radius: 26px;
+  width: 100%;
+  margin: 0;
+  padding: 15px;
+  border-radius: 24px;
   background:
     radial-gradient(circle at top left, rgba(96, 165, 250, 0.12), transparent 34%),
     rgba(255, 255, 255, 0.055);
@@ -2516,8 +2528,16 @@ form {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 14px;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.upcoming-words-header h3 {
+  margin: 0;
+  color: white;
+  font-size: 1.05rem;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
 }
 
 .upcoming-words-kicker {
@@ -2527,13 +2547,6 @@ form {
   font-size: 0.72rem;
   font-weight: 950;
   margin-bottom: 5px;
-}
-
-.upcoming-words-header h3 {
-  margin: 0;
-  color: white;
-  font-size: 1.25rem;
-  letter-spacing: -0.045em;
 }
 
 .upcoming-refresh-button {
@@ -3470,6 +3483,18 @@ if (!fluentLanguageSelect) {
   };
 }
 
+function attachBonusWordsPanelToBotMessage(botMessageId) {
+  if (!upcomingWordsPanel || !botMessageId) return;
+
+  const botCard = document.querySelector(`[data-message-id="${botMessageId}"]`);
+  if (!botCard) return;
+
+  const row = botCard.querySelector(".bot-message-row");
+  if (!row) return;
+
+  row.appendChild(upcomingWordsPanel);
+}
+    
 async function loadUpcomingWords(languageOverride = null) {
   if (!currentUser || !upcomingWordsPanel || !upcomingWordsList) {
     return;
@@ -3722,6 +3747,13 @@ async function startConfiguredChat() {
 
   messages.length = 0;
   messageHistory.innerHTML = "";
+  if (upcomingWordsPanel) {
+  upcomingWordsPanel.classList.add("hidden");
+  document.querySelector(".app")?.insertBefore(
+    upcomingWordsPanel,
+    composerShell || speechShell || null
+  );
+}
   messageState.clear();
   userMessageState.clear();
   correctionState.clear();
@@ -3784,11 +3816,14 @@ async function sendOpeningBotMessage(topic) {
     thinkingCard.remove();
 
     const botMessageId = addBotMessage(data.reply, {
-      fullSpeech,
-      fullSpeechPromise
-    });
+  fullSpeech,
+  fullSpeechPromise
+});
 
-    const state = messageState.get(botMessageId);
+attachBonusWordsPanelToBotMessage(botMessageId);
+loadUpcomingWords(language).catch(() => {});
+
+const state = messageState.get(botMessageId);
 
     if (state) {
       state.wordClipsPromise = fetchIndividualWordSpeechForTokens(
@@ -3830,8 +3865,6 @@ async function sendOpeningBotMessage(topic) {
         showSystemMessage("Tap the play button to hear the first message.");
       }
     }
-
-    await loadUpcomingWords(language).catch(() => {});
   } catch (error) {
     thinkingCard.remove();
     showSystemMessage(getReadableError(error));
@@ -6704,11 +6737,14 @@ function isSamePlayback(button, type, id) {
     thinkingCard.remove();
 
     const botMessageId = addBotMessage(data.reply, {
-      fullSpeech,
-      fullSpeechPromise
-    });
+  fullSpeech,
+  fullSpeechPromise
+});
 
-    const state = messageState.get(botMessageId);
+attachBonusWordsPanelToBotMessage(botMessageId);
+loadUpcomingWords(getCurrentChatLanguage()).catch(() => {});
+
+const state = messageState.get(botMessageId);
 
     if (state) {
       state.wordClipsPromise = fetchIndividualWordSpeechForTokens(state.speakableTokens)
@@ -6734,7 +6770,6 @@ function isSamePlayback(button, type, id) {
         }
       }
     }
-    loadUpcomingWords(selectedChatLanguage).catch(() => {});
   } catch (error) {
     thinkingCard.remove();
     showSystemMessage(getReadableError(error));
@@ -7798,11 +7833,14 @@ async function playBonusWordAudio(chatWord, language, button = null) {
     thinkingCard.remove();
 
     const botMessageId = addBotMessage(data.reply, {
-      fullSpeech,
-      fullSpeechPromise
-    });
+  fullSpeech,
+  fullSpeechPromise
+});
 
-    const state = messageState.get(botMessageId);
+attachBonusWordsPanelToBotMessage(botMessageId);
+loadUpcomingWords(getCurrentChatLanguage()).catch(() => {});
+
+const state = messageState.get(botMessageId);
 
     if (state) {
       state.wordClipsPromise = fetchIndividualWordSpeechForTokens(state.speakableTokens)
@@ -7821,7 +7859,6 @@ async function playBonusWordAudio(chatWord, language, button = null) {
         showSystemMessage(getReadableError(error));
       });
     }
-   loadUpcomingWords(selectedChatLanguage).catch(() => {});
   }
 
   function openProfileModal() {
