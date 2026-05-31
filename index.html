@@ -3926,54 +3926,6 @@ async function getChatLanguageOnlyText(text) {
   };
 }
 
-function createStatsWordCard(row) {
-  const familiar = Number(row.familiar_count || 0);
-  const spoken = Number(row.spoken_count || 0);
-  const translated = Number(row.translated_count || 0);
-  const total = Math.max(1, familiar + spoken + translated);
-
-  const card = document.createElement("div");
-  card.className = "stats-word-card";
-
-  const top = document.createElement("div");
-  top.className = "stats-word-top";
-
-  const word = document.createElement("div");
-  word.className = "stats-word";
-  word.textContent = row.word_text;
-
-  const counts = document.createElement("div");
-  counts.className = "stats-counts";
-  counts.textContent = `F ${familiar} · S ${spoken} · T ${translated}`;
-
-  const bar = document.createElement("div");
-  bar.className = "stats-bar";
-
-  const familiarSeg = document.createElement("div");
-  familiarSeg.className = "stats-bar-segment familiar";
-  familiarSeg.style.width = `${(familiar / total) * 100}%`;
-
-  const spokenSeg = document.createElement("div");
-  spokenSeg.className = "stats-bar-segment spoken";
-  spokenSeg.style.width = `${(spoken / total) * 100}%`;
-
-  const translatedSeg = document.createElement("div");
-  translatedSeg.className = "stats-bar-segment translated";
-  translatedSeg.style.width = `${(translated / total) * 100}%`;
-
-  bar.appendChild(familiarSeg);
-  bar.appendChild(spokenSeg);
-  bar.appendChild(translatedSeg);
-
-  top.appendChild(word);
-  top.appendChild(counts);
-
-  card.appendChild(top);
-  card.appendChild(bar);
-
-  return card;
-}
-
 let currentStatsRows = [];
 let currentReviewTargetMap = new Map();
 
@@ -6504,15 +6456,6 @@ function setPlaybackButtonStopped(button) {
 
   button.classList.remove("loading", "playing");
   setPlayIcon(button);
-}
-
-function isSamePlayback(button, type, id) {
-  return (
-    activePlayback &&
-    activePlayback.button === button &&
-    activePlayback.type === type &&
-    activePlayback.id === id
-  );
 }
 
 function isSamePlayback(button, type, id) {
