@@ -2553,47 +2553,121 @@ form {
 
 .upcoming-words-list {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 10px;
 }
 
 .upcoming-word-card {
-  border-radius: 999px;
-  padding: 10px 14px;
+  width: 100%;
+  min-height: 58px;
+  border-radius: 18px;
+  padding: 12px 13px;
   background:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.09), transparent 40%),
-    rgba(255, 255, 255, 0.075);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: white;
-  font-size: 0.95rem;
-  font-weight: 950;
-  line-height: 1;
-  max-width: 100%;
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.09), transparent 42%),
+    rgba(255, 255, 255, 0.065);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.18),
+    inset 0 0 18px rgba(255, 255, 255, 0.025);
+}
+
+.upcoming-word-text-stack {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .upcoming-word-main {
+  color: white;
+  font-size: 1rem;
+  font-weight: 950;
+  line-height: 1.12;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.upcoming-word-rank,
-.upcoming-word-sub,
-.upcoming-word-due {
+.upcoming-word-chat-language {
+  color: #93c5fd;
+  font-size: 0.82rem;
+  font-weight: 850;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upcoming-word-chat-language.hidden {
   display: none;
 }
 
-@media (max-width: 900px) {
-  .upcoming-words-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.upcoming-word-action {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.24), transparent 30%),
+    rgba(255, 255, 255, 0.12);
+  color: white;
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 1.08rem;
+  font-weight: 950;
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.26),
+    inset 0 0 18px rgba(255, 255, 255, 0.035);
+  transition:
+    transform 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    color 160ms ease;
+}
+
+.upcoming-word-action:hover {
+  transform: translateY(-1px) scale(1.03);
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 16px 42px rgba(0, 0, 0, 0.34),
+    0 0 26px rgba(96, 165, 250, 0.14),
+    inset 0 0 18px rgba(255, 255, 255, 0.045);
+}
+
+.upcoming-word-action.revealed {
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.24), transparent 30%),
+    rgba(96, 165, 250, 0.18);
+  color: #dbeafe;
+}
+
+.upcoming-word-action.loading {
+  opacity: 0.65;
+  cursor: wait;
+  transform: none;
 }
 
 @media (max-width: 520px) {
-  .upcoming-words-list {
-    grid-template-columns: 1fr;
+  .upcoming-words-panel {
+    padding: 15px;
+    border-radius: 22px;
   }
-}    
+
+  .upcoming-word-card {
+    min-height: 54px;
+    padding: 11px;
+  }
+
+  .upcoming-word-action {
+    width: 39px;
+    height: 39px;
+  }
+} 
   </style>
 </head>
 
@@ -3431,36 +3505,75 @@ async function loadUpcomingWords(languageOverride = null) {
   upcomingWordsPanel.classList.remove("hidden");
   upcomingWordsList.innerHTML = "";
 
-  for (const row of rows) {
+  rows.forEach((row, index) => {
     const chatWord = String(row.word_text || row.word_key || "").trim();
-    if (!chatWord) continue;
 
-    let displayWord = chatWord;
-
-    try {
-      const translated = await translateReviewTargetForCue(
-        chatWord,
-        language,
-        fluentLanguage
-      );
-
-      if (translated && translated.trim()) {
-        displayWord = translated.trim();
-      }
-    } catch (error) {
-      console.warn("bonus word translation failed", error);
-    }
+    if (!chatWord) return;
 
     const card = document.createElement("div");
     card.className = "upcoming-word-card";
 
+    const textStack = document.createElement("div");
+    textStack.className = "upcoming-word-text-stack";
+
     const main = document.createElement("div");
     main.className = "upcoming-word-main";
-    main.textContent = displayWord;
+    main.textContent = "…";
 
-    card.appendChild(main);
+    const chatLanguageWord = document.createElement("div");
+    chatLanguageWord.className = "upcoming-word-chat-language hidden";
+    chatLanguageWord.textContent = chatWord;
+
+    const actionButton = document.createElement("button");
+    actionButton.type = "button";
+    actionButton.className = "upcoming-word-action";
+    actionButton.textContent = "?";
+    actionButton.title = "Reveal word";
+    actionButton.setAttribute("aria-label", "Reveal word");
+
+    actionButton.dataset.revealed = "false";
+    actionButton.dataset.chatWord = chatWord;
+    actionButton.dataset.language = language;
+
+    actionButton.addEventListener("click", async event => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const isRevealed = actionButton.dataset.revealed === "true";
+
+      if (!isRevealed) {
+        chatLanguageWord.classList.remove("hidden");
+
+        actionButton.dataset.revealed = "true";
+        actionButton.classList.add("revealed");
+        actionButton.textContent = "🔊";
+        actionButton.title = "Hear word";
+        actionButton.setAttribute("aria-label", "Hear word");
+
+        return;
+      }
+
+      await playBonusWordAudio(chatWord, language, actionButton);
+    });
+
+    textStack.appendChild(main);
+    textStack.appendChild(chatLanguageWord);
+
+    card.appendChild(textStack);
+    card.appendChild(actionButton);
+
     upcomingWordsList.appendChild(card);
-  }
+
+    translateReviewTargetForCue(chatWord, language, fluentLanguage)
+      .then(translated => {
+        const displayWord = String(translated || "").trim() || chatWord;
+        main.textContent = displayWord;
+      })
+      .catch(error => {
+        console.warn("bonus word translation failed", error);
+        main.textContent = chatWord;
+      });
+  });
 
   if (!upcomingWordsList.children.length) {
     upcomingWordsPanel.classList.add("hidden");
@@ -3630,8 +3743,8 @@ async function startConfiguredChat() {
 
   startChatTimer(selectedChatMinutes);
 
-  await loadLanguagePoints(selectedChatLanguage).catch(() => {});
-  await loadUpcomingWords(selectedChatLanguage).catch(() => {});
+  loadLanguagePoints(selectedChatLanguage).catch(() => {});
+  loadUpcomingWords(selectedChatLanguage).catch(() => {});
 
   await sendOpeningBotMessage(topic);
 }
@@ -6621,7 +6734,7 @@ function isSamePlayback(button, type, id) {
         }
       }
     }
-    await loadUpcomingWords(selectedChatLanguage).catch(() => {});
+    loadUpcomingWords(selectedChatLanguage).catch(() => {});
   } catch (error) {
     thinkingCard.remove();
     showSystemMessage(getReadableError(error));
@@ -7176,6 +7289,47 @@ async function handleMessagePlayButton(messageId, button) {
   });
 }
 
+async function playBonusWordAudio(chatWord, language, button = null) {
+  const cleanWord = String(chatWord || "").trim();
+
+  if (!cleanWord) return;
+
+  try {
+    stopAllSpeech();
+
+    if (button) {
+      button.classList.add("loading");
+      button.textContent = "…";
+    }
+
+    await unlockAudioContext();
+
+    const speech = await fetchFullSpeech(cleanWord, language);
+
+    if (!speech.audioBuffer) {
+      const arrayBuffer = base64ToArrayBuffer(speech.audioBase64);
+      const context = getAudioContext();
+      speech.audioBuffer = await context.decodeAudioData(arrayBuffer);
+    }
+
+    if (button) {
+      button.classList.remove("loading");
+      button.classList.add("revealed");
+      button.textContent = "🔊";
+    }
+
+    playFullAudioBuffer(speech.audioBuffer, null, null, null);
+  } catch (error) {
+    if (button) {
+      button.classList.remove("loading");
+      button.classList.add("revealed");
+      button.textContent = "🔊";
+    }
+
+    showSystemMessage(getReadableError(error));
+  }
+}
+    
  async function playConversationalMessage(state, button = null) {
   await unlockAudioContext();
 
@@ -7476,7 +7630,7 @@ async function handleMessagePlayButton(messageId, button) {
       languageSelect.value
     ).catch(() => {});
     scheduleWordReview(word, "translated", languageSelect.value).catch(() => {});
-    await loadUpcomingWords(selectedChatLanguage).catch(() => {});
+    loadUpcomingWords(selectedChatLanguage).catch(() => {});
     unit.classList.remove("active-word");
   } catch (error) {
     unit.classList.remove("active-word");
@@ -7667,7 +7821,7 @@ async function handleMessagePlayButton(messageId, button) {
         showSystemMessage(getReadableError(error));
       });
     }
-    await loadUpcomingWords(selectedChatLanguage).catch(() => {});
+   loadUpcomingWords(selectedChatLanguage).catch(() => {});
   }
 
   function openProfileModal() {
@@ -8332,9 +8486,9 @@ if (saveProfileButton) {
 
 if (refreshUpcomingWordsButton) {
   refreshUpcomingWordsButton.addEventListener("click", () => {
-    loadUpcomingWords(languageSelect.value).catch(error => {
-      showSystemMessage(getReadableError(error));
-    });
+    loadUpcomingWords(getCurrentChatLanguage()).catch(error => {
+  showSystemMessage(getReadableError(error));
+});
   });
 }
     
