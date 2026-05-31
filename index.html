@@ -3655,7 +3655,7 @@ async function startConfiguredChat() {
 
 async function sendOpeningBotMessage(topic) {
   const thinkingCard = addThinkingMessage();
-  const language = languageSelect.value;
+  const language = getCurrentChatLanguage();
 
   const openingMessages = [
     {
@@ -3694,46 +3694,52 @@ async function sendOpeningBotMessage(topic) {
 
     const state = messageState.get(botMessageId);
 
-if (state) {
-  state.wordClipsPromise = fetchIndividualWordSpeechForTokens(
-    state.speakableTokens,
-    language
-  )
-    .then(clips => {
-      state.wordClips = clips;
-      state.wordClipMap = new Map(
-        clips
-          .filter(clip => clip && clip.tokenId)
-          .map(clip => [clip.tokenId, clip])
+    if (state) {
+      state.wordClipsPromise = fetchIndividualWordSpeechForTokens(
+        state.speakableTokens,
+        language
+      )
+        .then(clips => {
+          state.wordClips = clips;
+          state.wordClipMap = new Map(
+            clips
+              .filter(clip => clip && clip.tokenId)
+              .map(clip => [clip.tokenId, clip])
+          );
+
+          return clips;
+        })
+        .catch(() => null);
+
+      const playButton = document.querySelector(
+        `[data-message-play="${botMessageId}"]`
       );
 
-      return clips;
-    })
-    .catch(() => null);
+      try {
+        await unlockAudioContext();
 
-  const playButton = document.querySelector(
-    `[data-message-play="${botMessageId}"]`
-  );
+        if (playButton) {
+          setPlaybackButtonLoading(playButton);
+          await playConversationalMessage(state, playButton);
+        } else {
+          await playConversationalMessage(state);
+        }
+      } catch (audioError) {
+        console.warn("opening audio autoplay failed", audioError);
 
-  try {
-    await unlockAudioContext();
+        if (playButton) {
+          setPlaybackButtonStopped(playButton);
+        }
 
-    if (playButton) {
-      setPlaybackButtonLoading(playButton);
-      await playConversationalMessage(state, playButton);
-    } else {
-      await playConversationalMessage(state);
-    }
-  } catch (audioError) {
-    console.warn("opening audio autoplay failed", audioError);
-
-    if (playButton) {
-      setPlaybackButtonStopped(playButton);
+        showSystemMessage("Tap the play button to hear the first message.");
+      }
     }
 
-    showSystemMessage("Tap the play button to hear the first message.");
+    await loadUpcomingWords(language).catch(() => {});
+  } catch (error) {
+    thinkingCard.remove();
+    showSystemMessage(getReadableError(error));
   }
-}
 }
 
 function formatDueIn(nextDueAt) {
