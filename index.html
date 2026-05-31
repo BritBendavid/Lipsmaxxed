@@ -3612,6 +3612,7 @@ function endActiveChat(message = "Chat ended.") {
 }
 
 async function startConfiguredChat() {
+  await unlockAudio().catch(() => {});
   const topic = getSelectedTopic();
 
   selectedChatLanguage = chatSetupLanguageSelect?.value || "English";
@@ -3693,45 +3694,46 @@ async function sendOpeningBotMessage(topic) {
 
     const state = messageState.get(botMessageId);
 
-    if (state) {
-      state.wordClipsPromise = fetchIndividualWordSpeechForTokens(
-        state.speakableTokens,
-        language
-      )
-        .then(clips => {
-          state.wordClips = clips;
-          state.wordClipMap = new Map(
-            clips
-              .filter(clip => clip && clip.tokenId)
-              .map(clip => [clip.tokenId, clip])
-          );
-
-          return clips;
-        })
-        .catch(() => null);
-
-      const playButton = document.querySelector(
-        `[data-message-play="${botMessageId}"]`
+if (state) {
+  state.wordClipsPromise = fetchIndividualWordSpeechForTokens(
+    state.speakableTokens,
+    language
+  )
+    .then(clips => {
+      state.wordClips = clips;
+      state.wordClipMap = new Map(
+        clips
+          .filter(clip => clip && clip.tokenId)
+          .map(clip => [clip.tokenId, clip])
       );
 
-      try {
-        await unlockAudioContext();
+      return clips;
+    })
+    .catch(() => null);
 
-        if (playButton) {
-          await handleMessagePlayButton(botMessageId, playButton);
-        } else {
-          await playConversationalMessage(state);
-        }
-      } catch (audioError) {
-        console.warn("opening audio autoplay failed", audioError);
-      }
+  const playButton = document.querySelector(
+    `[data-message-play="${botMessageId}"]`
+  );
+
+  try {
+    await unlockAudioContext();
+
+    if (playButton) {
+      setPlaybackButtonLoading(playButton);
+      await playConversationalMessage(state, playButton);
+    } else {
+      await playConversationalMessage(state);
+    }
+  } catch (audioError) {
+    console.warn("opening audio autoplay failed", audioError);
+
+    if (playButton) {
+      setPlaybackButtonStopped(playButton);
     }
 
-    loadUpcomingWords(language).catch(() => {});
-  } catch (error) {
-    thinkingCard.remove();
-    showSystemMessage(getReadableError(error));
+    showSystemMessage("Tap the play button to hear the first message.");
   }
+}
 }
 
 function formatDueIn(nextDueAt) {
@@ -6376,6 +6378,34 @@ async function callChatFunction(payload, label = "Chat") {
   });
 }
 
+let audioPrimedForSession = false;
+
+async function primeAudioForAutoplay() {
+  try {
+    const context = getAudioContext();
+
+    if (context.state === "suspended") {
+      await context.resume();
+    }
+
+    /*
+      Play a tiny silent buffer immediately during the user's click.
+      This gives the page permission to play later bot audio.
+    */
+    const buffer = context.createBuffer(1, 1, context.sampleRate);
+    const source = context.createBufferSource();
+
+    source.buffer = buffer;
+    source.connect(context.destination);
+    source.start(0);
+
+    audioPrimedForSession = true;
+  } catch (error) {
+    console.warn("audio prime failed", error);
+    audioPrimedForSession = false;
+  }
+}
+
   function getAudioContext() {
     if (!audioContext) {
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -7214,7 +7244,7 @@ async function handleMessagePlayButton(messageId, button) {
   });
 }
 
-  async function playConversationalMessage(state, button = null) {
+ async function playConversationalMessage(state, button = null) {
   await unlockAudioContext();
 
   clearActiveWords(state.wordsEl);
@@ -8321,9 +8351,18 @@ if (setupSpeechButton) {
 }
 
 if (startChatButton) {
-  startChatButton.addEventListener("click", () => {
-    startConfiguredChat().catch(error => {
-      showSystemMessage(getReadableError(error));
+  startChatButton.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    /*
+      This must happen directly inside the click event,
+      before startConfiguredChat does async network work.
+    */
+    primeAudioForAutoplay().finally(() => {
+      startConfiguredChat().catch(error => {
+        showSystemMessage(getReadableError(error));
+      });
     });
   });
 }
