@@ -2498,7 +2498,120 @@ form {
     padding: 24px;
   }
 }
-    
+
+.upcoming-words-panel {
+  width: min(1020px, 100%);
+  margin: -4px auto 8px;
+  padding: 18px;
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at top left, rgba(96, 165, 250, 0.12), transparent 34%),
+    rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(16px);
+}
+
+.upcoming-words-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.upcoming-words-kicker {
+  color: #93c5fd;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  font-weight: 950;
+  margin-bottom: 5px;
+}
+
+.upcoming-words-header h3 {
+  margin: 0;
+  color: white;
+  font-size: 1.25rem;
+  letter-spacing: -0.045em;
+}
+
+.upcoming-refresh-button {
+  border: none;
+  border-radius: 999px;
+  padding: 9px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.upcoming-refresh-button:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: white;
+}
+
+.upcoming-words-list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.upcoming-word-card {
+  min-height: 86px;
+  border-radius: 18px;
+  padding: 12px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.08), transparent 40%),
+    rgba(255, 255, 255, 0.065);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.upcoming-word-rank {
+  color: #94a3b8;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.upcoming-word-main {
+  color: white;
+  font-size: 1.05rem;
+  font-weight: 950;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upcoming-word-sub {
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.upcoming-word-due {
+  color: #bbf7d0;
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+@media (max-width: 900px) {
+  .upcoming-words-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .upcoming-words-list {
+    grid-template-columns: 1fr;
+  }
+}    
   </style>
 </head>
 
@@ -2578,6 +2691,20 @@ form {
     </header>
 
 <main id="messageHistory" class="message-history"></main>
+<section id="upcomingWordsPanel" class="upcoming-words-panel hidden">
+  <div class="upcoming-words-header">
+    <div>
+      <div class="upcoming-words-kicker">Review queue</div>
+      <h3>Upcoming words</h3>
+    </div>
+
+    <button id="refreshUpcomingWordsButton" class="upcoming-refresh-button" type="button">
+      Refresh
+    </button>
+  </div>
+
+  <div id="upcomingWordsList" class="upcoming-words-list"></div>
+</section>
 
     <div id="composerShell" class="composer-shell">
   <form id="chatForm" onsubmit="return false;">
@@ -3133,6 +3260,10 @@ const profileFluentLanguageSelect = document.getElementById("profileFluentLangua
 const saveProfileButton = document.getElementById("saveProfileButton");
 const profileMessage = document.getElementById("profileMessage");
 
+const upcomingWordsPanel = document.getElementById("upcomingWordsPanel");
+const upcomingWordsList = document.getElementById("upcomingWordsList");
+const refreshUpcomingWordsButton = document.getElementById("refreshUpcomingWordsButton");
+
 let currentLanguagePoints = 0;
 let pointsAnimationFrame = null;
     
@@ -3283,7 +3414,76 @@ if (!fluentLanguageSelect) {
   };
 }
 
+async function loadUpcomingWords(languageOverride = null) {
+  if (!currentUser || !upcomingWordsPanel || !upcomingWordsList) {
+    return;
+  }
 
+  const language = languageOverride || languageSelect.value;
+
+  await ensureStaleSpokenWordsAreReviewTargets(language);
+
+  const { data, error } = await supabaseClient
+    .from("word_review_targets")
+    .select("*")
+    .eq("user_id", currentUser.id)
+    .eq("language", language)
+    .order("next_due_at", { ascending: true })
+    .limit(5);
+
+  if (error) {
+    console.warn("upcoming words load failed", error);
+    upcomingWordsPanel.classList.add("hidden");
+    return;
+  }
+
+  const rows = Array.isArray(data) ? data : [];
+
+  if (!rows.length) {
+    upcomingWordsPanel.classList.add("hidden");
+    upcomingWordsList.innerHTML = "";
+    return;
+  }
+
+  upcomingWordsPanel.classList.remove("hidden");
+  upcomingWordsList.innerHTML = "";
+
+  rows.forEach((row, index) => {
+    const card = document.createElement("div");
+    card.className = "upcoming-word-card";
+
+    const rank = document.createElement("div");
+    rank.className = "upcoming-word-rank";
+    rank.textContent = `#${index + 1}`;
+
+    const main = document.createElement("div");
+    main.className = "upcoming-word-main";
+    main.textContent = row.word_text || row.word_key || "Word";
+
+    const sub = document.createElement("div");
+    sub.className = "upcoming-word-sub";
+    sub.textContent =
+      row.reason === "translated"
+        ? "Translated recently"
+        : row.reason === "correction"
+          ? "Needs correction practice"
+          : row.reason === "spoken"
+            ? "Recently spoken"
+            : "Review word";
+
+    const due = document.createElement("div");
+    due.className = "upcoming-word-due";
+    due.textContent = formatDueIn(row.next_due_at);
+
+    card.appendChild(rank);
+    card.appendChild(main);
+    card.appendChild(sub);
+    card.appendChild(due);
+
+    upcomingWordsList.appendChild(card);
+  });
+}
+    
 function renderTopicCards() {
   if (!topicGrid) return;
 
@@ -3404,6 +3604,7 @@ function endActiveChat(message = "Chat ended.") {
 
   activeSessionControls?.classList.add("hidden");
   newChatButton?.classList.remove("hidden");
+  upcomingWordsPanel?.classList.add("hidden");
 
   setSpeechStatus("Tap to speak");
 
@@ -3446,14 +3647,14 @@ async function startConfiguredChat() {
   startChatTimer(selectedChatMinutes);
 
   await loadLanguagePoints(selectedChatLanguage).catch(() => {});
+  await loadUpcomingWords(selectedChatLanguage).catch(() => {});
 
   await sendOpeningBotMessage(topic);
 }
 
 async function sendOpeningBotMessage(topic) {
   const thinkingCard = addThinkingMessage();
-
-  const language = getCurrentChatLanguage();
+  const language = languageSelect.value;
 
   const openingMessages = [
     {
@@ -3463,8 +3664,6 @@ async function sendOpeningBotMessage(topic) {
   ];
 
   try {
-    const reviewTarget = await getDueReviewTarget(language);
-
     const data = await callChatFunction(
       {
         messages: openingMessages,
@@ -3472,14 +3671,7 @@ async function sendOpeningBotMessage(topic) {
         userGenderInstruction: getUserGenderInstruction(),
         chatRole: topic.role,
         chatTopic: topic.title,
-        isOpeningMessage: true,
-        reviewTarget: reviewTarget
-          ? {
-              word: reviewTarget.word_text,
-              word_text: reviewTarget.word_text,
-              reason: reviewTarget.reason
-            }
-          : null
+        isOpeningMessage: true
       },
       "Chat"
     );
@@ -3498,10 +3690,6 @@ async function sendOpeningBotMessage(topic) {
       fullSpeech,
       fullSpeechPromise
     });
-
-    if (reviewTarget) {
-      showReviewCueToast(reviewTarget, language).catch(() => {});
-    }
 
     const state = messageState.get(botMessageId);
 
@@ -3522,10 +3710,24 @@ async function sendOpeningBotMessage(topic) {
         })
         .catch(() => null);
 
-      playConversationalMessage(state).catch(error => {
-        showSystemMessage(getReadableError(error));
-      });
+      const playButton = document.querySelector(
+        `[data-message-play="${botMessageId}"]`
+      );
+
+      try {
+        await unlockAudioContext();
+
+        if (playButton) {
+          await handleMessagePlayButton(botMessageId, playButton);
+        } else {
+          await playConversationalMessage(state);
+        }
+      } catch (audioError) {
+        console.warn("opening audio autoplay failed", audioError);
+      }
     }
+
+    loadUpcomingWords(language).catch(() => {});
   } catch (error) {
     thinkingCard.remove();
     showSystemMessage(getReadableError(error));
@@ -6340,33 +6542,27 @@ function isSamePlayback(button, type, id) {
     return card;
   }
 
-    async function prepareBotResponseInBackground(userText) {
+ async function prepareBotResponseInBackground(userText) {
   messages.push({
     role: "user",
     content: userText
   });
-  const reviewTarget = await getDueReviewTarget(languageSelect.value);
 
   const responsePromise = callChatFunction(
-  {
-    messages,
-    language: languageSelect.value,
-    userGenderInstruction: getUserGenderInstruction(),
-    reviewTarget: reviewTarget
-      ? {
-          word: reviewTarget.word_text,
-          reason: reviewTarget.reason
-        }
-      : null
-  },
-  "Chat"
-);
+    {
+      messages,
+      language: languageSelect.value,
+      userGenderInstruction: getUserGenderInstruction(),
+      chatRole: activeChatSession?.topicRole || "",
+      chatTopic: activeChatSession?.topicTitle || ""
+    },
+    "Chat"
+  );
 
   return {
-  userText,
-  responsePromise,
-  reviewTarget
-};
+    userText,
+    responsePromise
+  };
 }
 
   async function translateCorrectionTokens(correctionId) {
@@ -6437,10 +6633,6 @@ function isSamePlayback(button, type, id) {
       fullSpeechPromise
     });
 
-    if (prepared.reviewTarget) {
-  showReviewCueToast(prepared.reviewTarget, languageSelect.value).catch(() => {});
-}
-
     const state = messageState.get(botMessageId);
 
     if (state) {
@@ -6467,6 +6659,7 @@ function isSamePlayback(button, type, id) {
         }
       }
     }
+    await loadUpcomingWords(selectedChatLanguage).catch(() => {});
   } catch (error) {
     thinkingCard.remove();
     showSystemMessage(getReadableError(error));
@@ -7321,7 +7514,7 @@ async function handleMessagePlayButton(messageId, button) {
       languageSelect.value
     ).catch(() => {});
     scheduleWordReview(word, "translated", languageSelect.value).catch(() => {});
-
+    await loadUpcomingWords(selectedChatLanguage).catch(() => {});
     unit.classList.remove("active-word");
   } catch (error) {
     unit.classList.remove("active-word");
@@ -7460,7 +7653,6 @@ async function handleMessagePlayButton(messageId, button) {
   });
 
     const thinkingCard = addThinkingMessage();
-    const reviewTarget = await getDueReviewTarget(languageSelect.value);
     const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
       method: "POST",
       headers: {
@@ -7473,14 +7665,7 @@ async function handleMessagePlayButton(messageId, button) {
   language: languageSelect.value,
   userGenderInstruction: getUserGenderInstruction(),
   chatRole: activeChatSession?.topicRole || "",
-  chatTopic: activeChatSession?.topicTitle || "",
-  reviewTarget: reviewTarget
-    ? {
-        word: reviewTarget.word_text,
-        word_text: reviewTarget.word_text,
-        reason: reviewTarget.reason
-      }
-    : null
+  chatTopic: activeChatSession?.topicTitle || ""
 })
     });
 
@@ -7500,9 +7685,6 @@ async function handleMessagePlayButton(messageId, button) {
       fullSpeech,
       fullSpeechPromise
     });
-    if (reviewTarget) {
-  showReviewCueToast(reviewTarget, languageSelect.value).catch(() => {});
-}
 
     const state = messageState.get(botMessageId);
 
@@ -7523,6 +7705,7 @@ async function handleMessagePlayButton(messageId, button) {
         showSystemMessage(getReadableError(error));
       });
     }
+    await loadUpcomingWords(selectedChatLanguage).catch(() => {});
   }
 
   function openProfileModal() {
@@ -8174,7 +8357,15 @@ if (saveProfileButton) {
       }
     });
   });
-}    
+}
+
+if (refreshUpcomingWordsButton) {
+  refreshUpcomingWordsButton.addEventListener("click", () => {
+    loadUpcomingWords(languageSelect.value).catch(error => {
+      showSystemMessage(getReadableError(error));
+    });
+  });
+}
     
   }
 
