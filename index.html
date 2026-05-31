@@ -2552,53 +2552,35 @@ form {
 }
 
 .upcoming-words-list {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
 }
 
 .upcoming-word-card {
-  min-height: 86px;
-  border-radius: 18px;
-  padding: 12px;
+  border-radius: 999px;
+  padding: 10px 14px;
   background:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.08), transparent 40%),
-    rgba(255, 255, 255, 0.065);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.upcoming-word-rank {
-  color: #94a3b8;
-  font-size: 0.72rem;
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.09), transparent 40%),
+    rgba(255, 255, 255, 0.075);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: white;
+  font-size: 0.95rem;
   font-weight: 950;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  line-height: 1;
+  max-width: 100%;
 }
 
 .upcoming-word-main {
-  color: white;
-  font-size: 1.05rem;
-  font-weight: 950;
-  line-height: 1.1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.upcoming-word-sub {
-  color: #cbd5e1;
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-
+.upcoming-word-rank,
+.upcoming-word-sub,
 .upcoming-word-due {
-  color: #bbf7d0;
-  font-size: 0.76rem;
-  font-weight: 900;
+  display: none;
 }
 
 @media (max-width: 900px) {
@@ -2694,8 +2676,8 @@ form {
 <section id="upcomingWordsPanel" class="upcoming-words-panel hidden">
   <div class="upcoming-words-header">
     <div>
-      <div class="upcoming-words-kicker">Review queue</div>
-      <h3>Upcoming words</h3>
+      <div class="upcoming-words-kicker">Bonus words</div>
+      <h3>Try to use these words in your response</h3>
     </div>
 
     <button id="refreshUpcomingWordsButton" class="upcoming-refresh-button" type="button">
@@ -3419,7 +3401,8 @@ async function loadUpcomingWords(languageOverride = null) {
     return;
   }
 
-  const language = languageOverride || languageSelect.value;
+  const language = languageOverride || getCurrentChatLanguage();
+  const fluentLanguage = getCurrentFluentLanguage();
 
   await ensureStaleSpokenWordsAreReviewTargets(language);
 
@@ -3432,7 +3415,7 @@ async function loadUpcomingWords(languageOverride = null) {
     .limit(5);
 
   if (error) {
-    console.warn("upcoming words load failed", error);
+    console.warn("bonus words load failed", error);
     upcomingWordsPanel.classList.add("hidden");
     return;
   }
@@ -3448,40 +3431,40 @@ async function loadUpcomingWords(languageOverride = null) {
   upcomingWordsPanel.classList.remove("hidden");
   upcomingWordsList.innerHTML = "";
 
-  rows.forEach((row, index) => {
+  for (const row of rows) {
+    const chatWord = String(row.word_text || row.word_key || "").trim();
+    if (!chatWord) continue;
+
+    let displayWord = chatWord;
+
+    try {
+      const translated = await translateReviewTargetForCue(
+        chatWord,
+        language,
+        fluentLanguage
+      );
+
+      if (translated && translated.trim()) {
+        displayWord = translated.trim();
+      }
+    } catch (error) {
+      console.warn("bonus word translation failed", error);
+    }
+
     const card = document.createElement("div");
     card.className = "upcoming-word-card";
 
-    const rank = document.createElement("div");
-    rank.className = "upcoming-word-rank";
-    rank.textContent = `#${index + 1}`;
-
     const main = document.createElement("div");
     main.className = "upcoming-word-main";
-    main.textContent = row.word_text || row.word_key || "Word";
+    main.textContent = displayWord;
 
-    const sub = document.createElement("div");
-    sub.className = "upcoming-word-sub";
-    sub.textContent =
-      row.reason === "translated"
-        ? "Translated recently"
-        : row.reason === "correction"
-          ? "Needs correction practice"
-          : row.reason === "spoken"
-            ? "Recently spoken"
-            : "Review word";
-
-    const due = document.createElement("div");
-    due.className = "upcoming-word-due";
-    due.textContent = formatDueIn(row.next_due_at);
-
-    card.appendChild(rank);
     card.appendChild(main);
-    card.appendChild(sub);
-    card.appendChild(due);
-
     upcomingWordsList.appendChild(card);
-  });
+  }
+
+  if (!upcomingWordsList.children.length) {
+    upcomingWordsPanel.classList.add("hidden");
+  }
 }
     
 function renderTopicCards() {
@@ -4268,7 +4251,7 @@ async function showReviewCueToast(reviewTarget, languageOverride = null) {
     
 async function translateReviewTargetForCue(word, languageOverride = null, fluentLanguageOverride = null) {
   const chatLanguage = languageOverride || languageSelect.value;
-  const fluentLanguage = fluentLanguageOverride || fluentLanguageSelect.value;
+  const fluentLanguage = fluentLanguageOverride || getCurrentFluentLanguage();
   const cleanWord = String(word || "").trim();
 
   if (!cleanWord) return "";
