@@ -3605,42 +3605,97 @@ async function loadUpcomingWords(languageOverride = null) {
   }
 }
 
-async function getUnderstoodWordsForPrompt(languageOverride = null) {
-  if (!currentUser) return [];
+async function getVocabularyProfileForPrompt(languageOverride = null) {
+  if (!currentUser) {
+    return {
+      level: "beginner",
+      understoodWords: [],
+      strongWords: [],
+      recentlyLearnedWords: [],
+      totalUnderstood: 0,
+      totalSpoken: 0
+    };
+  }
 
   const language = languageOverride || getCurrentChatLanguage();
 
   const { data, error } = await supabaseClient
     .from("word_stats")
-    .select("word_text, familiar_count, spoken_count, translated_count, translated_spoken_baseline")
+    .select("word_text, familiar_count, spoken_count, translated_count, translated_spoken_baseline, last_encountered_at")
     .eq("user_id", currentUser.id)
     .eq("language", language)
-    .limit(500);
+    .order("last_encountered_at", { ascending: false })
+    .limit(2000);
 
   if (error) {
-    console.warn("understood words load failed", error);
-    return [];
+    console.warn("vocabulary profile load failed", error);
+
+    return {
+      level: "beginner",
+      understoodWords: [],
+      strongWords: [],
+      recentlyLearnedWords: [],
+      totalUnderstood: 0,
+      totalSpoken: 0
+    };
   }
 
-  return (data || [])
-    .filter(row => {
-      const spoken = Number(row.spoken_count || 0);
-      const familiar = Number(row.familiar_count || 0);
-      const translated = Number(row.translated_count || 0);
-      const baseline = Number(row.translated_spoken_baseline || 0);
+  const rows = data || [];
 
-      /*
-        Include familiar/spoken words.
-        Exclude words that are still in the translated lock state.
-      */
-      const isStillTranslated =
-        translated > 0 && spoken < baseline + 1;
+  const understoodRows = rows.filter(row => {
+    const familiar = Number(row.familiar_count || 0);
+    const spoken = Number(row.spoken_count || 0);
+    const translated = Number(row.translated_count || 0);
+    const baseline = Number(row.translated_spoken_baseline || 0);
 
-      return !isStillTranslated && (familiar > 0 || spoken > 0);
-    })
-    .map(row => row.word_text)
-    .filter(Boolean)
-    .slice(0, 300);
+    const isStillTranslated =
+      translated > 0 && spoken < baseline + 1;
+
+    return !isStillTranslated && (familiar > 0 || spoken > 0);
+  });
+
+  const spokenRows = understoodRows.filter(row => Number(row.spoken_count || 0) > 0);
+
+  const strongRows = understoodRows
+    .filter(row => Number(row.spoken_count || 0) >= 3)
+    .sort((a, b) => Number(b.spoken_count || 0) - Number(a.spoken_count || 0));
+
+  const totalUnderstood = understoodRows.length;
+  const totalSpoken = spokenRows.length;
+
+  let level = "beginner";
+
+  if (totalUnderstood >= 2500 || totalSpoken >= 1200) {
+    level = "near-fluent";
+  } else if (totalUnderstood >= 1200 || totalSpoken >= 500) {
+    level = "advanced";
+  } else if (totalUnderstood >= 500 || totalSpoken >= 180) {
+    level = "intermediate";
+  }
+
+  return {
+    level,
+    totalUnderstood,
+    totalSpoken,
+
+    // recent context, not a full limit
+    understoodWords: understoodRows
+      .slice(0, 400)
+      .map(row => row.word_text)
+      .filter(Boolean),
+
+    // words the user can actively produce
+    strongWords: strongRows
+      .slice(0, 300)
+      .map(row => row.word_text)
+      .filter(Boolean),
+
+    // latest words the user has encountered
+    recentlyLearnedWords: understoodRows
+      .slice(0, 150)
+      .map(row => row.word_text)
+      .filter(Boolean)
+  };
 }
     
 function renderTopicCards() {
@@ -3822,7 +3877,7 @@ async function startConfiguredChat() {
 async function sendOpeningBotMessage(topic) {
   const thinkingCard = addThinkingMessage();
   const language = getCurrentChatLanguage();
-  const understoodWords = await getUnderstoodWordsForPrompt(language);
+  const vocabularyProfile = await getVocabularyProfileForPrompt(getCurrentChatLanguage());
 
   const openingMessages = [
     {
@@ -3840,7 +3895,7 @@ async function sendOpeningBotMessage(topic) {
         chatRole: topic.role,
         chatTopic: topic.title,
         isOpeningMessage: true,
-        understoodWords
+        vocabularyProfile
       },
       "Chat"
     );
@@ -6696,7 +6751,7 @@ function isSamePlayback(button, type, id) {
     content: userText
   });
 
-  const understoodWords = await getUnderstoodWordsForPrompt(getCurrentChatLanguage());
+const vocabularyProfile = await getVocabularyProfileForPrompt(getCurrentChatLanguage());
 
 const responsePromise = callChatFunction(
   {
@@ -6705,7 +6760,7 @@ const responsePromise = callChatFunction(
     userGenderInstruction: getUserGenderInstruction(),
     chatRole: activeChatSession?.topicRole || "",
     chatTopic: activeChatSession?.topicTitle || "",
-    understoodWords
+    vocabularyProfile
   },
   "Chat"
 );
@@ -7848,7 +7903,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
 
     const thinkingCard = addThinkingMessage();
 
-const understoodWords = await getUnderstoodWordsForPrompt(getCurrentChatLanguage());
+const vocabularyProfile = await getVocabularyProfileForPrompt(getCurrentChatLanguage());
 
 const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
   method: "POST",
@@ -7863,7 +7918,7 @@ const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
     userGenderInstruction: getUserGenderInstruction(),
     chatRole: activeChatSession?.topicRole || "",
     chatTopic: activeChatSession?.topicTitle || "",
-    understoodWords
+    vocabularyProfile
   })
 });
 
