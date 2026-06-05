@@ -3390,6 +3390,9 @@ const REVIEW_INTERVALS_MS = [
 let activeChatSession = null;
 let chatTimerInterval = null;
 
+let currentBonusWordKeys = new Set();
+const BONUS_WORD_POINT_TIERS = [0, 5, 10, 20, 50, 100];
+
 const CHAT_TOPICS = [
   {
     id: "daily-life",
@@ -3520,12 +3523,18 @@ async function loadUpcomingWords(languageOverride = null) {
   }
 
   const rows = Array.isArray(data) ? data : [];
+  currentBonusWordKeys = new Set(
+  rows
+    .map(row => normalizeStatsWord(row.word_text || row.word_key || ""))
+    .filter(Boolean)
+);
 
   if (!rows.length) {
-    upcomingWordsPanel.classList.add("hidden");
-    upcomingWordsList.innerHTML = "";
-    return;
-  }
+  currentBonusWordKeys = new Set();
+  upcomingWordsPanel.classList.add("hidden");
+  upcomingWordsList.innerHTML = "";
+  return;
+}
 
   upcomingWordsPanel.classList.remove("hidden");
   upcomingWordsList.innerHTML = "";
@@ -4281,21 +4290,31 @@ if (ring) {
   pointsAnimationFrame = requestAnimationFrame(tick);
 }
 
-function showPointsToast(pointsGained, language) {
+function showPointsToast(pointsGained, language, details = {}) {
   if (!pointsGained || pointsGained <= 0) return;
 
   const existing = document.querySelector(".points-toast");
   if (existing) existing.remove();
 
+  const bonusPoints = Number(details.bonusPoints || 0);
+  const bonusWordsSaid = Number(details.bonusWordsSaid || 0);
+
   const toast = document.createElement("div");
   toast.className = "points-toast";
-  toast.innerHTML = `Nice work — <strong>+${pointsGained}</strong> ${language} points!`;
+
+  if (bonusPoints > 0) {
+    toast.innerHTML =
+      `Nice work — <strong>+${pointsGained}</strong> ${language} points! ` +
+      `<span>Bonus: ${bonusWordsSaid} word${bonusWordsSaid === 1 ? "" : "s"} for +${bonusPoints}</span>`;
+  } else {
+    toast.innerHTML = `Nice work — <strong>+${pointsGained}</strong> ${language} points!`;
+  }
 
   document.body.appendChild(toast);
 
   setTimeout(() => {
     toast.remove();
-  }, 2200);
+  }, 2600);
 }
 
 function animatePointsFlyer(pointsGained, sourceEl = null) {
@@ -4341,14 +4360,14 @@ function animatePointsFlyer(pointsGained, sourceEl = null) {
   }, 930);
 }
 
-function showPointsAward(pointsGained, newTotal, language, sourceEl = null) {
+function showPointsAward(pointsGained, newTotal, language, sourceEl = null, details = {}) {
   if (!pointsGained || pointsGained <= 0) return;
 
   setPointsBadgeVisible(true);
 
   const oldTotal = currentLanguagePoints;
 
-  showPointsToast(pointsGained, language);
+  showPointsToast(pointsGained, language, details);
   animatePointsFlyer(pointsGained, sourceEl);
   animatePointsTotal(oldTotal, newTotal, language);
 }
@@ -4557,27 +4576,28 @@ async function recordUserWordsAndAwardPoints(text, languageOverride = null) {
   if (!currentUser) {
     return {
       pointsGained: 0,
-      newTotal: 0
+      newTotal: 0,
+      basePoints: 0,
+      bonusPoints: 0,
+      bonusWordsSaid: 0
     };
   }
 
-  const language = languageOverride || languageSelect.value;
+  const language = languageOverride || getCurrentChatLanguage();
   const words = getWordsForStats(text);
 
   if (!words.length) {
     return {
       pointsGained: 0,
-      newTotal: currentLanguagePoints
+      newTotal: currentLanguagePoints,
+      basePoints: 0,
+      bonusPoints: 0,
+      bonusWordsSaid: 0
     };
   }
 
   const now = new Date().toISOString();
 
-  /*
-    Unlike the stats-display helper, this intentionally counts repeated
-    words inside the same message. Example:
-    "שלום שלום" can award +10 and then +1 if it is new.
-  */
   const wordCounts = new Map();
 
   for (const rawWord of words) {
@@ -4597,7 +4617,9 @@ async function recordUserWordsAndAwardPoints(text, languageOverride = null) {
     }
   }
 
-  let pointsGained = 0;
+  let basePoints = 0;
+
+  const spokenBonusWordKeys = new Set();
 
   for (const item of wordCounts.values()) {
     const { data: existing, error: selectError } = await supabaseClient
@@ -4619,14 +4641,23 @@ async function recordUserWordsAndAwardPoints(text, languageOverride = null) {
     if (occurrenceCount <= 0) continue;
 
     /*
-      First produced use = 10 points.
-      Later produced uses = 1 point each.
+      New spoken word = 5 points for the first occurrence.
+      Repeated spoken word = 1 point.
+      If a new word appears multiple times in the same message:
+      first occurrence gets 5, extra repetitions get 1 each.
     */
     if (previousSpokenCount === 0) {
-      pointsGained += 10;
-      pointsGained += Math.max(0, occurrenceCount - 1);
+      basePoints += 5;
+      basePoints += Math.max(0, occurrenceCount - 1);
     } else {
-      pointsGained += occurrenceCount;
+      basePoints += occurrenceCount;
+    }
+
+    /*
+      Bonus words count once per message, even if repeated.
+    */
+    if (currentBonusWordKeys.has(item.word_key)) {
+      spokenBonusWordKeys.add(item.word_key);
     }
 
     const next = existing || {
@@ -4653,13 +4684,22 @@ async function recordUserWordsAndAwardPoints(text, languageOverride = null) {
     if (upsertError) {
       console.warn("points word upsert failed", upsertError);
     }
+
     await markReviewWordSpoken(item.word_text, language);
   }
+
+  const bonusWordsSaid = Math.min(5, spokenBonusWordKeys.size);
+  const bonusPoints = BONUS_WORD_POINT_TIERS[bonusWordsSaid] || 0;
+
+  const pointsGained = basePoints + bonusPoints;
 
   if (pointsGained <= 0) {
     return {
       pointsGained: 0,
-      newTotal: currentLanguagePoints
+      newTotal: currentLanguagePoints,
+      basePoints,
+      bonusPoints,
+      bonusWordsSaid
     };
   }
 
@@ -4672,9 +4712,13 @@ async function recordUserWordsAndAwardPoints(text, languageOverride = null) {
 
   if (pointsSelectError) {
     console.warn("points total select failed", pointsSelectError);
+
     return {
       pointsGained,
-      newTotal: currentLanguagePoints + pointsGained
+      newTotal: currentLanguagePoints + pointsGained,
+      basePoints,
+      bonusPoints,
+      bonusWordsSaid
     };
   }
 
@@ -4702,7 +4746,10 @@ async function recordUserWordsAndAwardPoints(text, languageOverride = null) {
 
   return {
     pointsGained,
-    newTotal
+    newTotal,
+    basePoints,
+    bonusPoints,
+    bonusWordsSaid
   };
 }
 
@@ -4715,7 +4762,16 @@ async function awardPointsForUserMessage(text, languageOverride = null, options 
     const result = await recordUserWordsAndAwardPoints(text, language);
 
     if (result.pointsGained > 0 && animate) {
-      showPointsAward(result.pointsGained, result.newTotal, language, sourceEl);
+      showPointsAward(
+  result.pointsGained,
+  result.newTotal,
+  language,
+  sourceEl,
+  {
+    bonusPoints: result.bonusPoints || 0,
+    bonusWordsSaid: result.bonusWordsSaid || 0
+  }
+);
     }
 
     return {
@@ -5929,11 +5985,15 @@ async function showPerfectCorrectionThenRevealBot({
 
 if (pointsAward?.pointsGained > 0) {
   showPointsAward(
-    pointsAward.pointsGained,
-    pointsAward.newTotal,
-    pointsAward.language || languageSelect.value,
-    perfectCard.pointsEarnedEl || null
-  );
+  pointsAward.pointsGained,
+  pointsAward.newTotal,
+  pointsAward.language || getCurrentChatLanguage(),
+  perfectCard.pointsEarnedEl || null,
+  {
+    bonusPoints: pointsAward.bonusPoints || 0,
+    bonusWordsSaid: pointsAward.bonusWordsSaid || 0
+  }
+);
 }
 
   /*
@@ -6999,11 +7059,15 @@ const pointsAward = confirmedSpokenText
 
   if (pointsAward?.pointsGained > 0) {
   showPointsAward(
-    pointsAward.pointsGained,
-    pointsAward.newTotal,
-    pointsAward.language || languageSelect.value,
-    correctionCard.pointsEarnedEl || null
-  );
+  pointsAward.pointsGained,
+  pointsAward.newTotal,
+  pointsAward.language || getCurrentChatLanguage(),
+  correctionCard.pointsEarnedEl || null,
+  {
+    bonusPoints: pointsAward.bonusPoints || 0,
+    bonusWordsSaid: pointsAward.bonusWordsSaid || 0
+  }
+);
 }
 
   const correctionId = correctionCard.dataset.correctionId;
@@ -7763,7 +7827,6 @@ async function playBonusWordAudio(chatWord, language, button = null) {
       languageSelect.value
     ).catch(() => {});
     scheduleWordReview(word, "translated", languageSelect.value).catch(() => {});
-    loadUpcomingWords(selectedChatLanguage).catch(() => {});
     unit.classList.remove("active-word");
   } catch (error) {
     unit.classList.remove("active-word");
