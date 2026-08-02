@@ -1368,7 +1368,7 @@
 
   <div class="recall-summary">
     <strong id="sessionUniqueCount">0</strong>
-    <span>unique words recalled</span>
+    <span>category words recalled</span>
   </div>
 
   <div
@@ -1895,16 +1895,6 @@
     const challengeLanguageLabel =
       document.getElementById(
         "challengeLanguageLabel"
-      );
-
-    const challengeWord =
-      document.getElementById(
-        "challengeWord"
-      );
-
-    const challengeLoading =
-      document.getElementById(
-        "challengeLoading"
       );
 
     const writingModeButton =
@@ -2545,12 +2535,9 @@ let currentRevealedTarget = "";
         level.color;
     }
 
-    async function openPractice(categoryId) {
+ async function openPractice(categoryId) {
   activeCategoryId = categoryId;
   activeCategorySessionId = null;
-
-  sessionMentionItems = [];
-  sessionUniqueWordKeys = new Set();
 
   currentHintTranslation = "";
   currentRevealedTarget = "";
@@ -2567,11 +2554,20 @@ let currentRevealedTarget = "";
   challengeLanguageLabel.textContent =
     currentLanguage;
 
-  practicePage.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
+  practicePage.classList.remove(
+    "hidden"
+  );
+
+  document.body.style.overflow =
+    "hidden";
 
   answerInput.value = "";
   speechTranscript.textContent = "";
+
+  speechStatus.textContent =
+    "Tap, say as many words as you can, then stop";
+
+  clearFeedback();
 
   hintPanel.classList.add("hidden");
   revealedTarget.classList.add("hidden");
@@ -2581,7 +2577,14 @@ let currentRevealedTarget = "";
 
   revealTargetButton.textContent = "?";
 
-  renderSessionMentions();
+  /*
+    Populate the display with all unique accepted words
+    from this category across previous sessions.
+  */
+  loadStoredCategoryWordsIntoSession(
+    categoryId
+  );
+
   updatePracticeProgress();
 
   submitAnswerButton.disabled = true;
@@ -2589,25 +2592,35 @@ let currentRevealedTarget = "";
   stuckButton.disabled = true;
 
   try {
-    const result = await callCategoryAction(
-      {
-        action: "category-start-recall",
-        language: currentLanguage,
-        fluentLanguage:
-          currentFluentLanguage,
-        categoryId
-      },
-      "Category session"
-    );
+    const result =
+      await callCategoryAction(
+        {
+          action:
+            "category-start-recall",
+
+          language:
+            currentLanguage,
+
+          fluentLanguage:
+            currentFluentLanguage,
+
+          categoryId
+        },
+        "Category session"
+      );
 
     activeCategorySessionId =
       result.sessionId;
 
-    submitAnswerButton.disabled = false;
+    submitAnswerButton.disabled =
+      false;
+
     recordButton.disabled = false;
     stuckButton.disabled = false;
 
-    if (currentInputMode === "writing") {
+    if (
+      currentInputMode === "writing"
+    ) {
       answerInput.focus();
     }
   } catch (error) {
@@ -2673,6 +2686,80 @@ let currentRevealedTarget = "";
     mentionedWordsList.scrollHeight;
 }
 
+    function loadStoredCategoryWordsIntoSession(
+  categoryId
+) {
+  const config =
+    CATEGORY_CONFIG[categoryId];
+
+  const permittedCategoryIds =
+    config?.children?.length
+      ? new Set(config.children)
+      : new Set([categoryId]);
+
+  /*
+    category_mastery contains only accepted,
+    category-related words in the selected language.
+  */
+  const storedWordsByKey = new Map();
+
+  for (const row of masteryRows) {
+    if (
+      !permittedCategoryIds.has(
+        row.category_id
+      )
+    ) {
+      continue;
+    }
+
+    const wordKey =
+      row.word_key ||
+      normalizeWord(row.word_text);
+
+    if (!wordKey) continue;
+
+    /*
+      A parent category may contain the same word in more
+      than one child category. Display it only once.
+    */
+    if (!storedWordsByKey.has(wordKey)) {
+      storedWordsByKey.set(
+        wordKey,
+        {
+          surfaceText: row.word_text,
+          canonicalText: row.word_text,
+          accepted: true,
+          duplicate: false,
+          isChatLanguage: true,
+          categoryId: row.category_id,
+          persisted: true
+        }
+      );
+    }
+  }
+
+  sessionMentionItems = [
+    ...storedWordsByKey.values()
+  ].sort((first, second) =>
+    String(
+      first.canonicalText ||
+      first.surfaceText ||
+      ""
+    ).localeCompare(
+      String(
+        second.canonicalText ||
+        second.surfaceText ||
+        ""
+      )
+    )
+  );
+
+  sessionUniqueWordKeys =
+    new Set(storedWordsByKey.keys());
+
+  renderSessionMentions();
+}
+
     function closePractice() {
   practicePage.classList.add("hidden");
   document.body.style.overflow = "";
@@ -2698,88 +2785,7 @@ let currentRevealedTarget = "";
       );
     }
 
-    async function loadNextChallenge() {
-      if (
-        !activeCategoryId ||
-        challengeLoadingState
-      ) {
-        return;
-      }
-
-      challengeLoadingState = true;
-      activeChallenge = null;
-
-      challengeWord.textContent = "";
-      challengeLoading.classList.remove(
-        "hidden"
-      );
-
-      answerInput.value = "";
-      speechTranscript.textContent = "";
-      clearFeedback();
-
-      submitAnswerButton.disabled = true;
-      recordButton.disabled = true;
-
-      const level =
-        getCategoryLevel(
-          activeCategoryId
-        );
-
-      try {
-        const data =
-          await callCategoryAction(
-            {
-              action:
-                "category-generate-challenge",
-
-              language:
-                currentLanguage,
-
-              fluentLanguage:
-                currentFluentLanguage,
-
-              categoryId:
-                activeCategoryId,
-
-              difficulty:
-                level.id
-            },
-            "Category challenge"
-          );
-
-        activeChallenge = data;
-
-        challengeWord.textContent =
-          data.promptText || "";
-
-        challengeLoading.classList.add(
-          "hidden"
-        );
-
-        submitAnswerButton.disabled =
-          false;
-
-        recordButton.disabled = false;
-
-        if (
-          currentInputMode === "writing"
-        ) {
-          setTimeout(() => {
-            answerInput.focus();
-          }, 80);
-        }
-      } catch (error) {
-        challengeLoading.textContent =
-          getReadableError(error);
-
-        showPageMessage(error);
-      } finally {
-        challengeLoadingState = false;
-      }
-    }
-
-    async function submitRecallText(text) {
+   async function submitRecallText(text) {
   const cleanText =
     String(text || "").trim();
 
@@ -2825,21 +2831,37 @@ let currentRevealedTarget = "";
         : [];
 
     for (const item of items) {
-      sessionMentionItems.push(item);
-
+      /*
+        Do not display words outside the category or
+        words spoken in another language.
+      */
       if (
-        item.accepted &&
-        !item.duplicate
+        item.accepted !== true ||
+        item.isChatLanguage !== true
       ) {
-        const key =
-          normalizeWord(
-            item.canonicalText ||
-            item.surfaceText
-          );
+        continue;
+      }
 
-        if (key) {
-          sessionUniqueWordKeys.add(key);
-        }
+      const key =
+        normalizeWord(
+          item.canonicalText ||
+          item.surfaceText
+        );
+
+      if (!key) continue;
+
+      /*
+        Display each valid category word only once.
+      */
+      if (
+        !sessionUniqueWordKeys.has(key)
+      ) {
+        sessionMentionItems.push({
+          ...item,
+          duplicate: false
+        });
+
+        sessionUniqueWordKeys.add(key);
       }
     }
 
@@ -2847,7 +2869,10 @@ let currentRevealedTarget = "";
 
     answerInput.value = "";
 
-    if (result.newUniqueWords > 0) {
+    if (
+      Number(result.newUniqueWords || 0) >
+      0
+    ) {
       answerFeedback.textContent =
         result.newUniqueWords === 1
           ? "1 new category word added."
@@ -2858,20 +2883,38 @@ let currentRevealedTarget = "";
       );
 
       await loadMastery();
+
+      /*
+        Synchronize the visible list from permanent mastery.
+        This ensures words persist across sessions.
+      */
+      if (activeCategoryId) {
+        loadStoredCategoryWordsIntoSession(
+          activeCategoryId
+        );
+      }
+
       updatePracticeProgress();
     } else {
+      const acceptedCount =
+        items.filter(
+          item =>
+            item.accepted === true &&
+            item.isChatLanguage === true
+        ).length;
+
       answerFeedback.textContent =
-        "Words recorded.";
+        acceptedCount > 0
+          ? "Those category words were already recorded."
+          : "No new category words were found.";
 
       answerFeedback.classList.add(
-        "correct"
+        acceptedCount > 0
+          ? "correct"
+          : "incorrect"
       );
     }
 
-    /*
-      If the hidden target was said, remove any old hint.
-      The server has already chosen a new hidden target.
-    */
     if (result.targetMatched) {
       hintPanel.classList.add("hidden");
 
@@ -2885,7 +2928,8 @@ let currentRevealedTarget = "";
         "hidden"
       );
 
-      revealTargetButton.textContent = "?";
+      revealTargetButton.textContent =
+        "?";
     }
   } catch (error) {
     answerFeedback.textContent =
@@ -2896,10 +2940,18 @@ let currentRevealedTarget = "";
     );
   } finally {
     recallSubmitting = false;
-    submitAnswerButton.disabled = false;
+
+    submitAnswerButton.disabled =
+      false;
+
     recordButton.disabled = false;
 
-    if (currentInputMode === "writing") {
+    speechStatus.textContent =
+      "Tap, say as many words as you can, then stop";
+
+    if (
+      currentInputMode === "writing"
+    ) {
       answerInput.focus();
     }
   }
@@ -3016,10 +3068,17 @@ let currentRevealedTarget = "";
         currentFluentLanguage
       );
 
-      formData.append(
-        "transcriptionPrompt",
-        `The speaker is translating a vocabulary item into ${currentLanguage}. Transcribe exactly what was said without translating it.`
-      );
+      const activeCategoryTitle =
+  activeCategoryId
+    ? CATEGORY_CONFIG[
+        activeCategoryId
+      ]?.title || "the selected category"
+    : "the selected category";
+
+formData.append(
+  "transcriptionPrompt",
+  `The speaker is freely listing one or more vocabulary words in ${currentLanguage} for the category "${activeCategoryTitle}". Transcribe every word exactly as spoken. Do not translate, explain, or remove repeated words.`
+);
 
       const response = await fetch(
         `${SUPABASE_URL}/functions/v1/transcribe-audio`,
@@ -3149,48 +3208,48 @@ let currentRevealedTarget = "";
           speechStatus.textContent =
             "Transcribing";
 
-          try {
-            const finalMimeType =
-              mediaRecorder.mimeType ||
-              mimeType ||
-              recordedChunks[0]?.type ||
-              "audio/webm";
+         try {
+  const finalMimeType =
+    mediaRecorder.mimeType ||
+    mimeType ||
+    recordedChunks[0]?.type ||
+    "audio/webm";
 
-            const audioBlob =
-              new Blob(
-                recordedChunks,
-                {
-                  type: finalMimeType
-                }
-              );
+  const audioBlob =
+    new Blob(
+      recordedChunks,
+      {
+        type: finalMimeType
+      }
+    );
 
-            const transcript =
-              await transcribeAudio(
-                audioBlob,
-                finalMimeType
-              );
+  const transcript =
+    await transcribeAudio(
+      audioBlob,
+      finalMimeType
+    );
 
-            speechTranscript.textContent =
-              transcript;
+  speechTranscript.textContent =
+    transcript;
 
-            speechStatus.textContent =
-              "Checking answer";
+  speechStatus.textContent =
+    "Adding category words";
 
-            await submitRecallText(transcript);
-          } catch (error) {
-            showPageMessage(error);
+  await submitRecallText(transcript);
+} catch (error) {
+  showPageMessage(error);
 
-            speechStatus.textContent =
-              "Tap to speak";
-          } finally {
-            stopRecordingTracks();
+  speechStatus.textContent =
+    "Tap to speak";
+} finally {
+  stopRecordingTracks();
 
-            recordButton.disabled =
-              false;
+  recordButton.disabled = false;
+  recordButton.textContent = "🎤";
 
-            recordButton.textContent =
-              "🎤";
-          }
+  speechStatus.textContent =
+    "Tap, say as many words as you can, then stop";
+}
         }
       );
 
@@ -3510,27 +3569,35 @@ revealTargetButton.addEventListener(
 );
 
     recordButton.addEventListener(
-      "click",
-      async () => {
-        if (
-          !activeChallenge ||
-          answerSubmitting
-        ) {
-          return;
-        }
+  "click",
+  async () => {
+    /*
+      Always allow the second click to stop an active recording.
+    */
+    if (isRecording) {
+      stopRecording();
+      return;
+    }
 
-        try {
-          if (isRecording) {
-            stopRecording();
-          } else {
-            await startRecording();
-          }
-        } catch (error) {
-          stopRecordingTracks();
-          showPageMessage(error);
-        }
-      }
-    );
+    if (
+      !activeCategorySessionId ||
+      recallSubmitting
+    ) {
+      return;
+    }
+
+    try {
+      await startRecording();
+    } catch (error) {
+      stopRecordingTracks();
+
+      speechStatus.textContent =
+        "Tap to speak";
+
+      showPageMessage(error);
+    }
+  }
+);
 
     supabaseClient.auth
       .onAuthStateChange(
