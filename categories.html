@@ -991,6 +991,153 @@
       }
     }
 
+    .recall-summary {
+  margin: 22px 0 16px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.recall-summary strong {
+  font-size: 2rem;
+  letter-spacing: -0.06em;
+}
+
+.recall-summary span {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 850;
+}
+
+.mentioned-words-list {
+  width: min(840px, 100%);
+  min-height: 150px;
+  max-height: 330px;
+  overflow-y: auto;
+
+  display: flex;
+  align-content: flex-start;
+  flex-wrap: wrap;
+  gap: 9px;
+
+  padding: 18px;
+  margin-top: 10px;
+
+  border-radius: 24px;
+  background: rgba(0, 0, 0, 0.23);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.empty-mention-message {
+  width: 100%;
+  margin: auto;
+  color: var(--muted);
+  text-align: center;
+  font-weight: 800;
+}
+
+.mention-chip {
+  padding: 9px 13px;
+  border-radius: 999px;
+
+  color: white;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+
+  font-size: 0.92rem;
+  font-weight: 850;
+}
+
+.mention-chip.accepted {
+  color: #bbf7d0;
+  background: rgba(34, 197, 94, 0.11);
+  border-color: rgba(74, 222, 128, 0.28);
+}
+
+.mention-chip.duplicate {
+  color: #bfdbfe;
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(96, 165, 250, 0.23);
+}
+
+.mention-chip.outside {
+  color: #d1d5db;
+  opacity: 0.64;
+}
+
+.mention-chip.wrong-language {
+  color: #fecaca;
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(248, 113, 113, 0.18);
+}
+
+.recall-actions {
+  margin-top: 22px;
+  display: flex;
+  justify-content: center;
+}
+
+.stuck-button {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 12px 20px;
+
+  color: white;
+  background: rgba(255, 255, 255, 0.08);
+
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.hint-panel {
+  width: min(600px, 100%);
+  margin: 22px auto 0;
+  padding: 20px;
+
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+
+  border-radius: 24px;
+  background: rgba(96, 165, 250, 0.08);
+  border: 1px solid rgba(96, 165, 250, 0.22);
+}
+
+.hint-label {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.hint-translation {
+  font-size: clamp(1.6rem, 5vw, 3rem);
+  font-weight: 950;
+  letter-spacing: -0.04em;
+}
+
+.reveal-target-button {
+  width: 52px;
+  height: 52px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: white;
+  color: black;
+
+  font-size: 1.4rem;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.revealed-target {
+  font-size: clamp(1.5rem, 5vw, 2.8rem);
+  font-weight: 950;
+  color: #bfdbfe;
+}
+
     @media (max-width: 520px) {
       .top-bar {
         gap: 10px;
@@ -1209,110 +1356,145 @@
           0 / 10
         </span>
       </div>
+<div class="challenge-card recall-card">
+  <div class="challenge-instruction">
+    Say every
+    <span id="recallCategoryLabel">category</span>
+    word you know in
+    <span id="challengeLanguageLabel">
+      the learning language
+    </span>
+  </div>
 
-      <div class="challenge-card">
-        <div class="challenge-instruction">
-          Translate into
-          <span id="challengeLanguageLabel">
-            the learning language
-          </span>
-        </div>
+  <div class="recall-summary">
+    <strong id="sessionUniqueCount">0</strong>
+    <span>unique words recalled</span>
+  </div>
 
-        <div
-          id="challengeWord"
-          class="challenge-word"
-          dir="auto"
-        ></div>
+  <div
+    id="mentionedWordsList"
+    class="mentioned-words-list"
+  >
+    <div
+      id="emptyMentionMessage"
+      class="empty-mention-message"
+    >
+      Your words will appear here.
+    </div>
+  </div>
 
-        <div
-          id="challengeLoading"
-          class="challenge-loading"
-        >
-          Creating a new challenge…
-        </div>
+  <div class="answer-area">
+    <div class="mode-toggle">
+      <button
+        id="writingModeButton"
+        class="mode-button"
+        type="button"
+      >
+        Writing
+      </button>
 
-        <div class="answer-area">
-          <div class="mode-toggle">
-            <button
-              id="writingModeButton"
-              class="mode-button"
-              type="button"
-            >
-              Writing
-            </button>
+      <button
+        id="speechModeButton"
+        class="mode-button active"
+        type="button"
+      >
+        Speech
+      </button>
+    </div>
 
-            <button
-              id="speechModeButton"
-              class="mode-button active"
-              type="button"
-            >
-              Speech
-            </button>
-          </div>
+    <form
+      id="writingAnswerForm"
+      class="writing-answer-row hidden"
+    >
+      <input
+        id="answerInput"
+        class="answer-input"
+        autocomplete="off"
+        placeholder="Enter one word or many words"
+        dir="auto"
+      />
 
-          <form
-            id="writingAnswerForm"
-            class="writing-answer-row hidden"
-          >
-            <input
-              id="answerInput"
-              class="answer-input"
-              autocomplete="off"
-              placeholder="Type your translation"
-              dir="auto"
-            />
+      <button
+        id="submitAnswerButton"
+        class="submit-answer-button"
+        type="submit"
+      >
+        Add
+      </button>
+    </form>
 
-            <button
-              id="submitAnswerButton"
-              class="submit-answer-button"
-              type="submit"
-            >
-              Check
-            </button>
-          </form>
+    <div
+      id="speechAnswer"
+      class="speech-answer"
+    >
+      <button
+        id="recordButton"
+        class="record-button"
+        type="button"
+      >
+        🎤
+      </button>
 
-          <div
-            id="speechAnswer"
-            class="speech-answer"
-          >
-            <button
-              id="recordButton"
-              class="record-button"
-              type="button"
-            >
-              🎤
-            </button>
-
-            <div
-              id="speechStatus"
-              class="speech-status"
-            >
-              Tap to speak
-            </div>
-
-            <div
-              id="speechTranscript"
-              class="speech-transcript"
-              dir="auto"
-            ></div>
-          </div>
-
-          <div
-            id="answerFeedback"
-            class="answer-feedback"
-          ></div>
-
-          <div class="challenge-actions">
-            <button
-              id="skipButton"
-              class="skip-button"
-              type="button"
-            >
-              Skip this word
-            </button>
-          </div>
-        </div>
+      <div
+        id="speechStatus"
+        class="speech-status"
+      >
+        Tap, say as many words as you can, then stop
       </div>
+
+      <div
+        id="speechTranscript"
+        class="speech-transcript"
+        dir="auto"
+      ></div>
+    </div>
+
+    <div class="recall-actions">
+      <button
+        id="stuckButton"
+        class="stuck-button"
+        type="button"
+      >
+        I’m out of words
+      </button>
+    </div>
+
+    <div
+      id="hintPanel"
+      class="hint-panel hidden"
+    >
+      <div class="hint-label">
+        Try translating this:
+      </div>
+
+      <div
+        id="hintTranslation"
+        class="hint-translation"
+        dir="auto"
+      ></div>
+
+      <button
+        id="revealTargetButton"
+        class="reveal-target-button"
+        type="button"
+        aria-label="Reveal and pronounce the word"
+      >
+        ?
+      </button>
+
+      <div
+        id="revealedTarget"
+        class="revealed-target hidden"
+        dir="auto"
+      ></div>
+    </div>
+
+    <div
+      id="answerFeedback"
+      class="answer-feedback"
+    ></div>
+  </div>
+</div>
     </div>
   </section>
 
@@ -1775,6 +1957,33 @@
         "answerFeedback"
       );
 
+    const recallCategoryLabel =
+  document.getElementById("recallCategoryLabel");
+
+const mentionedWordsList =
+  document.getElementById("mentionedWordsList");
+
+const emptyMentionMessage =
+  document.getElementById("emptyMentionMessage");
+
+const sessionUniqueCount =
+  document.getElementById("sessionUniqueCount");
+
+const stuckButton =
+  document.getElementById("stuckButton");
+
+const hintPanel =
+  document.getElementById("hintPanel");
+
+const hintTranslation =
+  document.getElementById("hintTranslation");
+
+const revealTargetButton =
+  document.getElementById("revealTargetButton");
+
+const revealedTarget =
+  document.getElementById("revealedTarget");
+
     let currentUser = null;
     let currentSession = null;
 
@@ -1786,9 +1995,14 @@
     let masteryMap = new Map();
 
     let activeCategoryId = null;
-    let activeChallenge = null;
-    let challengeLoadingState = false;
-    let answerSubmitting = false;
+    let activeCategorySessionId = null;
+let recallSubmitting = false;
+
+let sessionMentionItems = [];
+let sessionUniqueWordKeys = new Set();
+
+let currentHintTranslation = "";
+let currentRevealedTarget = "";
 
     let mediaRecorder = null;
     let recordedChunks = [];
@@ -2331,48 +2545,149 @@
         level.color;
     }
 
-    async function openPractice(
-      categoryId
-    ) {
-      activeCategoryId = categoryId;
-      activeChallenge = null;
+    async function openPractice(categoryId) {
+  activeCategoryId = categoryId;
+  activeCategorySessionId = null;
 
-      const config =
-        CATEGORY_CONFIG[categoryId];
+  sessionMentionItems = [];
+  sessionUniqueWordKeys = new Set();
 
-      practiceTitle.textContent =
-        config.title;
+  currentHintTranslation = "";
+  currentRevealedTarget = "";
 
-      challengeLanguageLabel.textContent =
-        currentLanguage;
+  const config =
+    CATEGORY_CONFIG[categoryId];
 
-      practicePage.classList.remove(
-        "hidden"
-      );
+  practiceTitle.textContent =
+    config.title;
 
-      document.body.style.overflow =
-        "hidden";
+  recallCategoryLabel.textContent =
+    config.title.toLowerCase();
 
-      answerInput.value = "";
-      speechTranscript.textContent = "";
-      clearFeedback();
+  challengeLanguageLabel.textContent =
+    currentLanguage;
 
-      updatePracticeProgress();
-      await loadNextChallenge();
+  practicePage.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+
+  answerInput.value = "";
+  speechTranscript.textContent = "";
+
+  hintPanel.classList.add("hidden");
+  revealedTarget.classList.add("hidden");
+
+  hintTranslation.textContent = "";
+  revealedTarget.textContent = "";
+
+  revealTargetButton.textContent = "?";
+
+  renderSessionMentions();
+  updatePracticeProgress();
+
+  submitAnswerButton.disabled = true;
+  recordButton.disabled = true;
+  stuckButton.disabled = true;
+
+  try {
+    const result = await callCategoryAction(
+      {
+        action: "category-start-recall",
+        language: currentLanguage,
+        fluentLanguage:
+          currentFluentLanguage,
+        categoryId
+      },
+      "Category session"
+    );
+
+    activeCategorySessionId =
+      result.sessionId;
+
+    submitAnswerButton.disabled = false;
+    recordButton.disabled = false;
+    stuckButton.disabled = false;
+
+    if (currentInputMode === "writing") {
+      answerInput.focus();
     }
+  } catch (error) {
+    showPageMessage(error);
+    closePractice();
+  }
+}
+
+    function renderSessionMentions() {
+  mentionedWordsList.innerHTML = "";
+
+  if (!sessionMentionItems.length) {
+    const empty =
+      document.createElement("div");
+
+    empty.className =
+      "empty-mention-message";
+
+    empty.textContent =
+      "Your words will appear here.";
+
+    mentionedWordsList.appendChild(empty);
+  } else {
+    for (const item of sessionMentionItems) {
+      const chip =
+        document.createElement("div");
+
+      chip.className = "mention-chip";
+      chip.textContent =
+        item.surfaceText ||
+        item.canonicalText ||
+        "";
+
+      if (!item.isChatLanguage) {
+        chip.classList.add(
+          "wrong-language"
+        );
+
+        chip.title =
+          "Not in the selected learning language";
+      } else if (item.duplicate) {
+        chip.classList.add("duplicate");
+        chip.title = "Already counted";
+      } else if (item.accepted) {
+        chip.classList.add("accepted");
+        chip.title = "Added to category progress";
+      } else {
+        chip.classList.add("outside");
+        chip.title =
+          "Does not belong to this category";
+      }
+
+      mentionedWordsList.appendChild(
+        chip
+      );
+    }
+  }
+
+  sessionUniqueCount.textContent =
+    String(sessionUniqueWordKeys.size);
+
+  mentionedWordsList.scrollTop =
+    mentionedWordsList.scrollHeight;
+}
 
     function closePractice() {
-      practicePage.classList.add(
-        "hidden"
-      );
+  practicePage.classList.add("hidden");
+  document.body.style.overflow = "";
 
-      document.body.style.overflow = "";
+  activeCategoryId = null;
+  activeCategorySessionId = null;
 
-      activeCategoryId = null;
-      activeChallenge = null;
+  sessionMentionItems = [];
+  sessionUniqueWordKeys = new Set();
 
-      stopRecordingTracks();
-    }
+  currentHintTranslation = "";
+  currentRevealedTarget = "";
+
+  stopRecordingTracks();
+}
 
     function clearFeedback() {
       answerFeedback.textContent = "";
@@ -2464,98 +2779,131 @@
       }
     }
 
-    async function submitAnswer(
-      answer
-    ) {
-      const cleanAnswer =
-        String(answer || "").trim();
+    async function submitRecallText(text) {
+  const cleanText =
+    String(text || "").trim();
+
+  if (
+    !cleanText ||
+    !activeCategorySessionId ||
+    recallSubmitting
+  ) {
+    return;
+  }
+
+  recallSubmitting = true;
+
+  submitAnswerButton.disabled = true;
+  recordButton.disabled = true;
+
+  answerFeedback.textContent =
+    "Adding words…";
+
+  answerFeedback.classList.remove(
+    "correct",
+    "incorrect"
+  );
+
+  try {
+    const result =
+      await callCategoryAction(
+        {
+          action:
+            "category-submit-recall",
+
+          sessionId:
+            activeCategorySessionId,
+
+          text: cleanText
+        },
+        "Category recall"
+      );
+
+    const items =
+      Array.isArray(result.items)
+        ? result.items
+        : [];
+
+    for (const item of items) {
+      sessionMentionItems.push(item);
 
       if (
-        !cleanAnswer ||
-        !activeChallenge ||
-        answerSubmitting
+        item.accepted &&
+        !item.duplicate
       ) {
-        return;
-      }
-
-      answerSubmitting = true;
-
-      submitAnswerButton.disabled = true;
-      recordButton.disabled = true;
-
-      clearFeedback();
-      answerFeedback.textContent =
-        "Checking…";
-
-      try {
-        const result =
-          await callCategoryAction(
-            {
-              action:
-                "category-validate-answer",
-
-              challengeId:
-                activeChallenge.challengeId,
-
-              answer: cleanAnswer
-            },
-            "Answer validation"
+        const key =
+          normalizeWord(
+            item.canonicalText ||
+            item.surfaceText
           );
 
-        answerFeedback.textContent =
-          result.correct
-            ? `${result.feedback} ${result.canonicalAnswer || ""}`.trim()
-            : result.feedback;
-
-        answerFeedback.classList.add(
-          result.correct
-            ? "correct"
-            : "incorrect"
-        );
-
-        if (result.correct) {
-          await loadMastery();
-
-          setTimeout(() => {
-            if (
-              !practicePage.classList.contains(
-                "hidden"
-              )
-            ) {
-              loadNextChallenge();
-            }
-          }, 1050);
-        } else {
-          if (
-            currentInputMode === "writing"
-          ) {
-            answerInput.focus();
-            answerInput.select();
-          }
+        if (key) {
+          sessionUniqueWordKeys.add(key);
         }
-      } catch (error) {
-        answerFeedback.textContent =
-          getReadableError(error);
-
-        answerFeedback.classList.add(
-          "incorrect"
-        );
-      } finally {
-        answerSubmitting = false;
-
-        if (
-          !activeChallenge ||
-          challengeLoadingState
-        ) {
-          return;
-        }
-
-        submitAnswerButton.disabled =
-          false;
-
-        recordButton.disabled = false;
       }
     }
+
+    renderSessionMentions();
+
+    answerInput.value = "";
+
+    if (result.newUniqueWords > 0) {
+      answerFeedback.textContent =
+        result.newUniqueWords === 1
+          ? "1 new category word added."
+          : `${result.newUniqueWords} new category words added.`;
+
+      answerFeedback.classList.add(
+        "correct"
+      );
+
+      await loadMastery();
+      updatePracticeProgress();
+    } else {
+      answerFeedback.textContent =
+        "Words recorded.";
+
+      answerFeedback.classList.add(
+        "correct"
+      );
+    }
+
+    /*
+      If the hidden target was said, remove any old hint.
+      The server has already chosen a new hidden target.
+    */
+    if (result.targetMatched) {
+      hintPanel.classList.add("hidden");
+
+      currentHintTranslation = "";
+      currentRevealedTarget = "";
+
+      hintTranslation.textContent = "";
+      revealedTarget.textContent = "";
+
+      revealedTarget.classList.add(
+        "hidden"
+      );
+
+      revealTargetButton.textContent = "?";
+    }
+  } catch (error) {
+    answerFeedback.textContent =
+      getReadableError(error);
+
+    answerFeedback.classList.add(
+      "incorrect"
+    );
+  } finally {
+    recallSubmitting = false;
+    submitAnswerButton.disabled = false;
+    recordButton.disabled = false;
+
+    if (currentInputMode === "writing") {
+      answerInput.focus();
+    }
+  }
+}
 
     function setInputMode(mode) {
       currentInputMode =
@@ -2828,9 +3176,7 @@
             speechStatus.textContent =
               "Checking answer";
 
-            await submitAnswer(
-              transcript
-            );
+            await submitRecallText(transcript);
           } catch (error) {
             showPageMessage(error);
 
@@ -2850,6 +3196,150 @@
 
       mediaRecorder.start();
     }
+
+    async function requestCategoryHint() {
+  if (!activeCategorySessionId) return;
+
+  stuckButton.disabled = true;
+  stuckButton.textContent =
+    "Finding a suggestion…";
+
+  try {
+    const result =
+      await callCategoryAction(
+        {
+          action:
+            "category-get-recall-hint",
+
+          sessionId:
+            activeCategorySessionId
+        },
+        "Category hint"
+      );
+
+    currentHintTranslation =
+      result.hint || "";
+
+    hintTranslation.textContent =
+      currentHintTranslation;
+
+    revealedTarget.textContent = "";
+    revealedTarget.classList.add(
+      "hidden"
+    );
+
+    currentRevealedTarget = "";
+
+    revealTargetButton.textContent = "?";
+    hintPanel.classList.remove("hidden");
+  } catch (error) {
+    showPageMessage(error);
+  } finally {
+    stuckButton.disabled = false;
+    stuckButton.textContent =
+      "I’m out of words";
+  }
+}
+
+stuckButton.addEventListener(
+  "click",
+  requestCategoryHint
+);
+
+    async function speakRevealedCategoryWord(
+  word
+) {
+  const result =
+    await callCategoryAction(
+      {
+        action: "speak-words",
+        language: currentLanguage,
+        items: [
+          {
+            tokenId: "category-target",
+            word,
+            sentence: word
+          }
+        ]
+      },
+      "Word pronunciation"
+    );
+
+  const clip =
+    Array.isArray(result.clips)
+      ? result.clips[0]
+      : null;
+
+  if (!clip?.audioBase64) {
+    throw new Error(
+      "The pronunciation was not returned."
+    );
+  }
+
+  const audio = new Audio(
+    `data:${clip.mimeType || "audio/mpeg"};base64,${clip.audioBase64}`
+  );
+
+  await audio.play();
+}
+
+    async function revealAndSpeakCategoryTarget() {
+  if (!activeCategorySessionId) return;
+
+  revealTargetButton.disabled = true;
+
+  try {
+    /*
+      If already revealed, the button simply replays it.
+    */
+    if (currentRevealedTarget) {
+      await speakRevealedCategoryWord(
+        currentRevealedTarget
+      );
+
+      return;
+    }
+
+    const result =
+      await callCategoryAction(
+        {
+          action:
+            "category-reveal-recall-target",
+
+          sessionId:
+            activeCategorySessionId
+        },
+        "Reveal category word"
+      );
+
+    currentRevealedTarget =
+      result.targetWord || "";
+
+    revealedTarget.textContent =
+      currentRevealedTarget;
+
+    revealedTarget.classList.remove(
+      "hidden"
+    );
+
+    revealTargetButton.textContent = "🔊";
+
+    if (currentRevealedTarget) {
+      await speakRevealedCategoryWord(
+        currentRevealedTarget
+      );
+    }
+  } catch (error) {
+    showPageMessage(error);
+  } finally {
+    revealTargetButton.disabled = false;
+  }
+}
+
+revealTargetButton.addEventListener(
+  "click",
+  revealAndSpeakCategoryTarget
+);
 
     function stopRecording() {
       if (
@@ -3009,15 +3499,15 @@
     );
 
     writingAnswerForm.addEventListener(
-      "submit",
-      event => {
-        event.preventDefault();
+  "submit",
+  event => {
+    event.preventDefault();
 
-        submitAnswer(
-          answerInput.value
-        );
-      }
+    submitRecallText(
+      answerInput.value
     );
+  }
+);
 
     recordButton.addEventListener(
       "click",
@@ -3041,15 +3531,6 @@
         }
       }
     );
-
-    document
-      .getElementById("skipButton")
-      .addEventListener(
-        "click",
-        () => {
-          loadNextChallenge();
-        }
-      );
 
     supabaseClient.auth
       .onAuthStateChange(
