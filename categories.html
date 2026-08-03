@@ -18,7 +18,6 @@
     :root {
       --bg: #030303;
       --panel: rgba(255, 255, 255, 0.065);
-      --panel-strong: rgba(17, 24, 39, 0.96);
       --text: #f8fafc;
       --muted: #9ca3af;
       --border: rgba(255, 255, 255, 0.13);
@@ -142,6 +141,7 @@
 
     .brand-title {
       margin: 0;
+
       font-size: clamp(1.55rem, 4vw, 2.45rem);
       line-height: 0.96;
       letter-spacing: -0.065em;
@@ -159,6 +159,7 @@
 
     .brand-subtitle {
       margin: 7px 0 0;
+
       color: var(--muted);
       font-size: 0.93rem;
     }
@@ -173,19 +174,23 @@
 
     .control-card {
       min-height: 48px;
+
       display: flex;
       align-items: center;
       gap: 9px;
+
       padding: 8px 12px;
 
       border-radius: 17px;
       background: var(--panel);
       border: 1px solid var(--border);
+
       backdrop-filter: blur(15px);
     }
 
     .control-label {
       color: var(--muted);
+
       font-size: 0.68rem;
       font-weight: 900;
       text-transform: uppercase;
@@ -195,8 +200,10 @@
     select {
       border: none;
       outline: none;
+
       background: transparent;
       color: white;
+
       font-weight: 850;
       cursor: pointer;
     }
@@ -208,6 +215,7 @@
 
     .back-button {
       min-height: 48px;
+
       border: none;
       border-radius: 999px;
       padding: 0 17px;
@@ -231,6 +239,7 @@
       padding: 28px;
 
       border-radius: 32px;
+
       background:
         radial-gradient(
           circle at top left,
@@ -240,13 +249,18 @@
         rgba(255, 255, 255, 0.05);
 
       border: 1px solid var(--border);
-      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
+
+      box-shadow:
+        0 24px 80px rgba(0, 0, 0, 0.3);
+
       backdrop-filter: blur(16px);
     }
 
     .hero-kicker {
       margin-bottom: 9px;
+
       color: #93c5fd;
+
       font-size: 0.75rem;
       font-weight: 950;
       letter-spacing: 0.15em;
@@ -254,8 +268,8 @@
     }
 
     .hero h2 {
-      margin: 0;
       max-width: 820px;
+      margin: 0;
 
       font-size: clamp(2.5rem, 7vw, 5.6rem);
       line-height: 0.9;
@@ -267,22 +281,26 @@
       margin: 18px 0 0;
 
       color: #cbd5e1;
+
       line-height: 1.55;
       font-size: 1rem;
     }
 
     .hero-legend {
+      min-width: 170px;
+
       display: flex;
       flex-direction: column;
       gap: 10px;
-      min-width: 170px;
     }
 
     .legend-item {
       display: flex;
       align-items: center;
       gap: 9px;
+
       color: #d1d5db;
+
       font-size: 0.82rem;
       font-weight: 850;
     }
@@ -290,9 +308,12 @@
     .legend-dot {
       width: 11px;
       height: 11px;
+
       border-radius: 50%;
       background: var(--level-color);
-      box-shadow: 0 0 15px var(--level-color);
+
+      box-shadow:
+        0 0 15px var(--level-color);
     }
 
     /* Category layout */
@@ -306,17 +327,20 @@
       justify-content: space-between;
       align-items: end;
       gap: 18px;
+
       margin-bottom: 16px;
     }
 
     .section-heading h3 {
       margin: 0;
+
       font-size: 1.55rem;
       letter-spacing: -0.045em;
     }
 
     .section-heading p {
       margin: 6px 0 0;
+
       color: var(--muted);
       font-size: 0.92rem;
     }
@@ -334,6 +358,7 @@
 
       min-width: 0;
       min-height: 245px;
+
       padding: 18px;
 
       border: 1px solid var(--border);
@@ -360,7 +385,9 @@
       justify-content: space-between;
       gap: 16px;
 
-      box-shadow: 0 18px 55px rgba(0, 0, 0, 0.22);
+      box-shadow:
+        0 18px 55px rgba(0, 0, 0, 0.22);
+
       backdrop-filter: blur(16px);
 
       transition:
@@ -371,6 +398,7 @@
 
     .category-card:hover {
       transform: translateY(-3px);
+
       border-color:
         color-mix(
           in srgb,
@@ -416,9 +444,11 @@
 
     .category-level {
       padding: 7px 10px;
+
       border-radius: 999px;
 
       color: var(--level-color);
+
       background:
         color-mix(
           in srgb,
@@ -442,6 +472,7 @@
 
     .category-name {
       margin: 0;
+
       font-size: 1.28rem;
       line-height: 1.05;
       letter-spacing: -0.045em;
@@ -449,24 +480,29 @@
 
     .category-description {
       margin: 8px 0 0;
+
       color: #aeb8c7;
+
       line-height: 1.4;
       font-size: 0.87rem;
     }
 
-    /* Semicircular progress meter */
+    /* Semicircular category meter */
 
     .category-meter {
       position: relative;
+
       width: 150px;
       max-width: 100%;
       aspect-ratio: 2 / 1;
+
       overflow: hidden;
       align-self: center;
     }
 
     .category-meter::before {
       content: "";
+
       position: absolute;
       inset: 0;
 
@@ -486,10 +522,12 @@
 
     .category-meter::after {
       content: "";
+
       position: absolute;
       left: 13%;
       right: 13%;
       bottom: 0;
+
       height: 74%;
 
       border-radius: 999px 999px 0 0;
@@ -499,8 +537,9 @@
     .category-meter-inner {
       position: absolute;
       inset: auto 0 0;
-      height: 70%;
       z-index: 2;
+
+      height: 70%;
 
       display: flex;
       flex-direction: column;
@@ -516,7 +555,9 @@
 
     .category-meter-inner span {
       margin-top: 5px;
+
       color: var(--muted);
+
       font-size: 0.66rem;
       font-weight: 900;
       text-transform: uppercase;
@@ -528,6 +569,7 @@
       padding: 20px;
 
       border-radius: 30px;
+
       background:
         radial-gradient(
           circle at top left,
@@ -570,7 +612,7 @@
     }
 
     .practice-shell {
-      width: min(1040px, 100%);
+      width: min(1180px, 100%);
       min-height: calc(100vh - 48px);
       margin: 0 auto;
 
@@ -587,6 +629,7 @@
 
     .practice-kicker {
       color: #93c5fd;
+
       font-size: 0.74rem;
       font-weight: 950;
       text-transform: uppercase;
@@ -595,6 +638,7 @@
 
     .practice-header h2 {
       margin: 8px 0 0;
+
       font-size: clamp(2rem, 6vw, 4.6rem);
       line-height: 0.92;
       letter-spacing: -0.07em;
@@ -603,6 +647,8 @@
     .practice-close {
       width: 46px;
       height: 46px;
+
+      flex: 0 0 auto;
 
       border: none;
       border-radius: 50%;
@@ -622,6 +668,7 @@
       gap: 14px;
 
       color: #cbd5e1;
+
       font-size: 0.88rem;
       font-weight: 850;
     }
@@ -631,27 +678,28 @@
       flex: 1;
 
       overflow: hidden;
+
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.09);
     }
 
     .practice-progress-fill {
-      height: 100%;
       width: 0;
+      height: 100%;
+
       border-radius: inherit;
       background: var(--beginner);
-      transition: width 300ms ease;
+
+      transition:
+        width 300ms ease,
+        background 300ms ease;
     }
 
     .challenge-card {
       flex: 1;
-      margin: 30px 0 18px;
-      padding: clamp(24px, 5vw, 54px);
 
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      margin: 30px 0 18px;
+      padding: clamp(20px, 4vw, 42px);
 
       border-radius: 34px;
 
@@ -664,36 +712,423 @@
         rgba(255, 255, 255, 0.052);
 
       border: 1px solid var(--border);
-      box-shadow: 0 28px 90px rgba(0, 0, 0, 0.38);
+
+      box-shadow:
+        0 28px 90px rgba(0, 0, 0, 0.38);
+
       backdrop-filter: blur(18px);
-      text-align: center;
     }
 
     .challenge-instruction {
       color: var(--muted);
+
       font-size: 0.77rem;
       font-weight: 950;
       text-transform: uppercase;
       letter-spacing: 0.13em;
     }
 
-    .challenge-word {
-      min-height: 1.1em;
-      margin-top: 20px;
+    /* Recall layout */
 
+    .recall-layout {
+      width: 100%;
+
+      display: grid;
+      grid-template-columns: 270px minmax(0, 1fr);
+      align-items: start;
+      gap: 22px;
+    }
+
+    .recall-main {
+      min-width: 0;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      text-align: center;
+    }
+
+    /* Suggestions */
+
+    .suggestion-sidebar {
+      position: sticky;
+      top: 20px;
+
+      padding: 18px;
+
+      border-radius: 25px;
+
+      background:
+        radial-gradient(
+          circle at top left,
+          rgba(96, 165, 250, 0.13),
+          transparent 50%
+        ),
+        rgba(255, 255, 255, 0.045);
+
+      border: 1px solid var(--border);
+    }
+
+    .suggestion-heading p {
+      margin: 8px 0 16px;
+
+      color: var(--muted);
+
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+
+    .suggestions-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .suggestion-row {
+      min-height: 67px;
+      padding: 12px;
+
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 38px;
+      align-items: center;
+      gap: 10px;
+
+      border-radius: 18px;
+
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+
+      transition:
+        transform 170ms ease,
+        border-color 170ms ease,
+        opacity 170ms ease;
+    }
+
+    .suggestion-row:hover {
+      transform: translateY(-1px);
+      border-color: rgba(96, 165, 250, 0.3);
+    }
+
+    .suggestion-row.loading {
+      overflow: hidden;
+    }
+
+    .suggestion-copy {
+      min-width: 0;
+      text-align: left;
+    }
+
+    .suggestion-fluent {
       color: white;
-      font-size: clamp(3rem, 10vw, 7.7rem);
-      line-height: 0.97;
-      font-weight: 950;
-      letter-spacing: -0.075em;
+
+      font-size: 1rem;
+      line-height: 1.2;
+      font-weight: 900;
+
       overflow-wrap: anywhere;
     }
 
-    .challenge-loading {
-      color: #9ca3af;
-      font-size: 1.1rem;
+    .suggestion-target {
+      margin-top: 5px;
+
+      color: #93c5fd;
+
+      font-size: 0.91rem;
+      line-height: 1.2;
+      font-weight: 900;
+
+      overflow-wrap: anywhere;
+    }
+
+    .suggestion-question-button {
+      width: 38px;
+      height: 38px;
+
+      display: grid;
+      place-items: center;
+
+      border: none;
+      border-radius: 50%;
+
+      color: black;
+      background: white;
+
+      font-size: 1rem;
+      font-weight: 950;
+      cursor: pointer;
+
+      transition:
+        transform 150ms ease,
+        opacity 150ms ease;
+    }
+
+    .suggestion-question-button:hover {
+      transform: scale(1.06);
+    }
+
+    .suggestion-question-button:disabled {
+      opacity: 0.5;
+      cursor: wait;
+    }
+
+    .suggestion-skeleton {
+      height: 14px;
+
+      border-radius: 999px;
+
+      background:
+        linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.06),
+          rgba(255, 255, 255, 0.15),
+          rgba(255, 255, 255, 0.06)
+        );
+
+      background-size: 220% 100%;
+
+      animation:
+        suggestionShimmer 1.2s linear infinite;
+    }
+
+    @keyframes suggestionShimmer {
+      from {
+        background-position: 200% 0;
+      }
+
+      to {
+        background-position: -20% 0;
+      }
+    }
+
+    /* Word gallery */
+
+    .recall-summary {
+      margin: 22px 0 16px;
+
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .recall-summary strong {
+      font-size: 2rem;
+      letter-spacing: -0.06em;
+    }
+
+    .recall-summary span {
+      color: var(--muted);
+
+      font-size: 0.85rem;
       font-weight: 850;
     }
+
+    .accepted-words-gallery {
+      width: 100%;
+      min-height: 190px;
+      max-height: 440px;
+
+      overflow-y: auto;
+
+      display: grid;
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+      align-content: start;
+      gap: 12px;
+
+      padding: 15px;
+      margin-top: 10px;
+
+      border-radius: 25px;
+
+      background: rgba(0, 0, 0, 0.24);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .empty-gallery-message {
+      grid-column: 1 / -1;
+      align-self: center;
+
+      width: 100%;
+      margin: auto;
+
+      color: var(--muted);
+
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .accepted-word-card {
+      min-width: 0;
+      padding: 10px;
+
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr);
+      align-items: center;
+      gap: 13px;
+
+      border-radius: 20px;
+
+      background:
+        radial-gradient(
+          circle at top left,
+          rgba(74, 222, 128, 0.09),
+          transparent 55%
+        ),
+        rgba(255, 255, 255, 0.052);
+
+      border:
+        1px solid rgba(74, 222, 128, 0.19);
+
+      text-align: left;
+
+      animation:
+        acceptedWordAppear 250ms ease both;
+    }
+
+    @keyframes acceptedWordAppear {
+      from {
+        opacity: 0;
+        transform:
+          translateY(5px)
+          scale(0.985);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .accepted-word-visual {
+      position: relative;
+
+      width: 92px;
+      height: 92px;
+
+      overflow: hidden;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 17px;
+
+      background:
+        radial-gradient(
+          circle at 30% 20%,
+          rgba(255, 255, 255, 0.14),
+          transparent 42%
+        ),
+        rgba(255, 255, 255, 0.07);
+
+      border:
+        1px solid rgba(255, 255, 255, 0.11);
+    }
+
+    .accepted-word-visual img {
+      display: block;
+
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+
+      animation:
+        pictureFadeIn 250ms ease both;
+    }
+
+    @keyframes pictureFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(1.03);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .accepted-word-placeholder {
+      width: 100%;
+      height: 100%;
+
+      display: grid;
+      place-items: center;
+
+      background:
+        linear-gradient(
+          110deg,
+          rgba(255, 255, 255, 0.045) 30%,
+          rgba(255, 255, 255, 0.13) 47%,
+          rgba(255, 255, 255, 0.045) 64%
+        );
+
+      background-size: 240% 100%;
+
+      color: rgba(255, 255, 255, 0.55);
+      font-size: 1.7rem;
+
+      animation:
+        imageShimmer 1.35s linear infinite;
+    }
+
+    @keyframes imageShimmer {
+      from {
+        background-position: 190% 0;
+      }
+
+      to {
+        background-position: -50% 0;
+      }
+    }
+
+    .accepted-word-placeholder.error {
+      padding: 8px;
+
+      animation: none;
+      cursor: pointer;
+
+      color: #fecaca;
+      background: rgba(239, 68, 68, 0.08);
+
+      font-size: 0.68rem;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .accepted-word-copy {
+      min-width: 0;
+    }
+
+    .accepted-word-learning {
+      color: white;
+
+      font-size: 1.13rem;
+      line-height: 1.16;
+      font-weight: 950;
+
+      overflow-wrap: anywhere;
+    }
+
+    .accepted-word-translation {
+      margin-top: 7px;
+
+      color: #cbd5e1;
+
+      font-size: 0.92rem;
+      line-height: 1.25;
+      font-weight: 800;
+
+      overflow-wrap: anywhere;
+    }
+
+    .translation-loading {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* Input controls */
 
     .answer-area {
       width: min(720px, 100%);
@@ -703,6 +1138,7 @@
     .mode-toggle {
       width: max-content;
       max-width: 100%;
+
       margin: 0 auto 18px;
 
       display: flex;
@@ -732,9 +1168,11 @@
     .writing-answer-row {
       display: flex;
       gap: 10px;
+
       padding: 10px;
 
       border-radius: 999px;
+
       background: rgba(255, 255, 255, 0.075);
       border: 1px solid var(--border);
     }
@@ -745,15 +1183,18 @@
 
       border: none;
       outline: none;
+
       background: transparent;
       color: white;
 
       padding: 10px 12px;
+
       font-size: 1.1rem;
     }
 
     .submit-answer-button {
       min-height: 48px;
+
       border: none;
       border-radius: 999px;
       padding: 0 24px;
@@ -782,7 +1223,9 @@
       height: 108px;
 
       border-radius: 50%;
-      border: 1px solid rgba(255, 255, 255, 0.22);
+
+      border:
+        1px solid rgba(255, 255, 255, 0.22);
 
       background:
         radial-gradient(
@@ -797,12 +1240,18 @@
         );
 
       color: white;
+
       font-size: 2.2rem;
       cursor: pointer;
 
       box-shadow:
         0 20px 70px rgba(0, 0, 0, 0.45),
         inset 0 0 30px rgba(255, 255, 255, 0.05);
+    }
+
+    .record-button:disabled {
+      opacity: 0.55;
+      cursor: wait;
     }
 
     .record-button.recording {
@@ -813,7 +1262,8 @@
           rgba(127, 29, 29, 0.96)
         );
 
-      animation: recordPulse 1.1s infinite;
+      animation:
+        recordPulse 1.1s infinite;
     }
 
     @keyframes recordPulse {
@@ -838,6 +1288,7 @@
 
     .speech-status {
       color: var(--muted);
+
       font-size: 0.8rem;
       font-weight: 900;
       text-transform: uppercase;
@@ -846,7 +1297,9 @@
 
     .speech-transcript {
       min-height: 26px;
+
       color: white;
+
       font-weight: 850;
       text-align: center;
     }
@@ -861,38 +1314,29 @@
       border-radius: 18px;
 
       color: #cbd5e1;
+
       font-weight: 900;
       text-align: center;
     }
 
     .answer-feedback.correct {
       color: #bbf7d0;
-      background: rgba(34, 197, 94, 0.11);
-      border: 1px solid rgba(74, 222, 128, 0.25);
+
+      background:
+        rgba(34, 197, 94, 0.11);
+
+      border:
+        1px solid rgba(74, 222, 128, 0.25);
     }
 
     .answer-feedback.incorrect {
       color: #fecaca;
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(248, 113, 113, 0.24);
-    }
 
-    .challenge-actions {
-      display: flex;
-      justify-content: center;
-      margin-top: 12px;
-    }
+      background:
+        rgba(239, 68, 68, 0.1);
 
-    .skip-button {
-      border: none;
-      border-radius: 999px;
-      padding: 10px 16px;
-
-      color: #d1d5db;
-      background: rgba(255, 255, 255, 0.09);
-
-      font-weight: 900;
-      cursor: pointer;
+      border:
+        1px solid rgba(248, 113, 113, 0.24);
     }
 
     /* Messages */
@@ -903,27 +1347,35 @@
       bottom: 24px;
       z-index: 180;
 
-      max-width: min(700px, calc(100vw - 32px));
+      max-width:
+        min(700px, calc(100vw - 32px));
+
       transform: translateX(-50%);
 
       padding: 12px 17px;
+
       border-radius: 999px;
 
       color: white;
       background: rgba(17, 24, 39, 0.97);
-      border: 1px solid rgba(255, 255, 255, 0.14);
+
+      border:
+        1px solid rgba(255, 255, 255, 0.14);
 
       font-weight: 850;
       text-align: center;
-      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.48);
+
+      box-shadow:
+        0 20px 70px rgba(0, 0, 0, 0.48);
     }
 
     .signed-out {
-      margin: 60px auto;
       max-width: 600px;
+      margin: 60px auto;
       padding: 30px;
 
       border-radius: 28px;
+
       background: var(--panel);
       border: 1px solid var(--border);
 
@@ -932,6 +1384,7 @@
 
     .signed-out h2 {
       margin: 0;
+
       font-size: 2rem;
       letter-spacing: -0.05em;
     }
@@ -945,6 +1398,32 @@
       .category-grid {
         grid-template-columns:
           repeat(3, minmax(0, 1fr));
+      }
+
+      .recall-layout {
+        grid-template-columns: 240px minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .recall-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .suggestion-sidebar {
+        position: static;
+      }
+
+      .suggestions-list {
+        grid-template-columns:
+          repeat(5, minmax(145px, 1fr));
+
+        overflow-x: auto;
+        padding-bottom: 4px;
+      }
+
+      .suggestion-row {
+        min-width: 145px;
       }
     }
 
@@ -991,152 +1470,21 @@
       }
     }
 
-    .recall-summary {
-  margin: 22px 0 16px;
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
+    @media (max-width: 620px) {
+      .accepted-words-gallery {
+        grid-template-columns: 1fr;
+      }
 
-.recall-summary strong {
-  font-size: 2rem;
-  letter-spacing: -0.06em;
-}
+      .accepted-word-card {
+        grid-template-columns:
+          78px minmax(0, 1fr);
+      }
 
-.recall-summary span {
-  color: var(--muted);
-  font-size: 0.85rem;
-  font-weight: 850;
-}
-
-.mentioned-words-list {
-  width: min(840px, 100%);
-  min-height: 150px;
-  max-height: 330px;
-  overflow-y: auto;
-
-  display: flex;
-  align-content: flex-start;
-  flex-wrap: wrap;
-  gap: 9px;
-
-  padding: 18px;
-  margin-top: 10px;
-
-  border-radius: 24px;
-  background: rgba(0, 0, 0, 0.23);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.empty-mention-message {
-  width: 100%;
-  margin: auto;
-  color: var(--muted);
-  text-align: center;
-  font-weight: 800;
-}
-
-.mention-chip {
-  padding: 9px 13px;
-  border-radius: 999px;
-
-  color: white;
-  background: rgba(255, 255, 255, 0.09);
-  border: 1px solid rgba(255, 255, 255, 0.13);
-
-  font-size: 0.92rem;
-  font-weight: 850;
-}
-
-.mention-chip.accepted {
-  color: #bbf7d0;
-  background: rgba(34, 197, 94, 0.11);
-  border-color: rgba(74, 222, 128, 0.28);
-}
-
-.mention-chip.duplicate {
-  color: #bfdbfe;
-  background: rgba(59, 130, 246, 0.1);
-  border-color: rgba(96, 165, 250, 0.23);
-}
-
-.mention-chip.outside {
-  color: #d1d5db;
-  opacity: 0.64;
-}
-
-.mention-chip.wrong-language {
-  color: #fecaca;
-  background: rgba(239, 68, 68, 0.08);
-  border-color: rgba(248, 113, 113, 0.18);
-}
-
-.recall-actions {
-  margin-top: 22px;
-  display: flex;
-  justify-content: center;
-}
-
-.stuck-button {
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 999px;
-  padding: 12px 20px;
-
-  color: white;
-  background: rgba(255, 255, 255, 0.08);
-
-  font-weight: 950;
-  cursor: pointer;
-}
-
-.hint-panel {
-  width: min(600px, 100%);
-  margin: 22px auto 0;
-  padding: 20px;
-
-  display: grid;
-  justify-items: center;
-  gap: 12px;
-
-  border-radius: 24px;
-  background: rgba(96, 165, 250, 0.08);
-  border: 1px solid rgba(96, 165, 250, 0.22);
-}
-
-.hint-label {
-  color: var(--muted);
-  font-size: 0.7rem;
-  font-weight: 950;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.hint-translation {
-  font-size: clamp(1.6rem, 5vw, 3rem);
-  font-weight: 950;
-  letter-spacing: -0.04em;
-}
-
-.reveal-target-button {
-  width: 52px;
-  height: 52px;
-
-  border: none;
-  border-radius: 50%;
-
-  background: white;
-  color: black;
-
-  font-size: 1.4rem;
-  font-weight: 950;
-  cursor: pointer;
-}
-
-.revealed-target {
-  font-size: clamp(1.5rem, 5vw, 2.8rem);
-  font-weight: 950;
-  color: #bfdbfe;
-}
+      .accepted-word-visual {
+        width: 78px;
+        height: 78px;
+      }
+    }
 
     @media (max-width: 520px) {
       .top-bar {
@@ -1153,7 +1501,9 @@
 
       .back-button {
         min-height: 42px;
+
         padding: 0 13px;
+
         font-size: 0.82rem;
       }
 
@@ -1171,6 +1521,10 @@
 
       .practice-page {
         padding: 16px;
+      }
+
+      .challenge-card {
+        padding: 18px;
       }
 
       .writing-answer-row {
@@ -1209,7 +1563,9 @@
 
       <div class="header-controls">
         <div class="control-card">
-          <span class="control-label">Learning</span>
+          <span class="control-label">
+            Learning
+          </span>
 
           <select id="learningLanguageSelect">
             <option value="English">🇺🇸 English</option>
@@ -1249,10 +1605,9 @@
           </h2>
 
           <p>
-            Each correct translation adds a unique word to
-            your category progress. The required vocabulary
-            differs according to the breadth and complexity
-            of each category.
+            Freely recall every word you know. Valid category
+            words are saved permanently, translated, and
+            displayed with a visual representation.
           </p>
         </div>
 
@@ -1335,6 +1690,7 @@
           id="closePracticeButton"
           class="practice-close"
           type="button"
+          aria-label="Close category practice"
         >
           ×
         </button>
@@ -1356,145 +1712,133 @@
           0 / 10
         </span>
       </div>
-<div class="challenge-card recall-card">
-  <div class="challenge-instruction">
-    Say every
-    <span id="recallCategoryLabel">category</span>
-    word you know in
-    <span id="challengeLanguageLabel">
-      the learning language
-    </span>
-  </div>
 
-  <div class="recall-summary">
-    <strong id="sessionUniqueCount">0</strong>
-    <span>category words recalled</span>
-  </div>
+      <div class="challenge-card recall-card">
+        <div class="recall-layout">
+          <aside class="suggestion-sidebar">
+            <div class="suggestion-heading">
+              <div class="challenge-instruction">
+                Suggestions
+              </div>
 
-  <div
-    id="mentionedWordsList"
-    class="mentioned-words-list"
-  >
-    <div
-      id="emptyMentionMessage"
-      class="empty-mention-message"
-    >
-      Your words will appear here.
-    </div>
-  </div>
+              <p>
+                Translate any of these when you need an idea.
+                Press the question mark to reveal and hear it.
+              </p>
+            </div>
 
-  <div class="answer-area">
-    <div class="mode-toggle">
-      <button
-        id="writingModeButton"
-        class="mode-button"
-        type="button"
-      >
-        Writing
-      </button>
+            <div
+              id="suggestionsList"
+              class="suggestions-list"
+            ></div>
+          </aside>
 
-      <button
-        id="speechModeButton"
-        class="mode-button active"
-        type="button"
-      >
-        Speech
-      </button>
-    </div>
+          <div class="recall-main">
+            <div class="challenge-instruction">
+              Say every
+              <span id="recallCategoryLabel">
+                category
+              </span>
+              word you know in
+              <span id="challengeLanguageLabel">
+                the learning language
+              </span>
+            </div>
 
-    <form
-      id="writingAnswerForm"
-      class="writing-answer-row hidden"
-    >
-      <input
-        id="answerInput"
-        class="answer-input"
-        autocomplete="off"
-        placeholder="Enter one word or many words"
-        dir="auto"
-      />
+            <div class="recall-summary">
+              <strong id="sessionUniqueCount">
+                0
+              </strong>
 
-      <button
-        id="submitAnswerButton"
-        class="submit-answer-button"
-        type="submit"
-      >
-        Add
-      </button>
-    </form>
+              <span>
+                category words recalled
+              </span>
+            </div>
 
-    <div
-      id="speechAnswer"
-      class="speech-answer"
-    >
-      <button
-        id="recordButton"
-        class="record-button"
-        type="button"
-      >
-        🎤
-      </button>
+            <div
+              id="acceptedWordsGallery"
+              class="accepted-words-gallery"
+            >
+              <div class="empty-gallery-message">
+                Accepted category words will appear here.
+              </div>
+            </div>
 
-      <div
-        id="speechStatus"
-        class="speech-status"
-      >
-        Tap, say as many words as you can, then stop
+            <div class="answer-area">
+              <div class="mode-toggle">
+                <button
+                  id="writingModeButton"
+                  class="mode-button"
+                  type="button"
+                >
+                  Writing
+                </button>
+
+                <button
+                  id="speechModeButton"
+                  class="mode-button active"
+                  type="button"
+                >
+                  Speech
+                </button>
+              </div>
+
+              <form
+                id="writingAnswerForm"
+                class="writing-answer-row hidden"
+              >
+                <input
+                  id="answerInput"
+                  class="answer-input"
+                  autocomplete="off"
+                  placeholder="Enter one word or many words"
+                  dir="auto"
+                />
+
+                <button
+                  id="submitAnswerButton"
+                  class="submit-answer-button"
+                  type="submit"
+                >
+                  Add
+                </button>
+              </form>
+
+              <div
+                id="speechAnswer"
+                class="speech-answer"
+              >
+                <button
+                  id="recordButton"
+                  class="record-button"
+                  type="button"
+                  aria-label="Start or stop recording"
+                >
+                  🎤
+                </button>
+
+                <div
+                  id="speechStatus"
+                  class="speech-status"
+                >
+                  Tap, say as many words as you can, then stop
+                </div>
+
+                <div
+                  id="speechTranscript"
+                  class="speech-transcript"
+                  dir="auto"
+                ></div>
+              </div>
+
+              <div
+                id="answerFeedback"
+                class="answer-feedback"
+              ></div>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <div
-        id="speechTranscript"
-        class="speech-transcript"
-        dir="auto"
-      ></div>
-    </div>
-
-    <div class="recall-actions">
-      <button
-        id="stuckButton"
-        class="stuck-button"
-        type="button"
-      >
-        I’m out of words
-      </button>
-    </div>
-
-    <div
-      id="hintPanel"
-      class="hint-panel hidden"
-    >
-      <div class="hint-label">
-        Try translating this:
-      </div>
-
-      <div
-        id="hintTranslation"
-        class="hint-translation"
-        dir="auto"
-      ></div>
-
-      <button
-        id="revealTargetButton"
-        class="reveal-target-button"
-        type="button"
-        aria-label="Reveal and pronounce the word"
-      >
-        ?
-      </button>
-
-      <div
-        id="revealedTarget"
-        class="revealed-target hidden"
-        dir="auto"
-      ></div>
-    </div>
-
-    <div
-      id="answerFeedback"
-      class="answer-feedback"
-    ></div>
-  </div>
-</div>
     </div>
   </section>
 
@@ -1513,11 +1857,6 @@
         SUPABASE_ANON_KEY
       );
 
-    /*
-      Threshold values are intentionally centralized.
-      Changing a category's requirements only requires
-      changing these three numbers.
-    */
     const CATEGORY_CONFIG = {
       pronouns: {
         title: "Pronouns",
@@ -1849,6 +2188,8 @@
       advanced: "#4ade80"
     };
 
+    /* Elements */
+
     const learningLanguageSelect =
       document.getElementById(
         "learningLanguageSelect"
@@ -1860,7 +2201,9 @@
       );
 
     const mainContent =
-      document.getElementById("mainContent");
+      document.getElementById(
+        "mainContent"
+      );
 
     const signedOutPanel =
       document.getElementById(
@@ -1892,9 +2235,29 @@
         "practiceProgressFill"
       );
 
+    const recallCategoryLabel =
+      document.getElementById(
+        "recallCategoryLabel"
+      );
+
     const challengeLanguageLabel =
       document.getElementById(
         "challengeLanguageLabel"
+      );
+
+    const suggestionsList =
+      document.getElementById(
+        "suggestionsList"
+      );
+
+    const acceptedWordsGallery =
+      document.getElementById(
+        "acceptedWordsGallery"
+      );
+
+    const sessionUniqueCount =
+      document.getElementById(
+        "sessionUniqueCount"
       );
 
     const writingModeButton =
@@ -1947,32 +2310,7 @@
         "answerFeedback"
       );
 
-    const recallCategoryLabel =
-  document.getElementById("recallCategoryLabel");
-
-const mentionedWordsList =
-  document.getElementById("mentionedWordsList");
-
-const emptyMentionMessage =
-  document.getElementById("emptyMentionMessage");
-
-const sessionUniqueCount =
-  document.getElementById("sessionUniqueCount");
-
-const stuckButton =
-  document.getElementById("stuckButton");
-
-const hintPanel =
-  document.getElementById("hintPanel");
-
-const hintTranslation =
-  document.getElementById("hintTranslation");
-
-const revealTargetButton =
-  document.getElementById("revealTargetButton");
-
-const revealedTarget =
-  document.getElementById("revealedTarget");
+    /* User state */
 
     let currentUser = null;
     let currentSession = null;
@@ -1981,28 +2319,56 @@ const revealedTarget =
     let currentFluentLanguage = "English";
     let currentInputMode = "speech";
 
+    /* Mastery state */
+
     let masteryRows = [];
     let masteryMap = new Map();
 
+    /* Practice state */
+
     let activeCategoryId = null;
     let activeCategorySessionId = null;
-let recallSubmitting = false;
 
-let sessionMentionItems = [];
-let sessionUniqueWordKeys = new Set();
+    let recallSubmitting = false;
 
-let currentHintTranslation = "";
-let currentRevealedTarget = "";
+    let acceptedWordCards = [];
+    let acceptedWordKeySet = new Set();
+
+    let activeSuggestions = [];
+
+    /* Image enrichment state */
+
+    let wordCardObserver = null;
+
+    const enrichmentQueue = [];
+    const queuedEnrichmentKeys = new Set();
+    const failedEnrichmentKeys = new Set();
+
+    let activeEnrichmentCount = 0;
+
+    const MAX_CONCURRENT_ENRICHMENTS = 2;
+
+    /* Recording state */
 
     let mediaRecorder = null;
     let recordedChunks = [];
     let recordingStream = null;
+
     let isRecording = false;
+    let discardRecording = false;
 
     function getReadableError(error) {
-      if (!error) return "Unknown error";
-      if (typeof error === "string") return error;
-      if (error.message) return error.message;
+      if (!error) {
+        return "Unknown error";
+      }
+
+      if (typeof error === "string") {
+        return error;
+      }
+
+      if (error.message) {
+        return error.message;
+      }
 
       try {
         return JSON.stringify(error);
@@ -2019,15 +2385,28 @@ let currentRevealedTarget = "";
       const element =
         document.createElement("div");
 
-      element.className = "page-message";
+      element.className =
+        "page-message";
+
       element.textContent =
         getReadableError(message);
 
-      document.body.appendChild(element);
+      document.body.appendChild(
+        element
+      );
 
       setTimeout(() => {
         element.remove();
       }, 4800);
+    }
+
+    function clearFeedback() {
+      answerFeedback.textContent = "";
+
+      answerFeedback.classList.remove(
+        "correct",
+        "incorrect"
+      );
     }
 
     function getInitialLanguage() {
@@ -2062,10 +2441,14 @@ let currentRevealedTarget = "";
       masteryMap = new Map();
 
       for (const row of rows || []) {
-        if (!row.category_id) continue;
+        if (!row.category_id) {
+          continue;
+        }
 
         if (
-          !masteryMap.has(row.category_id)
+          !masteryMap.has(
+            row.category_id
+          )
         ) {
           masteryMap.set(
             row.category_id,
@@ -2074,35 +2457,51 @@ let currentRevealedTarget = "";
         }
 
         const categoryWords =
-          masteryMap.get(row.category_id);
+          masteryMap.get(
+            row.category_id
+          );
 
         const key =
           row.word_key ||
-          normalizeWord(row.word_text);
+          normalizeWord(
+            row.word_text
+          );
 
         if (key) {
-          categoryWords.set(key, row);
+          categoryWords.set(
+            key,
+            row
+          );
         }
       }
     }
 
-    function getCategoryWordSet(categoryId) {
+    function getCategoryWordSet(
+      categoryId
+    ) {
       const config =
         CATEGORY_CONFIG[categoryId];
 
-      const wordSet = new Set();
+      const wordSet =
+        new Set();
 
-      if (config?.children?.length) {
+      if (
+        config?.children?.length
+      ) {
         for (
-          const childId of config.children
+          const childId of
+          config.children
         ) {
           const childWords =
             masteryMap.get(childId);
 
-          if (!childWords) continue;
+          if (!childWords) {
+            continue;
+          }
 
           for (
-            const wordKey of childWords.keys()
+            const wordKey of
+            childWords.keys()
           ) {
             wordSet.add(wordKey);
           }
@@ -2116,7 +2515,8 @@ let currentRevealedTarget = "";
 
       if (directWords) {
         for (
-          const wordKey of directWords.keys()
+          const wordKey of
+          directWords.keys()
         ) {
           wordSet.add(wordKey);
         }
@@ -2125,7 +2525,9 @@ let currentRevealedTarget = "";
       return wordSet;
     }
 
-    function getCategoryCount(categoryId) {
+    function getCategoryCount(
+      categoryId
+    ) {
       return getCategoryWordSet(
         categoryId
       ).size;
@@ -2140,7 +2542,9 @@ let currentRevealedTarget = "";
 
       const count =
         countOverride === null
-          ? getCategoryCount(categoryId)
+          ? getCategoryCount(
+              categoryId
+            )
           : countOverride;
 
       const [
@@ -2153,7 +2557,8 @@ let currentRevealedTarget = "";
         return {
           id: "advanced",
           label: "Advanced",
-          color: LEVEL_COLORS.advanced
+          color:
+            LEVEL_COLORS.advanced
         };
       }
 
@@ -2170,14 +2575,16 @@ let currentRevealedTarget = "";
         return {
           id: "beginner",
           label: "Beginner",
-          color: LEVEL_COLORS.beginner
+          color:
+            LEVEL_COLORS.beginner
         };
       }
 
       return {
         id: "starting",
         label: "Starting",
-        color: LEVEL_COLORS.starting
+        color:
+          LEVEL_COLORS.starting
       };
     }
 
@@ -2187,7 +2594,9 @@ let currentRevealedTarget = "";
     ) {
       const count =
         countOverride === null
-          ? getCategoryCount(categoryId)
+          ? getCategoryCount(
+              categoryId
+            )
           : countOverride;
 
       const advancedThreshold =
@@ -2209,7 +2618,9 @@ let currentRevealedTarget = "";
         CATEGORY_CONFIG[categoryId];
 
       const count =
-        getCategoryCount(categoryId);
+        getCategoryCount(
+          categoryId
+        );
 
       const level =
         getCategoryLevel(
@@ -2227,9 +2638,12 @@ let currentRevealedTarget = "";
         config.thresholds[2];
 
       const button =
-        document.createElement("button");
+        document.createElement(
+          "button"
+        );
 
       button.type = "button";
+
       button.className =
         "category-card";
 
@@ -2246,7 +2660,9 @@ let currentRevealedTarget = "";
 
       button.style.setProperty(
         "--meter-deg",
-        `${Math.round(ratio * 180)}deg`
+        `${Math.round(
+          ratio * 180
+        )}deg`
       );
 
       button.innerHTML = `
@@ -2273,6 +2689,7 @@ let currentRevealedTarget = "";
         <div class="category-meter">
           <div class="category-meter-inner">
             <strong>${count}</strong>
+
             <span>
               of ${advancedThreshold} words
             </span>
@@ -2283,7 +2700,9 @@ let currentRevealedTarget = "";
       button.addEventListener(
         "click",
         () => {
-          openPractice(categoryId);
+          openPractice(
+            categoryId
+          );
         }
       );
 
@@ -2293,15 +2712,22 @@ let currentRevealedTarget = "";
     function renderCategories() {
       categorySections.innerHTML = "";
 
-      for (const section of PAGE_LAYOUT) {
+      for (
+        const section of
+        PAGE_LAYOUT
+      ) {
         const sectionElement =
-          document.createElement("section");
+          document.createElement(
+            "section"
+          );
 
         sectionElement.className =
           "category-section";
 
         const heading =
-          document.createElement("div");
+          document.createElement(
+            "div"
+          );
 
         heading.className =
           "section-heading";
@@ -2319,13 +2745,17 @@ let currentRevealedTarget = "";
 
         if (section.parent) {
           const groupShell =
-            document.createElement("div");
+            document.createElement(
+              "div"
+            );
 
           groupShell.className =
             "group-shell";
 
           const parentGrid =
-            document.createElement("div");
+            document.createElement(
+              "div"
+            );
 
           parentGrid.className =
             "category-grid";
@@ -2342,13 +2772,16 @@ let currentRevealedTarget = "";
           );
 
           const childGrid =
-            document.createElement("div");
+            document.createElement(
+              "div"
+            );
 
           childGrid.className =
             "category-grid";
 
           for (
-            const categoryId of section.items
+            const categoryId of
+            section.items
           ) {
             childGrid.appendChild(
               createCategoryCard(
@@ -2366,13 +2799,16 @@ let currentRevealedTarget = "";
           );
         } else {
           const grid =
-            document.createElement("div");
+            document.createElement(
+              "div"
+            );
 
           grid.className =
             "category-grid";
 
           for (
-            const categoryId of section.items
+            const categoryId of
+            section.items
           ) {
             grid.appendChild(
               createCategoryCard(
@@ -2381,7 +2817,9 @@ let currentRevealedTarget = "";
             );
           }
 
-          sectionElement.appendChild(grid);
+          sectionElement.appendChild(
+            grid
+          );
         }
 
         categorySections.appendChild(
@@ -2391,16 +2829,27 @@ let currentRevealedTarget = "";
     }
 
     async function loadMastery() {
-      if (!currentUser) return;
+      if (!currentUser) {
+        return;
+      }
 
       const {
         data,
         error
       } = await supabaseClient
         .from("category_mastery")
-        .select(
-          "category_id, word_key, word_text, correct_count, last_correct_at"
-        )
+        .select(`
+          category_id,
+          word_key,
+          word_text,
+          correct_count,
+          first_correct_at,
+          last_correct_at,
+          translation_text,
+          translation_language,
+          image_url,
+          image_status
+        `)
         .eq(
           "user_id",
           currentUser.id
@@ -2415,9 +2864,14 @@ let currentRevealedTarget = "";
       }
 
       masteryRows =
-        Array.isArray(data) ? data : [];
+        Array.isArray(data)
+          ? data
+          : [];
 
-      buildMasteryMap(masteryRows);
+      buildMasteryMap(
+        masteryRows
+      );
+
       renderCategories();
       updatePracticeProgress();
     }
@@ -2439,7 +2893,8 @@ let currentRevealedTarget = "";
         );
       }
 
-      currentSession = data.session;
+      currentSession =
+        data.session;
 
       return data.session.access_token;
     }
@@ -2455,6 +2910,7 @@ let currentRevealedTarget = "";
         `${SUPABASE_URL}/functions/v1/chat`,
         {
           method: "POST",
+
           headers: {
             "Content-Type":
               "application/json",
@@ -2466,7 +2922,8 @@ let currentRevealedTarget = "";
               `Bearer ${accessToken}`
           },
 
-          body: JSON.stringify(payload)
+          body:
+            JSON.stringify(payload)
         }
       );
 
@@ -2476,7 +2933,8 @@ let currentRevealedTarget = "";
       let data;
 
       try {
-        data = JSON.parse(rawText);
+        data =
+          JSON.parse(rawText);
       } catch {
         throw new Error(
           `${label} returned an invalid response.`
@@ -2495,7 +2953,9 @@ let currentRevealedTarget = "";
     }
 
     function updatePracticeProgress() {
-      if (!activeCategoryId) return;
+      if (!activeCategoryId) {
+        return;
+      }
 
       const config =
         CATEGORY_CONFIG[
@@ -2535,436 +2995,1195 @@ let currentRevealedTarget = "";
         level.color;
     }
 
- async function openPractice(categoryId) {
-  activeCategoryId = categoryId;
-  activeCategorySessionId = null;
+    function getDisplayedCategoryIds(
+      categoryId
+    ) {
+      const config =
+        CATEGORY_CONFIG[categoryId];
 
-  currentHintTranslation = "";
-  currentRevealedTarget = "";
+      return config?.children?.length
+        ? new Set(config.children)
+        : new Set([categoryId]);
+    }
 
-  const config =
-    CATEGORY_CONFIG[categoryId];
-
-  practiceTitle.textContent =
-    config.title;
-
-  recallCategoryLabel.textContent =
-    config.title.toLowerCase();
-
-  challengeLanguageLabel.textContent =
-    currentLanguage;
-
-  practicePage.classList.remove(
-    "hidden"
-  );
-
-  document.body.style.overflow =
-    "hidden";
-
-  answerInput.value = "";
-  speechTranscript.textContent = "";
-
-  speechStatus.textContent =
-    "Tap, say as many words as you can, then stop";
-
-  clearFeedback();
-
-  hintPanel.classList.add("hidden");
-  revealedTarget.classList.add("hidden");
-
-  hintTranslation.textContent = "";
-  revealedTarget.textContent = "";
-
-  revealTargetButton.textContent = "?";
-
-  /*
-    Populate the display with all unique accepted words
-    from this category across previous sessions.
-  */
-  loadStoredCategoryWordsIntoSession(
-    categoryId
-  );
-
-  updatePracticeProgress();
-
-  submitAnswerButton.disabled = true;
-  recordButton.disabled = true;
-  stuckButton.disabled = true;
-
-  try {
-    const result =
-      await callCategoryAction(
-        {
-          action:
-            "category-start-recall",
-
-          language:
-            currentLanguage,
-
-          fluentLanguage:
-            currentFluentLanguage,
-
+    function syncAcceptedCardsFromMastery(
+      categoryId
+    ) {
+      const allowedCategoryIds =
+        getDisplayedCategoryIds(
           categoryId
-        },
-        "Category session"
+        );
+
+      const cardsByWordKey =
+        new Map();
+
+      for (const row of masteryRows) {
+        if (
+          !allowedCategoryIds.has(
+            row.category_id
+          )
+        ) {
+          continue;
+        }
+
+        const wordKey =
+          row.word_key ||
+          normalizeWord(
+            row.word_text
+          );
+
+        if (!wordKey) {
+          continue;
+        }
+
+        const existing =
+          cardsByWordKey.get(
+            wordKey
+          );
+
+        if (
+          existing &&
+          String(
+            existing.lastCorrectAt || ""
+          ) >=
+            String(
+              row.last_correct_at || ""
+            )
+        ) {
+          continue;
+        }
+
+        cardsByWordKey.set(
+          wordKey,
+          {
+            wordKey,
+            categoryId:
+              row.category_id,
+
+            learningWord:
+              row.word_text || "",
+
+            fluentTranslation:
+              row.translation_language ===
+              currentFluentLanguage
+                ? row.translation_text || ""
+                : "",
+
+            translationLanguage:
+              row.translation_language || "",
+
+            imageUrl:
+              row.image_url || "",
+
+            imageStatus:
+              row.image_status || "missing",
+
+            lastCorrectAt:
+              row.last_correct_at || ""
+          }
+        );
+      }
+
+      acceptedWordCards = [
+        ...cardsByWordKey.values()
+      ].sort(
+        (first, second) =>
+          String(
+            second.lastCorrectAt || ""
+          ).localeCompare(
+            String(
+              first.lastCorrectAt || ""
+            )
+          )
       );
 
-    activeCategorySessionId =
-      result.sessionId;
+      acceptedWordKeySet =
+        new Set(
+          cardsByWordKey.keys()
+        );
 
-    submitAnswerButton.disabled =
-      false;
-
-    recordButton.disabled = false;
-    stuckButton.disabled = false;
-
-    if (
-      currentInputMode === "writing"
-    ) {
-      answerInput.focus();
+      renderAcceptedWordsGallery();
     }
-  } catch (error) {
-    showPageMessage(error);
-    closePractice();
-  }
-}
 
-    function renderSessionMentions() {
-  mentionedWordsList.innerHTML = "";
-
-  if (!sessionMentionItems.length) {
-    const empty =
-      document.createElement("div");
-
-    empty.className =
-      "empty-mention-message";
-
-    empty.textContent =
-      "Your words will appear here.";
-
-    mentionedWordsList.appendChild(empty);
-  } else {
-    for (const item of sessionMentionItems) {
-      const chip =
-        document.createElement("div");
-
-      chip.className = "mention-chip";
-      chip.textContent =
-        item.surfaceText ||
-        item.canonicalText ||
+    function renderAcceptedWordsGallery() {
+      acceptedWordsGallery.innerHTML =
         "";
 
-      if (!item.isChatLanguage) {
-        chip.classList.add(
-          "wrong-language"
+      wordCardObserver?.disconnect();
+
+      if (
+        !acceptedWordCards.length
+      ) {
+        const empty =
+          document.createElement(
+            "div"
+          );
+
+        empty.className =
+          "empty-gallery-message";
+
+        empty.textContent =
+          "Accepted category words will appear here.";
+
+        acceptedWordsGallery.appendChild(
+          empty
         );
 
-        chip.title =
-          "Not in the selected learning language";
-      } else if (item.duplicate) {
-        chip.classList.add("duplicate");
-        chip.title = "Already counted";
-      } else if (item.accepted) {
-        chip.classList.add("accepted");
-        chip.title = "Added to category progress";
-      } else {
-        chip.classList.add("outside");
-        chip.title =
-          "Does not belong to this category";
+        sessionUniqueCount.textContent =
+          "0";
+
+        return;
       }
 
-      mentionedWordsList.appendChild(
-        chip
-      );
-    }
-  }
-
-  sessionUniqueCount.textContent =
-    String(sessionUniqueWordKeys.size);
-
-  mentionedWordsList.scrollTop =
-    mentionedWordsList.scrollHeight;
-}
-
-    function loadStoredCategoryWordsIntoSession(
-  categoryId
-) {
-  const config =
-    CATEGORY_CONFIG[categoryId];
-
-  const permittedCategoryIds =
-    config?.children?.length
-      ? new Set(config.children)
-      : new Set([categoryId]);
-
-  /*
-    category_mastery contains only accepted,
-    category-related words in the selected language.
-  */
-  const storedWordsByKey = new Map();
-
-  for (const row of masteryRows) {
-    if (
-      !permittedCategoryIds.has(
-        row.category_id
-      )
-    ) {
-      continue;
-    }
-
-    const wordKey =
-      row.word_key ||
-      normalizeWord(row.word_text);
-
-    if (!wordKey) continue;
-
-    /*
-      A parent category may contain the same word in more
-      than one child category. Display it only once.
-    */
-    if (!storedWordsByKey.has(wordKey)) {
-      storedWordsByKey.set(
-        wordKey,
-        {
-          surfaceText: row.word_text,
-          canonicalText: row.word_text,
-          accepted: true,
-          duplicate: false,
-          isChatLanguage: true,
-          categoryId: row.category_id,
-          persisted: true
-        }
-      );
-    }
-  }
-
-  sessionMentionItems = [
-    ...storedWordsByKey.values()
-  ].sort((first, second) =>
-    String(
-      first.canonicalText ||
-      first.surfaceText ||
-      ""
-    ).localeCompare(
-      String(
-        second.canonicalText ||
-        second.surfaceText ||
-        ""
-      )
-    )
-  );
-
-  sessionUniqueWordKeys =
-    new Set(storedWordsByKey.keys());
-
-  renderSessionMentions();
-}
-
-    function closePractice() {
-  practicePage.classList.add("hidden");
-  document.body.style.overflow = "";
-
-  activeCategoryId = null;
-  activeCategorySessionId = null;
-
-  sessionMentionItems = [];
-  sessionUniqueWordKeys = new Set();
-
-  currentHintTranslation = "";
-  currentRevealedTarget = "";
-
-  stopRecordingTracks();
-}
-
-    function clearFeedback() {
-      answerFeedback.textContent = "";
-
-      answerFeedback.classList.remove(
-        "correct",
-        "incorrect"
-      );
-    }
-
-   async function submitRecallText(text) {
-  const cleanText =
-    String(text || "").trim();
-
-  if (
-    !cleanText ||
-    !activeCategorySessionId ||
-    recallSubmitting
-  ) {
-    return;
-  }
-
-  recallSubmitting = true;
-
-  submitAnswerButton.disabled = true;
-  recordButton.disabled = true;
-
-  answerFeedback.textContent =
-    "Adding words…";
-
-  answerFeedback.classList.remove(
-    "correct",
-    "incorrect"
-  );
-
-  try {
-    const result =
-      await callCategoryAction(
-        {
-          action:
-            "category-submit-recall",
-
-          sessionId:
-            activeCategorySessionId,
-
-          text: cleanText
-        },
-        "Category recall"
-      );
-
-    const items =
-      Array.isArray(result.items)
-        ? result.items
-        : [];
-
-    for (const item of items) {
-      /*
-        Do not display words outside the category or
-        words spoken in another language.
-      */
-      if (
-        item.accepted !== true ||
-        item.isChatLanguage !== true
+      for (
+        const item of
+        acceptedWordCards
       ) {
-        continue;
+        const card =
+          document.createElement(
+            "article"
+          );
+
+        card.className =
+          "accepted-word-card";
+
+        card.dataset.wordKey =
+          item.wordKey;
+
+        card.dataset.categoryId =
+          item.categoryId;
+
+        const visual =
+          document.createElement(
+            "div"
+          );
+
+        visual.className =
+          "accepted-word-visual";
+
+        if (item.imageUrl) {
+          const image =
+            document.createElement(
+              "img"
+            );
+
+          image.src =
+            item.imageUrl;
+
+          image.alt = "";
+          image.loading = "lazy";
+
+          visual.appendChild(
+            image
+          );
+        } else {
+          const placeholder =
+            document.createElement(
+              "div"
+            );
+
+          placeholder.className =
+            "accepted-word-placeholder";
+
+          if (
+            item.imageStatus ===
+            "error"
+          ) {
+            placeholder.classList.add(
+              "error"
+            );
+
+            placeholder.textContent =
+              "Tap to retry picture";
+
+            placeholder.addEventListener(
+              "click",
+              () => {
+                failedEnrichmentKeys
+                  .delete(
+                    getEnrichmentKey(
+                      item,
+                      currentLanguage,
+                      currentFluentLanguage
+                    )
+                  );
+
+                item.imageStatus =
+                  "missing";
+
+                queueWordEnrichment(
+                  item,
+                  true
+                );
+
+                renderAcceptedWordsGallery();
+              }
+            );
+          } else {
+            placeholder.textContent =
+              "◌";
+          }
+
+          visual.appendChild(
+            placeholder
+          );
+        }
+
+        const copy =
+          document.createElement(
+            "div"
+          );
+
+        copy.className =
+          "accepted-word-copy";
+
+        const learningWord =
+          document.createElement(
+            "div"
+          );
+
+        learningWord.className =
+          "accepted-word-learning";
+
+        learningWord.dir = "auto";
+
+        learningWord.textContent =
+          item.learningWord;
+
+        const translation =
+          document.createElement(
+            "div"
+          );
+
+        translation.className =
+          "accepted-word-translation";
+
+        translation.dir = "auto";
+
+        if (
+          item.fluentTranslation
+        ) {
+          translation.textContent =
+            item.fluentTranslation;
+        } else {
+          translation.classList.add(
+            "translation-loading"
+          );
+
+          translation.textContent =
+            "Loading translation…";
+        }
+
+        copy.append(
+          learningWord,
+          translation
+        );
+
+        card.append(
+          visual,
+          copy
+        );
+
+        acceptedWordsGallery.appendChild(
+          card
+        );
       }
+
+      sessionUniqueCount.textContent =
+        String(
+          acceptedWordKeySet.size
+        );
+
+      startVisibleCardEnrichment();
+    }
+
+    function getEnrichmentKey(
+      item,
+      language,
+      fluentLanguage
+    ) {
+      return [
+        language,
+        fluentLanguage,
+        item.categoryId,
+        item.wordKey
+      ].join("|");
+    }
+
+    function itemNeedsEnrichment(
+      item
+    ) {
+      const translationMissing =
+        !item.fluentTranslation ||
+        item.translationLanguage !==
+          currentFluentLanguage;
+
+      const imageMissing =
+        !item.imageUrl &&
+        item.imageStatus !==
+          "error";
+
+      return (
+        translationMissing ||
+        imageMissing
+      );
+    }
+
+    function startVisibleCardEnrichment() {
+      wordCardObserver?.disconnect();
+
+      if (
+        typeof IntersectionObserver ===
+        "undefined"
+      ) {
+        for (
+          const item of
+          acceptedWordCards
+        ) {
+          if (
+            itemNeedsEnrichment(item)
+          ) {
+            queueWordEnrichment(
+              item
+            );
+          }
+        }
+
+        return;
+      }
+
+      wordCardObserver =
+        new IntersectionObserver(
+          entries => {
+            for (
+              const entry of
+              entries
+            ) {
+              if (
+                !entry.isIntersecting
+              ) {
+                continue;
+              }
+
+              const wordKey =
+                entry.target.dataset
+                  .wordKey;
+
+              const categoryId =
+                entry.target.dataset
+                  .categoryId;
+
+              const item =
+                acceptedWordCards.find(
+                  card =>
+                    card.wordKey ===
+                      wordKey &&
+                    card.categoryId ===
+                      categoryId
+                );
+
+              if (
+                item &&
+                itemNeedsEnrichment(
+                  item
+                )
+              ) {
+                queueWordEnrichment(
+                  item
+                );
+              }
+
+              wordCardObserver
+                .unobserve(
+                  entry.target
+                );
+            }
+          },
+          {
+            root:
+              acceptedWordsGallery,
+
+            rootMargin: "140px"
+          }
+        );
+
+      const cardElements =
+        acceptedWordsGallery
+          .querySelectorAll(
+            ".accepted-word-card"
+          );
+
+      for (
+        const cardElement of
+        cardElements
+      ) {
+        wordCardObserver.observe(
+          cardElement
+        );
+      }
+    }
+
+    function queueWordEnrichment(
+      item,
+      forceImage = false
+    ) {
+      const language =
+        currentLanguage;
+
+      const fluentLanguage =
+        currentFluentLanguage;
 
       const key =
-        normalizeWord(
-          item.canonicalText ||
-          item.surfaceText
+        getEnrichmentKey(
+          item,
+          language,
+          fluentLanguage
         );
 
-      if (!key) continue;
-
-      /*
-        Display each valid category word only once.
-      */
       if (
-        !sessionUniqueWordKeys.has(key)
+        queuedEnrichmentKeys.has(
+          key
+        ) ||
+        (
+          failedEnrichmentKeys.has(
+            key
+          ) &&
+          !forceImage
+        )
       ) {
-        sessionMentionItems.push({
-          ...item,
-          duplicate: false
-        });
+        return;
+      }
 
-        sessionUniqueWordKeys.add(key);
+      queuedEnrichmentKeys.add(
+        key
+      );
+
+      enrichmentQueue.push({
+        item: {
+          ...item
+        },
+        key,
+        forceImage,
+        language,
+        fluentLanguage
+      });
+
+      processEnrichmentQueue();
+    }
+
+    async function processEnrichmentQueue() {
+      while (
+        activeEnrichmentCount <
+          MAX_CONCURRENT_ENRICHMENTS &&
+        enrichmentQueue.length
+      ) {
+        const task =
+          enrichmentQueue.shift();
+
+        activeEnrichmentCount += 1;
+
+        enrichWordCard(task)
+          .catch(error => {
+            console.warn(
+              "Word enrichment failed:",
+              error
+            );
+          })
+          .finally(() => {
+            queuedEnrichmentKeys
+              .delete(task.key);
+
+            activeEnrichmentCount -= 1;
+
+            processEnrichmentQueue();
+          });
       }
     }
 
-    renderSessionMentions();
-
-    answerInput.value = "";
-
-    if (
-      Number(result.newUniqueWords || 0) >
-      0
+    async function enrichWordCard(
+      task
     ) {
-      answerFeedback.textContent =
-        result.newUniqueWords === 1
-          ? "1 new category word added."
-          : `${result.newUniqueWords} new category words added.`;
+      const {
+        item,
+        key,
+        forceImage,
+        language,
+        fluentLanguage
+      } = task;
 
-      answerFeedback.classList.add(
-        "correct"
-      );
+      try {
+        const result =
+          await callCategoryAction(
+            {
+              action:
+                "category-enrich-mastery-word",
 
-      await loadMastery();
+              language,
 
-      /*
-        Synchronize the visible list from permanent mastery.
-        This ensures words persist across sessions.
-      */
-      if (activeCategoryId) {
-        loadStoredCategoryWordsIntoSession(
-          activeCategoryId
+              fluentLanguage,
+
+              categoryId:
+                item.categoryId,
+
+              wordKey:
+                item.wordKey,
+
+              forceImage
+            },
+            "Word picture"
+          );
+
+        const current =
+          acceptedWordCards.find(
+            card =>
+              card.wordKey ===
+                item.wordKey &&
+              card.categoryId ===
+                item.categoryId
+          );
+
+        if (!current) {
+          return;
+        }
+
+        current.fluentTranslation =
+          result.fluentTranslation ||
+          current.fluentTranslation;
+
+        current.translationLanguage =
+          fluentLanguage;
+
+        current.imageUrl =
+          result.imageUrl ||
+          current.imageUrl;
+
+        current.imageStatus =
+          result.imageStatus ||
+          (
+            current.imageUrl
+              ? "ready"
+              : "error"
+          );
+
+        if (
+          current.imageStatus ===
+          "error"
+        ) {
+          failedEnrichmentKeys.add(
+            key
+          );
+        } else {
+          failedEnrichmentKeys.delete(
+            key
+          );
+        }
+
+        renderAcceptedWordsGallery();
+      } catch (error) {
+        failedEnrichmentKeys.add(
+          key
+        );
+
+        const current =
+          acceptedWordCards.find(
+            card =>
+              card.wordKey ===
+                item.wordKey &&
+              card.categoryId ===
+                item.categoryId
+          );
+
+        if (current) {
+          current.imageStatus =
+            "error";
+
+          renderAcceptedWordsGallery();
+        }
+
+        throw error;
+      }
+    }
+
+    function renderSuggestionsLoading() {
+      suggestionsList.innerHTML =
+        "";
+
+      for (
+        let index = 0;
+        index < 5;
+        index += 1
+      ) {
+        const row =
+          document.createElement(
+            "div"
+          );
+
+        row.className =
+          "suggestion-row loading";
+
+        row.innerHTML = `
+          <div class="suggestion-copy">
+            <div class="suggestion-skeleton"></div>
+          </div>
+
+          <button
+            class="suggestion-question-button"
+            type="button"
+            disabled
+          >
+            ?
+          </button>
+        `;
+
+        suggestionsList.appendChild(
+          row
         );
       }
-
-      updatePracticeProgress();
-    } else {
-      const acceptedCount =
-        items.filter(
-          item =>
-            item.accepted === true &&
-            item.isChatLanguage === true
-        ).length;
-
-      answerFeedback.textContent =
-        acceptedCount > 0
-          ? "Those category words were already recorded."
-          : "No new category words were found.";
-
-      answerFeedback.classList.add(
-        acceptedCount > 0
-          ? "correct"
-          : "incorrect"
-      );
     }
 
-    if (result.targetMatched) {
-      hintPanel.classList.add("hidden");
+    function renderSuggestions() {
+      suggestionsList.innerHTML =
+        "";
 
-      currentHintTranslation = "";
-      currentRevealedTarget = "";
+      if (
+        !activeSuggestions.length
+      ) {
+        const empty =
+          document.createElement(
+            "div"
+          );
 
-      hintTranslation.textContent = "";
-      revealedTarget.textContent = "";
+        empty.className =
+          "empty-gallery-message";
 
-      revealedTarget.classList.add(
+        empty.textContent =
+          "No unused suggestions remain.";
+
+        suggestionsList.appendChild(
+          empty
+        );
+
+        return;
+      }
+
+      for (
+        const suggestion of
+        activeSuggestions
+      ) {
+        const row =
+          document.createElement(
+            "div"
+          );
+
+        row.className =
+          "suggestion-row";
+
+        const copy =
+          document.createElement(
+            "div"
+          );
+
+        copy.className =
+          "suggestion-copy";
+
+        const fluent =
+          document.createElement(
+            "div"
+          );
+
+        fluent.className =
+          "suggestion-fluent";
+
+        fluent.dir = "auto";
+
+        fluent.textContent =
+          suggestion.fluentHint ||
+          "";
+
+        copy.appendChild(
+          fluent
+        );
+
+        if (
+          suggestion.targetWord
+        ) {
+          const target =
+            document.createElement(
+              "div"
+            );
+
+          target.className =
+            "suggestion-target";
+
+          target.dir = "auto";
+
+          target.textContent =
+            suggestion.targetWord;
+
+          copy.appendChild(
+            target
+          );
+        }
+
+        const button =
+          document.createElement(
+            "button"
+          );
+
+        button.type = "button";
+
+        button.className =
+          "suggestion-question-button";
+
+        button.textContent =
+          suggestion.targetWord
+            ? "🔊"
+            : "?";
+
+        button.setAttribute(
+          "aria-label",
+          suggestion.targetWord
+            ? "Pronounce word"
+            : "Reveal word"
+        );
+
+        button.addEventListener(
+          "click",
+          async () => {
+            if (
+              !activeCategorySessionId
+            ) {
+              return;
+            }
+
+            button.disabled = true;
+
+            try {
+              if (
+                suggestion.targetWord
+              ) {
+                await speakRevealedCategoryWord(
+                  suggestion.targetWord
+                );
+              } else {
+                const result =
+                  await callCategoryAction(
+                    {
+                      action:
+                        "category-reveal-suggestion",
+
+                      sessionId:
+                        activeCategorySessionId,
+
+                      suggestionId:
+                        suggestion.id
+                    },
+                    "Reveal suggestion"
+                  );
+
+                suggestion.targetWord =
+                  result.targetWord ||
+                  "";
+
+                renderSuggestions();
+
+                if (
+                  suggestion.targetWord
+                ) {
+                  await speakRevealedCategoryWord(
+                    suggestion.targetWord
+                  );
+                }
+              }
+            } catch (error) {
+              showPageMessage(
+                error
+              );
+            } finally {
+              button.disabled =
+                false;
+            }
+          }
+        );
+
+        row.append(
+          copy,
+          button
+        );
+
+        suggestionsList.appendChild(
+          row
+        );
+      }
+    }
+
+    function mergeAcceptedCards(
+      cards
+    ) {
+      for (
+        const card of
+        cards || []
+      ) {
+        const wordKey =
+          card.wordKey ||
+          normalizeWord(
+            card.learningWord
+          );
+
+        if (!wordKey) {
+          continue;
+        }
+
+        const existing =
+          acceptedWordCards.find(
+            item =>
+              item.wordKey ===
+                wordKey &&
+              item.categoryId ===
+                card.categoryId
+          );
+
+        if (existing) {
+          Object.assign(
+            existing,
+            card,
+            {
+              wordKey
+            }
+          );
+        } else {
+          acceptedWordCards.unshift({
+            ...card,
+            wordKey
+          });
+
+          acceptedWordKeySet.add(
+            wordKey
+          );
+        }
+      }
+
+      renderAcceptedWordsGallery();
+    }
+
+    async function openPractice(
+      categoryId
+    ) {
+      activeCategoryId =
+        categoryId;
+
+      activeCategorySessionId =
+        null;
+
+      activeSuggestions = [];
+
+      const config =
+        CATEGORY_CONFIG[
+          categoryId
+        ];
+
+      practiceTitle.textContent =
+        config.title;
+
+      recallCategoryLabel.textContent =
+        config.title.toLowerCase();
+
+      challengeLanguageLabel.textContent =
+        currentLanguage;
+
+      practicePage.classList.remove(
         "hidden"
       );
 
-      revealTargetButton.textContent =
-        "?";
+      document.body.style.overflow =
+        "hidden";
+
+      answerInput.value = "";
+
+      speechTranscript.textContent =
+        "";
+
+      speechStatus.textContent =
+        "Tap, say as many words as you can, then stop";
+
+      clearFeedback();
+
+      syncAcceptedCardsFromMastery(
+        categoryId
+      );
+
+      renderSuggestionsLoading();
+      updatePracticeProgress();
+
+      submitAnswerButton.disabled =
+        true;
+
+      recordButton.disabled =
+        true;
+
+      try {
+        const result =
+          await callCategoryAction(
+            {
+              action:
+                "category-start-recall",
+
+              language:
+                currentLanguage,
+
+              fluentLanguage:
+                currentFluentLanguage,
+
+              categoryId
+            },
+            "Category session"
+          );
+
+        if (
+          activeCategoryId !==
+          categoryId
+        ) {
+          return;
+        }
+
+        activeCategorySessionId =
+          result.sessionId;
+
+        activeSuggestions =
+          Array.isArray(
+            result.suggestions
+          )
+            ? result.suggestions
+            : [];
+
+        renderSuggestions();
+
+        submitAnswerButton.disabled =
+          false;
+
+        recordButton.disabled =
+          false;
+
+        if (
+          currentInputMode ===
+          "writing"
+        ) {
+          answerInput.focus();
+        }
+      } catch (error) {
+        showPageMessage(
+          error
+        );
+
+        closePractice();
+      }
     }
-  } catch (error) {
-    answerFeedback.textContent =
-      getReadableError(error);
 
-    answerFeedback.classList.add(
-      "incorrect"
-    );
-  } finally {
-    recallSubmitting = false;
+    function closePractice() {
+      discardRecording = true;
 
-    submitAnswerButton.disabled =
-      false;
+      if (
+        mediaRecorder &&
+        mediaRecorder.state ===
+          "recording"
+      ) {
+        try {
+          mediaRecorder.stop();
+        } catch {
+          stopRecordingTracks();
+        }
+      } else {
+        stopRecordingTracks();
+      }
 
-    recordButton.disabled = false;
+      practicePage.classList.add(
+        "hidden"
+      );
 
-    speechStatus.textContent =
-      "Tap, say as many words as you can, then stop";
+      document.body.style.overflow =
+        "";
 
-    if (
-      currentInputMode === "writing"
+      activeCategoryId = null;
+
+      activeCategorySessionId =
+        null;
+
+      activeSuggestions = [];
+
+      acceptedWordCards = [];
+
+      acceptedWordKeySet =
+        new Set();
+
+      suggestionsList.innerHTML =
+        "";
+
+      acceptedWordsGallery.innerHTML =
+        "";
+
+      clearFeedback();
+    }
+
+    async function submitRecallText(
+      text
     ) {
-      answerInput.focus();
-    }
-  }
-}
+      const cleanText =
+        String(text || "").trim();
 
-    function setInputMode(mode) {
+      if (
+        !cleanText ||
+        !activeCategorySessionId ||
+        recallSubmitting
+      ) {
+        return;
+      }
+
+      recallSubmitting = true;
+
+      submitAnswerButton.disabled =
+        true;
+
+      recordButton.disabled =
+        true;
+
+      clearFeedback();
+
+      answerFeedback.textContent =
+        "Adding category words…";
+
+      try {
+        const result =
+          await callCategoryAction(
+            {
+              action:
+                "category-submit-recall",
+
+              sessionId:
+                activeCategorySessionId,
+
+              text:
+                cleanText
+            },
+            "Category recall"
+          );
+
+        const addedCards =
+          Array.isArray(
+            result.acceptedWordsAdded
+          )
+            ? result.acceptedWordsAdded
+            : [];
+
+        mergeAcceptedCards(
+          addedCards
+        );
+
+        activeSuggestions =
+          Array.isArray(
+            result.suggestions
+          )
+            ? result.suggestions
+            : activeSuggestions;
+
+        renderSuggestions();
+
+        answerInput.value = "";
+
+        const newCount =
+          Number(
+            result.newUniqueWords ||
+            0
+          );
+
+        const acceptedCount =
+          Number(
+            result.acceptedCount ||
+            0
+          );
+
+        if (newCount > 0) {
+          answerFeedback.textContent =
+            newCount === 1
+              ? "1 new category word added."
+              : `${newCount} new category words added.`;
+
+          answerFeedback.classList.add(
+            "correct"
+          );
+
+          loadMastery()
+            .then(() => {
+              if (
+                activeCategoryId
+              ) {
+                syncAcceptedCardsFromMastery(
+                  activeCategoryId
+                );
+
+                updatePracticeProgress();
+              }
+            })
+            .catch(error => {
+              console.warn(
+                "Mastery refresh failed:",
+                error
+              );
+            });
+        } else {
+          answerFeedback.textContent =
+            acceptedCount > 0
+              ? "Those category words were already recorded."
+              : "No new words from this category were found.";
+
+          answerFeedback.classList.add(
+            acceptedCount > 0
+              ? "correct"
+              : "incorrect"
+          );
+        }
+      } catch (error) {
+        answerFeedback.textContent =
+          getReadableError(
+            error
+          );
+
+        answerFeedback.classList.add(
+          "incorrect"
+        );
+      } finally {
+        recallSubmitting =
+          false;
+
+        submitAnswerButton.disabled =
+          !activeCategorySessionId;
+
+        recordButton.disabled =
+          !activeCategorySessionId;
+
+        speechStatus.textContent =
+          "Tap, say as many words as you can, then stop";
+
+        if (
+          currentInputMode ===
+          "writing" &&
+          activeCategorySessionId
+        ) {
+          answerInput.focus();
+        }
+      }
+    }
+
+    function setInputMode(
+      mode
+    ) {
       currentInputMode =
         mode === "writing"
           ? "writing"
           : "speech";
 
       const isWriting =
-        currentInputMode === "writing";
+        currentInputMode ===
+        "writing";
 
       writingModeButton.classList.toggle(
         "active",
@@ -2991,7 +4210,10 @@ let currentRevealedTarget = "";
         currentInputMode
       );
 
-      if (isWriting) {
+      if (
+        isWriting &&
+        activeCategorySessionId
+      ) {
         setTimeout(() => {
           answerInput.focus();
         }, 60);
@@ -3017,20 +4239,43 @@ let currentRevealedTarget = "";
 
       return (
         candidates.find(type =>
-          MediaRecorder.isTypeSupported(type)
-        ) || ""
+          MediaRecorder
+            .isTypeSupported(type)
+        ) ||
+        ""
       );
     }
 
-    function getAudioExtension(mimeType) {
+    function getAudioExtension(
+      mimeType
+    ) {
       const type =
         String(mimeType || "")
           .toLowerCase();
 
-      if (type.includes("mp4")) return "mp4";
-      if (type.includes("ogg")) return "ogg";
-      if (type.includes("wav")) return "wav";
-      if (type.includes("mpeg")) return "mp3";
+      if (
+        type.includes("mp4")
+      ) {
+        return "mp4";
+      }
+
+      if (
+        type.includes("ogg")
+      ) {
+        return "ogg";
+      }
+
+      if (
+        type.includes("wav")
+      ) {
+        return "wav";
+      }
+
+      if (
+        type.includes("mpeg")
+      ) {
+        return "mp3";
+      }
 
       return "webm";
     }
@@ -3043,20 +4288,27 @@ let currentRevealedTarget = "";
         await getAccessToken();
 
       const extension =
-        getAudioExtension(mimeType);
+        getAudioExtension(
+          mimeType
+        );
 
-      const file = new File(
-        [audioBlob],
-        `category-answer.${extension}`,
-        {
-          type: mimeType
-        }
-      );
+      const file =
+        new File(
+          [audioBlob],
+          `category-answer.${extension}`,
+          {
+            type:
+              mimeType
+          }
+        );
 
       const formData =
         new FormData();
 
-      formData.append("audio", file);
+      formData.append(
+        "audio",
+        file
+      );
 
       formData.append(
         "chatLanguage",
@@ -3068,32 +4320,37 @@ let currentRevealedTarget = "";
         currentFluentLanguage
       );
 
-      const activeCategoryTitle =
-  activeCategoryId
-    ? CATEGORY_CONFIG[
+      const categoryTitle =
         activeCategoryId
-      ]?.title || "the selected category"
-    : "the selected category";
+          ? CATEGORY_CONFIG[
+              activeCategoryId
+            ]?.title ||
+            "the selected category"
+          : "the selected category";
 
-formData.append(
-  "transcriptionPrompt",
-  `The speaker is freely listing one or more vocabulary words in ${currentLanguage} for the category "${activeCategoryTitle}". Transcribe every word exactly as spoken. Do not translate, explain, or remove repeated words.`
-);
-
-      const response = await fetch(
-        `${SUPABASE_URL}/functions/v1/transcribe-audio`,
-        {
-          method: "POST",
-          headers: {
-            "apikey":
-              SUPABASE_ANON_KEY,
-
-            "Authorization":
-              `Bearer ${accessToken}`
-          },
-          body: formData
-        }
+      formData.append(
+        "transcriptionPrompt",
+        `The speaker is freely listing one or more vocabulary words in ${currentLanguage} for the category "${categoryTitle}". Transcribe every word exactly as spoken. Do not translate, explain, or remove repeated words.`
       );
+
+      const response =
+        await fetch(
+          `${SUPABASE_URL}/functions/v1/transcribe-audio`,
+          {
+            method: "POST",
+
+            headers: {
+              "apikey":
+                SUPABASE_ANON_KEY,
+
+              "Authorization":
+                `Bearer ${accessToken}`
+            },
+
+            body:
+              formData
+          }
+        );
 
       const rawText =
         await response.text();
@@ -3101,7 +4358,8 @@ formData.append(
       let data;
 
       try {
-        data = JSON.parse(rawText);
+        data =
+          JSON.parse(rawText);
       } catch {
         throw new Error(
           "Transcription returned an invalid response."
@@ -3122,13 +4380,19 @@ formData.append(
         data.transcription ||
         "";
 
-      if (!String(transcript).trim()) {
+      if (
+        !String(
+          transcript
+        ).trim()
+      ) {
         throw new Error(
           "No speech was detected."
         );
       }
 
-      return String(transcript).trim();
+      return String(
+        transcript
+      ).trim();
     }
 
     async function startRecording() {
@@ -3141,6 +4405,8 @@ formData.append(
         );
       }
 
+      discardRecording = false;
+
       recordingStream =
         await navigator.mediaDevices
           .getUserMedia({
@@ -3149,25 +4415,33 @@ formData.append(
 
       recordedChunks = [];
 
-      const mimeType =
+      const requestedMimeType =
         getBestRecordingMimeType();
 
+      let recorder;
+
       try {
-        mediaRecorder =
+        recorder =
           new MediaRecorder(
             recordingStream,
-            mimeType
-              ? { mimeType }
+            requestedMimeType
+              ? {
+                  mimeType:
+                    requestedMimeType
+                }
               : undefined
           );
       } catch {
-        mediaRecorder =
+        recorder =
           new MediaRecorder(
             recordingStream
           );
       }
 
-      mediaRecorder.addEventListener(
+      mediaRecorder =
+        recorder;
+
+      recorder.addEventListener(
         "dataavailable",
         event => {
           if (
@@ -3181,7 +4455,7 @@ formData.append(
         }
       );
 
-      mediaRecorder.addEventListener(
+      recorder.addEventListener(
         "start",
         () => {
           isRecording = true;
@@ -3190,215 +4464,107 @@ formData.append(
             "recording"
           );
 
-          recordButton.textContent = "■";
+          recordButton.textContent =
+            "■";
+
           speechStatus.textContent =
             "Recording";
         }
       );
 
-      mediaRecorder.addEventListener(
+      recorder.addEventListener(
         "stop",
         async () => {
-          recordButton.disabled = true;
+          isRecording = false;
+
+          recordButton.disabled =
+            true;
+
           recordButton.classList.remove(
             "recording"
           );
 
-          recordButton.textContent = "…";
-          speechStatus.textContent =
-            "Transcribing";
+          recordButton.textContent =
+            "…";
 
-         try {
-  const finalMimeType =
-    mediaRecorder.mimeType ||
-    mimeType ||
-    recordedChunks[0]?.type ||
-    "audio/webm";
+          try {
+            if (
+              discardRecording ||
+              !activeCategorySessionId
+            ) {
+              return;
+            }
 
-  const audioBlob =
-    new Blob(
-      recordedChunks,
-      {
-        type: finalMimeType
-      }
-    );
+            speechStatus.textContent =
+              "Transcribing";
 
-  const transcript =
-    await transcribeAudio(
-      audioBlob,
-      finalMimeType
-    );
+            const finalMimeType =
+              recorder.mimeType ||
+              requestedMimeType ||
+              recordedChunks[0]?.type ||
+              "audio/webm";
 
-  speechTranscript.textContent =
-    transcript;
+            const audioBlob =
+              new Blob(
+                recordedChunks,
+                {
+                  type:
+                    finalMimeType
+                }
+              );
 
-  speechStatus.textContent =
-    "Adding category words";
+            const transcript =
+              await transcribeAudio(
+                audioBlob,
+                finalMimeType
+              );
 
-  await submitRecallText(transcript);
-} catch (error) {
-  showPageMessage(error);
+            if (
+              discardRecording ||
+              !activeCategorySessionId
+            ) {
+              return;
+            }
 
-  speechStatus.textContent =
-    "Tap to speak";
-} finally {
-  stopRecordingTracks();
+            speechTranscript.textContent =
+              transcript;
 
-  recordButton.disabled = false;
-  recordButton.textContent = "🎤";
+            speechStatus.textContent =
+              "Adding category words";
 
-  speechStatus.textContent =
-    "Tap, say as many words as you can, then stop";
-}
+            await submitRecallText(
+              transcript
+            );
+          } catch (error) {
+            if (
+              !discardRecording
+            ) {
+              showPageMessage(
+                error
+              );
+            }
+          } finally {
+            stopRecordingTracks();
+
+            recordButton.disabled =
+              !activeCategorySessionId;
+
+            recordButton.textContent =
+              "🎤";
+
+            speechStatus.textContent =
+              activeCategorySessionId
+                ? "Tap, say as many words as you can, then stop"
+                : "Tap to speak";
+
+            discardRecording =
+              false;
+          }
         }
       );
 
-      mediaRecorder.start();
+      recorder.start();
     }
-
-    async function requestCategoryHint() {
-  if (!activeCategorySessionId) return;
-
-  stuckButton.disabled = true;
-  stuckButton.textContent =
-    "Finding a suggestion…";
-
-  try {
-    const result =
-      await callCategoryAction(
-        {
-          action:
-            "category-get-recall-hint",
-
-          sessionId:
-            activeCategorySessionId
-        },
-        "Category hint"
-      );
-
-    currentHintTranslation =
-      result.hint || "";
-
-    hintTranslation.textContent =
-      currentHintTranslation;
-
-    revealedTarget.textContent = "";
-    revealedTarget.classList.add(
-      "hidden"
-    );
-
-    currentRevealedTarget = "";
-
-    revealTargetButton.textContent = "?";
-    hintPanel.classList.remove("hidden");
-  } catch (error) {
-    showPageMessage(error);
-  } finally {
-    stuckButton.disabled = false;
-    stuckButton.textContent =
-      "I’m out of words";
-  }
-}
-
-stuckButton.addEventListener(
-  "click",
-  requestCategoryHint
-);
-
-    async function speakRevealedCategoryWord(
-  word
-) {
-  const result =
-    await callCategoryAction(
-      {
-        action: "speak-words",
-        language: currentLanguage,
-        items: [
-          {
-            tokenId: "category-target",
-            word,
-            sentence: word
-          }
-        ]
-      },
-      "Word pronunciation"
-    );
-
-  const clip =
-    Array.isArray(result.clips)
-      ? result.clips[0]
-      : null;
-
-  if (!clip?.audioBase64) {
-    throw new Error(
-      "The pronunciation was not returned."
-    );
-  }
-
-  const audio = new Audio(
-    `data:${clip.mimeType || "audio/mpeg"};base64,${clip.audioBase64}`
-  );
-
-  await audio.play();
-}
-
-    async function revealAndSpeakCategoryTarget() {
-  if (!activeCategorySessionId) return;
-
-  revealTargetButton.disabled = true;
-
-  try {
-    /*
-      If already revealed, the button simply replays it.
-    */
-    if (currentRevealedTarget) {
-      await speakRevealedCategoryWord(
-        currentRevealedTarget
-      );
-
-      return;
-    }
-
-    const result =
-      await callCategoryAction(
-        {
-          action:
-            "category-reveal-recall-target",
-
-          sessionId:
-            activeCategorySessionId
-        },
-        "Reveal category word"
-      );
-
-    currentRevealedTarget =
-      result.targetWord || "";
-
-    revealedTarget.textContent =
-      currentRevealedTarget;
-
-    revealedTarget.classList.remove(
-      "hidden"
-    );
-
-    revealTargetButton.textContent = "🔊";
-
-    if (currentRevealedTarget) {
-      await speakRevealedCategoryWord(
-        currentRevealedTarget
-      );
-    }
-  } catch (error) {
-    showPageMessage(error);
-  } finally {
-    revealTargetButton.disabled = false;
-  }
-}
-
-revealTargetButton.addEventListener(
-  "click",
-  revealAndSpeakCategoryTarget
-);
 
     function stopRecording() {
       if (
@@ -3418,13 +4584,69 @@ revealTargetButton.addEventListener(
         });
 
       recordingStream = null;
+      mediaRecorder = null;
       isRecording = false;
 
       recordButton.classList.remove(
         "recording"
       );
 
-      recordButton.textContent = "🎤";
+      recordButton.textContent =
+        "🎤";
+    }
+
+    async function speakRevealedCategoryWord(
+      word
+    ) {
+      if (!word) {
+        return;
+      }
+
+      const result =
+        await callCategoryAction(
+          {
+            action:
+              "speak-words",
+
+            language:
+              currentLanguage,
+
+            items: [
+              {
+                tokenId:
+                  "category-target",
+
+                word,
+
+                sentence:
+                  word
+              }
+            ]
+          },
+          "Word pronunciation"
+        );
+
+      const clip =
+        Array.isArray(
+          result.clips
+        )
+          ? result.clips[0]
+          : null;
+
+      if (
+        !clip?.audioBase64
+      ) {
+        throw new Error(
+          "The pronunciation was not returned."
+        );
+      }
+
+      const audio =
+        new Audio(
+          `data:${clip.mimeType || "audio/mpeg"};base64,${clip.audioBase64}`
+        );
+
+      await audio.play();
     }
 
     async function initPage() {
@@ -3436,14 +4658,18 @@ revealTargetButton.addEventListener(
           .getSession();
 
       if (error) {
-        showPageMessage(error);
+        showPageMessage(
+          error
+        );
       }
 
       currentSession =
-        data?.session || null;
+        data?.session ||
+        null;
 
       currentUser =
-        currentSession?.user || null;
+        currentSession?.user ||
+        null;
 
       if (!currentUser) {
         mainContent.classList.add(
@@ -3460,16 +4686,19 @@ revealTargetButton.addEventListener(
       currentLanguage =
         getInitialLanguage();
 
-      if (
-        ![
-          ...learningLanguageSelect.options
+      const supportedLanguage =
+        [
+          ...learningLanguageSelect
+            .options
         ].some(
           option =>
             option.value ===
             currentLanguage
-        )
-      ) {
-        currentLanguage = "English";
+        );
+
+      if (!supportedLanguage) {
+        currentLanguage =
+          "English";
       }
 
       learningLanguageSelect.value =
@@ -3478,6 +4707,8 @@ revealTargetButton.addEventListener(
       currentFluentLanguage =
         currentUser.user_metadata
           ?.fluentLanguage ||
+        currentUser.user_metadata
+          ?.fluent_language ||
         "English";
 
       currentInputMode =
@@ -3487,13 +4718,19 @@ revealTargetButton.addEventListener(
           ? "writing"
           : "speech";
 
-      setInputMode(currentInputMode);
+      setInputMode(
+        currentInputMode
+      );
 
       await loadMastery();
     }
 
+    /* Events */
+
     document
-      .getElementById("backButton")
+      .getElementById(
+        "backButton"
+      )
       .addEventListener(
         "click",
         () => {
@@ -3527,6 +4764,13 @@ revealTargetButton.addEventListener(
       .addEventListener(
         "change",
         async () => {
+          if (
+            !practicePage.classList
+              .contains("hidden")
+          ) {
+            closePractice();
+          }
+
           currentLanguage =
             learningLanguageSelect.value;
 
@@ -3538,75 +4782,86 @@ revealTargetButton.addEventListener(
           try {
             await loadMastery();
           } catch (error) {
-            showPageMessage(error);
+            showPageMessage(
+              error
+            );
           }
         }
       );
 
-    writingModeButton.addEventListener(
-      "click",
-      () => {
-        setInputMode("writing");
-      }
-    );
+    writingModeButton
+      .addEventListener(
+        "click",
+        () => {
+          setInputMode(
+            "writing"
+          );
+        }
+      );
 
-    speechModeButton.addEventListener(
-      "click",
-      () => {
-        setInputMode("speech");
-      }
-    );
+    speechModeButton
+      .addEventListener(
+        "click",
+        () => {
+          setInputMode(
+            "speech"
+          );
+        }
+      );
 
-    writingAnswerForm.addEventListener(
-  "submit",
-  event => {
-    event.preventDefault();
+    writingAnswerForm
+      .addEventListener(
+        "submit",
+        event => {
+          event.preventDefault();
 
-    submitRecallText(
-      answerInput.value
-    );
-  }
-);
+          submitRecallText(
+            answerInput.value
+          );
+        }
+      );
 
-    recordButton.addEventListener(
-  "click",
-  async () => {
-    /*
-      Always allow the second click to stop an active recording.
-    */
-    if (isRecording) {
-      stopRecording();
-      return;
-    }
+    recordButton
+      .addEventListener(
+        "click",
+        async () => {
+          if (isRecording) {
+            stopRecording();
+            return;
+          }
 
-    if (
-      !activeCategorySessionId ||
-      recallSubmitting
-    ) {
-      return;
-    }
+          if (
+            !activeCategorySessionId ||
+            recallSubmitting
+          ) {
+            return;
+          }
 
-    try {
-      await startRecording();
-    } catch (error) {
-      stopRecordingTracks();
+          try {
+            await startRecording();
+          } catch (error) {
+            stopRecordingTracks();
 
-      speechStatus.textContent =
-        "Tap to speak";
+            speechStatus.textContent =
+              "Tap to speak";
 
-      showPageMessage(error);
-    }
-  }
-);
+            showPageMessage(
+              error
+            );
+          }
+        }
+      );
 
     supabaseClient.auth
       .onAuthStateChange(
         (_event, session) => {
           currentSession =
-            session || null;
+            session ||
+            null;
 
           currentUser =
-            session?.user || null;
+            session?.user ||
+            null;
 
           if (!currentUser) {
             window.location.href =
@@ -3616,7 +4871,9 @@ revealTargetButton.addEventListener(
       );
 
     initPage().catch(error => {
-      showPageMessage(error);
+      showPageMessage(
+        error
+      );
     });
   </script>
 </body>
