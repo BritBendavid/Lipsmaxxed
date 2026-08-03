@@ -3162,21 +3162,95 @@
           "accepted-word-visual";
 
         if (item.imageUrl) {
-          const image =
-            document.createElement(
-              "img"
-            );
+  const image =
+    document.createElement(
+      "img"
+    );
 
-          image.src =
-            item.imageUrl;
+  image.alt = "";
+  image.loading = "lazy";
 
-          image.alt = "";
-          image.loading = "lazy";
+  let imageDisplayAttempts = 0;
 
-          visual.appendChild(
-            image
+  function loadImage() {
+    const separator =
+      item.imageUrl.includes("?")
+        ? "&"
+        : "?";
+
+    /*
+      The first attempt uses the normal URL.
+      Later attempts add a cache-busting parameter.
+    */
+    image.src =
+      imageDisplayAttempts === 0
+        ? item.imageUrl
+        : (
+            `${item.imageUrl}` +
+            `${separator}` +
+            `reload=${Date.now()}`
           );
-        } else {
+  }
+
+  image.addEventListener(
+    "load",
+    () => {
+      /*
+        The URL is confirmed usable.
+      */
+      item.imageStatus = "ready";
+    }
+  );
+
+  image.addEventListener(
+    "error",
+    () => {
+      imageDisplayAttempts += 1;
+
+      /*
+        Sometimes Supabase returns the public URL
+        before the uploaded file is immediately
+        available through the CDN.
+
+        Retry the same stored image before asking
+        the backend to generate a new one.
+      */
+      if (
+        imageDisplayAttempts <= 3
+      ) {
+        setTimeout(
+          loadImage,
+          1000 *
+            imageDisplayAttempts
+        );
+
+        return;
+      }
+
+      /*
+        The URL failed several times. Remove it from
+        the local card and ask the backend to check
+        or regenerate the shared asset.
+      */
+      item.imageUrl = "";
+      item.imageStatus =
+        "missing";
+
+      queueWordEnrichment(
+        item,
+        true
+      );
+
+      renderAcceptedWordsGallery();
+    }
+  );
+
+  loadImage();
+
+  visual.appendChild(
+    image
+  );
+} else {
           const placeholder =
             document.createElement(
               "div"
@@ -3219,10 +3293,22 @@
                 renderAcceptedWordsGallery();
               }
             );
-          } else {
-            placeholder.textContent =
-              "◌";
-          }
+          } else if (
+  item.imageStatus ===
+    "generating"
+) {
+  placeholder.textContent =
+    "Generating…";
+
+  placeholder.style.fontSize =
+    "0.72rem";
+
+  placeholder.style.fontWeight =
+    "900";
+} else {
+  placeholder.textContent =
+    "◌";
+}
 
           visual.appendChild(
             placeholder
@@ -3500,91 +3586,233 @@
       }
     }
 
-    async function enrichWordCard(
-      task
+    const IMAGE_POLL_INTERVAL_MS =
+  2500;
+
+const IMAGE_POLL_LIMIT =
+  100;
+
+const IMAGE_AUTOMATIC_RESTARTS =
+  2;
+
+    function applyWordEnrichmentResult(
+  item,
+  result,
+  fluentLanguage
+) {
+  const current =
+    acceptedWordCards.find(
+      card =>
+        card.wordKey ===
+          item.wordKey &&
+        card.categoryId ===
+          item.categoryId
+    );
+
+  if (!current) {
+    return null;
+  }
+
+  current.fluentTranslation =
+    result.fluentTranslation ||
+    current.fluentTranslation;
+
+  current.translationLanguage =
+    fluentLanguage;
+
+  current.imageUrl =
+    result.imageUrl ||
+    current.imageUrl;
+
+  current.imageStatus =
+    result.imageStatus ||
+    (
+      current.imageUrl
+        ? "ready"
+        : "missing"
+    );
+
+  return current;
+}
+
+async function pollWordImageStatus(
+  item,
+  language,
+  fluentLanguage
+) {
+  for (
+    let poll = 0;
+    poll < IMAGE_POLL_LIMIT;
+    poll += 1
+  ) {
+    await new Promise(resolve => {
+      setTimeout(
+        resolve,
+        IMAGE_POLL_INTERVAL_MS
+      );
+    });
+
+    const result =
+      await callCategoryAction(
+        {
+          action:
+            "category-enrich-mastery-word",
+
+          language,
+
+          fluentLanguage,
+
+          categoryId:
+            item.categoryId,
+
+          wordKey:
+            item.wordKey,
+
+          statusOnly: true
+        },
+        "Picture status"
+      );
+
+    applyWordEnrichmentResult(
+      item,
+      result,
+      fluentLanguage
+    );
+
+    if (
+      result.imageStatus ===
+        "ready" &&
+      result.imageUrl
     ) {
-      const {
-        item,
-        key,
-        forceImage,
-        language,
-        fluentLanguage
-      } = task;
+      return result;
+    }
 
-      try {
-        const result =
-          await callCategoryAction(
-            {
-              action:
-                "category-enrich-mastery-word",
+    if (
+      result.imageStatus ===
+        "error"
+    ) {
+      return result;
+    }
+  }
 
-              language,
+  return {
+    imageStatus:
+      "error",
+    imageUrl: "",
+    imageLastError:
+      "Picture generation timed out."
+  };
+}
 
-              fluentLanguage,
+async function enrichWordCard(
+  task
+) {
+  const {
+    item,
+    key,
+    language,
+    fluentLanguage
+  } = task;
 
-              categoryId:
-                item.categoryId,
+  let forceImage =
+    task.forceImage === true;
 
-              wordKey:
-                item.wordKey,
+  for (
+    let restart = 0;
+    restart <=
+      IMAGE_AUTOMATIC_RESTARTS;
+    restart += 1
+  ) {
+    try {
+      const started =
+        await callCategoryAction(
+          {
+            action:
+              "category-enrich-mastery-word",
 
-              forceImage
-            },
-            "Word picture"
-          );
+            language,
 
-        const current =
-          acceptedWordCards.find(
-            card =>
-              card.wordKey ===
-                item.wordKey &&
-              card.categoryId ===
-                item.categoryId
-          );
+            fluentLanguage,
 
-        if (!current) {
-          return;
-        }
+            categoryId:
+              item.categoryId,
 
-        current.fluentTranslation =
-          result.fluentTranslation ||
-          current.fluentTranslation;
+            wordKey:
+              item.wordKey,
 
-        current.translationLanguage =
-          fluentLanguage;
+            forceImage,
 
-        current.imageUrl =
-          result.imageUrl ||
-          current.imageUrl;
+            statusOnly: false
+          },
+          "Word picture"
+        );
 
-        current.imageStatus =
-          result.imageStatus ||
-          (
-            current.imageUrl
-              ? "ready"
-              : "error"
-          );
+      const current =
+        applyWordEnrichmentResult(
+          item,
+          started,
+          fluentLanguage
+        );
 
-        if (
-          current.imageStatus ===
-          "error"
-        ) {
-          failedEnrichmentKeys.add(
-            key
-          );
-        } else {
-          failedEnrichmentKeys.delete(
-            key
-          );
-        }
+      if (!current) {
+        return;
+      }
 
-        renderAcceptedWordsGallery();
-      } catch (error) {
-        failedEnrichmentKeys.add(
+      if (
+        started.imageStatus ===
+          "ready" &&
+        started.imageUrl
+      ) {
+        failedEnrichmentKeys.delete(
           key
         );
 
-        const current =
+        renderAcceptedWordsGallery();
+        return;
+      }
+
+      current.imageStatus =
+        "generating";
+
+      renderAcceptedWordsGallery();
+
+      const completed =
+        await pollWordImageStatus(
+          item,
+          language,
+          fluentLanguage
+        );
+
+      applyWordEnrichmentResult(
+        item,
+        completed,
+        fluentLanguage
+      );
+
+      if (
+        completed.imageStatus ===
+          "ready" &&
+        completed.imageUrl
+      ) {
+        failedEnrichmentKeys.delete(
+          key
+        );
+
+        renderAcceptedWordsGallery();
+        return;
+      }
+
+      /*
+        Automatically start another complete attempt.
+        The user does not have to click anything.
+      */
+      if (
+        restart <
+        IMAGE_AUTOMATIC_RESTARTS
+      ) {
+        forceImage = true;
+
+        const currentItem =
           acceptedWordCards.find(
             card =>
               card.wordKey ===
@@ -3593,16 +3821,91 @@
                 item.categoryId
           );
 
-        if (current) {
-          current.imageStatus =
-            "error";
-
-          renderAcceptedWordsGallery();
+        if (currentItem) {
+          currentItem.imageStatus =
+            "generating";
         }
 
-        throw error;
+        renderAcceptedWordsGallery();
+
+        await new Promise(resolve => {
+          setTimeout(
+            resolve,
+            4000 *
+              (restart + 1)
+          );
+        });
+
+        continue;
       }
+
+      failedEnrichmentKeys.add(
+        key
+      );
+
+      const failedItem =
+        acceptedWordCards.find(
+          card =>
+            card.wordKey ===
+              item.wordKey &&
+            card.categoryId ===
+              item.categoryId
+        );
+
+      if (failedItem) {
+        failedItem.imageStatus =
+          "error";
+      }
+
+      renderAcceptedWordsGallery();
+      return;
+    } catch (error) {
+      if (
+        restart <
+        IMAGE_AUTOMATIC_RESTARTS
+      ) {
+        forceImage = true;
+
+        await new Promise(resolve => {
+          setTimeout(
+            resolve,
+            4000 *
+              (restart + 1)
+          );
+        });
+
+        continue;
+      }
+
+      failedEnrichmentKeys.add(
+        key
+      );
+
+      const failedItem =
+        acceptedWordCards.find(
+          card =>
+            card.wordKey ===
+              item.wordKey &&
+            card.categoryId ===
+              item.categoryId
+        );
+
+      if (failedItem) {
+        failedItem.imageStatus =
+          "error";
+      }
+
+      renderAcceptedWordsGallery();
+
+      console.warn(
+        "Automatic picture retries failed:",
+        error
+      );
+
+      return;
     }
+  }
+}
 
     function renderSuggestionsLoading() {
       suggestionsList.innerHTML =
