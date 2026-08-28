@@ -239,7 +239,7 @@ select option {
 }
 
 .select-wrap::after {
-  content: "â";
+  content: "v";
   position: absolute;
   right: 0;
   color: var(--muted);
@@ -746,8 +746,8 @@ form {
 }
 
 .mic-symbol {
-  display: inline-block;
-  transform: translateY(2px);
+  display: inline-grid;
+  place-items: center;
 }
 
 .speech-status {
@@ -1006,6 +1006,26 @@ form {
   height: 28px;
   fill: currentColor;
   display: block;
+}
+
+.mic-symbol svg,
+.speaker-icon,
+.stop-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+  fill: currentColor;
+}
+
+.topic-emoji {
+  width: max-content;
+  padding: 5px 7px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  color: #a9c8ff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
 }
 
 .message-slow-toggle,
@@ -2427,7 +2447,14 @@ form {
 }
 
 .topic-emoji {
-  font-size: 2rem;
+  width: max-content;
+  padding: 5px 7px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  color: #a9c8ff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   margin-bottom: 12px;
 }
 
@@ -2937,7 +2964,9 @@ form {
 
 <div id="speechShell" class="speech-shell hidden">
   <button id="speechRecordButton" class="speech-record-button" type="button" title="Record speech">
-    <span class="mic-symbol">ð¤</span>
+    <span class="mic-symbol" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 0 0 3.5-3.5V6a3.5 3.5 0 1 0-7 0v6a3.5 3.5 0 0 0 3.5 3.5Zm-5.5-4a1 1 0 0 1 2 0V12a3.5 3.5 0 0 0 7 0v-.5a1 1 0 1 1 2 0V12a5.5 5.5 0 0 1-4.5 5.4V20h2a1 1 0 1 1 0 2H9a1 1 0 1 1 0-2h2v-2.6A5.5 5.5 0 0 1 6.5 12v-.5Z"/></svg>
+    </span>
   </button>
 
   <div id="speechStatus" class="speech-status">
@@ -2951,7 +2980,7 @@ form {
 
   <div class="auth-panel">
     <button id="authCloseButton" class="auth-close-button" type="button">
-      Ã
+      x
     </button>
 
     <div class="auth-title">My Account</div>
@@ -3141,7 +3170,7 @@ form {
 <section id="chatSetupModal" class="chat-setup-modal hidden">
   <div class="chat-setup-panel">
     <button id="closeChatSetupButton" class="chat-setup-close" type="button">
-      Ã
+      x
     </button>
 
     <div class="chat-setup-kicker">New practice session</div>
@@ -3158,18 +3187,18 @@ form {
 
       <div class="select-wrap setup-select-wrap">
         <select id="chatSetupLanguageSelect">
-          <option value="English" selected>ðºð¸ English</option>
-          <option value="Hebrew">ð®ð± Hebrew</option>
-          <option value="Spanish">ðªð¸ Spanish</option>
-          <option value="French">ð«ð· French</option>
-          <option value="German">ð©ðª German</option>
-          <option value="Arabic">ð¸ð¦ Arabic</option>
-          <option value="Russian">ð·ðº Russian</option>
-          <option value="Italian">ð®ð¹ Italian</option>
-          <option value="Portuguese">ðµð¹ Portuguese</option>
-          <option value="Chinese">ð¨ð³ Chinese</option>
-          <option value="Japanese">ð¯ðµ Japanese</option>
-          <option value="Korean">ð°ð· Korean</option>
+          <option value="English" selected>English</option>
+          <option value="Hebrew">Hebrew</option>
+          <option value="Spanish">Spanish</option>
+          <option value="French">French</option>
+          <option value="German">German</option>
+          <option value="Arabic">Arabic</option>
+          <option value="Russian">Russian</option>
+          <option value="Italian">Italian</option>
+          <option value="Portuguese">Portuguese</option>
+          <option value="Chinese">Chinese</option>
+          <option value="Japanese">Japanese</option>
+          <option value="Korean">Korean</option>
         </select>
       </div>
     </div>
@@ -3214,7 +3243,7 @@ form {
 <section id="profileModal" class="profile-modal hidden">
   <div class="profile-panel">
     <button id="closeProfileButton" class="chat-setup-close" type="button">
-      Ã
+      x
     </button>
 
     <div class="chat-setup-kicker">My profile</div>
@@ -3235,18 +3264,18 @@ form {
 
       <div class="select-wrap setup-select-wrap">
         <select id="profileFluentLanguageSelect">
-          <option value="English" selected>ðºð¸ English</option>
-          <option value="Hebrew">ð®ð± Hebrew</option>
-          <option value="Spanish">ðªð¸ Spanish</option>
-          <option value="French">ð«ð· French</option>
-          <option value="German">ð©ðª German</option>
-          <option value="Arabic">ð¸ð¦ Arabic</option>
-          <option value="Russian">ð·ðº Russian</option>
-          <option value="Italian">ð®ð¹ Italian</option>
-          <option value="Portuguese">ðµð¹ Portuguese</option>
-          <option value="Chinese">ð¨ð³ Chinese</option>
-          <option value="Japanese">ð¯ðµ Japanese</option>
-          <option value="Korean">ð°ð· Korean</option>
+          <option value="English" selected>English</option>
+          <option value="Hebrew">Hebrew</option>
+          <option value="Spanish">Spanish</option>
+          <option value="French">French</option>
+          <option value="German">German</option>
+          <option value="Arabic">Arabic</option>
+          <option value="Russian">Russian</option>
+          <option value="Italian">Italian</option>
+          <option value="Portuguese">Portuguese</option>
+          <option value="Chinese">Chinese</option>
+          <option value="Japanese">Japanese</option>
+          <option value="Korean">Korean</option>
         </select>
       </div>
     </div>
@@ -3271,7 +3300,7 @@ form {
       </div>
 
       <button id="closeStatsButton" class="stats-close-button" type="button">
-        Ã
+        x
       </button>
     </header>
 
@@ -3280,24 +3309,24 @@ form {
 
       <div class="select-wrap stats-select-wrap">
         <select id="statsLanguageSelect">
-          <option value="English">ðºð¸ English</option>
-          <option value="Hebrew">ð®ð± Hebrew</option>
-          <option value="Spanish">ðªð¸ Spanish</option>
-          <option value="French">ð«ð· French</option>
-          <option value="German">ð©ðª German</option>
-          <option value="Arabic">ð¸ð¦ Arabic</option>
-          <option value="Russian">ð·ðº Russian</option>
-          <option value="Italian">ð®ð¹ Italian</option>
-          <option value="Portuguese">ðµð¹ Portuguese</option>
-          <option value="Chinese">ð¨ð³ Chinese</option>
-          <option value="Japanese">ð¯ðµ Japanese</option>
-          <option value="Korean">ð°ð· Korean</option>
+          <option value="English">English</option>
+          <option value="Hebrew">Hebrew</option>
+          <option value="Spanish">Spanish</option>
+          <option value="French">French</option>
+          <option value="German">German</option>
+          <option value="Arabic">Arabic</option>
+          <option value="Russian">Russian</option>
+          <option value="Italian">Italian</option>
+          <option value="Portuguese">Portuguese</option>
+          <option value="Chinese">Chinese</option>
+          <option value="Japanese">Japanese</option>
+          <option value="Korean">Korean</option>
         </select>
       </div>
     </div>
 
     <div id="statsLoading" class="stats-loading hidden">
-      Loading statsâ¦
+      Loading stats...
     </div>
 
     <div id="statsEmpty" class="stats-empty hidden">
@@ -3351,7 +3380,7 @@ form {
         </div>
 
         <button id="closeStatsDetailButton" class="stats-close-button" type="button">
-          Ã
+          x
         </button>
       </div>
 
@@ -3550,42 +3579,42 @@ const CHAT_TOPICS = [
     id: "daily-life",
     title: "Daily Life",
     role: "friendly day-to-day conversation partner",
-    emoji: "âï¸",
+    code: "DAY",
     description: "Talk about your day, plans, food, hobbies, and small moments."
   },
   {
     id: "store-cashier",
     title: "Store Cashier",
     role: "cashier at a small store",
-    emoji: "ð",
+    code: "SHOP",
     description: "Practice buying things, asking prices, and simple store conversation."
   },
   {
     id: "job-interview",
     title: "Job Interview",
     role: "professional job interviewer",
-    emoji: "ð¼",
+    code: "JOB",
     description: "Answer interview questions about experience, strengths, and goals."
   },
   {
     id: "teacher",
     title: "Teacher",
     role: "patient teacher",
-    emoji: "ð",
+    code: "LEARN",
     description: "Explain what you know, answer questions, and practice school language."
   },
   {
     id: "restaurant-server",
     title: "Restaurant Server",
     role: "restaurant server",
-    emoji: "ð½ï¸",
+    code: "DINE",
     description: "Order food, ask about the menu, and practice polite requests."
   },
   {
     id: "travel-guide",
     title: "Travel Guide",
     role: "local travel guide",
-    emoji: "ð§­",
+    code: "TRIP",
     description: "Ask about places, directions, plans, transportation, and recommendations."
   }
 ];
@@ -3704,7 +3733,7 @@ async function loadUpcomingWords(languageOverride = null) {
 
     const main = document.createElement("div");
     main.className = "upcoming-word-main";
-    main.textContent = "â¦";
+    main.textContent = "...";
 
     const chatLanguageWord = document.createElement("div");
     chatLanguageWord.className = "upcoming-word-chat-language hidden";
@@ -3732,7 +3761,7 @@ async function loadUpcomingWords(languageOverride = null) {
 
         actionButton.dataset.revealed = "true";
         actionButton.classList.add("revealed");
-        actionButton.textContent = "ð";
+        actionButton.innerHTML = speakerIconSvg();
         actionButton.title = "Hear word";
         actionButton.setAttribute("aria-label", "Hear word");
 
@@ -3888,7 +3917,7 @@ function renderTopicCards() {
     }
 
     button.innerHTML = `
-      <div class="topic-emoji">${topic.emoji}</div>
+      <div class="topic-emoji" aria-hidden="true">${topic.code}</div>
       <div class="topic-title">${topic.title}</div>
       <div class="topic-description">${topic.description}</div>
     `;
@@ -4407,10 +4436,10 @@ function showPointsToast(pointsGained, language, details = {}) {
 
   if (bonusPoints > 0) {
     toast.innerHTML =
-      `Nice work â <strong>+${pointsGained}</strong> ${language} points! ` +
+      `Nice work - <strong>+${pointsGained}</strong> ${language} points! ` +
       `<span>Bonus: ${bonusWordsSaid} word${bonusWordsSaid === 1 ? "" : "s"} for +${bonusPoints}</span>`;
   } else {
-    toast.innerHTML = `Nice work â <strong>+${pointsGained}</strong> ${language} points!`;
+    toast.innerHTML = `Nice work - <strong>+${pointsGained}</strong> ${language} points!`;
   }
 
   document.body.appendChild(toast);
@@ -4919,7 +4948,7 @@ counts.className = "stats-counts";
 const dueAt = getStatsRowDueAt(row);
 const dueText = formatDueIn(dueAt);
 
-counts.textContent = `F ${familiar} Â· S ${spoken} Â· T ${translated} Â· ${dueText}`;
+counts.textContent = `F ${familiar} | S ${spoken} | T ${translated} | ${dueText}`;
 
   const bar = document.createElement("div");
   bar.className = "stats-bar";
@@ -5162,14 +5191,14 @@ function normalizeStatsWord(word) {
   return String(word || "")
     .toLowerCase()
     .normalize("NFKC")
-    .replace(/[â']/g, "")
+    .replace(/[\u2019']/g, "")
     .replace(/[^\p{L}\p{M}\p{N}]/gu, "")
     .trim();
 }
 
 function getWordsForStats(text) {
   return String(text || "")
-    .match(/[\p{L}\p{M}]+(?:['â][\p{L}\p{M}]+)?|[\p{N}]+/gu) || [];
+    .match(/[\p{L}\p{M}]+(?:['\u2019][\p{L}\p{M}]+)?|[\p{N}]+/gu) || [];
 }
 
 function uniqueStatsWordsFromText(text) {
@@ -5825,7 +5854,7 @@ async function initAuth() {
     function normalizeCorrectionCompare(text) {
   return String(text || "")
     .toLowerCase()
-    .replace(/[â']/g, "")
+    .replace(/[\u2019']/g, "")
     .replace(/[^\p{L}\p{M}\p{N}\s]/gu, " ")
     .replace(/\s+/g, " ")
     .trim();
@@ -5849,7 +5878,7 @@ function getNativeChatLanguageWordsFromParts(parts) {
 
 function playIconSvg() {
   return `
-    <svg class="playback-icon" viewBox="0 0 24 24" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" class="playback-icon" viewBox="0 0 24 24" aria-hidden="true">
       <path d="M8 5.8c0-.8.9-1.3 1.6-.9l8.2 5.2c.7.4.7 1.4 0 1.8l-8.2 5.2c-.7.4-1.6-.1-1.6-.9V5.8z"></path>
     </svg>
   `;
@@ -5857,11 +5886,23 @@ function playIconSvg() {
 
 function pauseIconSvg() {
   return `
-    <svg class="playback-icon" viewBox="0 0 24 24" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" class="playback-icon" viewBox="0 0 24 24" aria-hidden="true">
       <rect x="7" y="5" width="3.8" height="14" rx="1.2"></rect>
       <rect x="13.2" y="5" width="3.8" height="14" rx="1.2"></rect>
     </svg>
   `;
+}
+
+function speakerIconSvg() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="speaker-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4a1 1 0 0 1 1.6.8v12.4A1 1 0 0 1 13 19l-5-4H4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2Zm13.2-.8a1 1 0 0 1 1.4 0 5.4 5.4 0 0 1 0 7.6 1 1 0 1 1-1.4-1.4 3.4 3.4 0 0 0 0-4.8 1 1 0 0 1 0-1.4Z"/></svg>`;
+}
+
+function microphoneIconSvg() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 0 0 3.5-3.5V6a3.5 3.5 0 1 0-7 0v6a3.5 3.5 0 0 0 3.5 3.5Zm-5.5-4a1 1 0 0 1 2 0V12a3.5 3.5 0 0 0 7 0v-.5a1 1 0 1 1 2 0V12a5.5 5.5 0 0 1-4.5 5.4V20h2a1 1 0 1 1 0 2H9a1 1 0 1 1 0-2h2v-2.6A5.5 5.5 0 0 1 6.5 12v-.5Z"/></svg>`;
+}
+
+function stopIconSvg() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="stop-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>`;
 }
 
 function setPlayIcon(button) {
@@ -5878,7 +5919,7 @@ function setPauseIcon(button) {
 
 function setLoadingIcon(button) {
   if (button) {
-    button.textContent = "â¦";
+    button.textContent = "...";
   }
 }
     function buildCorrectionPairsFromCorrectedTextAndParts(correctedText, parts, originalText = "") {
@@ -5933,7 +5974,7 @@ function removeSpeechReviewCard(options = {}) {
 }
 
 function splitCorrectionTranslationWords(text) {
-  return text.match(/[\p{L}\p{M}]+(?:['â][\p{L}\p{M}]+)?|[\p{N}]+/gu) || [];
+  return text.match(/[\p{L}\p{M}]+(?:['\u2019][\p{L}\p{M}]+)?|[\p{N}]+/gu) || [];
 }
 
 function buildCorrectionPairsFromCorrectedText(correctedText) {
@@ -6427,7 +6468,7 @@ function resetSpeechButton() {
 
   speechRecordButton.disabled = false;
   speechRecordButton.classList.remove("recording", "processing");
-  speechRecordButton.innerHTML = `<span class="mic-symbol">ð¤</span>`;
+  speechRecordButton.innerHTML = `<span class="mic-symbol">${microphoneIconSvg()}</span>`;
 }
     
   function getReadableError(error) {
@@ -6859,7 +6900,7 @@ function isSamePlayback(button, type, id) {
 }
 
   function splitTextIntoParts(text) {
-    return text.match(/[\p{L}\p{M}]+(?:['â][\p{L}\p{M}]+)?|[\p{N}]+|[^\s\p{L}\p{M}\p{N}]|\s+/gu) || [];
+    return text.match(/[\p{L}\p{M}]+(?:['\u2019][\p{L}\p{M}]+)?|[\p{N}]+|[^\s\p{L}\p{M}\p{N}]|\s+/gu) || [];
   }
 
   function isClickableWord(part) {
@@ -6982,7 +7023,7 @@ function isSamePlayback(button, type, id) {
       const remainingMs = Math.max(0, totalEstimatedMs - representedMs);
 
       label.textContent = stageElapsed > estimates[stage] * 1.35
-        ? `${RESPONSE_STAGE_LABELS[stage]} â taking a little longer`
+        ? `${RESPONSE_STAGE_LABELS[stage]} - taking a little longer`
         : RESPONSE_STAGE_LABELS[stage];
       eta.textContent = remainingMs > 9500
         ? "Under 15 sec"
@@ -7715,7 +7756,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
 
     if (button) {
       button.classList.add("loading");
-      button.textContent = "â¦";
+      button.textContent = "...";
     }
 
     await unlockAudioContext();
@@ -7731,7 +7772,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
     if (button) {
       button.classList.remove("loading");
       button.classList.add("revealed");
-      button.textContent = "ð";
+      button.innerHTML = speakerIconSvg();
     }
 
     playFullAudioBuffer(speech.audioBuffer, null, null, null);
@@ -7739,7 +7780,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
     if (button) {
       button.classList.remove("loading");
       button.classList.add("revealed");
-      button.textContent = "ð";
+      button.innerHTML = speakerIconSvg();
     }
 
     showSystemMessage(getReadableError(error));
@@ -8112,7 +8153,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
     unit.classList.add("translating");
 
     if (translationEl && !translationEl.textContent) {
-      translationEl.textContent = "â¦";
+      translationEl.textContent = "...";
     }
 
     if (translationCache.has(cacheKey)) {
@@ -8439,7 +8480,7 @@ async function startRecording() {
 
     speechRecordButton.classList.add("recording");
     speechRecordButton.classList.remove("processing");
-    speechRecordButton.innerHTML = `<span class="mic-symbol">â </span>`;
+    speechRecordButton.innerHTML = `<span class="mic-symbol">${stopIconSvg()}</span>`;
 
     setSpeechStatus("Recording");
   });
@@ -8448,7 +8489,7 @@ async function startRecording() {
   speechRecordButton.disabled = true;
   speechRecordButton.classList.remove("recording");
   speechRecordButton.classList.add("processing");
-  speechRecordButton.innerHTML = `<span class="mic-symbol">â¦</span>`;
+  speechRecordButton.innerHTML = `<span class="mic-symbol" aria-label="Processing">...</span>`;
   setSpeechStatus("Transcribing");
 
   try {
