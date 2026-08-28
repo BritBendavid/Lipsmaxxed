@@ -6943,6 +6943,7 @@ function isSamePlayback(button, type, id) {
 }
 
   const RESPONSE_STAGE_DEFAULTS = {
+    language: 1400,
     context: 300,
     chat: 3500,
     speech: 2200,
@@ -6950,6 +6951,7 @@ function isSamePlayback(button, type, id) {
   };
 
   const RESPONSE_STAGE_LABELS = {
+    language: "Checking your language",
     context: "Preparing context",
     chat: "Writing your reply",
     speech: "Preparing audio",
@@ -6981,7 +6983,9 @@ function isSamePlayback(button, type, id) {
 
   function addResponseProgress(initialStage = "context") {
     const estimates = getResponseTimingEstimates();
-    const stages = ["context", "chat", "speech", "decode"];
+    const allStages = ["language", "context", "chat", "speech", "decode"];
+    const initialIndex = Math.max(0, allStages.indexOf(initialStage));
+    const stages = allStages.slice(initialIndex);
     const card = document.createElement("div");
     card.className = "message-card response-progress-card";
     card.setAttribute("role", "status");
@@ -7108,29 +7112,32 @@ function isSamePlayback(button, type, id) {
     return botMessageId;
   }
 
- async function prepareBotResponseInBackground(userText) {
+ async function prepareBotResponseInBackground(userText, progress = null) {
   messages.push({
     role: "user",
     content: userText
   });
 
-const vocabularyProfile = await getVocabularyProfileForPrompt(getCurrentChatLanguage());
+const responsePromise = (async () => {
+  const vocabularyProfile = await getVocabularyProfileForPrompt(getCurrentChatLanguage());
 
-const responsePromise = callChatFunction(
-  {
-    messages,
-    language: languageSelect.value,
-    userGenderInstruction: getUserGenderInstruction(),
-    chatRole: activeChatSession?.topicRole || "",
-    chatTopic: activeChatSession?.topicTitle || "",
-    vocabularyProfile
-  },
-  "Chat"
-);
+  return callChatFunction(
+    {
+      messages,
+      language: languageSelect.value,
+      userGenderInstruction: getUserGenderInstruction(),
+      chatRole: activeChatSession?.topicRole || "",
+      chatTopic: activeChatSession?.topicTitle || "",
+      vocabularyProfile
+    },
+    "Chat"
+  );
+})();
 
   return {
     userText,
-    responsePromise
+    responsePromise,
+    progress
   };
 }
 
@@ -7181,7 +7188,7 @@ const responsePromise = callChatFunction(
     
   async function revealPreparedBotResponse(prepared, options = {}) {
   const autoplay = options.autoplay !== false;
-  const progress = addResponseProgress("chat");
+  const progress = prepared?.progress || addResponseProgress("chat");
 
   try {
     const data = await prepared.responsePromise;
@@ -7212,7 +7219,8 @@ const responsePromise = callChatFunction(
     
   async function handleSpeechTranscript(transcript) {
   if (!transcript.trim()) return;
-    
+
+  const responseProgress = addResponseProgress("language");
   const isCorrectionRetry = correctionRetryMode;
 correctionRetryMode = false;
 
@@ -7223,13 +7231,17 @@ if (!isCorrectionRetry) {
     The bot receives the original message immediately.
     Re-recording is only for practice.
   */
-  pendingBackgroundBot = await prepareBotResponseInBackground(transcript);
+  pendingBackgroundBot = await prepareBotResponseInBackground(transcript, responseProgress);
 } else {
   /*
     Retry should replace the original speech bubble, not create a new one.
   */
   if (activeCorrectionUserMessageId) {
     updateUserMessageText(activeCorrectionUserMessageId, transcript);
+  }
+
+  if (pendingBackgroundBot) {
+    pendingBackgroundBot.progress = responseProgress;
   }
 }
 
@@ -7238,10 +7250,18 @@ if (!isCorrectionRetry) {
   try {
     analysis = await analyzeUserMessageLanguageParts(transcript);
   } catch {
-    await revealPreparedBotResponse(pendingBackgroundBot);
+    if (pendingBackgroundBot) {
+      pendingBackgroundBot.progress = responseProgress;
+      responseProgress.setStage("chat");
+      await revealPreparedBotResponse(pendingBackgroundBot);
+    } else {
+      responseProgress.remove();
+    }
     pendingBackgroundBot = null;
     return;
   }
+
+  responseProgress.setStage("chat");
 
   const parts = analysis.parts || [];
   const correctedText = analysis.correctedText || transcript;
@@ -7283,6 +7303,11 @@ const pointsAward = confirmedSpokenText
   }
 
   const suggestion = correctedText;
+
+  responseProgress.remove();
+  if (pendingBackgroundBot) {
+    pendingBackgroundBot.progress = null;
+  }
 
   activeSpeechCorrection = {
     transcript,
