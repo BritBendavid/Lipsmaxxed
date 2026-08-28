@@ -2447,14 +2447,14 @@ form {
 }
 
 .topic-emoji {
-  width: max-content;
-  padding: 5px 7px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 6px;
-  color: #a9c8ff;
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  width: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: inherit;
+  font-size: 2rem;
+  font-weight: inherit;
+  letter-spacing: normal;
   margin-bottom: 12px;
 }
 
@@ -2964,9 +2964,7 @@ form {
 
 <div id="speechShell" class="speech-shell hidden">
   <button id="speechRecordButton" class="speech-record-button" type="button" title="Record speech">
-    <span class="mic-symbol" aria-hidden="true">
-      <svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 0 0 3.5-3.5V6a3.5 3.5 0 1 0-7 0v6a3.5 3.5 0 0 0 3.5 3.5Zm-5.5-4a1 1 0 0 1 2 0V12a3.5 3.5 0 0 0 7 0v-.5a1 1 0 1 1 2 0V12a5.5 5.5 0 0 1-4.5 5.4V20h2a1 1 0 1 1 0 2H9a1 1 0 1 1 0-2h2v-2.6A5.5 5.5 0 0 1 6.5 12v-.5Z"/></svg>
-    </span>
+    <span class="mic-symbol" aria-hidden="true">&#127908;</span>
   </button>
 
   <div id="speechStatus" class="speech-status">
@@ -2980,7 +2978,7 @@ form {
 
   <div class="auth-panel">
     <button id="authCloseButton" class="auth-close-button" type="button">
-      x
+      &times;
     </button>
 
     <div class="auth-title">My Account</div>
@@ -3170,7 +3168,7 @@ form {
 <section id="chatSetupModal" class="chat-setup-modal hidden">
   <div class="chat-setup-panel">
     <button id="closeChatSetupButton" class="chat-setup-close" type="button">
-      x
+      &times;
     </button>
 
     <div class="chat-setup-kicker">New practice session</div>
@@ -3187,18 +3185,18 @@ form {
 
       <div class="select-wrap setup-select-wrap">
         <select id="chatSetupLanguageSelect">
-          <option value="English" selected>English</option>
-          <option value="Hebrew">Hebrew</option>
-          <option value="Spanish">Spanish</option>
-          <option value="French">French</option>
-          <option value="German">German</option>
-          <option value="Arabic">Arabic</option>
-          <option value="Russian">Russian</option>
-          <option value="Italian">Italian</option>
-          <option value="Portuguese">Portuguese</option>
-          <option value="Chinese">Chinese</option>
-          <option value="Japanese">Japanese</option>
-          <option value="Korean">Korean</option>
+          <option value="English" selected>&#127482;&#127480; English</option>
+          <option value="Hebrew">&#127470;&#127473; Hebrew</option>
+          <option value="Spanish">&#127466;&#127480; Spanish</option>
+          <option value="French">&#127467;&#127479; French</option>
+          <option value="German">&#127465;&#127466; German</option>
+          <option value="Arabic">&#127480;&#127462; Arabic</option>
+          <option value="Russian">&#127479;&#127482; Russian</option>
+          <option value="Italian">&#127470;&#127481; Italian</option>
+          <option value="Portuguese">&#127477;&#127481; Portuguese</option>
+          <option value="Chinese">&#127464;&#127475; Chinese</option>
+          <option value="Japanese">&#127471;&#127477; Japanese</option>
+          <option value="Korean">&#127472;&#127479; Korean</option>
         </select>
       </div>
     </div>
@@ -3243,7 +3241,7 @@ form {
 <section id="profileModal" class="profile-modal hidden">
   <div class="profile-panel">
     <button id="closeProfileButton" class="chat-setup-close" type="button">
-      x
+      &times;
     </button>
 
     <div class="chat-setup-kicker">My profile</div>
@@ -3264,18 +3262,18 @@ form {
 
       <div class="select-wrap setup-select-wrap">
         <select id="profileFluentLanguageSelect">
-          <option value="English" selected>English</option>
-          <option value="Hebrew">Hebrew</option>
-          <option value="Spanish">Spanish</option>
-          <option value="French">French</option>
-          <option value="German">German</option>
-          <option value="Arabic">Arabic</option>
-          <option value="Russian">Russian</option>
-          <option value="Italian">Italian</option>
-          <option value="Portuguese">Portuguese</option>
-          <option value="Chinese">Chinese</option>
-          <option value="Japanese">Japanese</option>
-          <option value="Korean">Korean</option>
+          <option value="English" selected>&#127482;&#127480; English</option>
+          <option value="Hebrew">&#127470;&#127473; Hebrew</option>
+          <option value="Spanish">&#127466;&#127480; Spanish</option>
+          <option value="French">&#127467;&#127479; French</option>
+          <option value="German">&#127465;&#127466; German</option>
+          <option value="Arabic">&#127480;&#127462; Arabic</option>
+          <option value="Russian">&#127479;&#127482; Russian</option>
+          <option value="Italian">&#127470;&#127481; Italian</option>
+          <option value="Portuguese">&#127477;&#127481; Portuguese</option>
+          <option value="Chinese">&#127464;&#127475; Chinese</option>
+          <option value="Japanese">&#127471;&#127477; Japanese</option>
+          <option value="Korean">&#127472;&#127479; Korean</option>
         </select>
       </div>
     </div>
@@ -3300,7 +3298,7 @@ form {
       </div>
 
       <button id="closeStatsButton" class="stats-close-button" type="button">
-        x
+        &times;
       </button>
     </header>
 
@@ -3309,24 +3307,24 @@ form {
 
       <div class="select-wrap stats-select-wrap">
         <select id="statsLanguageSelect">
-          <option value="English">English</option>
-          <option value="Hebrew">Hebrew</option>
-          <option value="Spanish">Spanish</option>
-          <option value="French">French</option>
-          <option value="German">German</option>
-          <option value="Arabic">Arabic</option>
-          <option value="Russian">Russian</option>
-          <option value="Italian">Italian</option>
-          <option value="Portuguese">Portuguese</option>
-          <option value="Chinese">Chinese</option>
-          <option value="Japanese">Japanese</option>
-          <option value="Korean">Korean</option>
+          <option value="English">&#127482;&#127480; English</option>
+          <option value="Hebrew">&#127470;&#127473; Hebrew</option>
+          <option value="Spanish">&#127466;&#127480; Spanish</option>
+          <option value="French">&#127467;&#127479; French</option>
+          <option value="German">&#127465;&#127466; German</option>
+          <option value="Arabic">&#127480;&#127462; Arabic</option>
+          <option value="Russian">&#127479;&#127482; Russian</option>
+          <option value="Italian">&#127470;&#127481; Italian</option>
+          <option value="Portuguese">&#127477;&#127481; Portuguese</option>
+          <option value="Chinese">&#127464;&#127475; Chinese</option>
+          <option value="Japanese">&#127471;&#127477; Japanese</option>
+          <option value="Korean">&#127472;&#127479; Korean</option>
         </select>
       </div>
     </div>
 
     <div id="statsLoading" class="stats-loading hidden">
-      Loading stats...
+      Loading stats&hellip;
     </div>
 
     <div id="statsEmpty" class="stats-empty hidden">
@@ -3380,7 +3378,7 @@ form {
         </div>
 
         <button id="closeStatsDetailButton" class="stats-close-button" type="button">
-          x
+          &times;
         </button>
       </div>
 
@@ -3579,42 +3577,42 @@ const CHAT_TOPICS = [
     id: "daily-life",
     title: "Daily Life",
     role: "friendly day-to-day conversation partner",
-    code: "DAY",
+    emoji: "\u2600\uFE0F",
     description: "Talk about your day, plans, food, hobbies, and small moments."
   },
   {
     id: "store-cashier",
     title: "Store Cashier",
     role: "cashier at a small store",
-    code: "SHOP",
+    emoji: "\u{1F6D2}",
     description: "Practice buying things, asking prices, and simple store conversation."
   },
   {
     id: "job-interview",
     title: "Job Interview",
     role: "professional job interviewer",
-    code: "JOB",
+    emoji: "\u{1F4BC}",
     description: "Answer interview questions about experience, strengths, and goals."
   },
   {
     id: "teacher",
     title: "Teacher",
     role: "patient teacher",
-    code: "LEARN",
+    emoji: "\u{1F4DA}",
     description: "Explain what you know, answer questions, and practice school language."
   },
   {
     id: "restaurant-server",
     title: "Restaurant Server",
     role: "restaurant server",
-    code: "DINE",
+    emoji: "\u{1F37D}\uFE0F",
     description: "Order food, ask about the menu, and practice polite requests."
   },
   {
     id: "travel-guide",
     title: "Travel Guide",
     role: "local travel guide",
-    code: "TRIP",
+    emoji: "\u{1F9ED}",
     description: "Ask about places, directions, plans, transportation, and recommendations."
   }
 ];
@@ -3733,7 +3731,7 @@ async function loadUpcomingWords(languageOverride = null) {
 
     const main = document.createElement("div");
     main.className = "upcoming-word-main";
-    main.textContent = "...";
+    main.textContent = "\u2026";
 
     const chatLanguageWord = document.createElement("div");
     chatLanguageWord.className = "upcoming-word-chat-language hidden";
@@ -3917,7 +3915,7 @@ function renderTopicCards() {
     }
 
     button.innerHTML = `
-      <div class="topic-emoji" aria-hidden="true">${topic.code}</div>
+      <div class="topic-emoji" aria-hidden="true">${topic.emoji}</div>
       <div class="topic-title">${topic.title}</div>
       <div class="topic-description">${topic.description}</div>
     `;
@@ -5894,15 +5892,15 @@ function pauseIconSvg() {
 }
 
 function speakerIconSvg() {
-  return `<svg xmlns="http://www.w3.org/2000/svg" class="speaker-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4a1 1 0 0 1 1.6.8v12.4A1 1 0 0 1 13 19l-5-4H4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2Zm13.2-.8a1 1 0 0 1 1.4 0 5.4 5.4 0 0 1 0 7.6 1 1 0 1 1-1.4-1.4 3.4 3.4 0 0 0 0-4.8 1 1 0 0 1 0-1.4Z"/></svg>`;
+  return "\u{1F50A}";
 }
 
 function microphoneIconSvg() {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 0 0 3.5-3.5V6a3.5 3.5 0 1 0-7 0v6a3.5 3.5 0 0 0 3.5 3.5Zm-5.5-4a1 1 0 0 1 2 0V12a3.5 3.5 0 0 0 7 0v-.5a1 1 0 1 1 2 0V12a5.5 5.5 0 0 1-4.5 5.4V20h2a1 1 0 1 1 0 2H9a1 1 0 1 1 0-2h2v-2.6A5.5 5.5 0 0 1 6.5 12v-.5Z"/></svg>`;
+  return "\u{1F3A4}";
 }
 
 function stopIconSvg() {
-  return `<svg xmlns="http://www.w3.org/2000/svg" class="stop-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>`;
+  return "\u25A0";
 }
 
 function setPlayIcon(button) {
@@ -5919,7 +5917,7 @@ function setPauseIcon(button) {
 
 function setLoadingIcon(button) {
   if (button) {
-    button.textContent = "...";
+    button.textContent = "\u2026";
   }
 }
     function buildCorrectionPairsFromCorrectedTextAndParts(correctedText, parts, originalText = "") {
@@ -7756,7 +7754,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
 
     if (button) {
       button.classList.add("loading");
-      button.textContent = "...";
+      button.textContent = "\u2026";
     }
 
     await unlockAudioContext();
@@ -8153,7 +8151,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
     unit.classList.add("translating");
 
     if (translationEl && !translationEl.textContent) {
-      translationEl.textContent = "...";
+      translationEl.textContent = "\u2026";
     }
 
     if (translationCache.has(cacheKey)) {
@@ -8489,7 +8487,7 @@ async function startRecording() {
   speechRecordButton.disabled = true;
   speechRecordButton.classList.remove("recording");
   speechRecordButton.classList.add("processing");
-  speechRecordButton.innerHTML = `<span class="mic-symbol" aria-label="Processing">...</span>`;
+  speechRecordButton.innerHTML = `<span class="mic-symbol" aria-label="Processing">\u2026</span>`;
   setSpeechStatus("Transcribing");
 
   try {
