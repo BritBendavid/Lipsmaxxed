@@ -2646,6 +2646,13 @@ form {
   display: none;
 }
 
+.upcoming-word-progress {
+  color: #8f9bad;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.01em;
+}
+
 .upcoming-word-action {
   width: 42px;
   height: 42px;
@@ -3558,19 +3565,26 @@ let thisTabIsRecoveryTab = false;
 
     let activeCorrectionUserMessageId = null;
 
-const REVIEW_INTERVALS_MS = [
-  60 * 1000,              // 1 minute
-  5 * 60 * 1000,          // 5 minutes
-  60 * 60 * 1000,         // 1 hour
-  24 * 60 * 60 * 1000,    // 1 day
-  6 * 24 * 60 * 60 * 1000 // 6 days
-];
+/*
+  A review stage is now the number of consecutive unaided successes.
+  Stage 0 -> try again after 2 conversational rounds.
+  Stage 1 -> try again after 3 rounds.
+  Stage 2 -> try again after 6 rounds.
+  The third consecutive success removes the active review row and marks the
+  word familiar in word_stats.
+*/
+const REVIEW_RETURN_TURNS = [2, 3, 6];
+const REVIEW_MASTERY_STREAK = 3;
 
 let activeChatSession = null;
 let chatTimerInterval = null;
 
 let currentBonusWordKeys = new Set();
 const BONUS_WORD_POINT_TIERS = [0, 5, 10, 20, 50, 100];
+let conversationTurn = 0;
+let activeExpectedTarget = null;
+const reviewCooldownTurnByKey = new Map();
+const frequencyListCache = new Map();
 
 const CHAT_TOPICS = [
   {
@@ -3676,6 +3690,173 @@ function attachBonusWordsPanelToBotMessage(botMessageId) {
 
   row.appendChild(upcomingWordsPanel);
 }
+
+async function getRankedFrequencyList(language) {
+  const cached = frequencyListCache.get(language);
+  if (cached) return cached;
+
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`
+    },
+    body: JSON.stringify({
+      action: "frequency-list",
+      language,
+      limit: 3000
+    })
+  });
+
+  const data = await parseJsonResponse(response, "Frequency curriculum");
+  const words = (Array.isArray(data.words) ? data.words : [])
+    .map(item => ({
+      word: String(item?.word || "").trim(),
+      word_key: normalizeStatsWord(item?.word || ""),
+      frequency_rank: Number(item?.rank || 0)
+    }))
+    .filter(item => item.word && item.word_key && item.frequency_rank > 0);
+
+  frequencyListCache.set(language, words);
+  return words;
+}
+
+function getReviewCooldownTurn(wordKey) {
+  return Number(reviewCooldownTurnByKey.get(wordKey) || 0);
+}
+
+function setReviewCooldown(wordKey, rounds) {
+  if (!wordKey) return;
+  reviewCooldownTurnByKey.set(wordKey, conversationTurn + Math.max(1, Number(rounds) || 1));
+}
+
+function targetFromVocabularyProfile(profile) {
+  const word = String(profile?.primaryTargetWord || "").trim();
+  if (!word) return null;
+
+  return {
+    word,
+    word_text: word,
+    word_key: normalizeStatsWord(word),
+    frequency_rank: Number(profile?.primaryTargetRank || 0),
+    stage: Number(profile?.primaryTargetStreak || 0)
+  };
+}
+
+function beginUserAnswer() {
+  conversationTurn += 1;
+
+  const expectedTarget = activeExpectedTarget;
+  activeExpectedTarget = null;
+
+  if (expectedTarget?.word_key) {
+    // Prevent the response being targeted again immediately while language
+    // analysis decides whether this answer was an unaided success.
+    setReviewCooldown(expectedTarget.word_key, REVIEW_RETURN_TURNS[0]);
+  }
+
+  return expectedTarget;
+}
+
+async function getFrequencyFrontierTargets(languageOverride = null, limit = 5) {
+  if (!currentUser) return [];
+
+  const language = languageOverride || getCurrentChatLanguage();
+  const [frequencyWords, statsResult, reviewResult] = await Promise.all([
+    getRankedFrequencyList(language),
+    supabaseClient
+      .from("word_stats")
+      .select("word_key, word_text, spoken_count, familiar_count")
+      .eq("user_id", currentUser.id)
+      .eq("language", language),
+    supabaseClient
+      .from("word_review_targets")
+      .select("*")
+      .eq("user_id", currentUser.id)
+      .eq("language", language)
+  ]);
+
+  if (statsResult.error) {
+    console.warn("frequency frontier stats failed", statsResult.error);
+  }
+
+  if (reviewResult.error) {
+    console.warn("frequency frontier reviews failed", reviewResult.error);
+    return [];
+  }
+
+  const rankByKey = new Map(
+    frequencyWords.map(item => [item.word_key, item.frequency_rank])
+  );
+  const reviewRows = Array.isArray(reviewResult.data) ? reviewResult.data : [];
+  const reviewKeys = new Set(reviewRows.map(row => row.word_key).filter(Boolean));
+  const familiarKeys = new Set(
+    (statsResult.data || [])
+      .filter(row =>
+        Number(row.familiar_count || 0) >= REVIEW_MASTERY_STREAK ||
+        (Number(row.spoken_count || 0) >= REVIEW_MASTERY_STREAK && !reviewKeys.has(row.word_key))
+      )
+      .map(row => row.word_key)
+      .filter(Boolean)
+  );
+
+  const eligibleReviews = reviewRows
+    .filter(row =>
+      Number(row.stage || 0) < REVIEW_MASTERY_STREAK &&
+      getReviewCooldownTurn(row.word_key) <= conversationTurn
+    )
+    .map(row => ({
+      ...row,
+      frequency_rank: rankByKey.get(row.word_key) || Number.MAX_SAFE_INTEGER
+    }))
+    .sort((a, b) => {
+      const aDue = new Date(a.next_due_at || 0).getTime();
+      const bDue = new Date(b.next_due_at || 0).getTime();
+      if (aDue !== bDue) return aDue - bDue;
+      return a.frequency_rank - b.frequency_rank;
+    });
+
+  const targets = eligibleReviews.slice(0, limit);
+  if (targets.length >= limit) return targets;
+
+  const now = new Date().toISOString();
+  const needed = limit - targets.length;
+  const newWords = frequencyWords
+    .filter(item => !familiarKeys.has(item.word_key) && !reviewKeys.has(item.word_key))
+    .slice(0, needed);
+
+  for (const item of newWords) {
+    const row = {
+      user_id: currentUser.id,
+      language,
+      word_key: item.word_key,
+      word_text: item.word,
+      reason: "frequency",
+      stage: 0,
+      next_due_at: now,
+      updated_at: now
+    };
+
+    const { data, error } = await supabaseClient
+      .from("word_review_targets")
+      .upsert(row, { onConflict: "user_id,language,word_key" })
+      .select("*")
+      .single();
+
+    if (error) {
+      console.warn("frequency frontier seed failed", error);
+      continue;
+    }
+
+    targets.push({
+      ...(data || row),
+      frequency_rank: item.frequency_rank
+    });
+  }
+
+  return targets;
+}
     
 async function loadUpcomingWords(languageOverride = null) {
   if (!currentUser || !upcomingWordsPanel || !upcomingWordsList) {
@@ -3685,23 +3866,16 @@ async function loadUpcomingWords(languageOverride = null) {
   const language = languageOverride || getCurrentChatLanguage();
   const fluentLanguage = getCurrentFluentLanguage();
 
-  await ensureStaleSpokenWordsAreReviewTargets(language);
+  let rows = [];
 
-  const { data, error } = await supabaseClient
-    .from("word_review_targets")
-    .select("*")
-    .eq("user_id", currentUser.id)
-    .eq("language", language)
-    .order("next_due_at", { ascending: true })
-    .limit(5);
-
-  if (error) {
+  try {
+    rows = await getFrequencyFrontierTargets(language, 5);
+  } catch (error) {
     console.warn("bonus words load failed", error);
     upcomingWordsPanel.classList.add("hidden");
     return;
   }
 
-  const rows = Array.isArray(data) ? data : [];
   currentBonusWordKeys = new Set(
   rows
     .map(row => normalizeStatsWord(row.word_text || row.word_key || ""))
@@ -3737,6 +3911,11 @@ async function loadUpcomingWords(languageOverride = null) {
     chatLanguageWord.className = "upcoming-word-chat-language hidden";
     chatLanguageWord.textContent = chatWord;
 
+    const streak = Math.max(0, Math.min(2, Number(row.stage || 0)));
+    const progressText = document.createElement("div");
+    progressText.className = "upcoming-word-progress";
+    progressText.textContent = `${streak} of ${REVIEW_MASTERY_STREAK}`;
+
     const actionButton = document.createElement("button");
     actionButton.type = "button";
     actionButton.className = "upcoming-word-action";
@@ -3757,6 +3936,8 @@ async function loadUpcomingWords(languageOverride = null) {
       if (!isRevealed) {
         chatLanguageWord.classList.remove("hidden");
 
+        scheduleWordReview(chatWord, "revealed", language).catch(() => {});
+
         actionButton.dataset.revealed = "true";
         actionButton.classList.add("revealed");
         actionButton.innerHTML = speakerIconSvg();
@@ -3771,6 +3952,7 @@ async function loadUpcomingWords(languageOverride = null) {
 
     textStack.appendChild(main);
     textStack.appendChild(chatLanguageWord);
+    textStack.appendChild(progressText);
 
     card.appendChild(textStack);
     card.appendChild(actionButton);
@@ -3801,16 +3983,37 @@ async function getVocabularyProfileForPrompt(languageOverride = null) {
       strongWords: [],
       recentlyLearnedWords: [],
       totalUnderstood: 0,
-      totalSpoken: 0
+      totalSpoken: 0,
+      upcomingReviewWords: [],
+      primaryTargetWord: "",
+      primaryTargetRank: 0,
+      primaryTargetStreak: 0
     };
   }
 
   const language = languageOverride || getCurrentChatLanguage();
+  let frontierTargets = [];
+
+  try {
+    frontierTargets = await getFrequencyFrontierTargets(language, 5);
+  } catch (error) {
+    console.warn("frequency targets unavailable for prompt", error);
+  }
+
+  const primaryTarget = frontierTargets[0] || null;
+  const targetProfile = {
+    upcomingReviewWords: frontierTargets
+      .map(row => row.word_text || row.word_key)
+      .filter(Boolean),
+    primaryTargetWord: primaryTarget?.word_text || primaryTarget?.word_key || "",
+    primaryTargetRank: Number(primaryTarget?.frequency_rank || 0),
+    primaryTargetStreak: Math.max(0, Math.min(2, Number(primaryTarget?.stage || 0)))
+  };
   const cacheKey = `${currentUser.id}|${language}`;
   const cached = vocabularyProfileCache.get(cacheKey);
 
   if (cached && Date.now() - cached.savedAt < VOCABULARY_PROFILE_TTL_MS) {
-    return cached.value;
+    return { ...cached.value, ...targetProfile };
   }
 
   const { data, error } = await supabaseClient
@@ -3830,7 +4033,8 @@ async function getVocabularyProfileForPrompt(languageOverride = null) {
       strongWords: [],
       recentlyLearnedWords: [],
       totalUnderstood: 0,
-      totalSpoken: 0
+      totalSpoken: 0,
+      ...targetProfile
     };
   }
 
@@ -3871,6 +4075,7 @@ async function getVocabularyProfileForPrompt(languageOverride = null) {
     level,
     totalUnderstood,
     totalSpoken,
+    ...targetProfile,
 
     // recent context, not a full limit
     understoodWords: understoodRows
@@ -4040,6 +4245,9 @@ async function startConfiguredChat() {
   setInputMode(selectedInputMode);
 
   messages.length = 0;
+  conversationTurn = 0;
+  activeExpectedTarget = null;
+  reviewCooldownTurnByKey.clear();
   messageHistory.innerHTML = "";
   if (upcomingWordsPanel) {
   upcomingWordsPanel.classList.add("hidden");
@@ -4081,6 +4289,7 @@ async function sendOpeningBotMessage(topic) {
 
   try {
     const vocabularyProfile = await getVocabularyProfileForPrompt(language);
+    const expectedTarget = targetFromVocabularyProfile(vocabularyProfile);
     progress.setStage("chat");
 
     const data = await callChatFunction(
@@ -4098,7 +4307,11 @@ async function sendOpeningBotMessage(topic) {
       },
       "Chat"
     );
-    await presentBotReply(data, progress, { language, autoplay: true });
+    await presentBotReply(data, progress, {
+      language,
+      autoplay: true,
+      expectedTarget
+    });
   } catch (error) {
     progress.remove();
     showSystemMessage(getReadableError(error));
@@ -4155,8 +4368,9 @@ function getStatsRowDueAt(row) {
 }
 
 function getReviewIntervalMs(stage) {
-  const safeStage = Math.max(0, Math.min(stage, REVIEW_INTERVALS_MS.length - 1));
-  return REVIEW_INTERVALS_MS[safeStage];
+  // Retained for the stats UI's legacy timestamp fallback. Active scheduling
+  // is round-based through reviewCooldownTurnByKey.
+  return 0;
 }
 
 function getDateAfterMs(ms) {
@@ -4187,13 +4401,7 @@ async function scheduleWordReview(word, reason = "correction", languageOverride 
     return;
   }
 
-  const currentStage = Number(existing?.stage || 0);
-
-  /*
-    If the word already exists, keep its current stage.
-    If this is a new correction/translation problem, start at stage 0.
-  */
-  const stage = existing ? currentStage : 0;
+  const stage = 0;
 
   const next = existing || {
     user_id: currentUser.id,
@@ -4205,8 +4413,11 @@ async function scheduleWordReview(word, reason = "correction", languageOverride 
 
   next.word_text = next.word_text || wordText;
   next.reason = reason;
-  next.next_due_at = getDateAfterMs(getReviewIntervalMs(stage));
+  next.stage = 0;
+  next.next_due_at = now;
   next.updated_at = now;
+
+  setReviewCooldown(wordKey, REVIEW_RETURN_TURNS[0]);
 
   const { error: upsertError } = await supabaseClient
     .from("word_review_targets")
@@ -4278,14 +4489,15 @@ function getChatLanguageTextFromParts(parts) {
     .trim();
 }
 
-async function getChatLanguageOnlyText(text) {
-  const analysis = await analyzeUserMessageLanguageParts(text);
+async function getChatLanguageOnlyText(text, expectedTarget = null) {
+  const analysis = await analyzeUserMessageLanguageParts(text, expectedTarget);
   const parts = analysis.parts || [];
 
   return {
     parts,
     correctedText: analysis.correctedText || text,
-    chatLanguageText: getChatLanguageTextFromParts(parts)
+    chatLanguageText: getChatLanguageTextFromParts(parts),
+    targetProduced: analysis.targetProduced === true
   };
 }
 
@@ -4527,17 +4739,67 @@ async function markReviewWordSpoken(word, languageOverride = null) {
 
   if (!existing) return;
 
-  const currentStage = Number(existing.stage || 0);
-  const nextStage = Math.min(
-    currentStage + 1,
-    REVIEW_INTERVALS_MS.length - 1
-  );
+  const currentStage = Math.max(0, Number(existing.stage || 0));
+  if (currentStage >= REVIEW_MASTERY_STREAK) return;
+  const nextStage = Math.min(currentStage + 1, REVIEW_MASTERY_STREAK);
+
+  if (nextStage >= REVIEW_MASTERY_STREAK) {
+    const { error: masteryError } = await supabaseClient
+      .from("word_review_targets")
+      .update({
+        last_spoken_at: now,
+        next_due_at: getDateAfterMs(30 * 24 * 60 * 60 * 1000),
+        stage: REVIEW_MASTERY_STREAK,
+        reason: "familiar",
+        updated_at: now
+      })
+      .eq("id", existing.id);
+
+    if (masteryError) {
+      console.warn("review mastery update failed", masteryError);
+      return;
+    }
+
+    const { data: statsRow } = await supabaseClient
+      .from("word_stats")
+      .select("*")
+      .eq("user_id", currentUser.id)
+      .eq("language", language)
+      .eq("word_key", wordKey)
+      .maybeSingle();
+
+    await supabaseClient
+      .from("word_stats")
+      .upsert({
+        ...(statsRow || {
+          user_id: currentUser.id,
+          language,
+          word_key: wordKey,
+          word_text: word,
+          spoken_count: 0,
+          translated_count: 0,
+          translated_spoken_baseline: null
+        }),
+        familiar_count: Math.max(
+          REVIEW_MASTERY_STREAK,
+          Number(statsRow?.familiar_count || 0)
+        ),
+        last_encountered_at: now
+      }, { onConflict: "user_id,language,word_key" });
+
+    reviewCooldownTurnByKey.delete(wordKey);
+    vocabularyProfileCache.delete(`${currentUser.id}|${language}`);
+    return;
+  }
+
+  const returnAfter = REVIEW_RETURN_TURNS[nextStage] || REVIEW_RETURN_TURNS[0];
+  setReviewCooldown(wordKey, returnAfter);
 
   const { error: updateError } = await supabaseClient
     .from("word_review_targets")
     .update({
       last_spoken_at: now,
-      next_due_at: getDateAfterMs(getReviewIntervalMs(nextStage)),
+      next_due_at: now,
       stage: nextStage,
       reason: "spoken",
       updated_at: now
@@ -4546,6 +4808,33 @@ async function markReviewWordSpoken(word, languageOverride = null) {
 
   if (updateError) {
     console.warn("review spoken update failed", updateError);
+  }
+}
+
+async function markReviewWordMissed(word, languageOverride = null) {
+  if (!currentUser) return;
+
+  const language = languageOverride || getCurrentChatLanguage();
+  const wordKey = normalizeStatsWord(word);
+  if (!wordKey) return;
+
+  const now = new Date().toISOString();
+  setReviewCooldown(wordKey, REVIEW_RETURN_TURNS[0]);
+
+  const { error } = await supabaseClient
+    .from("word_review_targets")
+    .update({
+      stage: 0,
+      reason: "missed",
+      next_due_at: now,
+      updated_at: now
+    })
+    .eq("user_id", currentUser.id)
+    .eq("language", language)
+    .eq("word_key", wordKey);
+
+  if (error) {
+    console.warn("review miss update failed", error);
   }
 }
 
@@ -4585,7 +4874,7 @@ async function ensureStaleSpokenWordsAreReviewTargets(languageOverride = null) {
         word_key: wordKey,
         word_text: wordText,
         reason: "stale",
-        stage: REVIEW_INTERVALS_MS.length - 1,
+        stage: 0,
         next_due_at: now,
         updated_at: now
       }, {
@@ -4702,7 +4991,11 @@ async function getDueReviewTarget(languageOverride = null) {
   return data || null;
 }
     
-async function recordUserWordsAndAwardPoints(text, languageOverride = null) {
+async function recordUserWordsAndAwardPoints(
+  text,
+  languageOverride = null,
+  reviewResult = {}
+) {
   if (!currentUser) {
     return {
       pointsGained: 0,
@@ -4715,6 +5008,10 @@ async function recordUserWordsAndAwardPoints(text, languageOverride = null) {
 
   const language = languageOverride || getCurrentChatLanguage();
   const words = getWordsForStats(text);
+  const expectedTarget = reviewResult.expectedTarget || null;
+  const expectedTargetKey = normalizeStatsWord(
+    expectedTarget?.word_text || expectedTarget?.word || expectedTarget?.word_key || ""
+  );
 
   if (!words.length) {
     return {
@@ -4815,7 +5112,20 @@ async function recordUserWordsAndAwardPoints(text, languageOverride = null) {
       console.warn("points word upsert failed", upsertError);
     }
 
-    await markReviewWordSpoken(item.word_text, language);
+    if (!expectedTargetKey || item.word_key !== expectedTargetKey) {
+      await markReviewWordSpoken(item.word_text, language);
+    }
+  }
+
+  if (expectedTargetKey) {
+    const targetText =
+      expectedTarget?.word_text || expectedTarget?.word || expectedTarget?.word_key;
+
+    if (reviewResult.targetProduced === true) {
+      await markReviewWordSpoken(targetText, language);
+    } else if (reviewResult.targetProduced === false) {
+      await markReviewWordMissed(targetText, language);
+    }
   }
 
   const bonusWordsSaid = Math.min(5, spokenBonusWordKeys.size);
@@ -4889,7 +5199,13 @@ async function awardPointsForUserMessage(text, languageOverride = null, options 
   const sourceEl = options.sourceEl || null;
 
   try {
-    const result = await recordUserWordsAndAwardPoints(text, language);
+    const result = await recordUserWordsAndAwardPoints(text, language, {
+      expectedTarget: options.expectedTarget || null,
+      targetProduced:
+        typeof options.targetProduced === "boolean"
+          ? options.targetProduced
+          : undefined
+    });
 
     if (result.pointsGained > 0 && animate) {
       showPointsAward(
@@ -7067,6 +7383,7 @@ function isSamePlayback(button, type, id) {
   async function presentBotReply(data, progress, options = {}) {
     const autoplay = options.autoplay !== false;
     const language = options.language || getCurrentChatLanguage();
+    const expectedTarget = options.expectedTarget || null;
 
     progress?.setStage("speech");
     const fullSpeech = await fetchFullSpeech(data.reply, language);
@@ -7087,6 +7404,8 @@ function isSamePlayback(button, type, id) {
       fullSpeech,
       fullSpeechPromise: Promise.resolve(fullSpeech)
     });
+
+    activeExpectedTarget = expectedTarget;
 
     const botCard = document.querySelector(`[data-message-id="${botMessageId}"]`);
     botCard?.classList.add("synchronized-pending");
@@ -7120,8 +7439,9 @@ function isSamePlayback(button, type, id) {
 
 const responsePromise = (async () => {
   const vocabularyProfile = await getVocabularyProfileForPrompt(getCurrentChatLanguage());
+  const expectedTargetForReply = targetFromVocabularyProfile(vocabularyProfile);
 
-  return callChatFunction(
+  const data = await callChatFunction(
     {
       messages,
       language: languageSelect.value,
@@ -7132,6 +7452,8 @@ const responsePromise = (async () => {
     },
     "Chat"
   );
+
+  return { data, expectedTargetForReply };
 })();
 
   return {
@@ -7191,8 +7513,11 @@ const responsePromise = (async () => {
   const progress = prepared?.progress || addResponseProgress("chat");
 
   try {
-    const data = await prepared.responsePromise;
-    await presentBotReply(data, progress, { autoplay });
+    const result = await prepared.responsePromise;
+    await presentBotReply(result.data, progress, {
+      autoplay,
+      expectedTarget: result.expectedTargetForReply
+    });
   } catch (error) {
     progress.remove();
     showSystemMessage(getReadableError(error));
@@ -7223,6 +7548,9 @@ const responsePromise = (async () => {
   const responseProgress = addResponseProgress("language");
   const isCorrectionRetry = correctionRetryMode;
 correctionRetryMode = false;
+const expectedTargetForAnswer = isCorrectionRetry
+  ? activeSpeechCorrection?.expectedTarget || null
+  : beginUserAnswer();
 
 if (!isCorrectionRetry) {
   activeCorrectionUserMessageId = addUserMessage(transcript);
@@ -7248,7 +7576,10 @@ if (!isCorrectionRetry) {
   let analysis;
 
   try {
-    analysis = await analyzeUserMessageLanguageParts(transcript);
+    analysis = await analyzeUserMessageLanguageParts(
+      transcript,
+      expectedTargetForAnswer
+    );
   } catch {
     if (pendingBackgroundBot) {
       pendingBackgroundBot.progress = responseProgress;
@@ -7265,17 +7596,26 @@ if (!isCorrectionRetry) {
 
   const parts = analysis.parts || [];
   const correctedText = analysis.correctedText || transcript;
-  const confirmedSpokenText = getConfirmedSpokenTextFromCorrection(
+const confirmedSpokenText = getConfirmedSpokenTextFromCorrection(
   transcript,
   correctedText
 );
+
+if (!confirmedSpokenText && expectedTargetForAnswer) {
+  await markReviewWordMissed(
+    expectedTargetForAnswer.word_text || expectedTargetForAnswer.word,
+    languageSelect.value
+  );
+}
 
 const pointsAward = confirmedSpokenText
   ? await awardPointsForUserMessage(
       confirmedSpokenText,
       languageSelect.value,
       {
-        animate: false
+        animate: false,
+        expectedTarget: expectedTargetForAnswer,
+        targetProduced: analysis.targetProduced
       }
     )
   : {
@@ -7314,6 +7654,7 @@ const pointsAward = confirmedSpokenText
     parts,
     suggestion,
     correctedText,
+    expectedTarget: expectedTargetForAnswer,
     prepared: pendingBackgroundBot
   };
 
@@ -7360,7 +7701,7 @@ const pointsAward = confirmedSpokenText
   }
 }
 
-  async function analyzeUserMessageLanguageParts(text) {
+  async function analyzeUserMessageLanguageParts(text, expectedTarget = null) {
   const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
     method: "POST",
     headers: {
@@ -7371,7 +7712,12 @@ const pointsAward = confirmedSpokenText
     body: JSON.stringify({
       action: "translate-message-parts",
       text,
-      chatLanguage: languageSelect.value
+      chatLanguage: languageSelect.value,
+      targetWord:
+        expectedTarget?.word_text ||
+        expectedTarget?.word ||
+        expectedTarget?.word_key ||
+        ""
     })
   });
 
@@ -7379,7 +7725,8 @@ const pointsAward = confirmedSpokenText
 
   return {
     parts: Array.isArray(data.parts) ? data.parts : [],
-    correctedText: data.correctedText || ""
+    correctedText: data.correctedText || "",
+    targetProduced: data.targetProduced === true
   };
 }
 
@@ -8223,17 +8570,30 @@ async function playBonusWordAudio(chatWord, language, button = null) {
   }
 
   async function sendToBot(userText) {
+    const expectedTargetForAnswer = beginUserAnswer();
+
     messages.push({
       role: "user",
       content: userText
     });
 
     addUserMessage(userText);
-    getChatLanguageOnlyText(userText)
+    getChatLanguageOnlyText(userText, expectedTargetForAnswer)
   .then(result => {
     if (result.chatLanguageText) {
       return awardPointsForUserMessage(
         result.chatLanguageText,
+        languageSelect.value,
+        {
+          expectedTarget: expectedTargetForAnswer,
+          targetProduced: result.targetProduced
+        }
+      );
+    }
+
+    if (expectedTargetForAnswer) {
+      return markReviewWordMissed(
+        expectedTargetForAnswer.word_text || expectedTargetForAnswer.word,
         languageSelect.value
       );
     }
@@ -8251,6 +8611,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
 
     try {
       const vocabularyProfile = await getVocabularyProfileForPrompt(getCurrentChatLanguage());
+      const expectedTargetForReply = targetFromVocabularyProfile(vocabularyProfile);
       progress.setStage("chat");
 
       const data = await callChatFunction({
@@ -8262,7 +8623,10 @@ async function playBonusWordAudio(chatWord, language, button = null) {
         vocabularyProfile
       }, "Chat");
 
-      await presentBotReply(data, progress, { autoplay: true });
+      await presentBotReply(data, progress, {
+        autoplay: true,
+        expectedTarget: expectedTargetForReply
+      });
     } catch (error) {
       progress.remove();
       showSystemMessage(getReadableError(error));
