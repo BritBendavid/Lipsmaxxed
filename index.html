@@ -2926,10 +2926,7 @@ form {
 }
 
 /* Stable, font-independent interface icons */
-.ui-icon,
 .mic-icon,
-.speaker-icon,
-.stop-icon,
 .setup-option-icon,
 .start-chat-icon {
   display: block;
@@ -2937,29 +2934,6 @@ form {
   height: 1.25em;
   fill: currentColor;
   flex: 0 0 auto;
-}
-
-.auth-close-button,
-.stats-close-button {
-  display: grid;
-  place-items: center;
-  padding: 0;
-}
-
-.auth-close-button .ui-icon {
-  width: 16px;
-  height: 16px;
-}
-
-.stats-close-button .ui-icon {
-  width: 20px;
-  height: 20px;
-}
-
-.mic-symbol .mic-icon,
-.mic-symbol .stop-icon {
-  width: 34px;
-  height: 34px;
 }
 
 .loading-dots {
@@ -3031,11 +3005,6 @@ form {
   transform: scale(1.04);
 }
 
-.chat-setup-close .ui-icon {
-  width: 18px;
-  height: 18px;
-}
-
 .chat-setup-heading {
   padding-right: 46px;
   margin-bottom: 28px;
@@ -3074,14 +3043,6 @@ form {
   letter-spacing: -0.06em;
 }
 
-.chat-setup-subtitle {
-  max-width: 440px;
-  margin: 12px 0 0;
-  color: #94a3b8;
-  font-size: 0.96rem;
-  line-height: 1.5;
-}
-
 .chat-setup-form {
   display: grid;
   gap: 16px;
@@ -3102,24 +3063,7 @@ form {
 }
 
 .setup-language-control {
-  display: grid;
-  grid-template-columns: 46px minmax(0, 1fr);
-  align-items: center;
-  gap: 12px;
-}
-
-.language-code-badge {
-  display: grid;
-  place-items: center;
-  width: 46px;
-  height: 46px;
-  border-radius: 14px;
-  color: #dbeafe;
-  background: rgba(96, 165, 250, 0.12);
-  border: 1px solid rgba(96, 165, 250, 0.25);
-  font-size: 0.75rem;
-  font-weight: 950;
-  letter-spacing: 0.08em;
+  display: block;
 }
 
 .chat-setup-panel .setup-select-wrap {
@@ -3182,14 +3126,6 @@ form {
   font-size: 0.92rem;
 }
 
-.setup-option-copy small {
-  display: block;
-  margin-top: 3px;
-  color: #64748b;
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
 .setup-mode-option.active {
   color: #dbeafe;
   background: rgba(37, 99, 235, 0.13);
@@ -3203,8 +3139,6 @@ form {
 }
 
 .setup-mode-option.active .setup-option-copy strong { color: white; }
-.setup-mode-option.active .setup-option-copy small { color: #93c5fd; }
-
 .chat-setup-panel .setup-permission-status {
   min-height: 0;
   margin-top: 11px;
@@ -3366,11 +3300,7 @@ form {
 
 <div id="speechShell" class="speech-shell hidden">
   <button id="speechRecordButton" class="speech-record-button" type="button" title="Record speech">
-    <span class="mic-symbol" aria-hidden="true">
-      <svg class="mic-icon" viewBox="0 0 24 24">
-        <path d="M12 15.5a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v5.5a4 4 0 0 0 4 4Zm-2-9.5a2 2 0 1 1 4 0v5.5a2 2 0 1 1-4 0V6Zm8.5 5.5a1 1 0 0 0-2 0 4.5 4.5 0 0 1-9 0 1 1 0 0 0-2 0 6.5 6.5 0 0 0 5.5 6.42V20H8.5a1 1 0 1 0 0 2h7a1 1 0 1 0 0-2H13v-2.08a6.5 6.5 0 0 0 5.5-6.42Z"></path>
-      </svg>
-    </span>
+    <span class="mic-symbol" aria-hidden="true">&#127908;</span>
   </button>
 
   <div id="speechStatus" class="speech-status">
@@ -3384,9 +3314,7 @@ form {
 
   <div class="auth-panel">
     <button id="authCloseButton" class="auth-close-button" type="button">
-      <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M6.7 5.3 12 10.6l5.3-5.3 1.4 1.4-5.3 5.3 5.3 5.3-1.4 1.4-5.3-5.3-5.3 5.3-1.4-1.4 5.3-5.3-5.3-5.3 1.4-1.4Z"></path>
-      </svg>
+      &times;
     </button>
 
     <div class="auth-title">My Account</div>
@@ -3576,9 +3504,7 @@ form {
 <section id="chatSetupModal" class="chat-setup-modal hidden">
   <div class="chat-setup-panel">
     <button id="closeChatSetupButton" class="chat-setup-close" type="button" aria-label="Close practice setup">
-      <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M6.7 5.3 12 10.6l5.3-5.3 1.4 1.4-5.3 5.3 5.3 5.3-1.4 1.4-5.3-5.3-5.3 5.3-1.4-1.4 5.3-5.3-5.3-5.3 1.4-1.4Z"></path>
-      </svg>
+      &times;
     </button>
 
     <div class="chat-setup-heading">
@@ -3589,28 +3515,26 @@ form {
       </div>
       <div class="chat-setup-kicker">Practice setup</div>
       <h2>Start a new chat</h2>
-      <p class="chat-setup-subtitle">Pick a language and how you want to respond. Your practice words will adapt as you speak.</p>
     </div>
 
     <div class="chat-setup-form">
       <div class="chat-setup-section">
         <label class="chat-setup-label" for="chatSetupLanguageSelect">Practice language</label>
         <div class="setup-language-control">
-          <span id="chatSetupLanguageBadge" class="language-code-badge" aria-hidden="true">EN</span>
           <div class="select-wrap setup-select-wrap">
             <select id="chatSetupLanguageSelect">
-              <option value="English" selected>English</option>
-              <option value="Hebrew">Hebrew</option>
-              <option value="Spanish">Spanish</option>
-              <option value="French">French</option>
-              <option value="German">German</option>
-              <option value="Arabic">Arabic</option>
-              <option value="Russian">Russian</option>
-              <option value="Italian">Italian</option>
-              <option value="Portuguese">Portuguese</option>
-              <option value="Chinese">Chinese</option>
-              <option value="Japanese">Japanese</option>
-              <option value="Korean">Korean</option>
+              <option value="English" selected>&#127482;&#127480; English</option>
+              <option value="Hebrew">&#127470;&#127473; Hebrew</option>
+              <option value="Spanish">&#127466;&#127480; Spanish</option>
+              <option value="French">&#127467;&#127479; French</option>
+              <option value="German">&#127465;&#127466; German</option>
+              <option value="Arabic">&#127480;&#127462; Arabic</option>
+              <option value="Russian">&#127479;&#127482; Russian</option>
+              <option value="Italian">&#127470;&#127481; Italian</option>
+              <option value="Portuguese">&#127477;&#127481; Portuguese</option>
+              <option value="Chinese">&#127464;&#127475; Chinese</option>
+              <option value="Japanese">&#127471;&#127477; Japanese</option>
+              <option value="Korean">&#127472;&#127479; Korean</option>
             </select>
           </div>
         </div>
@@ -3625,7 +3549,7 @@ form {
                 <path d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-7l-4.7 3.5c-.7.5-1.6 0-1.6-.8V17H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm0 2v9h4.7v2.7l3.6-2.7H20V6H4Zm3 3h10v2H7V9Z"></path>
               </svg>
             </span>
-            <span class="setup-option-copy"><strong>Writing</strong><small>Type each response</small></span>
+            <span class="setup-option-copy"><strong>Writing</strong></span>
           </button>
           <button id="setupSpeechButton" class="setup-mode-option active" type="button" data-mode="speech">
             <span class="setup-option-icon-wrap" aria-hidden="true">
@@ -3633,7 +3557,7 @@ form {
                 <path d="M12 15.5a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v5.5a4 4 0 0 0 4 4Zm-2-9.5a2 2 0 1 1 4 0v5.5a2 2 0 1 1-4 0V6Zm8.5 5.5a1 1 0 0 0-2 0 4.5 4.5 0 0 1-9 0 1 1 0 0 0-2 0 6.5 6.5 0 0 0 5.5 6.42V20H8.5a1 1 0 1 0 0 2h7a1 1 0 1 0 0-2H13v-2.08a6.5 6.5 0 0 0 5.5-6.42Z"></path>
               </svg>
             </span>
-            <span class="setup-option-copy"><strong>Speech</strong><small>Answer with your voice</small></span>
+            <span class="setup-option-copy"><strong>Speech</strong></span>
           </button>
         </div>
         <div id="setupPermissionStatus" class="setup-permission-status" aria-live="polite"></div>
@@ -3652,9 +3576,7 @@ form {
 <section id="profileModal" class="profile-modal hidden">
   <div class="profile-panel">
     <button id="closeProfileButton" class="chat-setup-close" type="button">
-      <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M6.7 5.3 12 10.6l5.3-5.3 1.4 1.4-5.3 5.3 5.3 5.3-1.4 1.4-5.3-5.3-5.3 5.3-1.4-1.4 5.3-5.3-5.3-5.3 1.4-1.4Z"></path>
-      </svg>
+      &times;
     </button>
 
     <div class="chat-setup-kicker">My profile</div>
@@ -3675,18 +3597,18 @@ form {
 
       <div class="select-wrap setup-select-wrap">
         <select id="profileFluentLanguageSelect">
-          <option value="English" selected>English</option>
-          <option value="Hebrew">Hebrew</option>
-          <option value="Spanish">Spanish</option>
-          <option value="French">French</option>
-          <option value="German">German</option>
-          <option value="Arabic">Arabic</option>
-          <option value="Russian">Russian</option>
-          <option value="Italian">Italian</option>
-          <option value="Portuguese">Portuguese</option>
-          <option value="Chinese">Chinese</option>
-          <option value="Japanese">Japanese</option>
-          <option value="Korean">Korean</option>
+          <option value="English" selected>&#127482;&#127480; English</option>
+          <option value="Hebrew">&#127470;&#127473; Hebrew</option>
+          <option value="Spanish">&#127466;&#127480; Spanish</option>
+          <option value="French">&#127467;&#127479; French</option>
+          <option value="German">&#127465;&#127466; German</option>
+          <option value="Arabic">&#127480;&#127462; Arabic</option>
+          <option value="Russian">&#127479;&#127482; Russian</option>
+          <option value="Italian">&#127470;&#127481; Italian</option>
+          <option value="Portuguese">&#127477;&#127481; Portuguese</option>
+          <option value="Chinese">&#127464;&#127475; Chinese</option>
+          <option value="Japanese">&#127471;&#127477; Japanese</option>
+          <option value="Korean">&#127472;&#127479; Korean</option>
         </select>
       </div>
     </div>
@@ -3711,9 +3633,7 @@ form {
       </div>
 
       <button id="closeStatsButton" class="stats-close-button" type="button">
-        <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M6.7 5.3 12 10.6l5.3-5.3 1.4 1.4-5.3 5.3 5.3 5.3-1.4 1.4-5.3-5.3-5.3 5.3-1.4-1.4 5.3-5.3-5.3-5.3 1.4-1.4Z"></path>
-        </svg>
+        &times;
       </button>
     </header>
 
@@ -3722,18 +3642,18 @@ form {
 
       <div class="select-wrap stats-select-wrap">
         <select id="statsLanguageSelect">
-          <option value="English">English</option>
-          <option value="Hebrew">Hebrew</option>
-          <option value="Spanish">Spanish</option>
-          <option value="French">French</option>
-          <option value="German">German</option>
-          <option value="Arabic">Arabic</option>
-          <option value="Russian">Russian</option>
-          <option value="Italian">Italian</option>
-          <option value="Portuguese">Portuguese</option>
-          <option value="Chinese">Chinese</option>
-          <option value="Japanese">Japanese</option>
-          <option value="Korean">Korean</option>
+          <option value="English">&#127482;&#127480; English</option>
+          <option value="Hebrew">&#127470;&#127473; Hebrew</option>
+          <option value="Spanish">&#127466;&#127480; Spanish</option>
+          <option value="French">&#127467;&#127479; French</option>
+          <option value="German">&#127465;&#127466; German</option>
+          <option value="Arabic">&#127480;&#127462; Arabic</option>
+          <option value="Russian">&#127479;&#127482; Russian</option>
+          <option value="Italian">&#127470;&#127481; Italian</option>
+          <option value="Portuguese">&#127477;&#127481; Portuguese</option>
+          <option value="Chinese">&#127464;&#127475; Chinese</option>
+          <option value="Japanese">&#127471;&#127477; Japanese</option>
+          <option value="Korean">&#127472;&#127479; Korean</option>
         </select>
       </div>
     </div>
@@ -3793,9 +3713,7 @@ form {
         </div>
 
         <button id="closeStatsDetailButton" class="stats-close-button" type="button">
-          <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M6.7 5.3 12 10.6l5.3-5.3 1.4 1.4-5.3 5.3 5.3 5.3-1.4 1.4-5.3-5.3-5.3 5.3-1.4-1.4 5.3-5.3-5.3-5.3 1.4-1.4Z"></path>
-          </svg>
+          &times;
         </button>
       </div>
 
@@ -3902,7 +3820,6 @@ const accountPointsValue = document.getElementById("accountPointsValue");
 const chatSetupModal = document.getElementById("chatSetupModal");
 const closeChatSetupButton = document.getElementById("closeChatSetupButton");
 const chatSetupLanguageSelect = document.getElementById("chatSetupLanguageSelect");
-const chatSetupLanguageBadge = document.getElementById("chatSetupLanguageBadge");
 const setupWritingButton = document.getElementById("setupWritingButton");
 const setupSpeechButton = document.getElementById("setupSpeechButton");
 const setupPermissionStatus = document.getElementById("setupPermissionStatus");
@@ -4016,7 +3933,6 @@ if (!languageSelect) {
         chatSetupLanguageSelect.value = selectedChatLanguage;
       }
 
-      updateChatSetupLanguageBadge(selectedChatLanguage);
     },
     addEventListener() {}
   };
@@ -4266,7 +4182,7 @@ async function loadUpcomingWords(languageOverride = null) {
 
     const main = document.createElement("div");
     main.className = "upcoming-word-main";
-    main.textContent = "...";
+    main.innerHTML = loadingIconHtml();
 
     const chatLanguageWord = document.createElement("div");
     chatLanguageWord.className = "upcoming-word-chat-language hidden";
@@ -4473,34 +4389,11 @@ function openChatSetup() {
     chatSetupLanguageSelect.value = selectedChatLanguage;
   }
 
-  updateChatSetupLanguageBadge(selectedChatLanguage);
-
   setupWritingButton?.classList.toggle("active", selectedInputMode === "writing");
   setupSpeechButton?.classList.toggle("active", selectedInputMode === "speech");
 
   chatSetupModal?.classList.remove("hidden");
   requestSetupSpeechPermission().catch(() => {});
-}
-
-function updateChatSetupLanguageBadge(language) {
-  if (!chatSetupLanguageBadge) return;
-
-  const languageCodes = {
-    English: "EN",
-    Hebrew: "HE",
-    Spanish: "ES",
-    French: "FR",
-    German: "DE",
-    Arabic: "AR",
-    Russian: "RU",
-    Italian: "IT",
-    Portuguese: "PT",
-    Chinese: "ZH",
-    Japanese: "JA",
-    Korean: "KO"
-  };
-
-  chatSetupLanguageBadge.textContent = languageCodes[language] || "--";
 }
 
 function closeChatSetup() {
@@ -6534,27 +6427,15 @@ function pauseIconSvg() {
 }
 
 function speakerIconSvg() {
-  return `
-    <svg class="speaker-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M4 9h4l5-4v14l-5-4H4V9Zm11.5.2a1 1 0 0 1 1.4.1 4.2 4.2 0 0 1 0 5.4 1 1 0 1 1-1.5-1.3 2.2 2.2 0 0 0 0-2.8 1 1 0 0 1 .1-1.4Zm3-2.8a1 1 0 0 1 1.4.1 8.5 8.5 0 0 1 0 11 1 1 0 1 1-1.5-1.3 6.5 6.5 0 0 0 0-8.4 1 1 0 0 1 .1-1.4Z"></path>
-    </svg>
-  `;
+  return "\u{1F50A}";
 }
 
 function microphoneIconSvg() {
-  return `
-    <svg class="mic-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 15.5a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v5.5a4 4 0 0 0 4 4Zm-2-9.5a2 2 0 1 1 4 0v5.5a2 2 0 1 1-4 0V6Zm8.5 5.5a1 1 0 0 0-2 0 4.5 4.5 0 0 1-9 0 1 1 0 0 0-2 0 6.5 6.5 0 0 0 5.5 6.42V20H8.5a1 1 0 1 0 0 2h7a1 1 0 1 0 0-2H13v-2.08a6.5 6.5 0 0 0 5.5-6.42Z"></path>
-    </svg>
-  `;
+  return "\u{1F3A4}";
 }
 
 function stopIconSvg() {
-  return `
-    <svg class="stop-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="6" y="6" width="12" height="12" rx="2"></rect>
-    </svg>
-  `;
+  return "\u25A0";
 }
 
 function loadingIconHtml() {
@@ -9093,7 +8974,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
     unit.classList.add("translating");
 
     if (translationEl && !translationEl.textContent) {
-      translationEl.textContent = "...";
+      translationEl.innerHTML = loadingIconHtml();
     }
 
     if (translationCache.has(cacheKey)) {
@@ -9895,8 +9776,6 @@ if (closeChatSetupButton) {
 if (chatSetupLanguageSelect) {
   chatSetupLanguageSelect.addEventListener("change", () => {
     selectedChatLanguage = chatSetupLanguageSelect.value;
-
-    updateChatSetupLanguageBadge(selectedChatLanguage);
 
     loadLanguagePoints(selectedChatLanguage).catch(() => {});
   });
