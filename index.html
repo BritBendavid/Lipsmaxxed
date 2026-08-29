@@ -555,12 +555,25 @@ select option {
   transition: color 160ms ease;
 }
 
+.word-unit.word-audio-locked {
+  cursor: wait;
+  opacity: 0.58;
+}
+
+.word-unit.word-audio-locked .main-word {
+  color: inherit;
+}
+
 .main-word {
   display: inline-block;
 }
 
 .word-unit:hover .main-word {
   color: var(--accent);
+}
+
+.word-unit.word-audio-locked:hover .main-word {
+  color: inherit;
 }
 
 .word-unit.active-word .main-word {
@@ -3559,6 +3572,7 @@ const correctionState = new Map();
     let correctionRetryMode = false;
 
     let activePlayback = null;
+    let activeWordAudioLock = null;
 
     let passwordRecoveryLocked = false;
 let thisTabIsRecoveryTab = false;
@@ -7833,6 +7847,19 @@ card.appendChild(row);
 
 messageHistory.appendChild(card);
 
+    /*
+      Begin the batched per-word recording request as soon as the reply is on
+      screen. This makes ordinary word taps use the same prepared clips as Slow
+      mode instead of starting a new request after the tap.
+    */
+    if (state) {
+      preloadSlowSpeech(state).catch(error => {
+        // A click can retry the batch. Do not interrupt the conversation merely
+        // because speculative background preparation failed.
+        console.warn("word audio preload failed", error);
+      });
+    }
+
     scrollMessagesToBottom();
     return id;
   }
@@ -8039,39 +8066,52 @@ async function handleMessagePlayButton(messageId, button) {
     return state.fullSpeech;
   }
 
+  async function prepareWordClipsForState(state, clips) {
+    const safeClips = Array.isArray(clips) ? clips : [];
+    const context = getAudioContext();
+
+    await Promise.allSettled(
+      safeClips.map(async clip => {
+        if (!clip?.audioBase64 || clip.audioBuffer) return;
+
+        const arrayBuffer = base64ToArrayBuffer(clip.audioBase64);
+        const rawBuffer = await context.decodeAudioData(arrayBuffer);
+        clip.audioBuffer = trimAudioBufferSilence(rawBuffer);
+      })
+    );
+
+    state.wordClips = safeClips;
+    state.wordClipMap = new Map(
+      safeClips
+        .filter(clip => clip && clip.tokenId)
+        .map(clip => [clip.tokenId, clip])
+    );
+
+    return safeClips;
+  }
+
   async function preloadSlowSpeech(state) {
-    if (state.wordClips || state.wordClipsPromise) return;
+    if (state.wordClips) return state.wordClips;
+    if (state.wordClipsPromise) return state.wordClipsPromise;
 
     const tokens = state.speakableTokens || [];
-    if (!tokens.length) return;
+    if (!tokens.length) return [];
 
     state.wordClipsPromise = fetchIndividualWordSpeechForTokens(tokens)
-      .then(clips => {
-        state.wordClips = clips;
-        state.wordClipMap = new Map(
-          clips
-            .filter(clip => clip && clip.tokenId)
-            .map(clip => [clip.tokenId, clip])
-        );
-        return clips;
-      })
+      .then(clips => prepareWordClipsForState(state, clips))
       .catch(error => {
         state.wordClipsPromise = null;
         throw error;
       });
+
+    return state.wordClipsPromise;
   }
 
   async function getWordClipsForMessage(state) {
     if (state.wordClips) return state.wordClips;
 
     if (state.wordClipsPromise) {
-      state.wordClips = await state.wordClipsPromise;
-      state.wordClipMap = new Map(
-        state.wordClips
-          .filter(clip => clip && clip.tokenId)
-          .map(clip => [clip.tokenId, clip])
-      );
-      return state.wordClips;
+      return await state.wordClipsPromise;
     }
 
     const tokens = state.speakableTokens || [];
@@ -8079,15 +8119,31 @@ async function handleMessagePlayButton(messageId, button) {
       throw new Error("No speakable words were found for this message.");
     }
 
-    state.wordClipsPromise = fetchIndividualWordSpeechForTokens(tokens);
-    state.wordClips = await state.wordClipsPromise;
-    state.wordClipMap = new Map(
-      state.wordClips
-        .filter(clip => clip && clip.tokenId)
-        .map(clip => [clip.tokenId, clip])
-    );
+    state.wordClipsPromise = fetchIndividualWordSpeechForTokens(tokens)
+      .then(clips => prepareWordClipsForState(state, clips))
+      .catch(error => {
+        state.wordClipsPromise = null;
+        throw error;
+      });
 
-    return state.wordClips;
+    return await state.wordClipsPromise;
+  }
+
+  async function waitForWordClipsForClick(state, timeoutMs = 25000) {
+    let timeoutId = null;
+
+    try {
+      return await Promise.race([
+        getWordClipsForMessage(state),
+        new Promise((_, reject) => {
+          timeoutId = setTimeout(() => {
+            reject(new Error("This word recording is taking too long. Please try again."));
+          }, timeoutMs);
+        })
+      ]);
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
+    }
   }
 
   function playFullAudioBuffer(audioBuffer, button = null, type = null, id = null) {
@@ -8404,12 +8460,56 @@ async function playBonusWordAudio(chatWord, language, button = null) {
   }
 }
 
+  function beginWordAudioLock(unit, messageId) {
+    if (activeWordAudioLock) return activeWordAudioLock.unit === unit;
+
+    activeWordAudioLock = {
+      unit,
+      messageId,
+      phase: "gesture"
+    };
+
+    document.querySelectorAll(".word-unit").forEach(otherUnit => {
+      if (otherUnit === unit) return;
+      otherUnit.classList.add("word-audio-locked");
+      otherUnit.setAttribute("aria-disabled", "true");
+    });
+
+    return true;
+  }
+
+  function markWordAudioLockLoading(unit) {
+    if (activeWordAudioLock?.unit === unit) {
+      activeWordAudioLock.phase = "loading";
+    }
+  }
+
+  function releaseWordAudioLock(unit = null) {
+    if (!activeWordAudioLock) return;
+    if (unit && activeWordAudioLock.unit !== unit) return;
+
+    activeWordAudioLock = null;
+
+    document.querySelectorAll(".word-unit.word-audio-locked").forEach(otherUnit => {
+      otherUnit.classList.remove("word-audio-locked");
+      otherUnit.removeAttribute("aria-disabled");
+    });
+  }
+
   function handleBotWordClick(unit, word, messageId, fallbackSentence) {
+    if (activeWordAudioLock) {
+      if (activeWordAudioLock.unit !== unit) return;
+      if (activeWordAudioLock.phase === "loading") return;
+    } else if (!beginWordAudioLock(unit, messageId)) {
+      return;
+    }
+
     const existingTimer = wordClickTimers.get(unit);
 
     if (existingTimer) {
       clearTimeout(existingTimer);
       wordClickTimers.delete(unit);
+      markWordAudioLockLoading(unit);
 
       const state = messageState.get(messageId);
       handleBotWordDoubleClick(unit, word, messageId, state?.text || fallbackSentence);
@@ -8418,6 +8518,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
 
     const timer = setTimeout(() => {
       wordClickTimers.delete(unit);
+      markWordAudioLockLoading(unit);
       handleBotWordSingleClick(unit, word, messageId);
     }, WORD_DOUBLE_CLICK_DELAY);
 
@@ -8435,6 +8536,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
       }, 250);
     } catch (error) {
       unit.classList.remove("active-word");
+      releaseWordAudioLock(unit);
       showSystemMessage(getReadableError(error));
     }
   }
@@ -8444,7 +8546,10 @@ async function playBonusWordAudio(chatWord, language, button = null) {
     unit.classList.add("active-word");
 
     await Promise.allSettled([
-      playPreloadedWord(unit, word, messageId),
+      playPreloadedWord(unit, word, messageId).catch(error => {
+        releaseWordAudioLock(unit);
+        throw error;
+      }),
       translateWordUnit(unit, word, sentence)
     ]);
 
@@ -8460,6 +8565,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
     unit.classList.remove("active-word");
   } catch (error) {
     unit.classList.remove("active-word");
+    releaseWordAudioLock(unit);
     showSystemMessage(getReadableError(error));
   }
 }
@@ -8474,7 +8580,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
     const tokenId = unit.dataset.tokenId;
     if (!tokenId) throw new Error("Could not find this word token.");
 
-    await getWordClipsForMessage(state);
+    await waitForWordClipsForClick(state);
 
     const clip = state.wordClipMap?.get(tokenId);
     if (!clip || !clip.audioBase64) {
@@ -8494,11 +8600,19 @@ async function playBonusWordAudio(chatWord, language, button = null) {
       clip.audioBuffer = audioBuffer;
     }
 
+    // Playback controls may have been used while this network request was in
+    // flight. Stop them again immediately before starting the prepared word.
+    stopAllSpeech();
+
     const source = context.createBufferSource();
     source.buffer = audioBuffer;
     source.connect(context.destination);
 
     scheduledSources = [source];
+
+    // The requested recording is now decoded and ready to play. Other words
+    // may be clicked again from this point onward.
+    releaseWordAudioLock(unit);
 
     source.start(context.currentTime + 0.04);
 
