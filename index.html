@@ -500,6 +500,32 @@ select option {
   gap: 14px;
 }
 
+.translate-all-button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #facc15;
+  padding: 0;
+  font: inherit;
+  font-size: 0.78rem;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+
+.translate-all-button:hover,
+.translate-all-button:focus-visible {
+  color: #fde68a;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.translate-all-button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
 .bot-words {
   color: white;
   font-size: clamp(2rem, 5vw, 4.8rem);
@@ -770,6 +796,26 @@ form {
   text-transform: uppercase;
   font-weight: 800;
 }
+
+.speech-status.silence-warning {
+  max-width: min(92vw, 480px);
+  color: #facc15;
+  text-align: center;
+  text-transform: none;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+}
+
+.setup-permission-status {
+  min-height: 1.35em;
+  margin-top: 0.7rem;
+  color: #9ca3af;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.setup-permission-status.success { color: #86efac; }
+.setup-permission-status.error { color: #fca5a5; }
 
 @keyframes recordPulse {
   0% {
@@ -2902,22 +2948,6 @@ form {
 </div>
 
       <div class="session-controls">
-  <button id="newChatButton" class="new-chat-button" type="button" aria-label="Start new chat">
-    +
-  </button>
-
-  <div id="activeSessionControls" class="active-session-controls hidden">
-    <div id="chatTimer" class="chat-timer">20:00</div>
-
-    <button id="addTimeButton" class="session-action-button" type="button">
-      +5 min
-    </button>
-
-    <button id="endChatButton" class="session-action-button danger" type="button">
-      End
-    </button>
-  </div>
-
   <div class="control-card account-card">
     <button id="authOpenButton" class="auth-open-button" type="button">
       Sign in
@@ -3233,23 +3263,7 @@ form {
           Speech
         </button>
       </div>
-    </div>
-
-    <div class="chat-setup-section">
-      <div class="chat-setup-label">Choose a role</div>
-
-      <div id="topicGrid" class="topic-grid"></div>
-    </div>
-
-    <div class="chat-setup-section">
-      <label class="chat-setup-label" for="chatMinutesInput">
-        Time limit
-      </label>
-
-      <div class="time-limit-row">
-        <input id="chatMinutesInput" class="time-limit-input" type="number" min="1" max="180" value="20" />
-        <span>minutes</span>
-      </div>
+      <div id="setupPermissionStatus" class="setup-permission-status" aria-live="polite"></div>
     </div>
 
     <button id="startChatButton" class="start-chat-button" type="button">
@@ -3502,20 +3516,13 @@ const statsDetailList = document.getElementById("statsDetailList");
 const accountPointsBadge = document.getElementById("accountPointsBadge");
 const accountPointsValue = document.getElementById("accountPointsValue");
 
-const newChatButton = document.getElementById("newChatButton");
-const activeSessionControls = document.getElementById("activeSessionControls");
-const chatTimer = document.getElementById("chatTimer");
-const addTimeButton = document.getElementById("addTimeButton");
-const endChatButton = document.getElementById("endChatButton");
-
 const chatSetupModal = document.getElementById("chatSetupModal");
 const closeChatSetupButton = document.getElementById("closeChatSetupButton");
 const chatSetupLanguageSelect = document.getElementById("chatSetupLanguageSelect");
 const chatSetupLanguageLabel = document.getElementById("chatSetupLanguageLabel");
 const setupWritingButton = document.getElementById("setupWritingButton");
 const setupSpeechButton = document.getElementById("setupSpeechButton");
-const topicGrid = document.getElementById("topicGrid");
-const chatMinutesInput = document.getElementById("chatMinutesInput");
+const setupPermissionStatus = document.getElementById("setupPermissionStatus");
 const startChatButton = document.getElementById("startChatButton");
 
 const myProfileButton = document.getElementById("myProfileButton");
@@ -3557,6 +3564,13 @@ let inputMode = "writing";
   let mediaRecorder = null;
   let recordedChunks = [];
   let isRecording = false;
+  let microphoneBusy = false;
+  let audioPlaybackBusy = false;
+  let setupSpeechPermissionGranted = false;
+  let micMonitorContext = null;
+  let micMonitorTimer = null;
+  let micLastSoundAt = 0;
+  let silencePromptVisible = false;
 
   let audioContext = null;
   let scheduledSources = [];
@@ -3591,7 +3605,6 @@ const REVIEW_RETURN_TURNS = [2, 3, 6];
 const REVIEW_MASTERY_STREAK = 3;
 
 let activeChatSession = null;
-let chatTimerInterval = null;
 
 let currentBonusWordKeys = new Set();
 const BONUS_WORD_POINT_TIERS = [0, 5, 10, 20, 50, 100];
@@ -3600,55 +3613,8 @@ let activeExpectedTarget = null;
 const reviewCooldownTurnByKey = new Map();
 const frequencyListCache = new Map();
 
-const CHAT_TOPICS = [
-  {
-    id: "daily-life",
-    title: "Daily Life",
-    role: "friendly day-to-day conversation partner",
-    emoji: "\u2600\uFE0F",
-    description: "Talk about your day, plans, food, hobbies, and small moments."
-  },
-  {
-    id: "store-cashier",
-    title: "Store Cashier",
-    role: "cashier at a small store",
-    emoji: "\u{1F6D2}",
-    description: "Practice buying things, asking prices, and simple store conversation."
-  },
-  {
-    id: "job-interview",
-    title: "Job Interview",
-    role: "professional job interviewer",
-    emoji: "\u{1F4BC}",
-    description: "Answer interview questions about experience, strengths, and goals."
-  },
-  {
-    id: "teacher",
-    title: "Teacher",
-    role: "patient teacher",
-    emoji: "\u{1F4DA}",
-    description: "Explain what you know, answer questions, and practice school language."
-  },
-  {
-    id: "restaurant-server",
-    title: "Restaurant Server",
-    role: "restaurant server",
-    emoji: "\u{1F37D}\uFE0F",
-    description: "Order food, ask about the menu, and practice polite requests."
-  },
-  {
-    id: "travel-guide",
-    title: "Travel Guide",
-    role: "local travel guide",
-    emoji: "\u{1F9ED}",
-    description: "Ask about places, directions, plans, transportation, and recommendations."
-  }
-];
-
 let selectedChatLanguage = "English";
 let selectedInputMode = "speech";
-let selectedTopicId = "daily-life";
-let selectedChatMinutes = 20;
 
 if (!languageSelect) {
   languageSelect = {
@@ -4118,48 +4084,9 @@ async function getVocabularyProfileForPrompt(languageOverride = null) {
   return profile;
 }
     
-function renderTopicCards() {
-  if (!topicGrid) return;
-
-  topicGrid.innerHTML = "";
-
-  CHAT_TOPICS.forEach(topic => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "topic-card";
-    button.dataset.topicId = topic.id;
-
-    if (topic.id === selectedTopicId) {
-      button.classList.add("selected");
-    }
-
-    button.innerHTML = `
-      <div class="topic-emoji" aria-hidden="true">${topic.emoji}</div>
-      <div class="topic-title">${topic.title}</div>
-      <div class="topic-description">${topic.description}</div>
-    `;
-
-    button.addEventListener("click", () => {
-      selectedTopicId = topic.id;
-
-      topicGrid.querySelectorAll(".topic-card").forEach(card => {
-        card.classList.toggle("selected", card.dataset.topicId === selectedTopicId);
-      });
-    });
-
-    topicGrid.appendChild(button);
-  });
-}
-
-function getSelectedTopic() {
-  return CHAT_TOPICS.find(topic => topic.id === selectedTopicId) || CHAT_TOPICS[0];
-}
-
 function openChatSetup() {
   selectedChatLanguage = languageSelect?.value || "English";
-  selectedInputMode = inputMode || "speech";
-  selectedTopicId = selectedTopicId || "daily-life";
-  selectedChatMinutes = 20;
+  selectedInputMode = "speech";
 
   if (chatSetupLanguageSelect) {
     chatSetupLanguageSelect.value = selectedChatLanguage;
@@ -4169,16 +4096,11 @@ function openChatSetup() {
     chatSetupLanguageLabel.textContent = selectedChatLanguage;
   }
 
-  if (chatMinutesInput) {
-    chatMinutesInput.value = "20";
-  }
-
   setupWritingButton?.classList.toggle("active", selectedInputMode === "writing");
   setupSpeechButton?.classList.toggle("active", selectedInputMode === "speech");
 
-  renderTopicCards();
-
   chatSetupModal?.classList.remove("hidden");
+  requestSetupSpeechPermission().catch(() => {});
 }
 
 function closeChatSetup() {
@@ -4190,67 +4112,66 @@ function setSetupInputMode(mode) {
 
   setupWritingButton?.classList.toggle("active", selectedInputMode === "writing");
   setupSpeechButton?.classList.toggle("active", selectedInputMode === "speech");
-}
 
-function formatTimer(ms) {
-  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-
-  return `${minutes}:${String(seconds).padStart(2, "0")}`;
-}
-
-function updateChatTimer() {
-  if (!activeChatSession || !chatTimer) return;
-
-  const remaining = activeChatSession.endsAt - Date.now();
-
-  chatTimer.textContent = formatTimer(remaining);
-  chatTimer.classList.toggle("warning", remaining <= 5 * 60 * 1000);
-
-  if (remaining <= 0) {
-    endActiveChat("Time is up.");
+  if (selectedInputMode === "writing" && setupPermissionStatus) {
+    setupPermissionStatus.textContent = "";
+    setupPermissionStatus.classList.remove("success", "error");
   }
 }
 
-function startChatTimer(minutes) {
-  clearInterval(chatTimerInterval);
+async function requestSetupSpeechPermission() {
+  if (setupSpeechPermissionGranted) {
+    if (setupPermissionStatus) {
+      setupPermissionStatus.textContent = "Microphone ready.";
+      setupPermissionStatus.classList.add("success");
+      setupPermissionStatus.classList.remove("error");
+    }
+    return true;
+  }
 
-  activeChatSession.endsAt = Date.now() + minutes * 60 * 1000;
+  if (!navigator.mediaDevices?.getUserMedia) {
+    if (setupPermissionStatus) {
+      setupPermissionStatus.textContent = "Microphone access is not supported in this browser.";
+      setupPermissionStatus.classList.add("error");
+    }
+    return false;
+  }
 
-  updateChatTimer();
+  if (setupPermissionStatus) {
+    setupPermissionStatus.textContent = "Requesting microphone permissionâ¦";
+    setupPermissionStatus.classList.remove("success", "error");
+  }
 
-  chatTimerInterval = setInterval(updateChatTimer, 1000);
-}
+  try {
+    const permissionStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    permissionStream.getTracks().forEach(track => track.stop());
+    setupSpeechPermissionGranted = true;
 
-function addChatTime(minutes = 5) {
-  if (!activeChatSession) return;
-
-  activeChatSession.endsAt += minutes * 60 * 1000;
-  updateChatTimer();
-}
-
-function endActiveChat(message = "Chat ended.") {
-  clearInterval(chatTimerInterval);
-  chatTimerInterval = null;
-
-  activeChatSession = null;
-
-  activeSessionControls?.classList.add("hidden");
-  newChatButton?.classList.remove("hidden");
-  upcomingWordsPanel?.classList.add("hidden");
-
-  setSpeechStatus("Tap to speak");
-
-  showSystemMessage(message);
+    if (setupPermissionStatus) {
+      setupPermissionStatus.textContent = "Microphone ready.";
+      setupPermissionStatus.classList.add("success");
+      setupPermissionStatus.classList.remove("error");
+    }
+    return true;
+  } catch (error) {
+    if (setupPermissionStatus) {
+      setupPermissionStatus.textContent = "Microphone permission is needed for Speech mode.";
+      setupPermissionStatus.classList.add("error");
+      setupPermissionStatus.classList.remove("success");
+    }
+    return false;
+  }
 }
 
 async function startConfiguredChat() {
   await unlockAudio().catch(() => {});
-  const topic = getSelectedTopic();
 
   selectedChatLanguage = chatSetupLanguageSelect?.value || "English";
-  selectedChatMinutes = Math.max(1, Number(chatMinutesInput?.value || 20));
+
+  if (selectedInputMode === "speech") {
+    const permissionGranted = await requestSetupSpeechPermission();
+    if (!permissionGranted) return;
+  }
 
   if (languageSelect) {
     languageSelect.value = selectedChatLanguage;
@@ -4277,27 +4198,18 @@ async function startConfiguredChat() {
   activeChatSession = {
     language: selectedChatLanguage,
     inputMode: selectedInputMode,
-    topicId: topic.id,
-    topicRole: topic.role,
-    topicTitle: topic.title,
-    startedAt: Date.now(),
-    endsAt: Date.now() + selectedChatMinutes * 60 * 1000
+    startedAt: Date.now()
   };
 
-  activeSessionControls?.classList.remove("hidden");
-  newChatButton?.classList.add("hidden");
-
   closeChatSetup();
-
-  startChatTimer(selectedChatMinutes);
 
   loadLanguagePoints(selectedChatLanguage).catch(() => {});
   loadUpcomingWords(selectedChatLanguage).catch(() => {});
 
-  await sendOpeningBotMessage(topic);
+  await sendOpeningBotMessage();
 }
 
-async function sendOpeningBotMessage(topic) {
+async function sendOpeningBotMessage() {
   const progress = addResponseProgress("context");
   const language = getCurrentChatLanguage();
 
@@ -4310,12 +4222,12 @@ async function sendOpeningBotMessage(topic) {
       {
         messages: [{
           role: "user",
-          content: `Start a ${language} practice chat. You are playing this role: ${topic.role}. Send the first message and begin naturally.`
+          content: `Start a natural ${language} practice chat. Send one short, easy-to-answer opening question that fits the user's vocabulary profile.`
         }],
         language,
         userGenderInstruction: getUserGenderInstruction(),
-        chatRole: topic.role,
-        chatTopic: topic.title,
+        chatRole: "",
+        chatTopic: "",
         isOpeningMessage: true,
         vocabularyProfile
       },
@@ -6424,6 +6336,7 @@ function renderCorrectionLine(container, correctionId, pairs) {
 
     unit.addEventListener("click", () => {
       playCorrectionWord(correctionId, tokenId, unit).catch(error => {
+        audioPlaybackBusy = false;
         showSystemMessage(getReadableError(error));
       });
     });
@@ -6479,10 +6392,13 @@ if (pointsAward?.pointsGained > 0) {
 }
 
 async function playCorrectionWord(correctionId, tokenId, unit) {
+  if (!ensurePlaybackAllowed()) return;
+
   const state = correctionState.get(correctionId);
   if (!state) return;
 
   stopAllSpeech();
+  audioPlaybackBusy = true;
   await unlockAudioContext();
 
   await getCorrectionWordClips(state);
@@ -6518,6 +6434,7 @@ async function playCorrectionWord(correctionId, tokenId, unit) {
   return new Promise(resolve => {
     source.addEventListener("ended", () => {
       scheduledSources = [];
+      audioPlaybackBusy = false;
       unit.classList.remove("active-word");
       resolve();
     });
@@ -6937,6 +6854,8 @@ async function buildCorrectionWordSchedule(state) {
 }
 
 async function playCorrection(correctionId) {
+  if (!ensurePlaybackAllowed()) return;
+
   const state = correctionState.get(correctionId);
   if (!state) return;
 
@@ -6976,11 +6895,14 @@ async function playCorrection(correctionId) {
 }
 
 function playCorrectionWordSchedule(state, button = null) {
+  if (!ensurePlaybackAllowed()) return;
+
   const context = getAudioContext();
   const playbackToken = currentPlaybackToken;
   const startAt = context.currentTime + 0.08;
 
   scheduledSources = [];
+  audioPlaybackBusy = true;
 
   if (button) {
     setPlaybackButtonPlaying(button, "correction", state.id);
@@ -7032,6 +6954,7 @@ function playCorrectionWordSchedule(state, button = null) {
   window.setTimeout(() => {
     if (playbackToken === currentPlaybackToken) {
       scheduledSources = [];
+      audioPlaybackBusy = false;
 
       units.forEach(unit => {
         unit.classList.remove("active-word");
@@ -7172,8 +7095,22 @@ async function primeAudioForAutoplay() {
 
   scheduledSources = [];
   currentPlaybackToken++;
+  audioPlaybackBusy = false;
 
   clearActivePlaybackButton();
+}
+
+function isAudioPlaybackBusy() {
+  return audioPlaybackBusy || scheduledSources.length > 0 || !!currentFullAudio || !!activePlayback;
+}
+
+function ensurePlaybackAllowed() {
+  if (microphoneBusy || isRecording) {
+    setSpeechStatus("Finish recording before playing audio.");
+    return false;
+  }
+
+  return true;
 }
 
  function clearActivePlaybackButton() {
@@ -7188,6 +7125,8 @@ async function primeAudioForAutoplay() {
 function setPlaybackButtonLoading(button) {
   if (!button) return;
 
+  audioPlaybackBusy = true;
+
   button.classList.add("loading");
   button.classList.remove("playing");
   setLoadingIcon(button);
@@ -7201,6 +7140,7 @@ function setPlaybackButtonPlaying(button, type, id) {
     type,
     id
   };
+  audioPlaybackBusy = true;
 
   button.classList.remove("loading");
   button.classList.add("playing");
@@ -7216,6 +7156,10 @@ function setPlaybackButtonStopped(button) {
 
   button.classList.remove("loading", "playing");
   setPlayIcon(button);
+
+  if (!scheduledSources.length && !currentFullAudio) {
+    audioPlaybackBusy = false;
+  }
 }
 
 function isSamePlayback(button, type, id) {
@@ -7845,6 +7789,17 @@ row.appendChild(controls);
 
 card.appendChild(row);
 
+const translateAllButton = document.createElement("button");
+translateAllButton.type = "button";
+translateAllButton.className = "translate-all-button";
+translateAllButton.textContent = "Translate all";
+translateAllButton.addEventListener("click", () => {
+  translateAllMessageWords(id, translateAllButton).catch(error => {
+    showSystemMessage(getReadableError(error));
+  });
+});
+card.appendChild(translateAllButton);
+
 messageHistory.appendChild(card);
 
     /*
@@ -7862,6 +7817,62 @@ messageHistory.appendChild(card);
 
     scrollMessagesToBottom();
     return id;
+  }
+
+  async function translateAllMessageWords(messageId, button) {
+    if (!ensurePlaybackAllowed()) return;
+
+    const state = messageState.get(messageId);
+    if (!state) return;
+
+    const units = [...state.wordsEl.querySelectorAll(".word-unit")];
+    if (!units.length) return;
+
+    button.disabled = true;
+    button.textContent = "Translatingâ¦";
+    audioPlaybackBusy = true;
+
+    try {
+      await Promise.all(
+        units.map(unit => translateWordUnit(
+          unit,
+          unit.dataset.word || "",
+          state.text
+        ))
+      );
+
+      const translatedRows = units.map(unit => ({
+        word_key: normalizeStatsWord(unit.dataset.word || ""),
+        word_text: unit.dataset.word || ""
+      })).filter(row => row.word_key);
+
+      recordWordStats(
+        translatedRows,
+        "translated",
+        languageSelect.value
+      ).catch(() => {});
+
+      Promise.allSettled(
+        translatedRows.map(row => scheduleWordReview(
+          row.word_text,
+          "translated",
+          languageSelect.value
+        ))
+      ).catch(() => {});
+
+      stopAllSpeech();
+      audioPlaybackBusy = true;
+      await playSlowMessage(state);
+      button.textContent = "Translated";
+    } finally {
+      button.disabled = false;
+      if (!scheduledSources.length && !activePlayback) {
+        audioPlaybackBusy = false;
+      }
+      if (button.textContent === "Translatingâ¦") {
+        button.textContent = "Translate all";
+      }
+    }
   }
 
   function renderWordsIntoElement(text, container, messageId) {
@@ -7963,6 +7974,8 @@ messageHistory.appendChild(card);
 }
 
 async function handleMessagePlayButton(messageId, button) {
+  if (!ensurePlaybackAllowed()) return;
+
   if (isSamePlayback(button, "message", messageId)) {
   stopAllSpeech();
   return;
@@ -8147,6 +8160,8 @@ async function handleMessagePlayButton(messageId, button) {
   }
 
   function playFullAudioBuffer(audioBuffer, button = null, type = null, id = null) {
+  if (!ensurePlaybackAllowed()) return false;
+
   const context = getAudioContext();
   const playbackToken = currentPlaybackToken;
   const source = context.createBufferSource();
@@ -8155,6 +8170,7 @@ async function handleMessagePlayButton(messageId, button) {
   source.connect(context.destination);
 
   scheduledSources = [source];
+  audioPlaybackBusy = true;
 
   source.start(context.currentTime + 0.04);
 
@@ -8165,20 +8181,24 @@ async function handleMessagePlayButton(messageId, button) {
   source.addEventListener("ended", () => {
     if (playbackToken === currentPlaybackToken) {
       scheduledSources = [];
+      audioPlaybackBusy = false;
       if (button) {
         setPlaybackButtonStopped(button);
       }
     }
   });
+  return true;
 }
 
 async function playBonusWordAudio(chatWord, language, button = null) {
   const cleanWord = String(chatWord || "").trim();
 
   if (!cleanWord) return;
+  if (!ensurePlaybackAllowed()) return;
 
   try {
     stopAllSpeech();
+    audioPlaybackBusy = true;
 
     if (button) {
       button.classList.add("loading");
@@ -8203,6 +8223,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
 
     playFullAudioBuffer(speech.audioBuffer, null, null, null);
   } catch (error) {
+    audioPlaybackBusy = false;
     if (button) {
       button.classList.remove("loading");
       button.classList.add("revealed");
@@ -8358,11 +8379,14 @@ async function playBonusWordAudio(chatWord, language, button = null) {
   }
 
   function playIndividualWordAudio(wordSchedule, wordsEl, button = null, type = null, id = null) {
+  if (!ensurePlaybackAllowed()) return false;
+
   const context = getAudioContext();
   const playbackToken = currentPlaybackToken;
   const startAt = context.currentTime + 0.08;
 
   scheduledSources = [];
+  audioPlaybackBusy = true;
 
   if (button && type && id) {
     setPlaybackButtonPlaying(button, type, id);
@@ -8427,6 +8451,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
   setTimeout(() => {
     if (playbackToken === currentPlaybackToken) {
       scheduledSources = [];
+      audioPlaybackBusy = false;
       clearActiveWords(wordsEl);
 
       if (button) {
@@ -8434,6 +8459,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
       }
     }
   }, totalDuration * 1000 + 1000);
+  return true;
 }
 
   async function playMessage(messageId) {
@@ -8537,6 +8563,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
     } catch (error) {
       unit.classList.remove("active-word");
       releaseWordAudioLock(unit);
+      audioPlaybackBusy = false;
       showSystemMessage(getReadableError(error));
     }
   }
@@ -8548,6 +8575,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
     await Promise.allSettled([
       playPreloadedWord(unit, word, messageId).catch(error => {
         releaseWordAudioLock(unit);
+        audioPlaybackBusy = false;
         throw error;
       }),
       translateWordUnit(unit, word, sentence)
@@ -8571,7 +8599,13 @@ async function playBonusWordAudio(chatWord, language, button = null) {
 }
 
   async function playPreloadedWord(unit, word, messageId) {
+    if (!ensurePlaybackAllowed()) {
+      releaseWordAudioLock(unit);
+      return;
+    }
+
     stopAllSpeech();
+    audioPlaybackBusy = true;
     await unlockAudioContext();
 
     const state = messageState.get(messageId);
@@ -8580,7 +8614,12 @@ async function playBonusWordAudio(chatWord, language, button = null) {
     const tokenId = unit.dataset.tokenId;
     if (!tokenId) throw new Error("Could not find this word token.");
 
-    await waitForWordClipsForClick(state);
+    try {
+      await waitForWordClipsForClick(state);
+    } catch (error) {
+      audioPlaybackBusy = false;
+      throw error;
+    }
 
     const clip = state.wordClipMap?.get(tokenId);
     if (!clip || !clip.audioBase64) {
@@ -8619,6 +8658,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
     return new Promise(resolve => {
       source.addEventListener("ended", () => {
         scheduledSources = [];
+        audioPlaybackBusy = false;
         resolve();
       });
     });
@@ -8946,7 +8986,79 @@ function userCanSendMessage() {
   return !!activeChatSession;
 }
 
+function stopSilenceMonitor() {
+  if (micMonitorTimer) {
+    clearInterval(micMonitorTimer);
+    micMonitorTimer = null;
+  }
+
+  if (micMonitorContext) {
+    micMonitorContext.close().catch(() => {});
+    micMonitorContext = null;
+  }
+
+  silencePromptVisible = false;
+  speechStatus?.classList.remove("silence-warning");
+}
+
+function startSilenceMonitor(stream) {
+  stopSilenceMonitor();
+
+  const MonitorAudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!MonitorAudioContext) return;
+
+  micMonitorContext = new MonitorAudioContext();
+  const analyser = micMonitorContext.createAnalyser();
+  analyser.fftSize = 512;
+  analyser.smoothingTimeConstant = 0.25;
+
+  const source = micMonitorContext.createMediaStreamSource(stream);
+  source.connect(analyser);
+
+  const samples = new Uint8Array(analyser.fftSize);
+  micLastSoundAt = performance.now();
+
+  micMonitorTimer = setInterval(() => {
+    if (!isRecording) return;
+
+    analyser.getByteTimeDomainData(samples);
+    let sumSquares = 0;
+
+    for (const sample of samples) {
+      const centered = (sample - 128) / 128;
+      sumSquares += centered * centered;
+    }
+
+    const rms = Math.sqrt(sumSquares / samples.length);
+    const now = performance.now();
+
+    if (rms >= 0.025) {
+      micLastSoundAt = now;
+
+      if (silencePromptVisible) {
+        silencePromptVisible = false;
+        speechStatus?.classList.remove("silence-warning");
+        setSpeechStatus("Recording");
+      }
+      return;
+    }
+
+    if (!silencePromptVisible && now - micLastSoundAt >= 4000) {
+      silencePromptVisible = true;
+      speechStatus?.classList.add("silence-warning");
+      setSpeechStatus("Still speaking? Tap the microphone when youâre ready for a response.");
+    }
+  }, 120);
+}
+
 async function startRecording() {
+  if (isAudioPlaybackBusy()) {
+    setSpeechStatus("Wait for the audio to finish before recording.");
+    return;
+  }
+
+  if (microphoneBusy) return;
+
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     showSystemMessage("Audio recording is not supported in this browser.");
     return;
@@ -8957,7 +9069,16 @@ async function startRecording() {
     return;
   }
 
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  microphoneBusy = true;
+  let stream;
+
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    setupSpeechPermissionGranted = true;
+  } catch (error) {
+    microphoneBusy = false;
+    throw error;
+  }
 
   recordedChunks = [];
 
@@ -8967,7 +9088,13 @@ async function startRecording() {
   try {
     mediaRecorder = new MediaRecorder(stream, options);
   } catch {
-    mediaRecorder = new MediaRecorder(stream);
+    try {
+      mediaRecorder = new MediaRecorder(stream);
+    } catch (error) {
+      stream.getTracks().forEach(track => track.stop());
+      microphoneBusy = false;
+      throw error;
+    }
   }
 
   mediaRecorder.addEventListener("dataavailable", event => {
@@ -8978,6 +9105,7 @@ async function startRecording() {
 
   mediaRecorder.addEventListener("start", () => {
     isRecording = true;
+    startSilenceMonitor(stream);
 
     speechRecordButton.classList.add("recording");
     speechRecordButton.classList.remove("processing");
@@ -8987,6 +9115,10 @@ async function startRecording() {
   });
 
   mediaRecorder.addEventListener("stop", async () => {
+  stopSilenceMonitor();
+  stream.getTracks().forEach(track => track.stop());
+  isRecording = false;
+  microphoneBusy = false;
   speechRecordButton.disabled = true;
   speechRecordButton.classList.remove("recording");
   speechRecordButton.classList.add("processing");
@@ -9021,14 +9153,20 @@ async function startRecording() {
     showSystemMessage(getReadableError(error));
     setSpeechStatus("Tap to speak");
   } finally {
-    stream.getTracks().forEach(track => track.stop());
-
     isRecording = false;
+    microphoneBusy = false;
     resetSpeechButton();
   }
 });
 
-  mediaRecorder.start();
+  try {
+    mediaRecorder.start();
+  } catch (error) {
+    stopSilenceMonitor();
+    stream.getTracks().forEach(track => track.stop());
+    microphoneBusy = false;
+    throw error;
+  }
 }
 
 function stopRecording() {
@@ -9053,6 +9191,11 @@ async function handleSpeechRecordButtonClick(event) {
       return;
     }
 
+    if (isAudioPlaybackBusy()) {
+      setSpeechStatus("Wait for the audio to finish before recording.");
+      return;
+    }
+
     /*
       If a correction is active and the user taps the main mic,
       behave exactly like Re-record:
@@ -9068,6 +9211,8 @@ async function handleSpeechRecordButtonClick(event) {
     showSystemMessage(getReadableError(error));
 
     isRecording = false;
+    microphoneBusy = false;
+    stopSilenceMonitor();
     resetSpeechButton();
     setSpeechStatus("Tap to speak");
   }
@@ -9327,10 +9472,6 @@ if (languageSelect) {
   });
 }
 
-if (newChatButton) {
-  newChatButton.addEventListener("click", openChatSetup);
-}
-
 if (closeChatSetupButton) {
   closeChatSetupButton.addEventListener("click", closeChatSetup);
 }
@@ -9354,8 +9495,9 @@ if (setupWritingButton) {
 }
 
 if (setupSpeechButton) {
-  setupSpeechButton.addEventListener("click", () => {
+  setupSpeechButton.addEventListener("click", async () => {
     setSetupInputMode("speech");
+    await requestSetupSpeechPermission();
   });
 }
 
@@ -9373,18 +9515,6 @@ if (startChatButton) {
         showSystemMessage(getReadableError(error));
       });
     });
-  });
-}
-
-if (addTimeButton) {
-  addTimeButton.addEventListener("click", () => {
-    addChatTime(5);
-  });
-}
-
-if (endChatButton) {
-  endChatButton.addEventListener("click", () => {
-    endActiveChat("Chat ended.");
   });
 }
 
@@ -9420,7 +9550,6 @@ if (refreshUpcomingWordsButton) {
   attachUiHandlers();
   setInputMode("speech");
   initAuth();
-  renderTopicCards();
 </script>
 </body>
 </html>
