@@ -4286,6 +4286,9 @@ async function getVocabularyProfileForPrompt(languageOverride = null) {
     upcomingReviewWords: frontierTargets
       .map(row => row.word_text || row.word_key)
       .filter(Boolean),
+    bonusTargetWords: frontierTargets
+      .map(row => row.word_text || row.word_key)
+      .filter(Boolean),
     primaryTargetWord: primaryTarget?.word_text || primaryTarget?.word_key || "",
     primaryTargetRank: Number(primaryTarget?.frequency_rank || 0),
     primaryTargetStreak: Math.max(0, Math.min(2, Number(primaryTarget?.stage || 0)))
