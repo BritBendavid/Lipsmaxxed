@@ -4519,29 +4519,25 @@ async function sendOpeningBotMessage() {
   const language = getCurrentChatLanguage();
 
   try {
-    const vocabularyProfile = await getVocabularyProfileForPrompt(language);
-    const expectedTarget = targetFromVocabularyProfile(vocabularyProfile);
     progress.setStage("chat");
 
     const data = await callChatFunction(
       {
         messages: [{
           role: "user",
-          content: `Start a natural ${language} practice chat. Send one short, easy-to-answer opening question that fits the user's vocabulary profile.`
+          content: `Ask one basic personal-life question in ${language}.`
         }],
         language,
         userGenderInstruction: getUserGenderInstruction(),
         chatRole: "",
         chatTopic: "",
-        isOpeningMessage: true,
-        vocabularyProfile
+        isOpeningMessage: true
       },
       "Chat"
     );
     await presentBotReply(data, progress, {
       language,
-      autoplay: true,
-      expectedTarget
+      autoplay: true
     });
   } catch (error) {
     progress.remove();
@@ -7528,7 +7524,7 @@ function isSamePlayback(button, type, id) {
   const RESPONSE_STAGE_DEFAULTS = {
     language: 1400,
     context: 300,
-    chat: 7000,
+    chat: 2500,
     speech: 2200,
     decode: 180
   };
@@ -7536,7 +7532,7 @@ function isSamePlayback(button, type, id) {
   const RESPONSE_STAGE_LABELS = {
     language: "Checking your language",
     context: "Preparing context",
-    chat: "Choosing your reply",
+    chat: "Writing your question",
     speech: "Preparing audio",
     decode: "Getting playback ready"
   };
@@ -7705,22 +7701,18 @@ function isSamePlayback(button, type, id) {
   });
 
 const responsePromise = (async () => {
-  const vocabularyProfile = await getVocabularyProfileForPrompt(getCurrentChatLanguage());
-  const expectedTargetForReply = targetFromVocabularyProfile(vocabularyProfile);
-
   const data = await callChatFunction(
     {
       messages,
       language: languageSelect.value,
       userGenderInstruction: getUserGenderInstruction(),
       chatRole: activeChatSession?.topicRole || "",
-      chatTopic: activeChatSession?.topicTitle || "",
-      vocabularyProfile
+      chatTopic: activeChatSession?.topicTitle || ""
     },
     "Chat"
   );
 
-  return { data, expectedTargetForReply };
+  return { data, expectedTargetForReply: null };
 })();
 
   return {
@@ -9073,8 +9065,6 @@ async function playBonusWordAudio(chatWord, language, button = null) {
     const progress = addResponseProgress("context");
 
     try {
-      const vocabularyProfile = await getVocabularyProfileForPrompt(getCurrentChatLanguage());
-      const expectedTargetForReply = targetFromVocabularyProfile(vocabularyProfile);
       progress.setStage("chat");
 
       const data = await callChatFunction({
@@ -9082,13 +9072,11 @@ async function playBonusWordAudio(chatWord, language, button = null) {
         language: languageSelect.value,
         userGenderInstruction: getUserGenderInstruction(),
         chatRole: activeChatSession?.topicRole || "",
-        chatTopic: activeChatSession?.topicTitle || "",
-        vocabularyProfile
+        chatTopic: activeChatSession?.topicTitle || ""
       }, "Chat");
 
       await presentBotReply(data, progress, {
-        autoplay: true,
-        expectedTarget: expectedTargetForReply
+        autoplay: true
       });
     } catch (error) {
       progress.remove();
