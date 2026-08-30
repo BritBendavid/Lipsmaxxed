@@ -4306,7 +4306,7 @@ async function getVocabularyProfileForPrompt(languageOverride = null) {
     .eq("user_id", currentUser.id)
     .eq("language", language)
     .order("last_encountered_at", { ascending: false })
-    .limit(600);
+    .limit(3000);
 
   if (error) {
     console.warn("vocabulary profile load failed", error);
@@ -4360,6 +4360,11 @@ async function getVocabularyProfileForPrompt(languageOverride = null) {
     totalUnderstood,
     totalSpoken,
     ...targetProfile,
+
+    // Complete working inventory for deterministic question validation.
+    knownWords: understoodRows
+      .map(row => row.word_text)
+      .filter(Boolean),
 
     // recent context, not a full limit
     understoodWords: understoodRows
@@ -7523,7 +7528,7 @@ function isSamePlayback(button, type, id) {
   const RESPONSE_STAGE_DEFAULTS = {
     language: 1400,
     context: 300,
-    chat: 3500,
+    chat: 7000,
     speech: 2200,
     decode: 180
   };
@@ -7531,7 +7536,7 @@ function isSamePlayback(button, type, id) {
   const RESPONSE_STAGE_LABELS = {
     language: "Checking your language",
     context: "Preparing context",
-    chat: "Writing your reply",
+    chat: "Choosing your reply",
     speech: "Preparing audio",
     decode: "Getting playback ready"
   };
