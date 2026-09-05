@@ -868,6 +868,35 @@ form {
   color: #bbf7d0;
 }
 
+.context-review-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.context-review-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.context-review-section + .context-review-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-top: 18px;
+}
+
+.context-review-label {
+  color: #fecaca;
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+.context-review-section.suggested-answer .context-review-label {
+  color: #bbf7d0;
+}
+
 .speech-review-text {
   color: white;
   font-size: 1.15rem;
@@ -958,6 +987,16 @@ form {
 .correction-word-unit.corrected-word .main-word,
 .correction-word-unit.corrected-word .translation {
   color: #f87171;
+}
+
+.correction-word-unit.answered-word .main-word,
+.correction-word-unit.answered-word .translation {
+  color: #fca5a5;
+}
+
+.correction-word-unit.suggested-word .main-word,
+.correction-word-unit.suggested-word .translation {
+  color: #bbf7d0;
 }
 
 .speech-review-card.perfect-card .correction-word-unit .main-word,
@@ -6676,7 +6715,9 @@ function renderCorrectionLine(container, correctionId, pairs) {
 
     const unit = document.createElement("span");
     unit.className = "correction-word-unit";
-    unit.classList.add(pair.wasTranslated ? "corrected-word" : "native-word");
+    unit.classList.add(
+      pair.colorRole || (pair.wasTranslated ? "corrected-word" : "native-word")
+    );
 
     if (String(pair.correctedWord).trim().includes(" ")) {
       unit.classList.add("multi-word-token");
@@ -6803,6 +6844,243 @@ async function playCorrectionWord(correctionId, tokenId, unit) {
   });
 }
 
+function registerCorrectionPlaybackState({
+  correctionId,
+  transcript,
+  suggestion,
+  parts,
+  correctionText,
+  pairs,
+  lineEl
+}) {
+  const tokens = createCorrectionTokensFromPairs(
+    pairs,
+    correctionId,
+    correctionText
+  );
+
+  correctionState.set(correctionId, {
+    id: correctionId,
+    transcript,
+    suggestion,
+    parts,
+    correctionText,
+    tokens,
+    lineEl,
+    slow: false,
+    fullSpeech: null,
+    fullSpeechPromise: fetchFullSpeech(correctionText),
+    wordClips: null,
+    wordClipMap: null,
+    wordClipsPromise: fetchIndividualWordSpeechForTokens(tokens)
+      .then(clips => {
+        const state = correctionState.get(correctionId);
+
+        if (state) {
+          state.wordClips = clips;
+          state.wordClipMap = new Map(
+            clips
+              .filter(clip => clip && clip.tokenId)
+              .map(clip => [clip.tokenId, clip])
+          );
+        }
+
+        return clips;
+      })
+      .catch(() => {
+        const state = correctionState.get(correctionId);
+
+        if (state) {
+          state.wordClipsPromise = null;
+        }
+
+        return null;
+      }),
+    wordSchedule: null
+  });
+
+  return tokens;
+}
+
+function wireCorrectionPlaybackControls(correctionId, playButton, slowToggle) {
+  playButton.addEventListener("click", async () => {
+    await playCorrection(correctionId);
+  });
+
+  slowToggle.addEventListener("click", () => {
+    const state = correctionState.get(correctionId);
+    if (!state) return;
+
+    state.slow = !state.slow;
+    slowToggle.classList.toggle("active", state.slow);
+  });
+}
+
+function createContextReviewRow({
+  label,
+  text,
+  transcript,
+  parts,
+  colorRole,
+  sectionClass = "",
+  compareWithTranscript = false
+}) {
+  const correctionId = `correction-${++correctionCounter}`;
+  const cleanText = String(text || transcript || "").trim();
+  const basePairs = compareWithTranscript
+    ? buildCorrectionPairsFromCorrectedTextAndParts(
+        cleanText,
+        parts,
+        transcript
+      )
+    : buildCorrectionPairsFromCorrectedText(cleanText);
+  const pairs = basePairs.map(pair => ({ ...pair, colorRole }));
+
+  const section = document.createElement("section");
+  section.className = `context-review-section ${sectionClass}`.trim();
+
+  const labelEl = document.createElement("div");
+  labelEl.className = "context-review-label";
+  labelEl.textContent = label;
+
+  const layout = document.createElement("div");
+  layout.className = "correction-layout";
+
+  const sideControls = document.createElement("div");
+  sideControls.className = "correction-side-controls";
+
+  const playButton = document.createElement("button");
+  playButton.type = "button";
+  playButton.className = "correction-play-button";
+  playButton.dataset.correctionPlay = correctionId;
+  playButton.setAttribute("aria-label", `Play ${label.toLowerCase()}`);
+  setPlayIcon(playButton);
+
+  const slowToggle = document.createElement("button");
+  slowToggle.type = "button";
+  slowToggle.className = "correction-slow-toggle";
+  slowToggle.textContent = "Slow";
+
+  sideControls.appendChild(playButton);
+  sideControls.appendChild(slowToggle);
+
+  const textZone = document.createElement("div");
+  textZone.className = "correction-text-zone";
+
+  const line = document.createElement("div");
+  line.className = "correction-line";
+  line.setAttribute("dir", "auto");
+  renderCorrectionLine(line, correctionId, pairs);
+
+  textZone.appendChild(line);
+  layout.appendChild(sideControls);
+  layout.appendChild(textZone);
+  section.appendChild(labelEl);
+  section.appendChild(layout);
+
+  registerCorrectionPlaybackState({
+    correctionId,
+    transcript,
+    suggestion: cleanText,
+    parts,
+    correctionText: cleanText,
+    pairs,
+    lineEl: line
+  });
+  wireCorrectionPlaybackControls(correctionId, playButton, slowToggle);
+  translateCorrectionTokens(correctionId).catch(() => {});
+
+  return { section, correctionId, pairs };
+}
+
+function addContextResponseReviewCard({
+  transcript,
+  didYouMeanText,
+  parts,
+  onRetry,
+  onContinue
+}) {
+  removeSpeechReviewCard();
+
+  const card = document.createElement("div");
+  card.className = "speech-review-card context-review-card";
+
+  const stack = document.createElement("div");
+  stack.className = "context-review-stack";
+
+  const answeredRow = createContextReviewRow({
+    label: "You answered...",
+    text: transcript,
+    transcript,
+    parts,
+    colorRole: "answered-word",
+    sectionClass: "detected-answer"
+  });
+
+  const suggestedRow = createContextReviewRow({
+    label: "Did you mean...",
+    text: didYouMeanText,
+    transcript,
+    parts,
+    colorRole: "suggested-word",
+    sectionClass: "suggested-answer",
+    compareWithTranscript: true
+  });
+
+  stack.appendChild(answeredRow.section);
+  stack.appendChild(suggestedRow.section);
+  card.appendChild(stack);
+
+  const actions = document.createElement("div");
+  actions.className = "speech-review-actions correction-actions-row";
+
+  const retryButton = document.createElement("button");
+  retryButton.type = "button";
+  retryButton.className = "speech-review-button primary";
+  retryButton.textContent = "Re-record";
+
+  const continueButton = document.createElement("button");
+  continueButton.type = "button";
+  continueButton.className = "speech-review-button secondary";
+  continueButton.textContent = "Continue anyway";
+
+  retryButton.addEventListener("click", async () => {
+    if (typeof onRetry === "function") {
+      onRetry();
+    }
+
+    await startCorrectionRetryRecording();
+  });
+
+  continueButton.addEventListener("click", async () => {
+    continueButton.disabled = true;
+    continueButton.textContent = "Continuing...";
+
+    try {
+      if (typeof onContinue === "function") {
+        await onContinue();
+      }
+
+      actions.remove();
+    } catch (error) {
+      continueButton.disabled = false;
+      continueButton.textContent = "Continue anyway";
+      showSystemMessage(getReadableError(error));
+    }
+  });
+
+  actions.appendChild(retryButton);
+  actions.appendChild(continueButton);
+  card.appendChild(actions);
+
+  card.dataset.correctionId = suggestedRow.correctionId;
+  messageHistory.appendChild(card);
+  scrollMessagesToBottom();
+
+  card.pointsEarnedEl = null;
+  return card;
+}
+
 function assignCorrectionScheduleToWords(state) {
   const scheduleMap = new Map(
     state.wordSchedule
@@ -6829,14 +7107,26 @@ function assignCorrectionScheduleToWords(state) {
 function addSpeechReviewCard({
   transcript,
   suggestion,
+  didYouMeanText = "",
   parts,
   correctedText,
   isPerfect = false,
+  reviewMode = "language",
   reviewTitle = "",
   pointsAward = null,
   onRetry,
   onContinue
 }) {
+  if (reviewMode === "context") {
+    return addContextResponseReviewCard({
+      transcript,
+      didYouMeanText: didYouMeanText || suggestion || correctedText || transcript,
+      parts,
+      onRetry,
+      onContinue
+    });
+  }
+
   removeSpeechReviewCard();
 
   const correctionId = `correction-${++correctionCounter}`;
@@ -7945,6 +8235,7 @@ if (!isCorrectionRetry) {
   const correctedText = phoneticRescueApplied
     ? acceptedText
     : analysis.correctedText || transcript;
+  const didYouMeanText = analysis.didYouMeanText || correctedText || transcript;
   const reviewedTranscript = phoneticRescueApplied
     ? acceptedText
     : transcript;
@@ -8025,6 +8316,7 @@ const pointsAward = confirmedSpokenText
     transcript,
     parts,
     suggestion,
+    didYouMeanText,
     correctedText,
     expectedTarget: expectedTargetForAnswer,
     prepared: pendingBackgroundBot
@@ -8033,12 +8325,11 @@ const pointsAward = confirmedSpokenText
   const correctionCard = addSpeechReviewCard({
     transcript: reviewedTranscript,
     suggestion,
+    didYouMeanText,
     parts,
     correctedText,
     isPerfect: false,
-    reviewTitle: responseMakesSense
-      ? `Try again in ${languageSelect.value}`
-      : "That answer doesn't fit the question",
+    reviewMode: responseMakesSense ? "language" : "context",
     pointsAward,
     onRetry: () => {
       setSpeechStatus("Recording");
@@ -8101,6 +8392,7 @@ const pointsAward = confirmedSpokenText
       chatLanguage: languageSelect.value,
       precedingMessage,
       allowPhoneticRescue: options.allowPhoneticRescue === true,
+      userGenderInstruction: getUserGenderInstruction(),
       targetWord:
         expectedTarget?.word_text ||
         expectedTarget?.word ||
@@ -8115,6 +8407,7 @@ const pointsAward = confirmedSpokenText
     parts: Array.isArray(data.parts) ? data.parts : [],
     correctedText: data.correctedText || "",
     acceptedText: data.acceptedText || text,
+    didYouMeanText: data.didYouMeanText || "",
     responseMakesSense: data.responseMakesSense === true,
     phoneticRescueApplied: data.phoneticRescueApplied === true,
     targetProduced: data.targetProduced === true
