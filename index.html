@@ -4776,6 +4776,7 @@ async function getChatLanguageOnlyText(text, expectedTarget = null) {
     parts,
     correctedText: analysis.correctedText || text,
     chatLanguageText: getChatLanguageTextFromParts(parts),
+    responseMakesSense: analysis.responseMakesSense === true,
     targetProduced: analysis.targetProduced === true
   };
 }
@@ -6831,6 +6832,7 @@ function addSpeechReviewCard({
   parts,
   correctedText,
   isPerfect = false,
+  reviewTitle = "",
   pointsAward = null,
   onRetry,
   onContinue
@@ -6879,7 +6881,7 @@ const title = document.createElement("div");
 title.className = "speech-review-title";
 title.textContent = isPerfect
   ? "Perfect!"
-  : `Try again in ${languageSelect.value}`;
+  : reviewTitle || `Try again in ${languageSelect.value}`;
 
 const pointsEarned = document.createElement("div");
 pointsEarned.className = "correction-points-earned hidden";
@@ -7750,11 +7752,35 @@ function isSamePlayback(button, type, id) {
     return botMessageId;
   }
 
- async function prepareBotResponseInBackground(userText, progress = null) {
-  messages.push({
-    role: "user",
-    content: userText
-  });
+ async function prepareBotResponseInBackground(
+  userText,
+  progress = null,
+  options = {}
+) {
+  if (options.replaceLatestUser === true) {
+    let latestUserIndex = -1;
+
+    for (let index = messages.length - 1; index >= 0; index -= 1) {
+      if (messages[index]?.role === "user") {
+        latestUserIndex = index;
+        break;
+      }
+    }
+
+    if (latestUserIndex >= 0) {
+      messages[latestUserIndex] = {
+        ...messages[latestUserIndex],
+        content: userText
+      };
+    } else {
+      messages.push({ role: "user", content: userText });
+    }
+  } else {
+    messages.push({
+      role: "user",
+      content: userText
+    });
+  }
 
 const responsePromise = (async () => {
   const data = await callChatFunction(
@@ -7893,7 +7919,8 @@ if (!isCorrectionRetry) {
   try {
     analysis = await analyzeUserMessageLanguageParts(
       transcript,
-      expectedTargetForAnswer
+      expectedTargetForAnswer,
+      { allowPhoneticRescue: true }
     );
   } catch {
     if (pendingBackgroundBot) {
@@ -7910,13 +7937,43 @@ if (!isCorrectionRetry) {
   responseProgress.setStage("chat");
 
   const parts = analysis.parts || [];
-  const correctedText = analysis.correctedText || transcript;
+  const responseMakesSense = analysis.responseMakesSense === true;
+  const phoneticRescueApplied = analysis.phoneticRescueApplied === true;
+  const acceptedText = phoneticRescueApplied
+    ? analysis.acceptedText || transcript
+    : transcript;
+  const correctedText = phoneticRescueApplied
+    ? acceptedText
+    : analysis.correctedText || transcript;
+  const reviewedTranscript = phoneticRescueApplied
+    ? acceptedText
+    : transcript;
+
+if (
+  activeCorrectionUserMessageId &&
+  phoneticRescueApplied &&
+  reviewedTranscript !== transcript
+) {
+  updateUserMessageText(activeCorrectionUserMessageId, reviewedTranscript);
+}
+
+if (
+  pendingBackgroundBot?.userText !== reviewedTranscript &&
+  (phoneticRescueApplied || isCorrectionRetry)
+) {
+  pendingBackgroundBot = await prepareBotResponseInBackground(
+    reviewedTranscript,
+    responseProgress,
+    { replaceLatestUser: true }
+  );
+}
+
 const confirmedSpokenText = getConfirmedSpokenTextFromCorrection(
-  transcript,
+  responseMakesSense ? reviewedTranscript : "",
   correctedText
 );
 
-if (!confirmedSpokenText && expectedTargetForAnswer) {
+if ((!responseMakesSense || !confirmedSpokenText) && expectedTargetForAnswer) {
   await markReviewWordMissed(
     expectedTargetForAnswer.word_text || expectedTargetForAnswer.word,
     languageSelect.value
@@ -7939,7 +7996,7 @@ const pointsAward = confirmedSpokenText
       language: languageSelect.value
     };
 
-  if (!hasForeignLanguageParts(parts)) {
+  if (responseMakesSense && !hasForeignLanguageParts(parts)) {
     const prepared = pendingBackgroundBot;
 
     activeSpeechCorrection = null;
@@ -7947,7 +8004,7 @@ const pointsAward = confirmedSpokenText
     activeCorrectionUserMessageId = null;
 
     await showPerfectCorrectionThenRevealBot({
-  transcript,
+  transcript: reviewedTranscript,
   parts,
   correctedText,
   prepared,
@@ -7974,11 +8031,14 @@ const pointsAward = confirmedSpokenText
   };
 
   const correctionCard = addSpeechReviewCard({
-    transcript,
+    transcript: reviewedTranscript,
     suggestion,
     parts,
     correctedText,
     isPerfect: false,
+    reviewTitle: responseMakesSense
+      ? `Try again in ${languageSelect.value}`
+      : "That answer doesn't fit the question",
     pointsAward,
     onRetry: () => {
       setSpeechStatus("Recording");
@@ -8016,7 +8076,18 @@ const pointsAward = confirmedSpokenText
   }
 }
 
-  async function analyzeUserMessageLanguageParts(text, expectedTarget = null) {
+  async function analyzeUserMessageLanguageParts(
+    text,
+    expectedTarget = null,
+    options = {}
+  ) {
+  const precedingMessage = [...messages]
+    .reverse()
+    .find(message => message?.role === "assistant")?.content
+    ?.replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 700) || "";
+
   const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
     method: "POST",
     headers: {
@@ -8028,6 +8099,8 @@ const pointsAward = confirmedSpokenText
       action: "translate-message-parts",
       text,
       chatLanguage: languageSelect.value,
+      precedingMessage,
+      allowPhoneticRescue: options.allowPhoneticRescue === true,
       targetWord:
         expectedTarget?.word_text ||
         expectedTarget?.word ||
@@ -8041,6 +8114,9 @@ const pointsAward = confirmedSpokenText
   return {
     parts: Array.isArray(data.parts) ? data.parts : [],
     correctedText: data.correctedText || "",
+    acceptedText: data.acceptedText || text,
+    responseMakesSense: data.responseMakesSense === true,
+    phoneticRescueApplied: data.phoneticRescueApplied === true,
     targetProduced: data.targetProduced === true
   };
 }
@@ -9091,7 +9167,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
     addUserMessage(userText);
     getChatLanguageOnlyText(userText, expectedTargetForAnswer)
   .then(result => {
-    if (result.chatLanguageText) {
+    if (result.responseMakesSense && result.chatLanguageText) {
       return awardPointsForUserMessage(
         result.chatLanguageText,
         languageSelect.value,
