@@ -7122,8 +7122,6 @@ function addSpeechReviewCard({
   isPerfect = false,
   reviewMode = "language",
   reviewTitle = "",
-  preserveExisting = false,
-  showActions = true,
   scheduleCorrections = true,
   pointsAward = null,
   onRetry,
@@ -7139,9 +7137,9 @@ function addSpeechReviewCard({
     });
   }
 
-  if (!preserveExisting) {
-    removeSpeechReviewCard();
-  }
+  // A spoken response can have several backend findings, but the UI must show
+  // exactly one review outcome for that response.
+  removeSpeechReviewCard();
 
   const correctionId = `correction-${++correctionCounter}`;
 
@@ -7239,7 +7237,7 @@ headerRow.appendChild(pointsEarned);
   card.appendChild(headerRow);
 card.appendChild(layout);
 
-  if (!isPerfect && showActions) {
+  if (!isPerfect) {
     const actions = document.createElement("div");
     actions.className = "speech-review-actions correction-actions-row";
 
@@ -8260,6 +8258,7 @@ if (!isCorrectionRetry) {
     ? acceptedText
     : analysis.grammarCorrectedText || acceptedText;
   const grammarNeedsReview = grammarApplicable && !grammarCorrect;
+  const hasForeignParts = hasForeignLanguageParts(parts);
   const reviewedTranscript = phoneticRescueApplied
     ? acceptedText
     : transcript;
@@ -8313,7 +8312,7 @@ const pointsAward = confirmedSpokenText
 
   if (
     responseMakesSense &&
-    !hasForeignLanguageParts(parts) &&
+    !hasForeignParts &&
     !grammarNeedsReview
   ) {
     const prepared = pendingBackgroundBot;
@@ -8370,7 +8369,21 @@ const pointsAward = confirmedSpokenText
 
   let correctionCard;
 
-  if (!responseMakesSense) {
+  // Display only the highest-priority applicable review:
+  // language mismatch, then contextual mismatch, then grammar.
+  if (hasForeignParts) {
+    correctionCard = addSpeechReviewCard({
+      transcript: reviewedTranscript,
+      suggestion,
+      parts,
+      correctedText,
+      isPerfect: false,
+      reviewMode: "language",
+      pointsAward,
+      onRetry,
+      onContinue
+    });
+  } else if (!responseMakesSense) {
     correctionCard = addSpeechReviewCard({
       transcript: reviewedTranscript,
       suggestion,
@@ -8383,48 +8396,6 @@ const pointsAward = confirmedSpokenText
       onRetry,
       onContinue
     });
-
-    if (grammarNeedsReview) {
-      addSpeechReviewCard({
-        transcript: reviewedTranscript,
-        suggestion: grammarCorrectedText,
-        parts,
-        correctedText: grammarCorrectedText,
-        isPerfect: false,
-        reviewMode: "grammar",
-        reviewTitle: "Grammar check",
-        preserveExisting: true,
-        showActions: false,
-        scheduleCorrections: false
-      });
-    }
-  } else if (hasForeignLanguageParts(parts)) {
-    correctionCard = addSpeechReviewCard({
-      transcript: reviewedTranscript,
-      suggestion,
-      parts,
-      correctedText,
-      isPerfect: false,
-      reviewMode: "language",
-      pointsAward,
-      onRetry,
-      onContinue
-    });
-
-    if (grammarNeedsReview) {
-      addSpeechReviewCard({
-        transcript: reviewedTranscript,
-        suggestion: grammarCorrectedText,
-        parts,
-        correctedText: grammarCorrectedText,
-        isPerfect: false,
-        reviewMode: "grammar",
-        reviewTitle: "Grammar check",
-        preserveExisting: true,
-        showActions: false,
-        scheduleCorrections: false
-      });
-    }
   } else {
     correctionCard = addSpeechReviewCard({
       transcript: reviewedTranscript,
