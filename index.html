@@ -9287,15 +9287,32 @@ async function transcribeAudioBlob(audioBlob, mimeType) {
   });
 
   const formData = new FormData();
+  const latestAssistantMessage = [...messages]
+    .reverse()
+    .find(message => message?.role === "assistant")?.content
+    ?.replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 500) || "";
+
+  const answerContext = latestAssistantMessage
+    ? latestAssistantMessage
+    : "";
+
+  const practiceWord = String(
+    activeExpectedTarget?.word_text ||
+    activeExpectedTarget?.word ||
+    activeExpectedTarget?.word_key ||
+    ""
+  ).trim().slice(0, 100);
+
+  formData.append("action", "transcribe-audio");
   formData.append("audio", audioFile);
   formData.append("chatLanguage", languageSelect.value);
   formData.append("fluentLanguage", fluentLanguageSelect.value);
-  formData.append(
-    "transcriptionPrompt",
-    `The speaker may switch between languages, especially ${languageSelect.value} and ${fluentLanguageSelect.value}. Transcribe exactly what is spoken. Do not translate. Preserve mixed-language speech.`
-  );
+  formData.append("precedingMessage", answerContext);
+  formData.append("practiceWord", practiceWord);
 
-  const response = await fetch(`${SUPABASE_URL}/functions/v1/transcribe-audio`, {
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
     method: "POST",
     headers: {
       "apikey": SUPABASE_ANON_KEY,
@@ -9426,7 +9443,14 @@ async function startRecording() {
   let stream;
 
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: { ideal: true },
+        noiseSuppression: { ideal: true },
+        autoGainControl: { ideal: true },
+        channelCount: { ideal: 1 }
+      }
+    });
     setupSpeechPermissionGranted = true;
   } catch (error) {
     microphoneBusy = false;
