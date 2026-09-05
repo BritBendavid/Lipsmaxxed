@@ -3084,6 +3084,37 @@ form {
   content: none;
 }
 
+.setup-gender-toggle {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.setup-gender-option {
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.035);
+  color: #cbd5e1;
+  font: inherit;
+  font-weight: 850;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.setup-gender-option:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.setup-gender-option.selected {
+  color: white;
+  background: rgba(37, 99, 235, 0.16);
+  border-color: rgba(96, 165, 250, 0.55);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.07);
+}
+
 .setup-mode-toggle {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3545,6 +3576,18 @@ form {
       </div>
 
       <div class="chat-setup-section">
+        <div class="chat-setup-label">Address me as</div>
+        <div class="setup-gender-toggle" role="group" aria-label="Address me as">
+          <button id="setupGenderManButton" class="setup-gender-option" type="button" data-gender="man" aria-pressed="false">
+            Male
+          </button>
+          <button id="setupGenderWomanButton" class="setup-gender-option" type="button" data-gender="woman" aria-pressed="false">
+            Female
+          </button>
+        </div>
+      </div>
+
+      <div class="chat-setup-section">
         <div class="chat-setup-label">Response mode</div>
         <div class="setup-mode-toggle">
           <button id="setupWritingButton" class="setup-mode-option" type="button" data-mode="writing">
@@ -3826,6 +3869,8 @@ const closeChatSetupButton = document.getElementById("closeChatSetupButton");
 const chatSetupLanguageSelect = document.getElementById("chatSetupLanguageSelect");
 const setupWritingButton = document.getElementById("setupWritingButton");
 const setupSpeechButton = document.getElementById("setupSpeechButton");
+const setupGenderManButton = document.getElementById("setupGenderManButton");
+const setupGenderWomanButton = document.getElementById("setupGenderWomanButton");
 const setupPermissionStatus = document.getElementById("setupPermissionStatus");
 const startChatButton = document.getElementById("startChatButton");
 
@@ -4396,6 +4441,13 @@ async function getVocabularyProfileForPrompt(languageOverride = null) {
 function openChatSetup() {
   selectedChatLanguage = languageSelect?.value || "English";
   selectedInputMode = "speech";
+
+  const savedGender = currentUser?.user_metadata?.gender;
+  if (savedGender === "man" || savedGender === "woman") {
+    setSelectedGender(savedGender);
+  } else {
+    setSelectedGender(selectedGender);
+  }
 
   if (chatSetupLanguageSelect) {
     chatSetupLanguageSelect.value = selectedChatLanguage;
@@ -6077,12 +6129,16 @@ function setSelectedGender(gender) {
 
   genderManButton?.classList.toggle("selected", selectedGender === "man");
   genderWomanButton?.classList.toggle("selected", selectedGender === "woman");
+  setupGenderManButton?.classList.toggle("selected", selectedGender === "man");
+  setupGenderWomanButton?.classList.toggle("selected", selectedGender === "woman");
+  setupGenderManButton?.setAttribute("aria-pressed", String(selectedGender === "man"));
+  setupGenderWomanButton?.setAttribute("aria-pressed", String(selectedGender === "woman"));
 }
 
 function getUserGenderInstruction() {
   const gender =
-    currentUser?.user_metadata?.gender ||
     selectedGender ||
+    currentUser?.user_metadata?.gender ||
     "";
 
   if (gender === "man") {
@@ -9791,6 +9847,18 @@ if (setupSpeechButton) {
   setupSpeechButton.addEventListener("click", async () => {
     setSetupInputMode("speech");
     await requestSetupSpeechPermission();
+  });
+}
+
+if (setupGenderManButton) {
+  setupGenderManButton.addEventListener("click", () => {
+    setSelectedGender("man");
+  });
+}
+
+if (setupGenderWomanButton) {
+  setupGenderWomanButton.addEventListener("click", () => {
+    setSelectedGender("woman");
   });
 }
 
