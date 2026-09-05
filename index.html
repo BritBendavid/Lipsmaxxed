@@ -422,6 +422,17 @@ select option {
   scroll-behavior: smooth;
 }
 
+.start-welcome {
+  width: min(620px, 100%);
+  margin: clamp(72px, 17vh, 170px) auto 0;
+  color: #9aa6b8;
+  font-size: clamp(0.98rem, 1.5vw, 1.08rem);
+  font-weight: 600;
+  line-height: 1.55;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+
 @media (max-width: 760px) {
   .message-history {
     --score-rail-width: 70px;
@@ -512,6 +523,16 @@ select option {
   font-weight: 800;
   letter-spacing: 0.02em;
   cursor: pointer;
+}
+
+.bot-pro-tip {
+  max-width: 760px;
+  color: #93c5fd;
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.5;
+  padding-left: 11px;
+  border-left: 2px solid rgba(96, 165, 250, 0.55);
 }
 
 .translate-all-button:hover,
@@ -3367,7 +3388,11 @@ form {
 </div>
     </header>
 
-<main id="messageHistory" class="message-history"></main>
+<main id="messageHistory" class="message-history">
+  <p id="startWelcome" class="start-welcome">
+    Welcome to LipsMaxxed! Click the microphone to get started.
+  </p>
+</main>
 <section id="upcomingWordsPanel" class="upcoming-words-panel hidden">
   <div class="upcoming-words-header">
     <div>
@@ -4649,7 +4674,8 @@ async function sendOpeningBotMessage() {
     );
     await presentBotReply(data, progress, {
       language,
-      autoplay: true
+      autoplay: true,
+      showSignedOutProTip: !currentUser
     });
   } catch (error) {
     progress.remove();
@@ -6213,11 +6239,16 @@ function getUserGenderInstruction() {
   return "";
 }
 
+function removeSignedOutProTip() {
+  document.querySelectorAll(".bot-pro-tip").forEach(note => note.remove());
+}
+
 function updateAuthUi(session) {
   currentSession = session || null;
   currentUser = session?.user || null;
 
   if (currentUser) {
+  removeSignedOutProTip();
   authOpenButton?.classList.add("hidden");
   accountMenuWrap?.classList.remove("hidden");
 
@@ -7869,6 +7900,8 @@ function isSamePlayback(button, type, id) {
   }
 
   function addUserMessage(text) {
+    removeSignedOutProTip();
+
     const id = `user-${++userMessageCounter}`;
 
     const card = document.createElement("div");
@@ -8049,7 +8082,8 @@ function isSamePlayback(button, type, id) {
 
     const botMessageId = addBotMessage(data.reply, {
       fullSpeech,
-      fullSpeechPromise: Promise.resolve(fullSpeech)
+      fullSpeechPromise: Promise.resolve(fullSpeech),
+      showSignedOutProTip: options.showSignedOutProTip === true
     });
 
     activeExpectedTarget = expectedTarget;
@@ -8608,6 +8642,14 @@ row.appendChild(wordsEl);
 row.appendChild(controls);
 
 card.appendChild(row);
+
+if (options.showSignedOutProTip === true && !currentUser) {
+  const proTip = document.createElement("div");
+  proTip.className = "bot-pro-tip";
+  proTip.setAttribute("role", "note");
+  proTip.textContent = "Pro tip: If you donât understand a word, tap it once to hear it again and tap it twice for a translation!";
+  card.appendChild(proTip);
+}
 
 const translateAllButton = document.createElement("button");
 translateAllButton.type = "button";
