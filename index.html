@@ -8394,7 +8394,7 @@ const pointsAward = confirmedSpokenText
   let correctionCard;
 
   // Display only the highest-priority applicable review:
-  // language mismatch, then contextual mismatch, then grammar.
+  // language mismatch, then grammar, then contextual mismatch.
   if (hasForeignParts) {
     correctionCard = addSpeechReviewCard({
       transcript: reviewedTranscript,
@@ -8407,20 +8407,7 @@ const pointsAward = confirmedSpokenText
       onRetry,
       onContinue
     });
-  } else if (!responseMakesSense) {
-    correctionCard = addSpeechReviewCard({
-      transcript: reviewedTranscript,
-      suggestion,
-      didYouMeanText,
-      parts,
-      correctedText,
-      isPerfect: false,
-      reviewMode: "context",
-      pointsAward,
-      onRetry,
-      onContinue
-    });
-  } else {
+  } else if (grammarNeedsReview) {
     correctionCard = addSpeechReviewCard({
       transcript: reviewedTranscript,
       suggestion: grammarCorrectedText,
@@ -8431,6 +8418,19 @@ const pointsAward = confirmedSpokenText
       reviewTitle: "Grammar check",
       grammarExplanation,
       scheduleCorrections: false,
+      pointsAward,
+      onRetry,
+      onContinue
+    });
+  } else {
+    correctionCard = addSpeechReviewCard({
+      transcript: reviewedTranscript,
+      suggestion,
+      didYouMeanText,
+      parts,
+      correctedText,
+      isPerfect: false,
+      reviewMode: "context",
       pointsAward,
       onRetry,
       onContinue
