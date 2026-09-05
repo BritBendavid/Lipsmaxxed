@@ -856,6 +856,15 @@ form {
   border: 1px solid rgba(187, 247, 208, 0.34);
 }
 
+.speech-review-card.grammar-check-card {
+  background: rgba(245, 158, 11, 0.09);
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.speech-review-card.grammar-check-card .speech-review-title {
+  color: #fde68a;
+}
+
 .speech-review-title {
   color: #fecaca;
   font-weight: 900;
@@ -7113,6 +7122,9 @@ function addSpeechReviewCard({
   isPerfect = false,
   reviewMode = "language",
   reviewTitle = "",
+  preserveExisting = false,
+  showActions = true,
+  scheduleCorrections = true,
   pointsAward = null,
   onRetry,
   onContinue
@@ -7127,7 +7139,9 @@ function addSpeechReviewCard({
     });
   }
 
-  removeSpeechReviewCard();
+  if (!preserveExisting) {
+    removeSpeechReviewCard();
+  }
 
   const correctionId = `correction-${++correctionCounter}`;
 
@@ -7144,7 +7158,7 @@ function addSpeechReviewCard({
     );
 
   const tokens = createCorrectionTokensFromPairs(pairs, correctionId, correctionText);
-  if (!isPerfect) {
+  if (!isPerfect && scheduleCorrections) {
   pairs
     .filter(pair => pair.wasTranslated && pair.correctedWord)
     .forEach(pair => {
@@ -7162,6 +7176,10 @@ function addSpeechReviewCard({
 
   if (isPerfect) {
     card.classList.add("perfect-card");
+  }
+
+  if (reviewMode === "grammar") {
+    card.classList.add("grammar-check-card");
   }
 
   const headerRow = document.createElement("div");
@@ -7221,7 +7239,7 @@ headerRow.appendChild(pointsEarned);
   card.appendChild(headerRow);
 card.appendChild(layout);
 
-  if (!isPerfect) {
+  if (!isPerfect && showActions) {
     const actions = document.createElement("div");
     actions.className = "speech-review-actions correction-actions-row";
 
@@ -8236,6 +8254,12 @@ if (!isCorrectionRetry) {
     ? acceptedText
     : analysis.correctedText || transcript;
   const didYouMeanText = analysis.didYouMeanText || correctedText || transcript;
+  const grammarApplicable = analysis.grammarApplicable === true;
+  const grammarCorrect = !grammarApplicable || analysis.grammarCorrect === true;
+  const grammarCorrectedText = grammarCorrect
+    ? acceptedText
+    : analysis.grammarCorrectedText || acceptedText;
+  const grammarNeedsReview = grammarApplicable && !grammarCorrect;
   const reviewedTranscript = phoneticRescueApplied
     ? acceptedText
     : transcript;
@@ -8287,7 +8311,11 @@ const pointsAward = confirmedSpokenText
       language: languageSelect.value
     };
 
-  if (responseMakesSense && !hasForeignLanguageParts(parts)) {
+  if (
+    responseMakesSense &&
+    !hasForeignLanguageParts(parts) &&
+    !grammarNeedsReview
+  ) {
     const prepared = pendingBackgroundBot;
 
     activeSpeechCorrection = null;
@@ -8318,23 +8346,17 @@ const pointsAward = confirmedSpokenText
     suggestion,
     didYouMeanText,
     correctedText,
+    grammarCorrectedText,
+    grammarNeedsReview,
     expectedTarget: expectedTargetForAnswer,
     prepared: pendingBackgroundBot
   };
 
-  const correctionCard = addSpeechReviewCard({
-    transcript: reviewedTranscript,
-    suggestion,
-    didYouMeanText,
-    parts,
-    correctedText,
-    isPerfect: false,
-    reviewMode: responseMakesSense ? "language" : "context",
-    pointsAward,
-    onRetry: () => {
-      setSpeechStatus("Recording");
-    },
-    onContinue: async () => {
+  const onRetry = () => {
+    setSpeechStatus("Recording");
+  };
+
+  const onContinue = async () => {
       const prepared = activeSpeechCorrection?.prepared || pendingBackgroundBot;
 
       activeSpeechCorrection = null;
@@ -8344,8 +8366,80 @@ const pointsAward = confirmedSpokenText
       if (prepared) {
         await revealPreparedBotResponse(prepared);
       }
+  };
+
+  let correctionCard;
+
+  if (!responseMakesSense) {
+    correctionCard = addSpeechReviewCard({
+      transcript: reviewedTranscript,
+      suggestion,
+      didYouMeanText,
+      parts,
+      correctedText,
+      isPerfect: false,
+      reviewMode: "context",
+      pointsAward,
+      onRetry,
+      onContinue
+    });
+
+    if (grammarNeedsReview) {
+      addSpeechReviewCard({
+        transcript: reviewedTranscript,
+        suggestion: grammarCorrectedText,
+        parts,
+        correctedText: grammarCorrectedText,
+        isPerfect: false,
+        reviewMode: "grammar",
+        reviewTitle: "Grammar check",
+        preserveExisting: true,
+        showActions: false,
+        scheduleCorrections: false
+      });
     }
-  });
+  } else if (hasForeignLanguageParts(parts)) {
+    correctionCard = addSpeechReviewCard({
+      transcript: reviewedTranscript,
+      suggestion,
+      parts,
+      correctedText,
+      isPerfect: false,
+      reviewMode: "language",
+      pointsAward,
+      onRetry,
+      onContinue
+    });
+
+    if (grammarNeedsReview) {
+      addSpeechReviewCard({
+        transcript: reviewedTranscript,
+        suggestion: grammarCorrectedText,
+        parts,
+        correctedText: grammarCorrectedText,
+        isPerfect: false,
+        reviewMode: "grammar",
+        reviewTitle: "Grammar check",
+        preserveExisting: true,
+        showActions: false,
+        scheduleCorrections: false
+      });
+    }
+  } else {
+    correctionCard = addSpeechReviewCard({
+      transcript: reviewedTranscript,
+      suggestion: grammarCorrectedText,
+      parts,
+      correctedText: grammarCorrectedText,
+      isPerfect: false,
+      reviewMode: "grammar",
+      reviewTitle: "Grammar check",
+      scheduleCorrections: false,
+      pointsAward,
+      onRetry,
+      onContinue
+    });
+  }
 
   if (pointsAward?.pointsGained > 0) {
   showPointsAward(
@@ -8410,6 +8504,9 @@ const pointsAward = confirmedSpokenText
     didYouMeanText: data.didYouMeanText || "",
     responseMakesSense: data.responseMakesSense === true,
     phoneticRescueApplied: data.phoneticRescueApplied === true,
+    grammarApplicable: data.grammarApplicable === true,
+    grammarCorrect: data.grammarCorrect === true,
+    grammarCorrectedText: data.grammarCorrectedText || text,
     targetProduced: data.targetProduced === true
   };
 }
