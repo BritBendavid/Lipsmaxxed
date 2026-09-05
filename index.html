@@ -865,6 +865,18 @@ form {
   color: #fde68a;
 }
 
+.grammar-rule-note {
+  color: #d8dee9;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1.5;
+  padding: 11px 13px;
+  background: rgba(251, 191, 36, 0.07);
+  border-left: 2px solid rgba(251, 191, 36, 0.55);
+  border-radius: 4px 10px 10px 4px;
+}
+
 .speech-review-title {
   color: #fecaca;
   font-weight: 900;
@@ -7122,6 +7134,7 @@ function addSpeechReviewCard({
   isPerfect = false,
   reviewMode = "language",
   reviewTitle = "",
+  grammarExplanation = "",
   scheduleCorrections = true,
   pointsAward = null,
   onRetry,
@@ -7236,6 +7249,13 @@ headerRow.appendChild(pointsEarned);
 
   card.appendChild(headerRow);
 card.appendChild(layout);
+
+  if (reviewMode === "grammar" && grammarExplanation.trim()) {
+    const ruleNote = document.createElement("div");
+    ruleNote.className = "grammar-rule-note";
+    ruleNote.textContent = grammarExplanation.trim();
+    card.appendChild(ruleNote);
+  }
 
   if (!isPerfect) {
     const actions = document.createElement("div");
@@ -8258,6 +8278,9 @@ if (!isCorrectionRetry) {
     ? acceptedText
     : analysis.grammarCorrectedText || acceptedText;
   const grammarNeedsReview = grammarApplicable && !grammarCorrect;
+  const grammarExplanation = grammarNeedsReview
+    ? analysis.grammarExplanation || ""
+    : "";
   const hasForeignParts = hasForeignLanguageParts(parts);
   const reviewedTranscript = phoneticRescueApplied
     ? acceptedText
@@ -8346,6 +8369,7 @@ const pointsAward = confirmedSpokenText
     didYouMeanText,
     correctedText,
     grammarCorrectedText,
+    grammarExplanation,
     grammarNeedsReview,
     expectedTarget: expectedTargetForAnswer,
     prepared: pendingBackgroundBot
@@ -8405,6 +8429,7 @@ const pointsAward = confirmedSpokenText
       isPerfect: false,
       reviewMode: "grammar",
       reviewTitle: "Grammar check",
+      grammarExplanation,
       scheduleCorrections: false,
       pointsAward,
       onRetry,
@@ -8478,6 +8503,7 @@ const pointsAward = confirmedSpokenText
     grammarApplicable: data.grammarApplicable === true,
     grammarCorrect: data.grammarCorrect === true,
     grammarCorrectedText: data.grammarCorrectedText || text,
+    grammarExplanation: data.grammarExplanation || "",
     targetProduced: data.targetProduced === true
   };
 }
