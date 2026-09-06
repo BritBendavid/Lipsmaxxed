@@ -4019,6 +4019,7 @@ const correctionState = new Map();
 
     let correctionRetryMode = false;
 let correctionRetrySourceMode = "";
+let correctionRetryPriorGrammar = null;
 
     let activePlayback = null;
     let activeWordAudioLock = null;
@@ -4628,6 +4629,7 @@ async function startConfiguredChat() {
   activeSpeechCorrection = null;
   correctionRetryMode = false;
   correctionRetrySourceMode = "";
+  correctionRetryPriorGrammar = null;
   activeCorrectionUserMessageId = null;
   reviewCooldownTurnByKey.clear();
   messageHistory.innerHTML = "";
@@ -8232,6 +8234,13 @@ const responsePromise = (async () => {
 
   async function startCorrectionRetryRecording() {
   correctionRetrySourceMode = activeSpeechCorrection?.reviewMode || "";
+  correctionRetryPriorGrammar =
+    correctionRetrySourceMode === "grammar"
+      ? {
+          correctedText: activeSpeechCorrection?.grammarCorrectedText || "",
+          explanation: activeSpeechCorrection?.grammarExplanation || ""
+        }
+      : null;
   removeSpeechReviewCard();
 
   correctionRetryMode = true;
@@ -8244,6 +8253,7 @@ const responsePromise = (async () => {
   } catch (error) {
     correctionRetryMode = false;
     correctionRetrySourceMode = "";
+    correctionRetryPriorGrammar = null;
     showSystemMessage(getReadableError(error));
     resetSpeechButton();
     setSpeechStatus("Tap to speak");
@@ -8256,8 +8266,12 @@ const responsePromise = (async () => {
   const responseProgress = addResponseProgress("language");
   const isCorrectionRetry = correctionRetryMode;
 const retrySourceMode = isCorrectionRetry ? correctionRetrySourceMode : "";
+const retryPriorGrammar = isCorrectionRetry
+  ? correctionRetryPriorGrammar
+  : null;
 correctionRetryMode = false;
 correctionRetrySourceMode = "";
+correctionRetryPriorGrammar = null;
 const expectedTargetForAnswer = isCorrectionRetry
   ? activeSpeechCorrection?.expectedTarget || null
   : beginUserAnswer();
@@ -8289,7 +8303,17 @@ if (!isCorrectionRetry) {
     analysis = await analyzeUserMessageLanguageParts(
       transcript,
       expectedTargetForAnswer,
-      { allowPhoneticRescue: true }
+      {
+        allowPhoneticRescue: true,
+        priorGrammarCorrectedText:
+          retrySourceMode === "grammar"
+            ? retryPriorGrammar?.correctedText || ""
+            : "",
+        priorGrammarExplanation:
+          retrySourceMode === "grammar"
+            ? retryPriorGrammar?.explanation || ""
+            : ""
+      }
     );
   } catch {
     if (pendingBackgroundBot) {
@@ -8316,13 +8340,26 @@ if (!isCorrectionRetry) {
     : analysis.correctedText || transcript;
   const didYouMeanText = analysis.didYouMeanText || correctedText || transcript;
   const grammarApplicable = analysis.grammarApplicable === true;
-  const grammarCorrect = !grammarApplicable || analysis.grammarCorrect === true;
+  const priorGrammarRecommendationsSatisfied =
+    retrySourceMode === "grammar" &&
+    analysis.priorGrammarRecommendationsSatisfied === true;
+  const priorGrammarRecommendationsUnfulfilled =
+    retrySourceMode === "grammar" &&
+    !priorGrammarRecommendationsSatisfied;
+  const grammarCorrect =
+    priorGrammarRecommendationsSatisfied ||
+    (!priorGrammarRecommendationsUnfulfilled &&
+      (!grammarApplicable || analysis.grammarCorrect === true));
   const grammarCorrectedText = grammarCorrect
     ? acceptedText
-    : analysis.grammarCorrectedText || acceptedText;
+    : analysis.grammarCorrectedText ||
+      retryPriorGrammar?.correctedText ||
+      acceptedText;
   const grammarNeedsReview = grammarApplicable && !grammarCorrect;
   const grammarExplanation = grammarNeedsReview
-    ? analysis.grammarExplanation || ""
+    ? analysis.grammarExplanation ||
+      retryPriorGrammar?.explanation ||
+      ""
     : "";
   const hasForeignParts = hasForeignLanguageParts(parts);
   const reviewedTranscript = phoneticRescueApplied
@@ -8375,29 +8412,6 @@ const pointsAward = confirmedSpokenText
       newTotal: currentLanguagePoints,
       language: languageSelect.value
     };
-
-  const suppressRepeatedGrammarCheck =
-    isCorrectionRetry &&
-    retrySourceMode === "grammar" &&
-    responseMakesSense &&
-    !hasForeignParts &&
-    grammarNeedsReview;
-
-  if (suppressRepeatedGrammarCheck) {
-    const prepared = pendingBackgroundBot;
-
-    activeSpeechCorrection = null;
-    pendingBackgroundBot = null;
-    activeCorrectionUserMessageId = null;
-
-    if (prepared) {
-      await revealPreparedBotResponse(prepared);
-    } else {
-      responseProgress.remove();
-    }
-
-    return;
-  }
 
   if (
     responseMakesSense &&
@@ -8554,6 +8568,10 @@ const pointsAward = confirmedSpokenText
       chatLanguage: languageSelect.value,
       precedingMessage,
       allowPhoneticRescue: options.allowPhoneticRescue === true,
+      priorGrammarCorrectedText:
+        options.priorGrammarCorrectedText || "",
+      priorGrammarExplanation:
+        options.priorGrammarExplanation || "",
       userGenderInstruction: getUserGenderInstruction(),
       targetWord:
         expectedTarget?.word_text ||
@@ -8576,6 +8594,8 @@ const pointsAward = confirmedSpokenText
     grammarCorrect: data.grammarCorrect === true,
     grammarCorrectedText: data.grammarCorrectedText || text,
     grammarExplanation: data.grammarExplanation || "",
+    priorGrammarRecommendationsSatisfied:
+      data.priorGrammarRecommendationsSatisfied === true,
     targetProduced: data.targetProduced === true
   };
 }
