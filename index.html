@@ -4018,6 +4018,7 @@ let pendingBackgroundBot = null;
 const correctionState = new Map();
 
     let correctionRetryMode = false;
+let correctionRetrySourceMode = "";
 
     let activePlayback = null;
     let activeWordAudioLock = null;
@@ -4624,6 +4625,10 @@ async function startConfiguredChat() {
   messages.length = 0;
   conversationTurn = 0;
   activeExpectedTarget = null;
+  activeSpeechCorrection = null;
+  correctionRetryMode = false;
+  correctionRetrySourceMode = "";
+  activeCorrectionUserMessageId = null;
   reviewCooldownTurnByKey.clear();
   messageHistory.innerHTML = "";
   if (upcomingWordsPanel) {
@@ -8226,6 +8231,7 @@ const responsePromise = (async () => {
 }
 
   async function startCorrectionRetryRecording() {
+  correctionRetrySourceMode = activeSpeechCorrection?.reviewMode || "";
   removeSpeechReviewCard();
 
   correctionRetryMode = true;
@@ -8237,6 +8243,7 @@ const responsePromise = (async () => {
     await startRecording();
   } catch (error) {
     correctionRetryMode = false;
+    correctionRetrySourceMode = "";
     showSystemMessage(getReadableError(error));
     resetSpeechButton();
     setSpeechStatus("Tap to speak");
@@ -8248,7 +8255,9 @@ const responsePromise = (async () => {
 
   const responseProgress = addResponseProgress("language");
   const isCorrectionRetry = correctionRetryMode;
+const retrySourceMode = isCorrectionRetry ? correctionRetrySourceMode : "";
 correctionRetryMode = false;
+correctionRetrySourceMode = "";
 const expectedTargetForAnswer = isCorrectionRetry
   ? activeSpeechCorrection?.expectedTarget || null
   : beginUserAnswer();
@@ -8367,6 +8376,29 @@ const pointsAward = confirmedSpokenText
       language: languageSelect.value
     };
 
+  const suppressRepeatedGrammarCheck =
+    isCorrectionRetry &&
+    retrySourceMode === "grammar" &&
+    responseMakesSense &&
+    !hasForeignParts &&
+    grammarNeedsReview;
+
+  if (suppressRepeatedGrammarCheck) {
+    const prepared = pendingBackgroundBot;
+
+    activeSpeechCorrection = null;
+    pendingBackgroundBot = null;
+    activeCorrectionUserMessageId = null;
+
+    if (prepared) {
+      await revealPreparedBotResponse(prepared);
+    } else {
+      responseProgress.remove();
+    }
+
+    return;
+  }
+
   if (
     responseMakesSense &&
     !hasForeignParts &&
@@ -8390,6 +8422,11 @@ const pointsAward = confirmedSpokenText
   }
 
   const suggestion = correctedText;
+  const reviewMode = hasForeignParts
+    ? "language"
+    : !responseMakesSense
+      ? "context"
+      : "grammar";
 
   responseProgress.remove();
   if (pendingBackgroundBot) {
@@ -8405,6 +8442,7 @@ const pointsAward = confirmedSpokenText
     grammarCorrectedText,
     grammarExplanation,
     grammarNeedsReview,
+    reviewMode,
     expectedTarget: expectedTargetForAnswer,
     prepared: pendingBackgroundBot
   };
@@ -8429,7 +8467,7 @@ const pointsAward = confirmedSpokenText
 
   // Display only the highest-priority applicable review:
   // language mismatch, then literal contextual mismatch, then grammar.
-  if (hasForeignParts) {
+  if (reviewMode === "language") {
     correctionCard = addSpeechReviewCard({
       transcript: reviewedTranscript,
       suggestion,
@@ -8441,7 +8479,7 @@ const pointsAward = confirmedSpokenText
       onRetry,
       onContinue
     });
-  } else if (!responseMakesSense) {
+  } else if (reviewMode === "context") {
     correctionCard = addSpeechReviewCard({
       transcript: reviewedTranscript,
       suggestion,
