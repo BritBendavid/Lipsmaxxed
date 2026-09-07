@@ -508,7 +508,15 @@ select option {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 14px;
+  gap: 0;
+}
+
+.bot-prompt-stack {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
 }
 
 .translate-all-button {
@@ -4030,15 +4038,17 @@ let thisTabIsRecoveryTab = false;
     let activeCorrectionUserMessageId = null;
 
 /*
-  A review stage is now the number of consecutive unaided successes.
-  Stage 0 -> try again after 2 conversational rounds.
-  Stage 1 -> try again after 3 rounds.
-  Stage 2 -> try again after 6 rounds.
-  The third consecutive success removes the active review row and marks the
-  word familiar in word_stats.
+  A review stage identifies the next step in a fixed recurrence sequence.
+  It is not a mastery streak:
+  0 = show now, 1 = after 5 turns, 2 = after 20, 3 = after 100.
+  After the 100-turn check, ordinary corpus-frequency expectations take over.
 */
-const REVIEW_RETURN_TURNS = [2, 3, 6];
-const REVIEW_MASTERY_STREAK = 3;
+const REVIEW_RETURN_TURNS = [0, 5, 20, 100];
+const REGULAR_REVIEW_STAGE = REVIEW_RETURN_TURNS.length;
+const NEAR_FRONTIER_MIN_RANKS = 120;
+const NEAR_FRONTIER_RATIO = 1.35;
+const LOW_USAGE_EXPECTED_MINIMUM = 2.5;
+const LOW_USAGE_RATIO = 0.4;
 
 let activeChatSession = null;
 
@@ -4104,6 +4114,12 @@ function attachBonusWordsPanelToBotMessage(botMessageId) {
   row.appendChild(upcomingWordsPanel);
 }
 
+function hideBonusWordsWhilePromptLoads() {
+  if (!upcomingWordsPanel) return;
+  upcomingWordsPanel.classList.add("hidden");
+  currentBonusWordKeys = new Set();
+}
+
 async function getRankedFrequencyList(language) {
   const cached = frequencyListCache.get(language);
   if (cached) return cached;
@@ -4118,7 +4134,7 @@ async function getRankedFrequencyList(language) {
     body: JSON.stringify({
       action: "frequency-list",
       language,
-      limit: 3000
+      limit: 5000
     })
   });
 
@@ -4127,7 +4143,8 @@ async function getRankedFrequencyList(language) {
     .map(item => ({
       word: String(item?.word || "").trim(),
       word_key: normalizeStatsWord(item?.word || ""),
-      frequency_rank: Number(item?.rank || 0)
+      frequency_rank: Number(item?.rank || 0),
+      corpus_count: Math.max(0, Number(item?.count || 0))
     }))
     .filter(item => item.word && item.word_key && item.frequency_rank > 0);
 
@@ -4139,9 +4156,54 @@ function getReviewCooldownTurn(wordKey) {
   return Number(reviewCooldownTurnByKey.get(wordKey) || 0);
 }
 
+function isForcedReviewReason(reason) {
+  return [
+    "missed",
+    "translated",
+    "correction",
+    "revealed",
+    "spoken",
+    "pending-frequency"
+  ].includes(String(reason || ""));
+}
+
+function getReviewScheduleStorageKey(language = getCurrentChatLanguage()) {
+  return `lipsmaxxed-review-turns:${currentUser?.id || "guest"}:${language}`;
+}
+
+function saveReviewScheduleState(language = getCurrentChatLanguage()) {
+  try {
+    localStorage.setItem(getReviewScheduleStorageKey(language), JSON.stringify({
+      conversationTurn,
+      cooldowns: Object.fromEntries(reviewCooldownTurnByKey)
+    }));
+  } catch (error) {
+    console.warn("review schedule save failed", error);
+  }
+}
+
+function loadReviewScheduleState(language = getCurrentChatLanguage()) {
+  reviewCooldownTurnByKey.clear();
+
+  try {
+    const saved = JSON.parse(localStorage.getItem(getReviewScheduleStorageKey(language)) || "null");
+    conversationTurn = Math.max(0, Number(saved?.conversationTurn || 0));
+
+    for (const [wordKey, dueTurn] of Object.entries(saved?.cooldowns || {})) {
+      if (wordKey && Number.isFinite(Number(dueTurn))) {
+        reviewCooldownTurnByKey.set(wordKey, Math.max(0, Number(dueTurn)));
+      }
+    }
+  } catch (error) {
+    conversationTurn = 0;
+    console.warn("review schedule load failed", error);
+  }
+}
+
 function setReviewCooldown(wordKey, rounds) {
   if (!wordKey) return;
-  reviewCooldownTurnByKey.set(wordKey, conversationTurn + Math.max(1, Number(rounds) || 1));
+  reviewCooldownTurnByKey.set(wordKey, conversationTurn + Math.max(0, Number(rounds) || 0));
+  saveReviewScheduleState();
 }
 
 function targetFromVocabularyProfile(profile) {
@@ -4153,21 +4215,16 @@ function targetFromVocabularyProfile(profile) {
     word_text: word,
     word_key: normalizeStatsWord(word),
     frequency_rank: Number(profile?.primaryTargetRank || 0),
-    stage: Number(profile?.primaryTargetStreak || 0)
+    stage: Number(profile?.primaryTargetStage || 0)
   };
 }
 
 function beginUserAnswer() {
   conversationTurn += 1;
+  saveReviewScheduleState();
 
   const expectedTarget = activeExpectedTarget;
   activeExpectedTarget = null;
-
-  if (expectedTarget?.word_key) {
-    // Prevent the response being targeted again immediately while language
-    // analysis decides whether this answer was an unaided success.
-    setReviewCooldown(expectedTarget.word_key, REVIEW_RETURN_TURNS[0]);
-  }
 
   return expectedTarget;
 }
@@ -4180,7 +4237,7 @@ async function getFrequencyFrontierTargets(languageOverride = null, limit = 5) {
     getRankedFrequencyList(language),
     supabaseClient
       .from("word_stats")
-      .select("word_key, word_text, spoken_count, familiar_count")
+      .select("word_key, word_text, spoken_count, familiar_count, translated_count")
       .eq("user_id", currentUser.id)
       .eq("language", language),
     supabaseClient
@@ -4199,90 +4256,138 @@ async function getFrequencyFrontierTargets(languageOverride = null, limit = 5) {
     return [];
   }
 
-  const rankByKey = new Map(
-    frequencyWords.map(item => [item.word_key, item.frequency_rank])
+  const frequencyByKey = new Map(
+    frequencyWords.map(item => [item.word_key, item])
+  );
+  const statsRows = Array.isArray(statsResult.data) ? statsResult.data : [];
+  const statsByKey = new Map(
+    statsRows.map(row => [row.word_key, row])
   );
   const reviewRows = Array.isArray(reviewResult.data) ? reviewResult.data : [];
-  const reviewKeys = new Set(reviewRows.map(row => row.word_key).filter(Boolean));
-  const familiarKeys = new Set(
-    (statsResult.data || [])
+  const activeReviewKeys = new Set(
+    reviewRows
       .filter(row =>
-        Number(row.familiar_count || 0) >= REVIEW_MASTERY_STREAK ||
-        (Number(row.spoken_count || 0) >= REVIEW_MASTERY_STREAK && !reviewKeys.has(row.word_key))
+        isForcedReviewReason(row.reason) &&
+        Number(row.stage || 0) < REGULAR_REVIEW_STAGE
       )
       .map(row => row.word_key)
       .filter(Boolean)
   );
 
+  // The natural frontier is simply the most common corpus words the learner
+  // has never produced. A word is no longer removed only after three passes.
+  const unspokenWords = frequencyWords.filter(item =>
+    Number(statsByKey.get(item.word_key)?.spoken_count || 0) === 0
+  );
+  const naturalWindow = unspokenWords.slice(0, Math.max(limit, 5));
+  const frontierRank = naturalWindow[0]?.frequency_rank ||
+    frequencyWords[frequencyWords.length - 1]?.frequency_rank || 1;
+  const naturalWindowMaxRank = naturalWindow[naturalWindow.length - 1]?.frequency_rank || frontierRank;
+
   const eligibleReviews = reviewRows
-    .filter(row =>
-      Number(row.stage || 0) < REVIEW_MASTERY_STREAK &&
-      getReviewCooldownTurn(row.word_key) <= conversationTurn
-    )
     .map(row => ({
       ...row,
-      frequency_rank: rankByKey.get(row.word_key) || Number.MAX_SAFE_INTEGER
+      frequency_rank:
+        frequencyByKey.get(row.word_key)?.frequency_rank || Number.MAX_SAFE_INTEGER,
+      corpus_count: frequencyByKey.get(row.word_key)?.corpus_count || 0
     }))
+    .filter(row => {
+      if (!isForcedReviewReason(row.reason)) return false;
+      if (Number(row.stage || 0) >= REGULAR_REVIEW_STAGE) return false;
+      if (getReviewCooldownTurn(row.word_key) > conversationTurn) return false;
+
+      // A previously translated near-frontier word waits until the learner's
+      // natural frequency progression reaches it. Distant words never enter a
+      // forced recurrence row in the first place.
+      if (row.reason === "pending-frequency") {
+        return row.frequency_rank <= naturalWindowMaxRank;
+      }
+
+      return true;
+    })
     .sort((a, b) => {
-      const aDue = new Date(a.next_due_at || 0).getTime();
-      const bDue = new Date(b.next_due_at || 0).getTime();
-      if (aDue !== bDue) return aDue - bDue;
+      const stageDifference = Number(a.stage || 0) - Number(b.stage || 0);
+      if (stageDifference !== 0) return stageDifference;
       return a.frequency_rank - b.frequency_rank;
     });
 
-  const targets = eligibleReviews.slice(0, limit);
-  if (targets.length >= limit) return targets;
+  const targets = [];
+  const selectedKeys = new Set();
+  const addTarget = row => {
+    if (!row?.word_key || selectedKeys.has(row.word_key) || targets.length >= limit) return;
+    selectedKeys.add(row.word_key);
+    targets.push(row);
+  };
 
-  const now = new Date().toISOString();
-  const needed = limit - targets.length;
-  const newWords = frequencyWords
-    .filter(item => !familiarKeys.has(item.word_key) && !reviewKeys.has(item.word_key))
-    .slice(0, needed);
+  eligibleReviews.forEach(row => addTarget({ ...row, queue_kind: "scheduled" }));
 
-  for (const item of newWords) {
-    const row = {
-      user_id: currentUser.id,
-      language,
-      word_key: item.word_key,
-      word_text: item.word,
-      reason: "frequency",
-      stage: 0,
-      next_due_at: now,
-      updated_at: now
-    };
+  /*
+    Compare the learner's production rate with the corpus rate. A word becomes
+    an occasional check only when the corpus predicts at least 2.5 uses and the
+    learner has produced under 40% of that expectation. This catches very
+    common words that have been said, but suspiciously rarely.
+  */
+  const totalSpoken = statsRows.reduce(
+    (sum, row) => sum + Math.max(0, Number(row.spoken_count || 0)),
+    0
+  );
+  const corpusTotal = frequencyWords.reduce(
+    (sum, item) => sum + Math.max(0, Number(item.corpus_count || 0)),
+    0
+  );
+  const lowUsageChecks = frequencyWords
+    .filter(item => item.frequency_rank <= Math.max(naturalWindowMaxRank, frontierRank))
+    .map(item => {
+      const spoken = Math.max(0, Number(statsByKey.get(item.word_key)?.spoken_count || 0));
+      const expected = corpusTotal > 0
+        ? totalSpoken * (Number(item.corpus_count || 0) / corpusTotal)
+        : 0;
+      return { ...item, spoken, expected, deficit: expected - spoken };
+    })
+    .filter(item =>
+      item.spoken > 0 &&
+      item.expected >= LOW_USAGE_EXPECTED_MINIMUM &&
+      item.spoken / item.expected < LOW_USAGE_RATIO &&
+      !activeReviewKeys.has(item.word_key) &&
+      getReviewCooldownTurn(item.word_key) <= conversationTurn
+    )
+    .sort((a, b) => b.deficit - a.deficit || a.frequency_rank - b.frequency_rank);
 
-    const { data, error } = await supabaseClient
-      .from("word_review_targets")
-      .upsert(row, { onConflict: "user_id,language,word_key" })
-      .select("*")
-      .single();
+  // Keep routine retention checks from crowding out frequency progression.
+  lowUsageChecks.slice(0, 1).forEach(item => addTarget({
+    ...item,
+    word_text: item.word,
+    reason: "low-frequency-use",
+    stage: REGULAR_REVIEW_STAGE,
+    queue_kind: "frequency-check"
+  }));
 
-    if (error) {
-      console.warn("frequency frontier seed failed", error);
-      continue;
-    }
-
-    targets.push({
-      ...(data || row),
-      frequency_rank: item.frequency_rank
-    });
-  }
+  unspokenWords.forEach(item => addTarget({
+    ...item,
+    word_text: item.word,
+    reason: "frequency",
+    stage: REGULAR_REVIEW_STAGE,
+    queue_kind: "frequency"
+  }));
 
   return targets;
 }
     
-async function loadUpcomingWords(languageOverride = null) {
+async function loadUpcomingWords(languageOverride = null, rowsOverride = null) {
   if (!currentUser || !upcomingWordsPanel || !upcomingWordsList) {
+    hideBonusWordsWhilePromptLoads();
     return;
   }
 
   const language = languageOverride || getCurrentChatLanguage();
   const fluentLanguage = getCurrentFluentLanguage();
 
-  let rows = [];
+  let rows = Array.isArray(rowsOverride) ? rowsOverride : [];
 
   try {
-    rows = await getFrequencyFrontierTargets(language, 5);
+    if (!Array.isArray(rowsOverride)) {
+      rows = await getFrequencyFrontierTargets(language, 5);
+    }
   } catch (error) {
     console.warn("bonus words load failed", error);
     upcomingWordsPanel.classList.add("hidden");
@@ -4294,9 +4399,11 @@ async function loadUpcomingWords(languageOverride = null) {
     .map(row => normalizeStatsWord(row.word_text || row.word_key || ""))
     .filter(Boolean)
 );
+  activeExpectedTarget = rows[0] || null;
 
   if (!rows.length) {
   currentBonusWordKeys = new Set();
+  activeExpectedTarget = null;
   upcomingWordsPanel.classList.add("hidden");
   upcomingWordsList.innerHTML = "";
   return;
@@ -4324,10 +4431,16 @@ async function loadUpcomingWords(languageOverride = null) {
     chatLanguageWord.className = "upcoming-word-chat-language hidden";
     chatLanguageWord.textContent = chatWord;
 
-    const streak = Math.max(0, Math.min(2, Number(row.stage || 0)));
     const progressText = document.createElement("div");
     progressText.className = "upcoming-word-progress";
-    progressText.textContent = `${streak} of ${REVIEW_MASTERY_STREAK}`;
+    const stage = Math.max(0, Number(row.stage || 0));
+    progressText.textContent = row.reason === "low-frequency-use"
+      ? "Quick retention check"
+      : row.reason === "frequency"
+        ? "Next by frequency"
+        : stage === 0
+          ? "Practice now"
+          : `${REVIEW_RETURN_TURNS[stage] || 100}-turn review`;
 
     const actionButton = document.createElement("button");
     actionButton.type = "button";
@@ -4400,7 +4513,7 @@ async function getVocabularyProfileForPrompt(languageOverride = null) {
       upcomingReviewWords: [],
       primaryTargetWord: "",
       primaryTargetRank: 0,
-      primaryTargetStreak: 0
+      primaryTargetStage: 0
     };
   }
 
@@ -4423,7 +4536,7 @@ async function getVocabularyProfileForPrompt(languageOverride = null) {
       .filter(Boolean),
     primaryTargetWord: primaryTarget?.word_text || primaryTarget?.word_key || "",
     primaryTargetRank: Number(primaryTarget?.frequency_rank || 0),
-    primaryTargetStreak: Math.max(0, Math.min(2, Number(primaryTarget?.stage || 0)))
+    primaryTargetStage: Math.max(0, Number(primaryTarget?.stage || 0))
   };
   const cacheKey = `${currentUser.id}|${language}`;
   const cached = vocabularyProfileCache.get(cacheKey);
@@ -4650,15 +4763,17 @@ async function startConfiguredChat() {
     startedAt: Date.now()
   };
 
+  loadReviewScheduleState(selectedChatLanguage);
+
   closeChatSetup();
 
   loadLanguagePoints(selectedChatLanguage).catch(() => {});
-  loadUpcomingWords(selectedChatLanguage).catch(() => {});
 
   await sendOpeningBotMessage();
 }
 
 async function sendOpeningBotMessage() {
+  hideBonusWordsWhilePromptLoads();
   const progress = addResponseProgress("context");
   const language = getCurrentChatLanguage();
 
@@ -4749,6 +4864,53 @@ function getDateAfterMs(ms) {
   return new Date(Date.now() + ms).toISOString();
 }
 
+async function getWordSchedulingBand(wordKey, language) {
+  const frequencyWords = await getRankedFrequencyList(language);
+  const frequencyByKey = new Map(frequencyWords.map(item => [item.word_key, item]));
+  const target = frequencyByKey.get(wordKey);
+
+  if (!target) return { band: "far", target: null, frontierRank: 0 };
+
+  const { data, error } = await supabaseClient
+    .from("word_stats")
+    .select("word_key, spoken_count")
+    .eq("user_id", currentUser.id)
+    .eq("language", language);
+
+  if (error) {
+    console.warn("review scheduling frontier failed", error);
+    return { band: "far", target, frontierRank: 0 };
+  }
+
+  const spokenByKey = new Map(
+    (data || []).map(row => [row.word_key, Math.max(0, Number(row.spoken_count || 0))])
+  );
+  const frontier = frequencyWords.find(item =>
+    Number(spokenByKey.get(item.word_key) || 0) === 0
+  );
+  const frontierRank = frontier?.frequency_rank || target.frequency_rank;
+  const currentQueueMaxRank = Math.max(
+    0,
+    ...[...currentBonusWordKeys]
+      .map(key => frequencyByKey.get(key)?.frequency_rank || 0)
+  );
+  const immediateCutoff = Math.max(frontierRank, currentQueueMaxRank);
+  const nearCutoff = Math.max(
+    immediateCutoff + NEAR_FRONTIER_MIN_RANKS,
+    Math.ceil(immediateCutoff * NEAR_FRONTIER_RATIO)
+  );
+
+  if (target.frequency_rank <= immediateCutoff) {
+    return { band: "immediate", target, frontierRank };
+  }
+
+  if (target.frequency_rank <= nearCutoff) {
+    return { band: "near", target, frontierRank };
+  }
+
+  return { band: "far", target, frontierRank };
+}
+
 async function scheduleWordReview(word, reason = "correction", languageOverride = null) {
   if (!currentUser) return;
 
@@ -4759,6 +4921,7 @@ async function scheduleWordReview(word, reason = "correction", languageOverride 
   if (!wordKey || !wordText) return;
 
   const now = new Date().toISOString();
+  const scheduling = await getWordSchedulingBand(wordKey, language);
 
   const { data: existing, error: selectError } = await supabaseClient
     .from("word_review_targets")
@@ -4773,23 +4936,40 @@ async function scheduleWordReview(word, reason = "correction", languageOverride 
     return;
   }
 
-  const stage = 0;
+  if (scheduling.band === "far") {
+    // Keep the encounter in word_stats, but never force a word far beyond the
+    // learner's current frequency frontier into the bonus queue.
+    if (existing?.id) {
+      await supabaseClient
+        .from("word_review_targets")
+        .delete()
+        .eq("id", existing.id);
+    }
+    reviewCooldownTurnByKey.delete(wordKey);
+    saveReviewScheduleState(language);
+    return;
+  }
 
   const next = existing || {
     user_id: currentUser.id,
     language,
     word_key: wordKey,
     word_text: wordText,
-    stage
+    stage: 0
   };
 
   next.word_text = next.word_text || wordText;
-  next.reason = reason;
+  next.reason = scheduling.band === "near" ? "pending-frequency" : reason;
   next.stage = 0;
   next.next_due_at = now;
   next.updated_at = now;
 
-  setReviewCooldown(wordKey, REVIEW_RETURN_TURNS[0]);
+  if (scheduling.band === "immediate") {
+    setReviewCooldown(wordKey, 0);
+  } else {
+    reviewCooldownTurnByKey.delete(wordKey);
+    saveReviewScheduleState(language);
+  }
 
   const { error: upsertError } = await supabaseClient
     .from("word_review_targets")
@@ -5087,6 +5267,19 @@ function showPointsAward(pointsGained, newTotal, language, sourceEl = null, deta
   animatePointsTotal(oldTotal, newTotal, language);
 }
 
+async function getOrdinaryReviewIntervalTurns(wordKey, language) {
+  const frequencyWords = await getRankedFrequencyList(language);
+  const corpusTotal = frequencyWords.reduce(
+    (sum, item) => sum + Math.max(0, Number(item.corpus_count || 0)),
+    0
+  );
+  const corpusCount = frequencyWords.find(item => item.word_key === wordKey)?.corpus_count || 0;
+
+  return corpusCount > 0 && corpusTotal > 0
+    ? Math.max(20, Math.min(500, Math.round(corpusTotal / corpusCount)))
+    : 100;
+}
+
 async function markReviewWordSpoken(word, languageOverride = null) {
   if (!currentUser) return;
 
@@ -5110,63 +5303,47 @@ async function markReviewWordSpoken(word, languageOverride = null) {
     return;
   }
 
-  if (!existing) return;
+  if (!existing) {
+    if (currentBonusWordKeys.has(wordKey)) {
+      const ordinaryInterval = await getOrdinaryReviewIntervalTurns(wordKey, language);
+      setReviewCooldown(wordKey, ordinaryInterval);
+    }
+    return;
+  }
+
+  if (!isForcedReviewReason(existing.reason)) {
+    await supabaseClient
+      .from("word_review_targets")
+      .delete()
+      .eq("id", existing.id);
+    const ordinaryInterval = await getOrdinaryReviewIntervalTurns(wordKey, language);
+    setReviewCooldown(wordKey, ordinaryInterval);
+    return;
+  }
 
   const currentStage = Math.max(0, Number(existing.stage || 0));
-  if (currentStage >= REVIEW_MASTERY_STREAK) return;
-  const nextStage = Math.min(currentStage + 1, REVIEW_MASTERY_STREAK);
+  const nextStage = Math.min(currentStage + 1, REGULAR_REVIEW_STAGE);
 
-  if (nextStage >= REVIEW_MASTERY_STREAK) {
-    const { error: masteryError } = await supabaseClient
+  if (nextStage >= REGULAR_REVIEW_STAGE) {
+    const { error: completionError } = await supabaseClient
       .from("word_review_targets")
-      .update({
-        last_spoken_at: now,
-        next_due_at: getDateAfterMs(30 * 24 * 60 * 60 * 1000),
-        stage: REVIEW_MASTERY_STREAK,
-        reason: "familiar",
-        updated_at: now
-      })
+      .delete()
       .eq("id", existing.id);
 
-    if (masteryError) {
-      console.warn("review mastery update failed", masteryError);
+    if (completionError) {
+      console.warn("review sequence completion failed", completionError);
       return;
     }
 
-    const { data: statsRow } = await supabaseClient
-      .from("word_stats")
-      .select("*")
-      .eq("user_id", currentUser.id)
-      .eq("language", language)
-      .eq("word_key", wordKey)
-      .maybeSingle();
-
-    await supabaseClient
-      .from("word_stats")
-      .upsert({
-        ...(statsRow || {
-          user_id: currentUser.id,
-          language,
-          word_key: wordKey,
-          word_text: word,
-          spoken_count: 0,
-          translated_count: 0,
-          translated_spoken_baseline: null
-        }),
-        familiar_count: Math.max(
-          REVIEW_MASTERY_STREAK,
-          Number(statsRow?.familiar_count || 0)
-        ),
-        last_encountered_at: now
-      }, { onConflict: "user_id,language,word_key" });
-
-    reviewCooldownTurnByKey.delete(wordKey);
+    // The forced 0/5/20/100 sequence is finished. From this point on the
+    // corpus-derived low-usage calculation alone decides when it returns.
+    const ordinaryInterval = await getOrdinaryReviewIntervalTurns(wordKey, language);
+    setReviewCooldown(wordKey, ordinaryInterval);
     vocabularyProfileCache.delete(`${currentUser.id}|${language}`);
     return;
   }
 
-  const returnAfter = REVIEW_RETURN_TURNS[nextStage] || REVIEW_RETURN_TURNS[0];
-  setReviewCooldown(wordKey, returnAfter);
+  setReviewCooldown(wordKey, REVIEW_RETURN_TURNS[nextStage]);
 
   const { error: updateError } = await supabaseClient
     .from("word_review_targets")
@@ -5188,27 +5365,7 @@ async function markReviewWordMissed(word, languageOverride = null) {
   if (!currentUser) return;
 
   const language = languageOverride || getCurrentChatLanguage();
-  const wordKey = normalizeStatsWord(word);
-  if (!wordKey) return;
-
-  const now = new Date().toISOString();
-  setReviewCooldown(wordKey, REVIEW_RETURN_TURNS[0]);
-
-  const { error } = await supabaseClient
-    .from("word_review_targets")
-    .update({
-      stage: 0,
-      reason: "missed",
-      next_due_at: now,
-      updated_at: now
-    })
-    .eq("user_id", currentUser.id)
-    .eq("language", language)
-    .eq("word_key", wordKey);
-
-  if (error) {
-    console.warn("review miss update failed", error);
-  }
+  await scheduleWordReview(word, "missed", language);
 }
 
 async function ensureStaleSpokenWordsAreReviewTargets(languageOverride = null) {
@@ -8124,6 +8281,7 @@ function isSamePlayback(button, type, id) {
   progress = null,
   options = {}
 ) {
+  hideBonusWordsWhilePromptLoads();
   if (options.replaceLatestUser === true) {
     let latestUserIndex = -1;
 
@@ -8693,10 +8851,14 @@ const pointsAward = confirmedSpokenText
 
     const controls = createMessageAudioControls(id);
 
+    const promptStack = document.createElement("div");
+    promptStack.className = "bot-prompt-stack";
+    promptStack.appendChild(wordsEl);
+
     const row = document.createElement("div");
 row.className = "bot-message-row";
 
-row.appendChild(wordsEl);
+row.appendChild(promptStack);
 row.appendChild(controls);
 
 card.appendChild(row);
@@ -8706,7 +8868,7 @@ if (options.showSignedOutProTip === true && !currentUser) {
   proTip.className = "bot-pro-tip";
   proTip.setAttribute("role", "note");
   proTip.textContent = "Pro tip: If you don't understand a word, tap it once to hear it again and tap it twice for a translation!";
-  card.appendChild(proTip);
+  promptStack.appendChild(proTip);
 }
 
 const translateAllButton = document.createElement("button");
@@ -8718,7 +8880,7 @@ translateAllButton.addEventListener("click", () => {
     showSystemMessage(getReadableError(error));
   });
 });
-card.appendChild(translateAllButton);
+promptStack.appendChild(translateAllButton);
 
 messageHistory.appendChild(card);
 
@@ -9644,6 +9806,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
   }
 
   async function sendToBot(userText) {
+    hideBonusWordsWhilePromptLoads();
     const expectedTargetForAnswer = beginUserAnswer();
 
     messages.push({
