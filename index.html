@@ -7801,9 +7801,11 @@ function grammarPhrases(text) {
 }
 
 async function revealGrammarText(container, text, renderToken) {
+  const phrases = grammarPhrases(text);
+  if (!phrases.length) return true;
   const paragraph = document.createElement("p");
   container.appendChild(paragraph);
-  for (const phrase of grammarPhrases(text)) {
+  for (const phrase of phrases) {
     if (renderToken !== grammarDetailRenderToken) return false;
     const span = document.createElement("span");
     span.textContent = `${paragraph.childNodes.length ? " " : ""}${phrase}`;
@@ -7816,11 +7818,16 @@ async function revealGrammarText(container, text, renderToken) {
 
 async function streamGrammarExplanation(message, renderToken) {
   const { content } = appendGrammarThreadMessage("assistant");
-  const title = document.createElement("h3");
-  title.className = "grammar-message-title";
-  title.textContent = String(message?.title || "The rule");
-  content.appendChild(title);
+  if (message?.title) {
+    const title = document.createElement("h3");
+    title.className = "grammar-message-title";
+    title.textContent = String(message.title);
+    content.appendChild(title);
+  }
   if (!await revealGrammarText(content, message?.introduction, renderToken)) return;
+  for (const paragraph of Array.isArray(message?.paragraphs) ? message.paragraphs : []) {
+    if (!await revealGrammarText(content, paragraph, renderToken)) return;
+  }
   for (const section of Array.isArray(message?.sections) ? message.sections : []) {
     if (renderToken !== grammarDetailRenderToken) return;
     const heading = document.createElement("h3");
@@ -7861,6 +7868,21 @@ async function streamGrammarExplanation(message, renderToken) {
   grammarDetailBody.scrollTop = grammarDetailBody.scrollHeight;
 }
 
+function grammarMessageToPlainText(message) {
+  return [
+    message?.title,
+    message?.introduction,
+    ...(Array.isArray(message?.paragraphs) ? message.paragraphs : []),
+    ...(Array.isArray(message?.sections)
+      ? message.sections.map(section => `${section?.heading || ""}: ${section?.body || ""}`)
+      : []),
+    ...(Array.isArray(message?.examples)
+      ? message.examples.map(example => `${example?.target || ""} â ${example?.translation || ""}`)
+      : []),
+    message?.takeaway
+  ].map(value => String(value || "").trim()).filter(Boolean).join("\n");
+}
+
 async function requestGrammarDetail(followUpQuestion = "") {
   if (!activeGrammarDetailContext || !grammarDetailBody) return;
 
@@ -7885,6 +7907,7 @@ async function requestGrammarDetail(followUpQuestion = "") {
       priorExplanation: context.detailedExplanation
         ? JSON.stringify(context.detailedExplanation)
         : "",
+      conversationHistory: context.grammarConversation || [],
       inputMode: context.inputMode
     }, "Grammar explanation");
 
@@ -7894,6 +7917,13 @@ async function requestGrammarDetail(followUpQuestion = "") {
     }
     thinkingMessage.row.remove();
     context.detailedExplanation = data.message;
+    if (isFollowUp) {
+      context.grammarConversation.push({ role: "user", content: followUpQuestion });
+    }
+    context.grammarConversation.push({
+      role: "assistant",
+      content: grammarMessageToPlainText(data.message)
+    });
     await streamGrammarExplanation(data.message, renderToken);
   } catch (error) {
     if (activeGrammarDetailContext === context) {
@@ -7916,7 +7946,8 @@ function openGrammarDetailModal(context) {
     precedingMessage: [...messages]
       .reverse()
       .find(message => message?.role === "assistant")?.content || "",
-    detailedExplanation: ""
+    detailedExplanation: "",
+    grammarConversation: []
   };
   if (grammarDetailBody) grammarDetailBody.textContent = "";
   grammarDetailModal?.classList.remove("hidden");
