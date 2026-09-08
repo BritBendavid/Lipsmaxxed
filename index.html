@@ -4009,11 +4009,11 @@ form {
 
   <section class="home-grid">
     <div class="app-surface history-surface">
-      <div class="section-heading-row"><h3>My Previous Chats</h3><button id="seeAllChatsButton" class="text-link" type="button">See all</button></div>
+      <div class="section-heading-row"><h3 id="homeHistoryTitle">My Previous Chats</h3><button id="seeAllChatsButton" class="text-link" type="button">See all</button></div>
       <div id="recentChatsList" class="session-list"></div>
     </div>
     <div class="app-surface stats-surface">
-      <div class="section-heading-row"><h3>My Stats</h3></div>
+      <div class="section-heading-row"><h3 id="homeStatsTitle">My Stats</h3></div>
       <div class="home-stat-grid">
         <div><strong id="homePointsStat">0</strong><span>Points</span></div><div><strong id="homeSessionsStat">0</strong><span>Sessions</span></div><div><strong id="homeTimeStat">0m</strong><span>Total time</span></div><div><strong id="homeMessagesStat">0</strong><span>Messages</span></div><div><strong id="homeConfirmedStat">0</strong><span>Confirmed words</span></div>
       </div>
@@ -4426,7 +4426,7 @@ form {
       <div><span>Points gained</span><strong id="summaryPointsGained">0</strong></div>
     </div>
     <div class="confirm-callout">
-      <h3>Before you go, don’t forget to confirm the new words you learned</h3>
+      <h3>Before you go, donât forget to confirm the new words you learned</h3>
       <button id="confirmWordsButton" class="primary-action" type="button">Confirm words</button>
     </div>
     <button id="summaryReturnHomeButton" class="quiet-link" type="button">Return to home</button>
@@ -4452,13 +4452,13 @@ form {
       <div class="confirmation-input-wrap"><input id="wordConfirmationInput" autocomplete="off" aria-label="Word translation" /><button id="wordConfirmationSpeechButton" type="button" aria-label="Speak translation" title="Speak translation"><svg viewBox="0 0 24 24"><path d="M12 15.5a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v5.5a4 4 0 0 0 4 4Zm6.5-4a1 1 0 0 0-2 0 4.5 4.5 0 0 1-9 0 1 1 0 0 0-2 0 6.5 6.5 0 0 0 5.5 6.42V20H8.5v2h7v-2H13v-2.08a6.5 6.5 0 0 0 5.5-6.42Z"/></svg></button></div>
       <div id="confirmationFeedback" class="confirmation-feedback" aria-live="polite"></div>
       <button id="submitWordConfirmationButton" class="primary-action" type="submit">Confirm translation</button>
-      <button id="forgotConfirmationWordButton" class="quiet-link" type="button">I don’t remember</button>
+      <button id="forgotConfirmationWordButton" class="quiet-link" type="button">I donât remember</button>
     </form>
   </div>
 </section>
 
 <section id="confirmationCompletePage" class="product-page hidden" aria-labelledby="confirmationCompleteTitle">
-  <div class="product-page-shell completion-shell"><div class="completion-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"/></svg></div><h2 id="confirmationCompleteTitle"><span id="confirmedWordTotal">0</span> words confirmed</h2><p>You’re doing amazing!</p></div>
+  <div class="product-page-shell completion-shell"><div class="completion-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"/></svg></div><h2 id="confirmationCompleteTitle"><span id="confirmedWordTotal">0</span> words confirmed</h2><p>Youâre doing amazing!</p></div>
 </section>
 
 <section id="allChatsPage" class="product-page hidden" aria-labelledby="allChatsTitle">
@@ -4595,6 +4595,8 @@ const homeModeToggle = document.getElementById("homeModeToggle");
 const homeStartChatButton = document.getElementById("homeStartChatButton");
 const askLipsMasterButton = document.getElementById("askLipsMasterButton");
 const recentChatsList = document.getElementById("recentChatsList");
+const homeHistoryTitle = document.getElementById("homeHistoryTitle");
+const homeStatsTitle = document.getElementById("homeStatsTitle");
 const seeAllChatsButton = document.getElementById("seeAllChatsButton");
 const homePointsStat = document.getElementById("homePointsStat");
 const homeSessionsStat = document.getElementById("homeSessionsStat");
@@ -4602,6 +4604,7 @@ const homeTimeStat = document.getElementById("homeTimeStat");
 const homeMessagesStat = document.getElementById("homeMessagesStat");
 const homeConfirmedStat = document.getElementById("homeConfirmedStat");
 const sessionTimeChart = document.getElementById("sessionTimeChart");
+const chartPeriodLabel = document.getElementById("chartPeriodLabel");
 
 const writingModeButton = document.getElementById("writingModeButton");
 const speechModeButton = document.getElementById("speechModeButton");
@@ -4855,6 +4858,8 @@ const LOW_USAGE_RATIO = 0.4;
 let activeChatSession = null;
 
 let currentBonusWordKeys = new Set();
+let currentBonusTargets = [];
+let activeAnswerBonusTargets = [];
 const BONUS_WORD_POINT_TIERS = [0, 5, 10];
 let conversationTurn = 0;
 let activeExpectedTarget = null;
@@ -4920,6 +4925,7 @@ function hideBonusWordsWhilePromptLoads() {
   if (!upcomingWordsPanel) return;
   upcomingWordsPanel.classList.add("hidden");
   currentBonusWordKeys = new Set();
+  currentBonusTargets = [];
 }
 
 async function getRankedFrequencyList(language) {
@@ -5103,6 +5109,11 @@ function targetFromVocabularyProfile(profile) {
 function beginUserAnswer() {
   conversationTurn += 1;
   saveReviewScheduleState();
+
+  // Freeze the two words shown with the question. The next reply begins
+  // loading immediately and clears/replaces the visible card, but analysis of
+  // this answer must always use the original targets.
+  activeAnswerBonusTargets = currentBonusTargets.map(target => ({ ...target }));
 
   const expectedTarget = activeExpectedTarget;
   activeExpectedTarget = null;
@@ -5289,6 +5300,7 @@ function renderPreparedUpcomingWords(prepared) {
   const language = prepared?.language || getCurrentChatLanguage();
   const rows = Array.isArray(prepared?.rows) ? prepared.rows.slice(0, 2) : [];
   upcomingWordsList.innerHTML = "";
+  currentBonusTargets = rows.map(row => ({ ...row }));
   currentBonusWordKeys = new Set(rows.map(row => String(row.word_key || "").trim()).filter(Boolean));
   activeExpectedTarget = rows[0] || null;
 
@@ -5321,6 +5333,7 @@ function renderPreparedUpcomingWords(prepared) {
 
       if (actionButton.dataset.revealed !== "true") {
         chatLanguageWord.classList.remove("hidden");
+        rememberSessionLearnedWord(row, language);
         scheduleWordReview(row, "revealed", language).catch(() => {});
         actionButton.dataset.revealed = "true";
         actionButton.classList.add("revealed");
@@ -5613,6 +5626,7 @@ async function startConfiguredChat() {
   messages.length = 0;
   conversationTurn = 0;
   activeExpectedTarget = null;
+  activeAnswerBonusTargets = [];
   activeSpeechCorrection = null;
   correctionRetryMode = false;
   correctionRetrySourceMode = "";
@@ -5800,7 +5814,7 @@ async function getWordSchedulingBand(wordKey, language) {
   const frontierRank = frontier?.frequency_rank || target.frequency_rank;
   const currentQueueMaxRank = Math.max(
     0,
-    ...[...currentBonusWordKeys]
+    ...[...getCurrentAnswerBonusKeys()]
       .map(key => frequencyByKey.get(key)?.frequency_rank || 0)
   );
   const immediateCutoff = Math.max(frontierRank, currentQueueMaxRank);
@@ -5820,6 +5834,67 @@ async function getWordSchedulingBand(wordKey, language) {
   return { band: "far", target, frontierRank };
 }
 
+function normalizedLexemeForms(value) {
+  const source = value && typeof value === "object" ? value : {};
+  const forms = [
+    source.word_key,
+    source.lexemeKey,
+    source.word_text,
+    source.word,
+    source.chatWord,
+    source.surface,
+    source.lemma,
+    ...(Array.isArray(source.forms) ? source.forms : [])
+  ];
+  const normalized = new Set();
+  for (const form of forms) {
+    const raw = String(form || "").trim();
+    if (!raw) continue;
+    normalized.add(raw);
+    normalized.add(normalizeStatsWord(raw.includes("::") ? raw.split("::")[0] : raw));
+  }
+  normalized.delete("");
+  return normalized;
+}
+
+function bonusTargetMatchesProducedLexeme(target, produced) {
+  if (!target || !produced) return false;
+  const targetKey = String(target.word_key || target.lexemeKey || "").trim();
+  const producedKey = String(produced.lexemeKey || produced.word_key || "").trim();
+  if (targetKey && producedKey && targetKey === producedKey) return true;
+
+  const targetSurface = normalizeStatsWord(target.word_text || target.word || target.chatWord || "");
+  const targetLemma = normalizeStatsWord(target.lemma || target.word_text || target.word || "");
+  const producedSurface = normalizeStatsWord(produced.surface || produced.word_text || produced.word || "");
+  const producedLemma = normalizeStatsWord(produced.lemma || produced.surface || produced.word_text || "");
+
+  if (targetSurface && producedSurface && targetSurface === producedSurface) return true;
+  if (targetLemma && producedLemma && targetLemma === producedLemma) {
+    const targetPos = String(target.upos || "X").toUpperCase();
+    const producedPos = String(produced.upos || "X").toUpperCase();
+    return targetPos === "X" || producedPos === "X" || targetPos === producedPos;
+  }
+
+  const targetForms = normalizedLexemeForms(target);
+  return [...normalizedLexemeForms(produced)].some(form => targetForms.has(form));
+}
+
+function matchingCurrentBonusTargets(produced) {
+  const targets = activeAnswerBonusTargets.length
+    ? activeAnswerBonusTargets
+    : currentBonusTargets;
+  return targets.filter(target => bonusTargetMatchesProducedLexeme(target, produced));
+}
+
+function getCurrentAnswerBonusKeys() {
+  const targets = activeAnswerBonusTargets.length
+    ? activeAnswerBonusTargets
+    : currentBonusTargets;
+  return new Set(targets.map(target => String(
+    target.word_key || target.lexemeKey || ""
+  ).trim()).filter(Boolean));
+}
+
 function rememberSessionLearnedWord(word, languageOverride = null) {
   if (!activeChatSession) return;
   const normalized = normalizeVocabularyTarget(word);
@@ -5835,8 +5910,9 @@ function rememberSessionLearnedWord(word, languageOverride = null) {
 }
 
 async function scheduleWordReview(word, reason = "correction", languageOverride = null) {
-  if (["correction", "translated", "revealed", "missed"].includes(reason)) {
-    rememberSessionLearnedWord(word, languageOverride);
+  const matchingBonus = matchingCurrentBonusTargets(word);
+  if (["correction", "translated", "revealed"].includes(reason) && matchingBonus.length) {
+    matchingBonus.forEach(target => rememberSessionLearnedWord(target, languageOverride));
   }
   if (!currentUser) return;
 
@@ -6254,7 +6330,7 @@ async function markReviewWordSpoken(word, languageOverride = null) {
     (existingRows || [])[0] || null;
 
   if (!existing) {
-    if (currentBonusWordKeys.has(wordKey)) {
+    if (getCurrentAnswerBonusKeys().has(wordKey)) {
       const ordinaryInterval = await getOrdinaryReviewIntervalTurns(wordKey, language);
       setReviewCooldown(wordKey, ordinaryInterval);
     }
@@ -6515,8 +6591,10 @@ async function recordUserWordsAndAwardPoints(
         word_key: normalizeStatsWord(surfaceWord),
         word_text: surfaceWord,
         word: surfaceWord,
-        lemma: surfaceWord,
-        upos: "X"
+        surface: surfaceWord,
+        lemma: String(lexeme?.lemma || surfaceWord).normalize("NFC").trim(),
+        upos: String(lexeme?.upos || "X").toUpperCase(),
+        lexemeKey: String(lexeme?.lexemeKey || "").trim()
       };
       if (!target.word_key || !target.word_text) continue;
       const existing = wordCounts.get(target.word_key);
@@ -6549,8 +6627,22 @@ async function recordUserWordsAndAwardPoints(
   let basePoints = 0;
 
   const spokenBonusWordKeys = new Set();
+  const matchedBonusTargetKeys = new Set();
 
   for (const item of wordCounts.values()) {
+    const matchedBonusTargets = matchingCurrentBonusTargets(item);
+    const canonicalBonusTarget = matchedBonusTargets[0] || null;
+    if (canonicalBonusTarget) {
+      const canonicalBonusKey = String(
+        canonicalBonusTarget.word_key || canonicalBonusTarget.lexemeKey || ""
+      ).trim();
+      if (canonicalBonusKey) item.word_key = canonicalBonusKey;
+      item.word_text = String(
+        canonicalBonusTarget.lemma || canonicalBonusTarget.word_text ||
+        canonicalBonusTarget.word || item.word_text
+      ).trim() || item.word_text;
+    }
+
     const { data: existing, error: selectError } = await supabaseClient
       .from("word_stats")
       .select("*")
@@ -6576,7 +6668,6 @@ async function recordUserWordsAndAwardPoints(
       first occurrence gets 5, extra repetitions get 1 each.
     */
     if (previousSpokenCount === 0) {
-      rememberSessionLearnedWord(item, language);
       basePoints += 5;
       basePoints += Math.max(0, occurrenceCount - 1);
     } else {
@@ -6586,8 +6677,15 @@ async function recordUserWordsAndAwardPoints(
     /*
       Bonus words count once per message, even if repeated.
     */
-    if (currentBonusWordKeys.has(item.word_key)) {
-      spokenBonusWordKeys.add(item.word_key);
+    for (const bonusTarget of matchedBonusTargets) {
+      const bonusKey = String(bonusTarget.word_key || bonusTarget.lexemeKey || "").trim() ||
+        normalizeStatsWord(bonusTarget.word_text || bonusTarget.word || "");
+      if (!bonusKey) continue;
+      spokenBonusWordKeys.add(bonusKey);
+      if (matchedBonusTargetKeys.has(bonusKey)) continue;
+      matchedBonusTargetKeys.add(bonusKey);
+      rememberSessionLearnedWord(bonusTarget, language);
+      await markReviewWordSpoken(bonusTarget, language);
     }
 
     const next = existing || {
@@ -6615,13 +6713,18 @@ async function recordUserWordsAndAwardPoints(
       console.warn("points word upsert failed", upsertError);
     }
 
-    if (!expectedTargetKey || item.word_key !== expectedTargetKey) {
+    if (
+      matchedBonusTargets.length === 0 &&
+      (!expectedTargetKey || !bonusTargetMatchesProducedLexeme(expectedTarget, item))
+    ) {
       await markReviewWordSpoken(item, language);
     }
   }
 
   if (expectedTargetKey) {
-    if (reviewResult.targetProduced === true) {
+    if (reviewResult.targetProduced === true && !matchedBonusTargetKeys.has(expectedTargetKey)) {
+      spokenBonusWordKeys.add(expectedTargetKey);
+      rememberSessionLearnedWord(expectedTarget, language);
       await markReviewWordSpoken(expectedTarget, language);
     } else if (reviewResult.targetProduced === false) {
       await markReviewWordMissed(expectedTarget, language);
@@ -8373,7 +8476,7 @@ function addGrammarThinking() {
 
 function grammarPhrases(text) {
   return String(text || "")
-    .split(/(?<=[.!?。！？])\s+|\n+/u)
+    .split(/(?<=[.!?ãï¼ï¼])\s+|\n+/u)
     .map(part => part.trim())
     .filter(Boolean);
 }
@@ -8455,7 +8558,7 @@ function grammarMessageToPlainText(message) {
       ? message.sections.map(section => `${section?.heading || ""}: ${section?.body || ""}`)
       : []),
     ...(Array.isArray(message?.examples)
-      ? message.examples.map(example => `${example?.target || ""} — ${example?.translation || ""}`)
+      ? message.examples.map(example => `${example?.target || ""} â ${example?.translation || ""}`)
       : []),
     message?.takeaway
   ].map(value => String(value || "").trim()).filter(Boolean).join("\n");
@@ -11194,8 +11297,8 @@ async function playBonusWordAudio(chatWord, language, button = null) {
   }
 
   async function sendToBot(userText) {
-    hideBonusWordsWhilePromptLoads();
     const expectedTargetForAnswer = beginUserAnswer();
+    hideBonusWordsWhilePromptLoads();
 
     messages.push({
       role: "user",
@@ -11872,16 +11975,27 @@ async function renderMemberHome() {
   const language = homeLanguageSelect?.value || selectedChatLanguage || "English";
   const history = getSessionHistory();
   const languageHistory = history.filter(row => row.language === language);
+  if (homeHistoryTitle) homeHistoryTitle.textContent = `My Previous ${language} Chats`;
+  if (homeStatsTitle) homeStatsTitle.textContent = `My ${language} Stats`;
+  if (chartPeriodLabel) chartPeriodLabel.textContent = `Recent ${language} sessions`;
   renderSessionList(recentChatsList, languageHistory.slice(0,5));
-  const totalTime = history.reduce((sum,row) => sum + Number(row.durationMs || 0),0);
-  if (homeSessionsStat) homeSessionsStat.textContent = String(history.length);
+  const totalTime = languageHistory.reduce((sum,row) => sum + Number(row.durationMs || 0),0);
+  if (homeSessionsStat) homeSessionsStat.textContent = String(languageHistory.length);
   if (homeTimeStat) homeTimeStat.textContent = formatDuration(totalTime);
-  if (homeMessagesStat) homeMessagesStat.textContent = String(history.reduce((sum,row) => sum + Number(row.messageCount || 0),0));
-  if (homeConfirmedStat) homeConfirmedStat.textContent = String(getConfirmedWordRecords().length);
-  renderSessionTimeChart(history);
+  if (homeMessagesStat) homeMessagesStat.textContent = String(languageHistory.reduce((sum,row) => sum + Number(row.messageCount || 0),0));
+  if (homeConfirmedStat) homeConfirmedStat.textContent = String(
+    getConfirmedWordRecords().filter(row => row.language === language).length
+  );
+  renderSessionTimeChart(languageHistory);
   try {
-    const { data } = await supabaseClient.from("user_language_points").select("total_points").eq("user_id",currentUser.id);
-    if (homePointsStat) homePointsStat.textContent = String((data || []).reduce((sum,row) => sum + Number(row.total_points || 0),0));
+    const { data } = await supabaseClient
+      .from("user_language_points")
+      .select("total_points")
+      .eq("user_id",currentUser.id)
+      .eq("language",language);
+    if ((homeLanguageSelect?.value || selectedChatLanguage) === language && homePointsStat) {
+      homePointsStat.textContent = String((data || []).reduce((sum,row) => sum + Number(row.total_points || 0),0));
+    }
   } catch {}
 }
 
@@ -11990,11 +12104,11 @@ async function submitWordConfirmation(answer) {
   const word = confirmationQueue[confirmationIndex];
   if (!word || !answer.trim()) return;
   submitWordConfirmationButton.disabled = true;
-  if (confirmationFeedback) confirmationFeedback.textContent = "Checking…";
+  if (confirmationFeedback) confirmationFeedback.textContent = "Checkingâ¦";
   try {
     const data = await callChatFunction({ action:"confirm-word", word:word.word_text, learnerTranslation:answer.trim(), chatLanguage:word.language, fluentLanguage:getCurrentFluentLanguage() },"Word confirmation");
     if (!data.correct) {
-      if (confirmationFeedback) confirmationFeedback.textContent = "Not quite. Try another translation, or choose “I don’t remember.”";
+      if (confirmationFeedback) confirmationFeedback.textContent = "Not quite. Try another translation, or choose âI donât remember.â";
       return;
     }
     saveConfirmedWord(word); confirmedThisRun += 1;
@@ -12013,7 +12127,7 @@ async function forgetConfirmationWord() {
   submitWordConfirmationButton.disabled = true; forgotConfirmationWordButton.disabled = true;
   try {
     const data = await callChatFunction({action:"translate-word",word:word.word_text,sentence:word.word_text,chatLanguage:word.language,fluentLanguage:getCurrentFluentLanguage()},"Word translation");
-    if (confirmationFeedback) confirmationFeedback.textContent = `${word.word_text} — ${data.translation || "Translation unavailable"}`;
+    if (confirmationFeedback) confirmationFeedback.textContent = `${word.word_text} â ${data.translation || "Translation unavailable"}`;
     await scheduleWordReview(word,"missed",word.language);
     await new Promise(resolve => setTimeout(resolve,1300));
     confirmationIndex += 1; renderConfirmationWord();
@@ -12068,7 +12182,7 @@ async function loadMasterHistoryFromServer(){
 }
 function openLipsMaster(){signedInHome?.classList.add("hidden");lipsMasterPage?.classList.remove("hidden");ensureMasterThread();renderMasterPage();loadMasterHistoryFromServer();masterChatInput?.focus();}
 function persistMasterMessage(threadId,role,content,title=""){const rows=getMasterThreads();const thread=rows.find(row=>row.id===threadId);if(!thread)return;thread.messages=Array.isArray(thread.messages)?thread.messages:[];thread.messages.push({role,content,createdAt:Date.now()});thread.updatedAt=Date.now();if(title)thread.title=title;else if(thread.title==="New chat"&&role==="user")thread.title=content.replace(/\s+/g," ").slice(0,48);rows.sort((a,b)=>Number(b.updatedAt||0)-Number(a.updatedAt||0));saveMasterThreads(rows);}
-async function sendMasterMessage(text){const thread=ensureMasterThread();persistMasterMessage(thread.id,"user",text);appendMasterMessage("user",text);const thinking=appendMasterMessage("assistant","Thinking…");masterChatSendButton.disabled=true;try{const fresh=getMasterThreads().find(row=>row.id===thread.id);const data=await callChatFunction({action:"lipsmaster-chat",threadId:thread.id,messages:(fresh?.messages||[]).slice(-40),chatLanguage:homeLanguageSelect?.value||selectedChatLanguage,fluentLanguage:getCurrentFluentLanguage()},"LipsMaster");thinking.content.textContent=data.reply;persistMasterMessage(thread.id,"assistant",data.reply);renderMasterSidebar();}catch(error){thinking.content.textContent=getReadableError(error);}finally{masterChatSendButton.disabled=false;masterChatInput?.focus();}}
+async function sendMasterMessage(text){const thread=ensureMasterThread();persistMasterMessage(thread.id,"user",text);appendMasterMessage("user",text);const thinking=appendMasterMessage("assistant","Thinkingâ¦");masterChatSendButton.disabled=true;try{const fresh=getMasterThreads().find(row=>row.id===thread.id);const data=await callChatFunction({action:"lipsmaster-chat",threadId:thread.id,messages:(fresh?.messages||[]).slice(-40),chatLanguage:homeLanguageSelect?.value||selectedChatLanguage,fluentLanguage:getCurrentFluentLanguage()},"LipsMaster");thinking.content.textContent=data.reply;persistMasterMessage(thread.id,"assistant",data.reply);renderMasterSidebar();}catch(error){thinking.content.textContent=getReadableError(error);}finally{masterChatSendButton.disabled=false;masterChatInput?.focus();}}
 
 function saveGrammarConversationToMaster(context) {
   if (!currentUser || !context) return;
@@ -12473,9 +12587,9 @@ wordConfirmationSpeechButton?.addEventListener("click", () => {
   const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!Recognition) { if(confirmationFeedback)confirmationFeedback.textContent="Speech input is not supported in this browser."; return; }
   const recognition = new Recognition(); recognition.lang=getSpeechRecognitionLanguage(getCurrentFluentLanguage()); recognition.interimResults=false; recognition.maxAlternatives=1;
-  if(confirmationFeedback)confirmationFeedback.textContent="Listening…";
+  if(confirmationFeedback)confirmationFeedback.textContent="Listeningâ¦";
   recognition.onresult=event=>{if(wordConfirmationInput)wordConfirmationInput.value=event.results[0][0].transcript;if(confirmationFeedback)confirmationFeedback.textContent="";};
-  recognition.onerror=()=>{if(confirmationFeedback)confirmationFeedback.textContent="I couldn’t hear that. You can type the translation instead.";}; recognition.start();
+  recognition.onerror=()=>{if(confirmationFeedback)confirmationFeedback.textContent="I couldnât hear that. You can type the translation instead.";}; recognition.start();
 });
 lipsMasterBackButton?.addEventListener("click", showSignedInHome);
 newMasterChatButton?.addEventListener("click", () => { activeMasterThreadId="";renderMasterPage();masterChatInput?.focus(); });
