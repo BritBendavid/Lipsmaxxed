@@ -1002,10 +1002,29 @@ form {
   display: grid;
   place-items: center;
   border-radius: 9px;
-  background: #2563eb;
-  color: white;
-  font-size: 0.7rem;
-  font-weight: 900;
+  background: white;
+  overflow: hidden;
+}
+
+.grammar-assistant-mark img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.grammar-assistant-identity {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.grammar-assistant-name {
+  color: #f1f5f9;
+  font-size: 0.82rem;
+  font-weight: 750;
+  white-space: nowrap;
 }
 
 .grammar-message-content { min-width: 0; flex: 1; }
@@ -3164,9 +3183,13 @@ form {
   }
 }
 
-/* 2026 interface refinement: quieter surfaces, responsive shell, response ETA */
+/* Quiet response progress surface */
 .response-progress-card {
   width: min(720px, 100%);
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
   margin: 8px auto;
   padding: 16px 18px;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -3175,11 +3198,18 @@ form {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
 }
 
+.response-progress-card.fact-pending {
+  visibility: hidden;
+}
+
 .message-card.synchronized-pending {
   visibility: hidden;
 }
 
 .response-progress-copy {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   margin-bottom: 12px;
 }
 
@@ -3192,6 +3222,11 @@ form {
 }
 
 .response-progress-fact {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
   color: #d8dee8;
   font-size: 0.91rem;
   font-weight: 520;
@@ -3199,6 +3234,9 @@ form {
 }
 
 .response-progress-track {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   height: 4px;
   overflow: hidden;
   border-radius: 4px;
@@ -3483,6 +3521,41 @@ form {
   gap: 10px;
 }
 
+.setup-name-label {
+  display: block;
+  margin: 0 0 7px;
+  color: #94a3b8;
+  font-size: 0.76rem;
+  font-weight: 650;
+}
+
+.setup-name-input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.055);
+  color: #f8fafc;
+  font: inherit;
+  outline: none;
+}
+
+.setup-name-input:focus {
+  border-color: rgba(96, 165, 250, 0.62);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+.setup-name-input::placeholder { color: #64748b; }
+
+.start-chat-button:disabled {
+  opacity: 0.64;
+  cursor: wait;
+  transform: none !important;
+}
+
 .setup-gender-option {
   min-height: 48px;
   padding: 10px 14px;
@@ -3720,7 +3793,7 @@ form {
   <div class="grammar-detail-panel">
     <header class="grammar-detail-header">
       <div>
-        <h2 id="grammarDetailTitle">Grammar explained</h2>
+        <h2 id="grammarDetailTitle">Grammar rule</h2>
         <p class="grammar-detail-subtitle">A closer look at this correction</p>
       </div>
       <button id="grammarDetailClose" class="grammar-detail-close" type="button" aria-label="Close grammar explanation">&times;</button>
@@ -3987,6 +4060,8 @@ form {
 
       <div class="chat-setup-section">
         <div class="chat-setup-label">Address me as</div>
+        <label class="setup-name-label" for="setupPreferredNameInput">Your name</label>
+        <input id="setupPreferredNameInput" class="setup-name-input" type="text" maxlength="80" autocomplete="name" placeholder="Enter your name" />
         <div class="setup-gender-toggle" role="group" aria-label="Address me as">
           <button id="setupGenderManButton" class="setup-gender-option" type="button" data-gender="man" aria-pressed="false">
             Male
@@ -4281,6 +4356,7 @@ const setupWritingButton = document.getElementById("setupWritingButton");
 const setupSpeechButton = document.getElementById("setupSpeechButton");
 const setupGenderManButton = document.getElementById("setupGenderManButton");
 const setupGenderWomanButton = document.getElementById("setupGenderWomanButton");
+const setupPreferredNameInput = document.getElementById("setupPreferredNameInput");
 const setupPermissionStatus = document.getElementById("setupPermissionStatus");
 const startChatButton = document.getElementById("startChatButton");
 
@@ -4295,6 +4371,7 @@ const profileMessage = document.getElementById("profileMessage");
 const upcomingWordsPanel = document.getElementById("upcomingWordsPanel");
 const upcomingWordsList = document.getElementById("upcomingWordsList");
 const grammarDetailModal = document.getElementById("grammarDetailModal");
+const grammarDetailTitle = document.getElementById("grammarDetailTitle");
 const grammarDetailClose = document.getElementById("grammarDetailClose");
 const grammarDetailBody = document.getElementById("grammarDetailBody");
 const grammarFollowUpForm = document.getElementById("grammarFollowUpForm");
@@ -4305,6 +4382,10 @@ let currentLanguagePoints = 0;
 let pointsAnimationFrame = null;
     
 let selectedGender = "";
+let selectedPreferredName = "";
+let chatStartInFlight = false;
+let openingBotInFlight = false;
+const renderedBotTurnIds = new Set();
     
 let authMode = "sign-in";
 let currentSession = null;
@@ -4349,7 +4430,7 @@ let pendingBackgroundBot = null;
 const correctionState = new Map();
 let activeGrammarDetailContext = null;
 let grammarDetailRenderToken = 0;
-const languageFactCache = new Map();
+const languageFactQueues = new Map();
 const languageFactRequests = new Map();
 const recentLanguageFacts = new Map();
 
@@ -5032,6 +5113,21 @@ function openChatSetup() {
     chatSetupLanguageSelect.value = selectedChatLanguage;
   }
 
+  if (setupPreferredNameInput) {
+    let storedName = "";
+    try {
+      storedName = localStorage.getItem("lipsmaxxed-preferred-name") || "";
+    } catch {
+      storedName = "";
+    }
+    selectedPreferredName =
+      selectedPreferredName ||
+      storedName ||
+      currentUser?.user_metadata?.username ||
+      "";
+    setupPreferredNameInput.value = selectedPreferredName;
+  }
+
   setupWritingButton?.classList.toggle("active", selectedInputMode === "writing");
   setupSpeechButton?.classList.toggle("active", selectedInputMode === "speech");
 
@@ -5104,6 +5200,15 @@ async function startConfiguredChat() {
   await unlockAudio().catch(() => {});
 
   selectedChatLanguage = chatSetupLanguageSelect?.value || "English";
+  selectedPreferredName = String(setupPreferredNameInput?.value || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 80);
+  try {
+    localStorage.setItem("lipsmaxxed-preferred-name", selectedPreferredName);
+  } catch {
+    // Name remains available for this session when storage is unavailable.
+  }
   await ensureLanguageFact(selectedChatLanguage);
 
   if (selectedInputMode === "speech") {
@@ -5137,6 +5242,7 @@ async function startConfiguredChat() {
   messageState.clear();
   userMessageState.clear();
   correctionState.clear();
+  renderedBotTurnIds.clear();
 
   activeChatSession = {
     language: selectedChatLanguage,
@@ -5154,6 +5260,8 @@ async function startConfiguredChat() {
 }
 
 async function sendOpeningBotMessage() {
+  if (openingBotInFlight) return;
+  openingBotInFlight = true;
   hideBonusWordsWhilePromptLoads();
   const progress = addResponseProgress("context");
   const language = getCurrentChatLanguage();
@@ -5171,13 +5279,15 @@ async function sendOpeningBotMessage() {
         userGenderInstruction: getUserGenderInstruction(),
         chatRole: "",
         chatTopic: "",
-        isOpeningMessage: true
+        isOpeningMessage: true,
+        userPreferredName: selectedPreferredName
       },
       "Chat"
     );
     await presentBotReply(prepared.data, progress, {
       language,
       autoplay: true,
+      clientTurnId: prepared.clientTurnId,
       showSignedOutProTip: !currentUser,
       expectedTarget: prepared.expectedTargetForReply,
       preparedBonusWordsPromise: prepared.preparedBonusWordsPromise
@@ -5185,6 +5295,22 @@ async function sendOpeningBotMessage() {
   } catch (error) {
     progress.remove();
     showSystemMessage(getReadableError(error));
+  } finally {
+    openingBotInFlight = false;
+  }
+}
+
+async function beginConfiguredChat() {
+  if (chatStartInFlight) return;
+  chatStartInFlight = true;
+  if (startChatButton) startChatButton.disabled = true;
+
+  try {
+    await primeAudioForAutoplay();
+    await startConfiguredChat();
+  } finally {
+    chatStartInFlight = false;
+    if (startChatButton) startChatButton.disabled = false;
   }
 }
 
@@ -7764,11 +7890,20 @@ function appendGrammarThreadMessage(role, text = "") {
   const row = document.createElement("div");
   row.className = `grammar-thread-message ${role}`;
   if (role === "assistant") {
+    const identity = document.createElement("div");
+    identity.className = "grammar-assistant-identity";
     const mark = document.createElement("div");
     mark.className = "grammar-assistant-mark";
-    mark.textContent = "LM";
     mark.setAttribute("aria-hidden", "true");
-    row.appendChild(mark);
+    const logo = document.createElement("img");
+    logo.src = "assets/language-logo.png";
+    logo.alt = "";
+    mark.appendChild(logo);
+    const name = document.createElement("span");
+    name.className = "grammar-assistant-name";
+    name.textContent = "LipMaster";
+    identity.append(mark, name);
+    row.appendChild(identity);
   }
   const content = document.createElement("div");
   content.className = "grammar-message-content";
@@ -7950,6 +8085,9 @@ function openGrammarDetailModal(context) {
     grammarConversation: []
   };
   if (grammarDetailBody) grammarDetailBody.textContent = "";
+  if (grammarDetailTitle) {
+    grammarDetailTitle.textContent = context.grammarRuleTitle || "Grammar rule";
+  }
   grammarDetailModal?.classList.remove("hidden");
   requestGrammarDetail().catch(() => {});
 }
@@ -7964,6 +8102,7 @@ function addSpeechReviewCard({
   reviewMode = "language",
   reviewTitle = "",
   grammarExplanation = "",
+  grammarRuleTitle = "",
   scheduleCorrections = true,
   pointsAward = null,
   onRetry,
@@ -8092,7 +8231,8 @@ card.appendChild(layout);
       openGrammarDetailModal({
         learnerText: transcript,
         correctedText: correctionText,
-        briefExplanation: grammarExplanation.trim()
+        briefExplanation: grammarExplanation.trim(),
+        grammarRuleTitle: grammarRuleTitle || "Grammar rule"
       });
     });
     ruleNote.appendChild(learnMore);
@@ -8546,35 +8686,102 @@ async function callChatFunction(payload, label = "Chat") {
 function rememberLanguageFact(language, fact) {
   const cleanFact = String(fact || "").replace(/\s+/g, " ").trim();
   if (!cleanFact) return;
-  languageFactCache.set(language, cleanFact);
-  const recent = recentLanguageFacts.get(language) || [];
-  recentLanguageFacts.set(language, [...recent, cleanFact].slice(-12));
+  const seen = getSeenLanguageFacts(language);
+  const queue = getLanguageFactQueue(language);
+  const normalized = cleanFact.toLocaleLowerCase();
+  const alreadyKnown = [...seen, ...queue]
+    .some(item => item.toLocaleLowerCase() === normalized);
+  if (!alreadyKnown) queue.push(cleanFact);
 }
 
-function prefetchLanguageFact(language = getCurrentChatLanguage()) {
-  const safeLanguage = language || "English";
-  if (languageFactCache.has(safeLanguage)) {
-    return Promise.resolve(languageFactCache.get(safeLanguage));
+function languageFactStorageKey(language) {
+  return `lipsmaxxed-seen-language-facts:${language}`;
+}
+
+function getSeenLanguageFacts(language) {
+  if (recentLanguageFacts.has(language)) return recentLanguageFacts.get(language);
+  let seen = [];
+  try {
+    const stored = JSON.parse(localStorage.getItem(languageFactStorageKey(language)) || "[]");
+    seen = Array.isArray(stored)
+      ? stored.map(item => String(item || "").trim()).filter(Boolean).slice(-500)
+      : [];
+  } catch {
+    seen = [];
   }
+  recentLanguageFacts.set(language, seen);
+  return seen;
+}
+
+function getLanguageFactQueue(language) {
+  if (!languageFactQueues.has(language)) languageFactQueues.set(language, []);
+  return languageFactQueues.get(language);
+}
+
+function markLanguageFactSeen(language, fact) {
+  if (!fact) return;
+  const seen = getSeenLanguageFacts(language);
+  const normalized = fact.toLocaleLowerCase();
+  const next = [...seen.filter(item => item.toLocaleLowerCase() !== normalized), fact].slice(-500);
+  recentLanguageFacts.set(language, next);
+  try {
+    localStorage.setItem(languageFactStorageKey(language), JSON.stringify(next));
+  } catch {
+    // A private browsing storage failure should not interrupt practice.
+  }
+}
+
+function maintainLanguageFactBuffer(language = getCurrentChatLanguage(), targetSize = 4) {
+  const safeLanguage = language || "English";
   if (languageFactRequests.has(safeLanguage)) {
     return languageFactRequests.get(safeLanguage);
   }
-  const request = callChatFunction({
-    action: "language-fun-fact",
-    language: safeLanguage,
-    previousFacts: recentLanguageFacts.get(safeLanguage) || []
-  }, "Language fact")
-    .then(data => {
-      rememberLanguageFact(safeLanguage, data.fact);
-      return languageFactCache.get(safeLanguage) || "";
-    })
+  const request = (async () => {
+    const queue = getLanguageFactQueue(safeLanguage);
+    const attemptedFacts = [];
+    let attempts = 0;
+    while (queue.length < targetSize && attempts < targetSize * 3) {
+      attempts += 1;
+      const previousFacts = [
+        ...getSeenLanguageFacts(safeLanguage),
+        ...queue,
+        ...attemptedFacts
+      ].slice(-80);
+      const data = await callChatFunction({
+        action: "language-fun-fact",
+        language: safeLanguage,
+        previousFacts,
+        count: Math.min(4, targetSize - queue.length)
+      }, "Language fact");
+      const facts = Array.isArray(data.facts) ? data.facts : [data.fact];
+      facts.forEach(fact => {
+        const cleanFact = String(fact || "").replace(/\s+/g, " ").trim();
+        if (cleanFact) attemptedFacts.push(cleanFact);
+        rememberLanguageFact(safeLanguage, cleanFact);
+      });
+    }
+    return queue[0] || "";
+  })()
     .finally(() => languageFactRequests.delete(safeLanguage));
   languageFactRequests.set(safeLanguage, request);
   return request;
 }
 
+function prefetchLanguageFact(language = getCurrentChatLanguage()) {
+  return maintainLanguageFactBuffer(language, 4);
+}
+
 async function ensureLanguageFact(language = getCurrentChatLanguage()) {
-  return languageFactCache.get(language) || await prefetchLanguageFact(language);
+  const queue = getLanguageFactQueue(language);
+  return queue[0] || await maintainLanguageFactBuffer(language, 4);
+}
+
+function consumePreparedLanguageFact(language = getCurrentChatLanguage()) {
+  const queue = getLanguageFactQueue(language);
+  const fact = queue.shift() || "";
+  markLanguageFactSeen(language, fact);
+  maintainLanguageFactBuffer(language, 4).catch(() => {});
+  return fact;
 }
 
   function scrollMessagesToBottom() {
@@ -8824,7 +9031,7 @@ function isSamePlayback(button, type, id) {
     card.setAttribute("role", "status");
     card.setAttribute("aria-live", "polite");
     const factLanguage = getCurrentChatLanguage();
-    const fact = languageFactCache.get(factLanguage) || "";
+    let fact = consumePreparedLanguageFact(factLanguage);
     card.innerHTML = `
       <div class="response-progress-copy">
         <div class="response-progress-kicker">DID YOU KNOW&hellip;</div>
@@ -8844,6 +9051,18 @@ function isSamePlayback(button, type, id) {
 
     messageHistory.appendChild(card);
     scrollMessagesToBottom();
+
+    if (!fact) {
+      card.classList.add("fact-pending");
+      maintainLanguageFactBuffer(factLanguage, 4).then(() => {
+        if (stopped) return;
+        fact = consumePreparedLanguageFact(factLanguage);
+        if (!fact) return;
+        factEl.textContent = fact;
+        card.classList.remove("fact-pending");
+        scrollMessagesToBottom();
+      }).catch(() => {});
+    }
 
     function render() {
       if (stopped) return;
@@ -8900,7 +9119,10 @@ function isSamePlayback(button, type, id) {
     const dataPromise = callChatFunction({
       ...payload,
       clientTurnId,
-      previousFacts: recentLanguageFacts.get(language) || []
+      previousFacts: [
+        ...getSeenLanguageFacts(language),
+        ...getLanguageFactQueue(language)
+      ].slice(-80)
     }, label);
     const preparedBonusWordsPromise = targetRowsPromise.then(rows =>
       prepareUpcomingWords(language, rows)
@@ -8909,6 +9131,7 @@ function isSamePlayback(button, type, id) {
 
     return {
       data,
+      clientTurnId,
       preparedBonusWordsPromise,
       expectedTargetForReply: targetRows[0] || null
     };
@@ -8920,6 +9143,13 @@ function isSamePlayback(button, type, id) {
     const expectedTarget = options.expectedTarget || null;
     const preparedBonusWordsPromise = options.preparedBonusWordsPromise ||
       Promise.resolve({ language, rows: [] });
+    const clientTurnId = options.clientTurnId || data.clientTurnId || "";
+
+    if (clientTurnId && renderedBotTurnIds.has(clientTurnId)) {
+      progress?.remove();
+      return null;
+    }
+    if (clientTurnId) renderedBotTurnIds.add(clientTurnId);
 
     if (data.nextFunFact) {
       rememberLanguageFact(language, data.nextFunFact);
@@ -9079,6 +9309,7 @@ const responsePromise = generatePreparedChatTurn(
     const result = await prepared.responsePromise;
     await presentBotReply(result.data, progress, {
       autoplay,
+      clientTurnId: result.clientTurnId,
       expectedTarget: result.expectedTargetForReply,
       preparedBonusWordsPromise: result.preparedBonusWordsPromise
     });
@@ -9094,7 +9325,8 @@ const responsePromise = generatePreparedChatTurn(
     correctionRetrySourceMode === "grammar"
       ? {
           correctedText: activeSpeechCorrection?.grammarCorrectedText || "",
-          explanation: activeSpeechCorrection?.grammarExplanation || ""
+          explanation: activeSpeechCorrection?.grammarExplanation || "",
+          title: activeSpeechCorrection?.grammarRuleTitle || "Grammar rule"
         }
       : null;
   removeSpeechReviewCard();
@@ -9168,6 +9400,10 @@ if (!isCorrectionRetry) {
         priorGrammarExplanation:
           retrySourceMode === "grammar"
             ? retryPriorGrammar?.explanation || ""
+            : "",
+        priorGrammarRuleTitle:
+          retrySourceMode === "grammar"
+            ? retryPriorGrammar?.title || ""
             : ""
       }
     );
@@ -9216,6 +9452,9 @@ if (!isCorrectionRetry) {
     ? analysis.grammarExplanation ||
       retryPriorGrammar?.explanation ||
       ""
+    : "";
+  const grammarRuleTitle = grammarNeedsReview
+    ? analysis.grammarRuleTitle || "Grammar rule"
     : "";
   const hasForeignParts = hasForeignLanguageParts(parts);
   const reviewedTranscript = phoneticRescueApplied
@@ -9312,6 +9551,7 @@ const pointsAward = confirmedSpokenText
     correctedText,
     grammarCorrectedText,
     grammarExplanation,
+    grammarRuleTitle,
     grammarNeedsReview,
     reviewMode,
     expectedTarget: expectedTargetForAnswer,
@@ -9373,6 +9613,7 @@ const pointsAward = confirmedSpokenText
       reviewMode: "grammar",
       reviewTitle: "Grammar check",
       grammarExplanation,
+      grammarRuleTitle,
       scheduleCorrections: false,
       pointsAward,
       onRetry,
@@ -9429,6 +9670,8 @@ const pointsAward = confirmedSpokenText
         options.priorGrammarCorrectedText || "",
       priorGrammarExplanation:
         options.priorGrammarExplanation || "",
+      priorGrammarRuleTitle:
+        options.priorGrammarRuleTitle || "",
       userGenderInstruction: getUserGenderInstruction(),
       targetWord:
         expectedTarget?.word_text ||
@@ -9451,6 +9694,7 @@ const pointsAward = confirmedSpokenText
     grammarCorrect: data.grammarCorrect === true,
     grammarCorrectedText: data.grammarCorrectedText || text,
     grammarExplanation: data.grammarExplanation || "",
+    grammarRuleTitle: data.grammarRuleTitle || "",
     priorGrammarRecommendationsSatisfied:
       data.priorGrammarRecommendationsSatisfied === true,
     targetProduced: data.targetProduced === true,
@@ -10553,6 +10797,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
 
       await presentBotReply(prepared.data, progress, {
         autoplay: true,
+        clientTurnId: prepared.clientTurnId,
         expectedTarget: prepared.expectedTargetForReply,
         preparedBonusWordsPromise: prepared.preparedBonusWordsPromise
       });
@@ -11318,10 +11563,8 @@ if (startChatButton) {
       This must happen directly inside the click event,
       before startConfiguredChat does async network work.
     */
-    primeAudioForAutoplay().finally(() => {
-      startConfiguredChat().catch(error => {
-        showSystemMessage(getReadableError(error));
-      });
+    beginConfiguredChat().catch(error => {
+      showSystemMessage(getReadableError(error));
     });
   });
 }
