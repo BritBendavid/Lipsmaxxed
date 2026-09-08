@@ -3711,6 +3711,198 @@ form {
     min-height: 62px;
   }
 }
+
+/* Signed-in product shell */
+.end-chat-button {
+  flex: 0 0 auto;
+  min-height: 42px;
+  padding: 0 17px;
+  border: 1px solid rgba(248, 113, 113, 0.42);
+  border-radius: 12px;
+  background: #dc2626;
+  color: #fff;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(220, 38, 38, 0.2);
+}
+
+.end-chat-button:hover { background: #ef4444; }
+
+.member-home {
+  width: min(1160px, 100%);
+  margin: 14px auto 70px;
+  display: grid;
+  gap: 18px;
+}
+
+.app-surface {
+  min-width: 0;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 22px;
+  background: rgba(15,18,24,.8);
+  box-shadow: 0 20px 55px rgba(0,0,0,.22);
+}
+
+.member-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 24px;
+}
+
+.member-profile { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.member-avatar {
+  width: 58px; height: 58px; flex: 0 0 auto; display: grid; place-items: center;
+  overflow: hidden; border-radius: 18px; background: linear-gradient(145deg,#2563eb,#60a5fa);
+  color: white; font-weight: 900; font-size: 1.15rem; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+}
+.member-avatar img { width:100%; height:100%; object-fit:cover; }
+.member-eyebrow { color:#93c5fd; font-size:.7rem; font-weight:850; letter-spacing:.12em; text-transform:uppercase; }
+.member-hero h2 { margin:4px 0 0; font-size:clamp(1.6rem,4vw,2.35rem); letter-spacing:-.045em; }
+.icon-button { width:42px; height:42px; display:grid; place-items:center; border:1px solid rgba(255,255,255,.11); border-radius:12px; background:rgba(255,255,255,.055); color:#cbd5e1; cursor:pointer; }
+.icon-button svg { width:19px; height:19px; fill:currentColor; }
+.icon-button:hover { color:white; background:rgba(255,255,255,.1); }
+
+.member-practice, .history-surface, .stats-surface { padding: 22px; }
+.section-heading-row { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:17px; }
+.section-heading-row h3 { margin:0; font-size:1.18rem; letter-spacing:-.025em; }
+.practice-launch-row { display:grid; grid-template-columns:minmax(190px,1fr) auto auto; align-items:end; gap:12px; }
+.member-field { display:grid; gap:7px; min-width:0; }
+.member-field > span { color:#94a3b8; font-size:.72rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.member-field select { width:100%; height:48px; padding:0 40px 0 14px; border:1px solid rgba(255,255,255,.12); border-radius:13px; background:#171b22; color:white; }
+.horizontal-mode-toggle { display:grid; grid-template-columns:1fr 1fr; padding:4px; border:1px solid rgba(255,255,255,.1); border-radius:13px; background:#11151b; }
+.horizontal-mode-toggle button { min-height:40px; padding:0 16px; border:0; border-radius:9px; background:transparent; color:#94a3b8; font:inherit; font-weight:780; cursor:pointer; }
+.horizontal-mode-toggle button.active { background:#29303a; color:white; box-shadow:0 3px 10px rgba(0,0,0,.2); }
+.primary-action { min-height:48px; padding:0 20px; border:0; border-radius:12px; background:#f8fafc; color:#0b0e13; font:inherit; font-weight:850; cursor:pointer; }
+.primary-action:hover { background:#dbeafe; }
+.primary-action:disabled { opacity:.55; cursor:wait; }
+.ask-master-button { width:100%; margin-top:14px; padding:13px; display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:12px; border:1px solid rgba(96,165,250,.18); border-radius:15px; background:rgba(37,99,235,.07); color:#e5e7eb; text-align:left; cursor:pointer; }
+.ask-master-button:hover { background:rgba(37,99,235,.12); border-color:rgba(96,165,250,.32); }
+.ask-master-button strong,.ask-master-button small { display:block; }
+.ask-master-button small { margin-top:2px; color:#94a3b8; font-size:.79rem; font-weight:500; }
+.ask-master-button > svg { width:18px; height:18px; fill:none; stroke:#93c5fd; stroke-width:2; }
+.master-mini-mark { width:34px; height:34px; overflow:hidden; display:grid; place-items:center; border-radius:10px; background:white; }
+.master-mini-mark img { width:100%; height:100%; object-fit:cover; }
+.home-grid { display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); gap:18px; }
+.text-link,.quiet-link { padding:0; border:0; background:transparent; color:#60a5fa; font:inherit; font-weight:750; cursor:pointer; }
+.session-list { display:grid; gap:2px; }
+.session-list-empty { padding:28px 12px; color:#7f8997; text-align:center; border:1px dashed rgba(255,255,255,.1); border-radius:14px; }
+.session-list-item { width:100%; min-width:0; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px; align-items:center; padding:14px 4px; border:0; border-top:1px solid rgba(255,255,255,.075); background:transparent; color:white; text-align:left; }
+.session-list-item:first-child { border-top:0; }
+.session-list-title { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:760; }
+.session-list-date { display:block; margin-top:3px; color:#778191; font-size:.78rem; }
+.session-list-meta { color:#9ca3af; font-size:.76rem; text-align:right; white-space:nowrap; }
+.home-stat-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
+.home-stat-grid > div { min-width:0; padding:12px; border-radius:13px; background:rgba(255,255,255,.045); }
+.home-stat-grid strong,.home-stat-grid span { display:block; }
+.home-stat-grid strong { font-size:1.28rem; letter-spacing:-.04em; }
+.home-stat-grid span { margin-top:3px; color:#8590a0; font-size:.68rem; }
+.chart-heading { display:flex; justify-content:space-between; margin:19px 2px 7px; color:#8d97a5; font-size:.72rem; font-weight:700; }
+.session-time-chart { display:block; width:100%; height:150px; overflow:visible; }
+
+/* Grammar composer containment and stable assistant identity */
+.grammar-detail-panel,.grammar-detail-header,.grammar-detail-thread { min-width:0; box-sizing:border-box; }
+.grammar-detail-thread { flex:1 1 auto; min-height:0; overscroll-behavior:contain; }
+.grammar-thread-message.assistant { position:relative; align-items:flex-start; }
+.grammar-assistant-identity { position:sticky; top:0; align-self:flex-start; z-index:2; padding:3px 0 7px; background:linear-gradient(180deg,#12151a 75%,rgba(18,21,26,0)); }
+.grammar-follow-up-form { width:calc(100% - 36px); max-width:calc(100% - 36px); min-width:0; box-sizing:border-box; flex:0 0 auto; overflow:hidden; }
+.grammar-follow-up-input { width:0; flex:1 1 0; min-width:0; box-sizing:border-box; overflow-x:hidden; overflow-wrap:anywhere; }
+.grammar-follow-up-send { flex:0 0 36px; }
+
+/* Full-page completion, confirmation, history, and assistant */
+.product-page,.master-page { position:fixed; inset:0; z-index:100; overflow:auto; background:radial-gradient(circle at 12% 0,rgba(37,99,235,.14),transparent 32%),#07090d; color:white; }
+.product-page { display:grid; place-items:center; padding:28px; }
+.product-page-shell { width:min(920px,100%); }
+.summary-shell,.confirmation-shell,.completion-shell { text-align:center; }
+.completion-mark { width:58px;height:58px;display:grid;place-items:center;margin:0 auto 20px;border-radius:18px;background:rgba(34,197,94,.12);border:1px solid rgba(74,222,128,.25);color:#86efac; }
+.completion-mark svg { width:29px;height:29px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round; }
+.product-page h2 { margin:0; font-size:clamp(2.2rem,6vw,4.6rem); line-height:1; letter-spacing:-.065em; }
+.summary-metrics { display:grid; grid-template-columns:repeat(3,1fr); margin:34px 0 28px; overflow:hidden; border:1px solid rgba(255,255,255,.1); border-radius:18px; background:rgba(255,255,255,.035); }
+.summary-metrics div { padding:24px 15px; border-left:1px solid rgba(255,255,255,.09); }
+.summary-metrics div:first-child { border-left:0; }
+.summary-metrics span,.summary-metrics strong { display:block; }
+.summary-metrics span { color:#8f99a7;font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em; }
+.summary-metrics strong { margin-top:8px;font-size:1.8rem; }
+.confirm-callout { padding:25px; border-radius:20px; background:rgba(37,99,235,.08); border:1px solid rgba(96,165,250,.18); }
+.confirm-callout h3 { max-width:620px;margin:0 auto 18px;font-size:1.16rem;line-height:1.4; }
+.summary-shell > .quiet-link { margin-top:28px;color:#aeb7c4; }
+.decision-modal { position:fixed;inset:0;z-index:140;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(12px); }
+.decision-panel { position:relative;width:min(490px,100%);padding:28px;border:1px solid rgba(255,255,255,.12);border-radius:20px;background:#14171d;box-shadow:0 30px 90px rgba(0,0,0,.55); }
+.decision-panel h2 { margin:0;font-size:1.75rem;letter-spacing:-.04em; }
+.decision-panel p { margin:12px 0 24px;color:#aeb6c2;line-height:1.55; }
+.dialog-close { position:absolute;top:13px;right:13px;width:36px;height:36px;border:0;border-radius:10px;background:rgba(255,255,255,.06);color:#cbd5e1;font-size:1.35rem;cursor:pointer; }
+.decision-actions { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+.danger-outline { min-height:48px;padding:0 16px;border:1px solid rgba(248,113,113,.38);border-radius:12px;background:rgba(239,68,68,.08);color:#fecaca;font:inherit;font-weight:800;cursor:pointer; }
+.confirmation-progress { width:min(620px,100%);margin:0 auto 42px;text-align:left; }
+.confirmation-progress > span { color:#94a3b8;font-size:.75rem;font-weight:750; }
+.confirmation-progress > div { height:5px;margin-top:9px;overflow:hidden;border-radius:99px;background:rgba(255,255,255,.1); }
+.confirmation-progress i { display:block;width:0;height:100%;border-radius:inherit;background:#3b82f6;transition:width .25s ease; }
+.confirmation-shell h2 { margin-top:10px; }
+.confirmation-shell > p { margin:12px 0 26px;color:#9099a8; }
+.confirmation-form { width:min(560px,100%);margin:0 auto;display:grid;gap:12px; }
+.confirmation-input-wrap { display:grid;grid-template-columns:minmax(0,1fr) 48px;overflow:hidden;border:1px solid rgba(255,255,255,.14);border-radius:14px;background:#151920; }
+.confirmation-input-wrap input { min-width:0;height:54px;padding:0 16px;border:0;background:transparent;color:white;font:inherit;outline:none; }
+.confirmation-input-wrap button { display:grid;place-items:center;border:0;border-left:1px solid rgba(255,255,255,.1);background:transparent;color:#93c5fd;cursor:pointer; }
+.confirmation-input-wrap svg { width:20px;height:20px;fill:currentColor; }
+.confirmation-feedback { min-height:22px;color:#93c5fd;font-size:.86rem; }
+.confirmation-form .quiet-link { margin-top:4px;color:#aab3bf; }
+.completion-shell p { margin-top:12px;color:#93c5fd;font-size:1.15rem;font-weight:750; }
+.list-page-shell { align-self:start;margin:0 auto;padding:10px 0 50px; }
+.back-button { display:inline-flex;align-items:center;gap:8px;margin:0 0 35px;padding:9px 12px;border:1px solid rgba(255,255,255,.09);border-radius:10px;background:rgba(255,255,255,.045);color:#cbd5e1;font:inherit;font-weight:750;cursor:pointer; }
+.list-page-shell h2 { margin:6px 0 24px; }
+.list-page-shell .session-list { padding:8px 20px;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:rgba(255,255,255,.035); }
+.pagination-row { display:flex;justify-content:center;align-items:center;gap:14px;margin-top:20px;color:#8b95a3;font-size:.82rem; }
+.pagination-row button { min-height:38px;padding:0 14px;border:1px solid rgba(255,255,255,.1);border-radius:9px;background:rgba(255,255,255,.05);color:white;cursor:pointer; }
+.pagination-row button:disabled { opacity:.35;cursor:default; }
+.master-page { display:grid;grid-template-columns:280px minmax(0,1fr);overflow:hidden; }
+.master-sidebar { min-width:0;padding:18px 14px;border-right:1px solid rgba(255,255,255,.08);background:#0d1015;overflow-y:auto; }
+.master-sidebar .back-button { margin-bottom:14px; }
+.new-master-chat { width:100%;min-height:44px;border:1px solid rgba(255,255,255,.12);border-radius:11px;background:rgba(255,255,255,.055);color:white;font:inherit;font-weight:780;cursor:pointer; }
+.master-sidebar-label { margin:25px 8px 9px;color:#697484;font-size:.68rem;font-weight:850;letter-spacing:.11em;text-transform:uppercase; }
+.master-thread-list { display:grid;gap:3px; }
+.master-thread-button { width:100%;padding:10px;border:0;border-radius:9px;background:transparent;color:#aeb6c2;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer; }
+.master-thread-button:hover,.master-thread-button.active { background:rgba(255,255,255,.065);color:white; }
+.master-workspace { min-width:0;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto; }
+.master-page-header { display:flex;align-items:center;gap:12px;padding:16px 22px;border-bottom:1px solid rgba(255,255,255,.07); }
+.master-page-header h2,.master-page-header p { margin:0; }.master-page-header h2{font-size:1rem;}.master-page-header p{margin-top:2px;color:#798391;font-size:.74rem;}
+.master-chat-messages { min-width:0;overflow-y:auto;padding:30px max(22px,calc((100% - 760px)/2)); }
+.master-chat-row { min-width:0;margin-bottom:24px;display:flex;gap:12px;align-items:flex-start; }
+.master-chat-row.user { justify-content:flex-end; }
+.master-chat-row.user .master-chat-content { max-width:75%;padding:11px 15px;border-radius:16px 16px 4px 16px;background:#252a31; }
+.master-chat-row.assistant .master-chat-content { flex:1;line-height:1.65;color:#d9dee6; }
+.master-chat-content { min-width:0;white-space:pre-wrap;overflow-wrap:anywhere; }
+.master-composer { width:min(780px,calc(100% - 32px));max-width:calc(100% - 32px);min-width:0;margin:0 auto 20px;padding:8px;display:flex;align-items:flex-end;gap:8px;overflow:hidden;box-sizing:border-box;border:1px solid rgba(255,255,255,.14);border-radius:20px;background:#20242a;box-shadow:0 16px 45px rgba(0,0,0,.28); }
+.master-composer textarea { width:0;min-width:0;max-height:140px;flex:1 1 0;resize:none;padding:9px;border:0;background:transparent;color:white;font:inherit;outline:none;overflow-wrap:anywhere; }
+.master-composer button { width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border:0;border-radius:50%;background:#2563eb;color:white;cursor:pointer; }
+.master-composer svg { width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round; }
+
+@media (max-width: 820px) {
+  .practice-launch-row,.home-grid { grid-template-columns:1fr; }
+  .home-stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .master-page { grid-template-columns:120px minmax(0,1fr); }
+  .master-sidebar { display:block;padding:12px 7px; }
+  .master-sidebar .back-button { width:100%;justify-content:center;font-size:.76rem;padding:8px 5px; }
+  .new-master-chat { font-size:.76rem; }
+  .master-sidebar-label { margin-left:5px;font-size:.6rem; }
+  .summary-metrics { grid-template-columns:1fr; }
+  .summary-metrics div { border-left:0;border-top:1px solid rgba(255,255,255,.09); }
+  .summary-metrics div:first-child { border-top:0; }
+}
+
+@media (max-width: 600px) {
+  .member-home { margin-top:4px; }
+  .member-hero,.member-practice,.history-surface,.stats-surface { padding:16px; }
+  .member-avatar { width:50px;height:50px;border-radius:15px; }
+  .ask-master-button small { display:none; }
+  .product-page { padding:20px 16px; }
+  .decision-actions { grid-template-columns:1fr; }
+  .grammar-follow-up-form { width:calc(100% - 20px);max-width:calc(100% - 20px);margin:0 10px 10px; }
+  .grammar-assistant-name { display:none; }
+  .end-chat-button { padding:0 12px;min-height:40px;font-size:.8rem; }
+}
   </style>
 </head>
 
@@ -3735,6 +3927,7 @@ form {
 </div>
 
       <div class="session-controls">
+  <button id="endChatButton" class="end-chat-button hidden" type="button">End chat</button>
   <div class="control-card account-card">
     <button id="authOpenButton" class="auth-open-button" type="button">
       Sign in
@@ -3778,6 +3971,57 @@ form {
     Welcome to LipsMaxxed! Click the microphone to get started.
   </p>
 </main>
+
+<main id="signedInHome" class="member-home hidden" aria-label="Your LipsMaxxed home">
+  <section class="member-hero app-surface">
+    <div class="member-profile">
+      <div id="homeProfileAvatar" class="member-avatar" aria-hidden="true"></div>
+      <div>
+        <div class="member-eyebrow">Welcome back</div>
+        <h2 id="homeProfileName">Your profile</h2>
+      </div>
+    </div>
+    <button id="editAccountButton" class="icon-button" type="button" aria-label="Edit my account" title="Edit my account">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16.7-.7 4 4-.7L18.9 8.4l-3.3-3.3L4 16.7Zm15.9-9.3 1-1a1.5 1.5 0 0 0 0-2.1l-1.2-1.2a1.5 1.5 0 0 0-2.1 0l-1 1 3.3 3.3Z"/></svg>
+    </button>
+  </section>
+
+  <section class="member-practice app-surface">
+    <div class="section-heading-row">
+      <div><div class="member-eyebrow">Practice</div><h3>Start a new chat</h3></div>
+    </div>
+    <div class="practice-launch-row">
+      <label class="member-field"><span>Language</span><select id="homeLanguageSelect">
+        <option value="English">&#127482;&#127480; English</option><option value="Hebrew">&#127470;&#127473; Hebrew</option><option value="Spanish">&#127466;&#127480; Spanish</option><option value="French">&#127467;&#127479; French</option><option value="German">&#127465;&#127466; German</option><option value="Arabic">&#127480;&#127462; Arabic</option><option value="Russian">&#127479;&#127482; Russian</option><option value="Italian">&#127470;&#127481; Italian</option><option value="Portuguese">&#127477;&#127481; Portuguese</option><option value="Chinese">&#127464;&#127475; Chinese</option><option value="Japanese">&#127471;&#127477; Japanese</option><option value="Korean">&#127472;&#127479; Korean</option>
+      </select></label>
+      <div id="homeModeToggle" class="horizontal-mode-toggle" role="group" aria-label="Input mode">
+        <button class="active" type="button" data-home-mode="writing">Writing</button>
+        <button type="button" data-home-mode="speech">Speech</button>
+      </div>
+      <button id="homeStartChatButton" class="primary-action" type="button">Start chat</button>
+    </div>
+    <button id="askLipsMasterButton" class="ask-master-button" type="button">
+      <span class="master-mini-mark"><img src="assets/language-logo.png" alt="" /></span>
+      <span><strong>Ask LipsMaster</strong><small>Get help with grammar, wording, or anything you are learning.</small></span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+    </button>
+  </section>
+
+  <section class="home-grid">
+    <div class="app-surface history-surface">
+      <div class="section-heading-row"><h3>My Previous Chats</h3><button id="seeAllChatsButton" class="text-link" type="button">See all</button></div>
+      <div id="recentChatsList" class="session-list"></div>
+    </div>
+    <div class="app-surface stats-surface">
+      <div class="section-heading-row"><h3>My Stats</h3></div>
+      <div class="home-stat-grid">
+        <div><strong id="homePointsStat">0</strong><span>Points</span></div><div><strong id="homeSessionsStat">0</strong><span>Sessions</span></div><div><strong id="homeTimeStat">0m</strong><span>Total time</span></div><div><strong id="homeMessagesStat">0</strong><span>Messages</span></div><div><strong id="homeConfirmedStat">0</strong><span>Confirmed words</span></div>
+      </div>
+      <div class="chart-heading"><span>Session time</span><span id="chartPeriodLabel">Recent sessions</span></div>
+      <svg id="sessionTimeChart" class="session-time-chart" viewBox="0 0 640 180" role="img" aria-label="Session time progress"></svg>
+    </div>
+  </section>
+</main>
 <section id="upcomingWordsPanel" class="upcoming-words-panel hidden">
   <div class="upcoming-words-header">
     <div>
@@ -3794,7 +4038,6 @@ form {
     <header class="grammar-detail-header">
       <div>
         <h2 id="grammarDetailTitle">Grammar rule</h2>
-        <p class="grammar-detail-subtitle">A closer look at this correction</p>
       </div>
       <button id="grammarDetailClose" class="grammar-detail-close" type="button" aria-label="Close grammar explanation">&times;</button>
     </header>
@@ -3857,7 +4100,8 @@ form {
         id="authName"
         class="auth-input"
         type="text"
-        autocomplete="username"
+        autocomplete="off"
+        placeholder=""
       />
     </div>
 
@@ -3970,7 +4214,7 @@ form {
 
     <div id="authGenderGroup" class="auth-field-group">
       <div class="auth-label centered-auth-label">
-  Gender
+  Address me as
 </div>
 
       <div class="gender-options">
@@ -3978,20 +4222,27 @@ form {
           <svg class="gender-icon" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 11.5a4.2 4.2 0 1 0 0-8.4 4.2 4.2 0 0 0 0 8.4Zm0 2c-4.2 0-7.6 2.6-7.6 5.9 0 .9.7 1.5 1.6 1.5h12c.9 0 1.6-.6 1.6-1.5 0-3.3-3.4-5.9-7.6-5.9Z"></path>
           </svg>
-          <span>I am a man</span>
+          <span>Male</span>
         </button>
 
         <button id="genderWomanButton" class="gender-option gender-woman" type="button" data-gender="woman">
           <svg class="gender-icon" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 11.2a4.1 4.1 0 1 0 0-8.2 4.1 4.1 0 0 0 0 8.2Zm-5.9 8.5c-.7 0-1.2-.7-.9-1.4l2-4.1c.7-1.5 2.2-2.4 3.8-2.4h1.8c1.6 0 3.1.9 3.8 2.4l2 4.1c.3.7-.2 1.4-.9 1.4h-2.6v1.1a1 1 0 0 1-2 0v-1.1h-2.2v1.1a1 1 0 0 1-2 0v-1.1H6.1Z"></path>
           </svg>
-          <span>I am a woman</span>
+          <span>Female</span>
         </button>
       </div>
 
       <p class="gender-note">
   Helps the chatbot address you naturally in languages with masculine and feminine forms.
 </p>
+    </div>
+
+    <div id="authNativeLanguageGroup" class="auth-field-group">
+      <label class="auth-label centered-auth-label" for="authNativeLanguage">Native language</label>
+      <div class="select-wrap setup-select-wrap auth-language-select"><select id="authNativeLanguage">
+        <option value="English">&#127482;&#127480; English</option><option value="Hebrew">&#127470;&#127473; Hebrew</option><option value="Spanish">&#127466;&#127480; Spanish</option><option value="French">&#127467;&#127479; French</option><option value="German">&#127465;&#127466; German</option><option value="Arabic">&#127480;&#127462; Arabic</option><option value="Russian">&#127479;&#127482; Russian</option><option value="Italian">&#127470;&#127481; Italian</option><option value="Portuguese">&#127477;&#127481; Portuguese</option><option value="Chinese">&#127464;&#127475; Chinese</option><option value="Japanese">&#127471;&#127477; Japanese</option><option value="Korean">&#127472;&#127479; Korean</option>
+      </select></div>
     </div>
   </div>
 
@@ -4060,8 +4311,7 @@ form {
 
       <div class="chat-setup-section">
         <div class="chat-setup-label">Address me as</div>
-        <label class="setup-name-label" for="setupPreferredNameInput">Your name</label>
-        <input id="setupPreferredNameInput" class="setup-name-input" type="text" maxlength="80" autocomplete="name" placeholder="Enter your name" />
+        <input id="setupPreferredNameInput" class="setup-name-input" type="text" maxlength="80" autocomplete="name" placeholder="Name" aria-label="Your name" />
         <div class="setup-gender-toggle" role="group" aria-label="Address me as">
           <button id="setupGenderManButton" class="setup-gender-option" type="button" data-gender="man" aria-pressed="false">
             Male
@@ -4123,8 +4373,21 @@ form {
     </div>
 
     <div class="chat-setup-section">
+      <div class="chat-setup-label">Address me as</div>
+      <div class="setup-gender-toggle" role="group" aria-label="Address me as">
+        <button id="profileGenderManButton" class="setup-gender-option" type="button" data-gender="man">Male</button>
+        <button id="profileGenderWomanButton" class="setup-gender-option" type="button" data-gender="woman">Female</button>
+      </div>
+    </div>
+
+    <div class="chat-setup-section">
+      <label class="chat-setup-label" for="profilePhotoInput">Profile photo URL</label>
+      <input id="profilePhotoInput" class="profile-input profile-photo-input" type="url" inputmode="url" autocomplete="url" placeholder="https://" />
+    </div>
+
+    <div class="chat-setup-section">
       <label class="chat-setup-label" for="profileFluentLanguageSelect">
-        Fluent language
+        Native language
       </label>
 
       <div class="select-wrap setup-select-wrap">
@@ -4151,6 +4414,60 @@ form {
 
     <div id="profileMessage" class="auth-message"></div>
   </div>
+</section>
+
+<section id="sessionSummaryPage" class="product-page hidden" aria-labelledby="sessionSummaryTitle">
+  <div class="product-page-shell summary-shell">
+    <div class="completion-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"/></svg></div>
+    <h2 id="sessionSummaryTitle">Congratulations! You learned <span id="summaryLearnedInline">0</span> words</h2>
+    <div class="summary-metrics">
+      <div><span>Total session time</span><strong id="summarySessionTime">0m</strong></div>
+      <div><span>Words learned</span><strong id="summaryWordsLearned">0</strong></div>
+      <div><span>Points gained</span><strong id="summaryPointsGained">0</strong></div>
+    </div>
+    <div class="confirm-callout">
+      <h3>Before you go, don’t forget to confirm the new words you learned</h3>
+      <button id="confirmWordsButton" class="primary-action" type="button">Confirm words</button>
+    </div>
+    <button id="summaryReturnHomeButton" class="quiet-link" type="button">Return to home</button>
+  </div>
+</section>
+
+<section id="unconfirmedExitModal" class="decision-modal hidden" role="dialog" aria-modal="true" aria-labelledby="unconfirmedExitTitle">
+  <div class="decision-panel">
+    <button id="closeUnconfirmedExitButton" class="dialog-close" type="button" aria-label="Close">&times;</button>
+    <h2 id="unconfirmedExitTitle">Are you sure?</h2>
+    <p>If you do not confirm the new words you learned, they will not save to your profile!</p>
+    <div class="decision-actions"><button id="modalConfirmWordsButton" class="primary-action" type="button">Confirm words</button><button id="exitChatAnywayButton" class="danger-outline" type="button">Exit chat anyway</button></div>
+  </div>
+</section>
+
+<section id="wordConfirmationPage" class="product-page hidden" aria-labelledby="confirmWordHeading">
+  <div class="product-page-shell confirmation-shell">
+    <div class="confirmation-progress"><span id="confirmationProgressText">Word 1 of 1</span><div><i id="confirmationProgressFill"></i></div></div>
+    <div class="member-eyebrow">Confirm what you learned</div>
+    <h2 id="confirmWordHeading" dir="auto"></h2>
+    <p id="confirmationPrompt">Enter the translation in your language.</p>
+    <form id="wordConfirmationForm" class="confirmation-form">
+      <div class="confirmation-input-wrap"><input id="wordConfirmationInput" autocomplete="off" aria-label="Word translation" /><button id="wordConfirmationSpeechButton" type="button" aria-label="Speak translation" title="Speak translation"><svg viewBox="0 0 24 24"><path d="M12 15.5a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v5.5a4 4 0 0 0 4 4Zm6.5-4a1 1 0 0 0-2 0 4.5 4.5 0 0 1-9 0 1 1 0 0 0-2 0 6.5 6.5 0 0 0 5.5 6.42V20H8.5v2h7v-2H13v-2.08a6.5 6.5 0 0 0 5.5-6.42Z"/></svg></button></div>
+      <div id="confirmationFeedback" class="confirmation-feedback" aria-live="polite"></div>
+      <button id="submitWordConfirmationButton" class="primary-action" type="submit">Confirm translation</button>
+      <button id="forgotConfirmationWordButton" class="quiet-link" type="button">I don’t remember</button>
+    </form>
+  </div>
+</section>
+
+<section id="confirmationCompletePage" class="product-page hidden" aria-labelledby="confirmationCompleteTitle">
+  <div class="product-page-shell completion-shell"><div class="completion-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"/></svg></div><h2 id="confirmationCompleteTitle"><span id="confirmedWordTotal">0</span> words confirmed</h2><p>You’re doing amazing!</p></div>
+</section>
+
+<section id="allChatsPage" class="product-page hidden" aria-labelledby="allChatsTitle">
+  <div class="product-page-shell list-page-shell"><button id="allChatsBackButton" class="back-button" type="button"><span aria-hidden="true">&larr;</span> Back</button><div class="member-eyebrow">Conversation history</div><h2 id="allChatsTitle">My Previous Chats</h2><div id="allChatsList" class="session-list expanded"></div><div class="pagination-row"><button id="previousChatsPageButton" type="button">Previous</button><span id="chatsPageLabel">Page 1</span><button id="nextChatsPageButton" type="button">Next</button></div></div>
+</section>
+
+<section id="lipsMasterPage" class="master-page hidden" aria-labelledby="lipsMasterPageTitle">
+  <aside class="master-sidebar"><button id="lipsMasterBackButton" class="back-button" type="button"><span aria-hidden="true">&larr;</span> Back</button><button id="newMasterChatButton" class="new-master-chat" type="button">New chat</button><div class="master-sidebar-label">Previous chats</div><div id="masterThreadList" class="master-thread-list"></div></aside>
+  <div class="master-workspace"><header class="master-page-header"><span class="master-mini-mark"><img src="assets/language-logo.png" alt="" /></span><div><h2 id="lipsMasterPageTitle">LipsMaster</h2><p>Language help, when you need it.</p></div></header><div id="masterChatMessages" class="master-chat-messages" aria-live="polite"></div><form id="masterChatForm" class="master-composer"><textarea id="masterChatInput" rows="1" maxlength="1200" placeholder="Message LipsMaster" aria-label="Message LipsMaster"></textarea><button id="masterChatSendButton" type="submit" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button></form></div>
 </section>
 
 <section id="statsPage" class="stats-page hidden">
@@ -4268,6 +4585,23 @@ const composerShell = document.getElementById("composerShell");
 const speechShell = document.getElementById("speechShell");
 const speechRecordButton = document.getElementById("speechRecordButton");
 const speechStatus = document.getElementById("speechStatus");
+const endChatButton = document.getElementById("endChatButton");
+const signedInHome = document.getElementById("signedInHome");
+const homeProfileAvatar = document.getElementById("homeProfileAvatar");
+const homeProfileName = document.getElementById("homeProfileName");
+const editAccountButton = document.getElementById("editAccountButton");
+const homeLanguageSelect = document.getElementById("homeLanguageSelect");
+const homeModeToggle = document.getElementById("homeModeToggle");
+const homeStartChatButton = document.getElementById("homeStartChatButton");
+const askLipsMasterButton = document.getElementById("askLipsMasterButton");
+const recentChatsList = document.getElementById("recentChatsList");
+const seeAllChatsButton = document.getElementById("seeAllChatsButton");
+const homePointsStat = document.getElementById("homePointsStat");
+const homeSessionsStat = document.getElementById("homeSessionsStat");
+const homeTimeStat = document.getElementById("homeTimeStat");
+const homeMessagesStat = document.getElementById("homeMessagesStat");
+const homeConfirmedStat = document.getElementById("homeConfirmedStat");
+const sessionTimeChart = document.getElementById("sessionTimeChart");
 
 const writingModeButton = document.getElementById("writingModeButton");
 const speechModeButton = document.getElementById("speechModeButton");
@@ -4308,6 +4642,8 @@ const authConfirmPasswordGroup = document.getElementById("authConfirmPasswordGro
 const authConfirmPassword = document.getElementById("authConfirmPassword");
 
 const authGenderGroup = document.getElementById("authGenderGroup");
+const authNativeLanguageGroup = document.getElementById("authNativeLanguageGroup");
+const authNativeLanguage = document.getElementById("authNativeLanguage");
 const genderManButton = document.getElementById("genderManButton");
 const genderWomanButton = document.getElementById("genderWomanButton");
 
@@ -4367,6 +4703,48 @@ const profileUsernameInput = document.getElementById("profileUsernameInput");
 const profileFluentLanguageSelect = document.getElementById("profileFluentLanguageSelect");
 const saveProfileButton = document.getElementById("saveProfileButton");
 const profileMessage = document.getElementById("profileMessage");
+const profileGenderManButton = document.getElementById("profileGenderManButton");
+const profileGenderWomanButton = document.getElementById("profileGenderWomanButton");
+const profilePhotoInput = document.getElementById("profilePhotoInput");
+
+const sessionSummaryPage = document.getElementById("sessionSummaryPage");
+const summaryLearnedInline = document.getElementById("summaryLearnedInline");
+const summarySessionTime = document.getElementById("summarySessionTime");
+const summaryWordsLearned = document.getElementById("summaryWordsLearned");
+const summaryPointsGained = document.getElementById("summaryPointsGained");
+const confirmWordsButton = document.getElementById("confirmWordsButton");
+const summaryReturnHomeButton = document.getElementById("summaryReturnHomeButton");
+const unconfirmedExitModal = document.getElementById("unconfirmedExitModal");
+const closeUnconfirmedExitButton = document.getElementById("closeUnconfirmedExitButton");
+const modalConfirmWordsButton = document.getElementById("modalConfirmWordsButton");
+const exitChatAnywayButton = document.getElementById("exitChatAnywayButton");
+const wordConfirmationPage = document.getElementById("wordConfirmationPage");
+const confirmationProgressText = document.getElementById("confirmationProgressText");
+const confirmationProgressFill = document.getElementById("confirmationProgressFill");
+const confirmWordHeading = document.getElementById("confirmWordHeading");
+const wordConfirmationForm = document.getElementById("wordConfirmationForm");
+const wordConfirmationInput = document.getElementById("wordConfirmationInput");
+const wordConfirmationSpeechButton = document.getElementById("wordConfirmationSpeechButton");
+const submitWordConfirmationButton = document.getElementById("submitWordConfirmationButton");
+const forgotConfirmationWordButton = document.getElementById("forgotConfirmationWordButton");
+const confirmationFeedback = document.getElementById("confirmationFeedback");
+const confirmationCompletePage = document.getElementById("confirmationCompletePage");
+const confirmedWordTotal = document.getElementById("confirmedWordTotal");
+const allChatsPage = document.getElementById("allChatsPage");
+const allChatsTitle = document.getElementById("allChatsTitle");
+const allChatsList = document.getElementById("allChatsList");
+const allChatsBackButton = document.getElementById("allChatsBackButton");
+const previousChatsPageButton = document.getElementById("previousChatsPageButton");
+const nextChatsPageButton = document.getElementById("nextChatsPageButton");
+const chatsPageLabel = document.getElementById("chatsPageLabel");
+const lipsMasterPage = document.getElementById("lipsMasterPage");
+const lipsMasterBackButton = document.getElementById("lipsMasterBackButton");
+const newMasterChatButton = document.getElementById("newMasterChatButton");
+const masterThreadList = document.getElementById("masterThreadList");
+const masterChatMessages = document.getElementById("masterChatMessages");
+const masterChatForm = document.getElementById("masterChatForm");
+const masterChatInput = document.getElementById("masterChatInput");
+const masterChatSendButton = document.getElementById("masterChatSendButton");
 
 const upcomingWordsPanel = document.getElementById("upcomingWordsPanel");
 const upcomingWordsList = document.getElementById("upcomingWordsList");
@@ -4390,6 +4768,14 @@ const renderedBotTurnIds = new Set();
 let authMode = "sign-in";
 let currentSession = null;
 let currentUser = null;
+let homeSelectedMode = "writing";
+let pendingSessionSummary = null;
+let confirmationQueue = [];
+let confirmationIndex = 0;
+let confirmedThisRun = 0;
+let allChatsPageIndex = 0;
+let activeMasterThreadId = "";
+let accountMetadataWrite = Promise.resolve();
 
 let inputMode = "writing";
 
@@ -4435,8 +4821,10 @@ const languageFactRequests = new Map();
 const recentLanguageFacts = new Map();
 
 function createClientTurnId() {
-  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
-  return `turn-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const turnId = globalThis.crypto?.randomUUID
+    ? globalThis.crypto.randomUUID()
+    : `turn-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  return activeChatSession?.id ? `${activeChatSession.id}:${turnId}` : turnId;
 }
 
     let correctionRetryMode = false;
@@ -5245,10 +5633,20 @@ async function startConfiguredChat() {
   renderedBotTurnIds.clear();
 
   activeChatSession = {
+    id: globalThis.crypto?.randomUUID
+      ? globalThis.crypto.randomUUID()
+      : `session-${Date.now()}-${Math.random().toString(36).slice(2)}`,
     language: selectedChatLanguage,
     inputMode: selectedInputMode,
-    startedAt: Date.now()
+    startedAt: Date.now(),
+    pointsGained: 0,
+    messageCount: 0,
+    learnedWords: new Map()
   };
+
+  signedInHome?.classList.add("hidden");
+  messageHistory?.classList.remove("hidden");
+  endChatButton?.classList.toggle("hidden", !currentUser);
 
   loadReviewScheduleState(selectedChatLanguage);
 
@@ -5422,7 +5820,24 @@ async function getWordSchedulingBand(wordKey, language) {
   return { band: "far", target, frontierRank };
 }
 
+function rememberSessionLearnedWord(word, languageOverride = null) {
+  if (!activeChatSession) return;
+  const normalized = normalizeVocabularyTarget(word);
+  if (!normalized.word_key || !normalized.word_text) return;
+  if (!(activeChatSession.learnedWords instanceof Map)) {
+    activeChatSession.learnedWords = new Map();
+  }
+  activeChatSession.learnedWords.set(normalized.word_key, {
+    word_key: normalized.word_key,
+    word_text: normalized.word_text,
+    language: languageOverride || activeChatSession.language || getCurrentChatLanguage()
+  });
+}
+
 async function scheduleWordReview(word, reason = "correction", languageOverride = null) {
+  if (["correction", "translated", "revealed", "missed"].includes(reason)) {
+    rememberSessionLearnedWord(word, languageOverride);
+  }
   if (!currentUser) return;
 
   const language = languageOverride || languageSelect.value;
@@ -6161,6 +6576,7 @@ async function recordUserWordsAndAwardPoints(
       first occurrence gets 5, extra repetitions get 1 each.
     */
     if (previousSpokenCount === 0) {
+      rememberSessionLearnedWord(item, language);
       basePoints += 5;
       basePoints += Math.max(0, occurrenceCount - 1);
     } else {
@@ -6266,6 +6682,10 @@ async function recordUserWordsAndAwardPoints(
 
   if (pointsUpsertError) {
     console.warn("points total upsert failed", pointsUpsertError);
+  }
+
+  if (activeChatSession) {
+    activeChatSession.pointsGained = Number(activeChatSession.pointsGained || 0) + pointsGained;
   }
 
   return {
@@ -6906,6 +7326,7 @@ function setAuthMode(mode) {
   authNameGroup?.classList.toggle("sign-in-hidden", !isSignUp);
   authConfirmPasswordGroup?.classList.toggle("sign-in-hidden", !isSignUp);
   authGenderGroup?.classList.toggle("sign-in-hidden", !isSignUp);
+  authNativeLanguageGroup?.classList.toggle("sign-in-hidden", !isSignUp);
 
   newPasswordGroup?.classList.toggle("sign-in-hidden", !isRecovery);
 
@@ -6930,6 +7351,11 @@ function setAuthMode(mode) {
   }
 
   setAuthMessage("");
+
+  if (isSignUp && authName) {
+    authName.value = "";
+    authName.setAttribute("autocomplete", "off");
+  }
 }
 
 function setSelectedGender(gender) {
@@ -6941,6 +7367,8 @@ function setSelectedGender(gender) {
   setupGenderWomanButton?.classList.toggle("selected", selectedGender === "woman");
   setupGenderManButton?.setAttribute("aria-pressed", String(selectedGender === "man"));
   setupGenderWomanButton?.setAttribute("aria-pressed", String(selectedGender === "woman"));
+  profileGenderManButton?.classList.toggle("selected", selectedGender === "man");
+  profileGenderWomanButton?.classList.toggle("selected", selectedGender === "woman");
 }
 
 function getUserGenderInstruction() {
@@ -6979,6 +7407,12 @@ function updateAuthUi(session) {
 
   loadLanguagePoints(getCurrentChatLanguage()).catch(() => {});
 
+  if (!activeChatSession) {
+    showSignedInHome();
+  } else {
+    endChatButton?.classList.remove("hidden");
+  }
+
   if (!passwordRecoveryLocked) {
     closeAuthModal();
   }
@@ -6992,6 +7426,14 @@ function updateAuthUi(session) {
 
     if (accountDisplayName) {
       accountDisplayName.textContent = "";
+    }
+
+    signedInHome?.classList.add("hidden");
+    endChatButton?.classList.add("hidden");
+    if (!activeChatSession) {
+      messageHistory?.classList.remove("hidden");
+      composerShell?.classList.add("hidden");
+      speechShell?.classList.remove("hidden");
     }
   }
 }
@@ -7147,7 +7589,8 @@ const { data, error } = await supabaseClient.auth.signUp({
     emailRedirectTo: confirmRedirectUrl,
     data: {
       username,
-      gender: selectedGender
+      gender: selectedGender,
+      fluentLanguage: authNativeLanguage?.value || "English"
     }
   }
 });
@@ -7901,7 +8344,7 @@ function appendGrammarThreadMessage(role, text = "") {
     mark.appendChild(logo);
     const name = document.createElement("span");
     name.className = "grammar-assistant-name";
-    name.textContent = "LipMaster";
+    name.textContent = "LipsMaster";
     identity.append(mark, name);
     row.appendChild(identity);
   }
@@ -7930,7 +8373,7 @@ function addGrammarThinking() {
 
 function grammarPhrases(text) {
   return String(text || "")
-    .split(/(?<=[.!?ãï¼ï¼])\s+|\n+/u)
+    .split(/(?<=[.!?。！？])\s+|\n+/u)
     .map(part => part.trim())
     .filter(Boolean);
 }
@@ -8012,7 +8455,7 @@ function grammarMessageToPlainText(message) {
       ? message.sections.map(section => `${section?.heading || ""}: ${section?.body || ""}`)
       : []),
     ...(Array.isArray(message?.examples)
-      ? message.examples.map(example => `${example?.target || ""} â ${example?.translation || ""}`)
+      ? message.examples.map(example => `${example?.target || ""} — ${example?.translation || ""}`)
       : []),
     message?.takeaway
   ].map(value => String(value || "").trim()).filter(Boolean).join("\n");
@@ -8043,7 +8486,8 @@ async function requestGrammarDetail(followUpQuestion = "") {
         ? JSON.stringify(context.detailedExplanation)
         : "",
       conversationHistory: context.grammarConversation || [],
-      inputMode: context.inputMode
+      inputMode: context.inputMode,
+      threadId: context.lipsMasterThreadId
     }, "Grammar explanation");
 
     if (activeGrammarDetailContext !== context) return;
@@ -8059,6 +8503,7 @@ async function requestGrammarDetail(followUpQuestion = "") {
       role: "assistant",
       content: grammarMessageToPlainText(data.message)
     });
+    saveGrammarConversationToMaster(context);
     await streamGrammarExplanation(data.message, renderToken);
   } catch (error) {
     if (activeGrammarDetailContext === context) {
@@ -8084,6 +8529,8 @@ function openGrammarDetailModal(context) {
     detailedExplanation: "",
     grammarConversation: []
   };
+  activeGrammarDetailContext.lipsMasterThreadId =
+    `grammar-${context.correctionId || Date.now()}-${Math.random().toString(36).slice(2,8)}`;
   if (grammarDetailBody) grammarDetailBody.textContent = "";
   if (grammarDetailTitle) {
     grammarDetailTitle.textContent = context.grammarRuleTitle || "Grammar rule";
@@ -8953,6 +9400,10 @@ function isSamePlayback(button, type, id) {
 
   function addUserMessage(text) {
     removeSignedOutProTip();
+
+    if (activeChatSession) {
+      activeChatSession.messageCount = Number(activeChatSession.messageCount || 0) + 1;
+    }
 
     const id = `user-${++userMessageCounter}`;
 
@@ -10826,6 +11277,11 @@ async function playBonusWordAudio(chatWord, language, button = null) {
       "English";
   }
 
+  setSelectedGender(currentUser?.user_metadata?.gender || "");
+  if (profilePhotoInput) {
+    profilePhotoInput.value = currentUser?.user_metadata?.avatar_url || "";
+  }
+
   if (profileMessage) {
     profileMessage.textContent = "";
     profileMessage.classList.remove("error", "success");
@@ -10843,6 +11299,7 @@ async function saveProfileSettings() {
 
   const username = profileUsernameInput?.value.trim() || "";
   const fluentLanguage = profileFluentLanguageSelect?.value || "English";
+  const avatarUrl = profilePhotoInput?.value.trim() || "";
 
   if (profileMessage) {
     profileMessage.textContent = "Saving...";
@@ -10854,7 +11311,9 @@ async function saveProfileSettings() {
       data: {
         ...(currentUser.user_metadata || {}),
         username,
-        fluentLanguage
+        fluentLanguage,
+        gender: selectedGender,
+        avatar_url: avatarUrl
       }
     });
 
@@ -10869,6 +11328,8 @@ async function saveProfileSettings() {
     if (fluentLanguageSelect) {
       fluentLanguageSelect.value = fluentLanguage;
     }
+
+    renderMemberIdentity();
 
     if (profileMessage) {
       profileMessage.textContent = "Profile saved.";
@@ -11262,6 +11723,362 @@ async function handleSpeechRecordButtonClick(event) {
   }
 }
 
+function memberStorageKey(kind) {
+  return `lipsmaxxed-${kind}:${currentUser?.id || "signed-out"}`;
+}
+
+function readMemberJson(kind, fallback) {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(memberStorageKey(kind)) || "null");
+    return parsed ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeMemberJson(kind, value) {
+  try { localStorage.setItem(memberStorageKey(kind), JSON.stringify(value)); } catch {}
+}
+
+function formatDuration(milliseconds) {
+  const totalSeconds = Math.max(0, Math.round(Number(milliseconds || 0) / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  if (hours) return `${hours}h ${minutes}m`;
+  if (minutes) return `${minutes}m ${seconds}s`;
+  return `${seconds}s`;
+}
+
+function renderMemberIdentity() {
+  if (!currentUser) return;
+  const name = getAccountDisplayName(currentUser);
+  if (homeProfileName) homeProfileName.textContent = name;
+  if (!homeProfileAvatar) return;
+  homeProfileAvatar.textContent = "";
+  const avatarUrl = String(currentUser?.user_metadata?.avatar_url || "").trim();
+  if (avatarUrl) {
+    const image = document.createElement("img");
+    image.src = avatarUrl;
+    image.alt = "";
+    image.addEventListener("error", () => {
+      homeProfileAvatar.textContent = name.split(/\s+/).map(part => part[0]).join("").slice(0,2).toUpperCase();
+    }, { once: true });
+    homeProfileAvatar.appendChild(image);
+  } else {
+    homeProfileAvatar.textContent = name.split(/\s+/).map(part => part[0]).join("").slice(0,2).toUpperCase();
+  }
+}
+
+function getSessionHistory() {
+  const localRows = readMemberJson("session-history", []);
+  const accountRows = currentUser?.user_metadata?.lipsmaxxedSessions;
+  const merged = [...(Array.isArray(localRows) ? localRows : []), ...(Array.isArray(accountRows) ? accountRows : [])];
+  return [...new Map(merged.filter(Boolean).map(row => [row.id, row])).values()]
+    .sort((a,b) => Number(b.endedAt || 0) - Number(a.endedAt || 0));
+}
+
+function saveSessionSummary(summary) {
+  const rows = getSessionHistory().filter(row => row?.id !== summary.id);
+  rows.unshift(summary);
+  writeMemberJson("session-history", rows.slice(0, 500));
+  const portableRows = rows.slice(0,100).map(row => ({
+    id:row.id,language:row.language,inputMode:row.inputMode,startedAt:row.startedAt,endedAt:row.endedAt,
+    durationMs:row.durationMs,pointsGained:row.pointsGained,messageCount:row.messageCount,
+    wordsLearned:row.wordsLearned,confirmed:row.confirmed,confirmedWords:row.confirmedWords,title:row.title
+  }));
+  queueAccountMetadataUpdate({ lipsmaxxedSessions: portableRows });
+}
+
+function getConfirmedWordRecords() {
+  const localRows = readMemberJson("confirmed-words", []);
+  const accountRows = currentUser?.user_metadata?.lipsmaxxedConfirmedWords;
+  const merged = [...(Array.isArray(localRows) ? localRows : []), ...(Array.isArray(accountRows) ? accountRows : [])];
+  return [...new Map(merged.filter(Boolean).map(row => [`${row.language}|${row.word_key}`,row])).values()];
+}
+
+function saveConfirmedWord(word) {
+  const records = getConfirmedWordRecords();
+  const identity = `${word.language}|${word.word_key}`;
+  const filtered = records.filter(row => `${row.language}|${row.word_key}` !== identity);
+  filtered.unshift({ ...word, confirmedAt: new Date().toISOString() });
+  writeMemberJson("confirmed-words", filtered.slice(0, 20000));
+  queueAccountMetadataUpdate({ lipsmaxxedConfirmedWords: filtered.slice(0,2000) });
+}
+
+function queueAccountMetadataUpdate(patch) {
+  if (!currentUser) return;
+  accountMetadataWrite = accountMetadataWrite.then(async () => {
+    const { data, error } = await supabaseClient.auth.updateUser({
+      data: { ...(currentUser?.user_metadata || {}), ...patch }
+    });
+    if (error) throw error;
+    if (data?.user) currentUser = data.user;
+  }).catch(error => console.warn("account progress sync failed", error));
+}
+
+function createSessionListItem(session) {
+  const row = document.createElement("div");
+  row.className = "session-list-item";
+  const main = document.createElement("div");
+  const title = document.createElement("div");
+  title.className = "session-list-title";
+  title.textContent = new Intl.DateTimeFormat(undefined, { dateStyle: "long" }).format(new Date(session.endedAt || session.startedAt || Date.now()));
+  const date = document.createElement("span");
+  date.className = "session-list-date";
+  date.textContent = session.title || `${session.language || "Language"} practice`;
+  main.append(title,date);
+  const meta = document.createElement("div");
+  meta.className = "session-list-meta";
+  meta.innerHTML = `<div>${Number(session.pointsGained || 0)} points</div><div>${Number(session.wordsLearned || 0)} words &middot; ${formatDuration(session.durationMs)}</div>`;
+  row.append(main,meta);
+  return row;
+}
+
+function renderSessionList(container, rows) {
+  if (!container) return;
+  container.textContent = "";
+  if (!rows.length) {
+    const empty = document.createElement("div");
+    empty.className = "session-list-empty";
+    empty.textContent = "Your completed chats will appear here.";
+    container.appendChild(empty);
+    return;
+  }
+  rows.forEach(row => container.appendChild(createSessionListItem(row)));
+}
+
+function renderSessionTimeChart(rows) {
+  if (!sessionTimeChart) return;
+  sessionTimeChart.textContent = "";
+  const values = rows.slice(0, 10).reverse().map(row => Math.max(0, Number(row.durationMs || 0) / 60000));
+  const ns = "http://www.w3.org/2000/svg";
+  [35,90,145].forEach(y => {
+    const line = document.createElementNS(ns,"line");
+    line.setAttribute("x1","0"); line.setAttribute("x2","640"); line.setAttribute("y1",String(y)); line.setAttribute("y2",String(y));
+    line.setAttribute("stroke","rgba(255,255,255,.08)"); line.setAttribute("stroke-width","1"); sessionTimeChart.appendChild(line);
+  });
+  if (!values.length) return;
+  const max = Math.max(1,...values);
+  const points = values.map((value,index) => `${values.length === 1 ? 320 : index * 640/(values.length-1)},${155-value/max*120}`).join(" ");
+  const polyline = document.createElementNS(ns,"polyline");
+  polyline.setAttribute("points",points); polyline.setAttribute("fill","none"); polyline.setAttribute("stroke","#60a5fa"); polyline.setAttribute("stroke-width","4"); polyline.setAttribute("stroke-linecap","round"); polyline.setAttribute("stroke-linejoin","round");
+  sessionTimeChart.appendChild(polyline);
+}
+
+async function renderMemberHome() {
+  if (!currentUser) return;
+  renderMemberIdentity();
+  const language = homeLanguageSelect?.value || selectedChatLanguage || "English";
+  const history = getSessionHistory();
+  const languageHistory = history.filter(row => row.language === language);
+  renderSessionList(recentChatsList, languageHistory.slice(0,5));
+  const totalTime = history.reduce((sum,row) => sum + Number(row.durationMs || 0),0);
+  if (homeSessionsStat) homeSessionsStat.textContent = String(history.length);
+  if (homeTimeStat) homeTimeStat.textContent = formatDuration(totalTime);
+  if (homeMessagesStat) homeMessagesStat.textContent = String(history.reduce((sum,row) => sum + Number(row.messageCount || 0),0));
+  if (homeConfirmedStat) homeConfirmedStat.textContent = String(getConfirmedWordRecords().length);
+  renderSessionTimeChart(history);
+  try {
+    const { data } = await supabaseClient.from("user_language_points").select("total_points").eq("user_id",currentUser.id);
+    if (homePointsStat) homePointsStat.textContent = String((data || []).reduce((sum,row) => sum + Number(row.total_points || 0),0));
+  } catch {}
+}
+
+function hideProductPages() {
+  [sessionSummaryPage,wordConfirmationPage,confirmationCompletePage,allChatsPage,lipsMasterPage].forEach(page => page?.classList.add("hidden"));
+  unconfirmedExitModal?.classList.add("hidden");
+}
+
+function showSignedInHome() {
+  if (!currentUser) return;
+  stopAllSpeech();
+  hideProductPages();
+  signedInHome?.classList.remove("hidden");
+  messageHistory?.classList.add("hidden");
+  upcomingWordsPanel?.classList.add("hidden");
+  composerShell?.classList.add("hidden");
+  speechShell?.classList.add("hidden");
+  endChatButton?.classList.add("hidden");
+  if (homeLanguageSelect) homeLanguageSelect.value = selectedChatLanguage || "English";
+  renderMemberHome().catch(() => {});
+}
+
+async function startMemberChat() {
+  if (!currentUser || chatStartInFlight) return;
+  selectedChatLanguage = homeLanguageSelect?.value || "English";
+  selectedInputMode = homeSelectedMode;
+  selectedPreferredName = getAccountDisplayName(currentUser);
+  setSelectedGender(currentUser?.user_metadata?.gender || "");
+  if (chatSetupLanguageSelect) chatSetupLanguageSelect.value = selectedChatLanguage;
+  if (setupPreferredNameInput) setupPreferredNameInput.value = selectedPreferredName;
+  setSetupInputMode(selectedInputMode);
+  chatStartInFlight = true;
+  if (homeStartChatButton) homeStartChatButton.disabled = true;
+  try { await primeAudioForAutoplay(); await startConfiguredChat(); }
+  finally { chatStartInFlight = false; if (homeStartChatButton) homeStartChatButton.disabled = false; }
+}
+
+function buildPendingSessionSummary() {
+  if (!activeChatSession) return null;
+  const learnedWords = activeChatSession.learnedWords instanceof Map ? [...activeChatSession.learnedWords.values()] : [];
+  const endedAt = Date.now();
+  return {
+    id: activeChatSession.id,
+    language: activeChatSession.language,
+    inputMode: activeChatSession.inputMode,
+    startedAt: activeChatSession.startedAt,
+    endedAt,
+    durationMs: Math.max(0,endedAt-activeChatSession.startedAt),
+    pointsGained: Number(activeChatSession.pointsGained || 0),
+    messageCount: Number(activeChatSession.messageCount || 0),
+    wordsLearned: learnedWords.length,
+    learnedWords,
+    transcript: messages.map(message => ({ role: message.role, content: message.content })),
+    confirmed: false,
+    title: `${activeChatSession.language} practice`
+  };
+}
+
+function openSessionSummary() {
+  if (!currentUser || !activeChatSession) return;
+  stopAllSpeech();
+  pendingSessionSummary = buildPendingSessionSummary();
+  saveSessionSummary(pendingSessionSummary);
+  signedInHome?.classList.add("hidden"); messageHistory?.classList.add("hidden"); composerShell?.classList.add("hidden"); speechShell?.classList.add("hidden"); endChatButton?.classList.add("hidden");
+  sessionSummaryPage?.classList.remove("hidden");
+  const count = pendingSessionSummary.wordsLearned;
+  if (summaryLearnedInline) summaryLearnedInline.textContent = String(count);
+  if (summaryWordsLearned) summaryWordsLearned.textContent = String(count);
+  if (summarySessionTime) summarySessionTime.textContent = formatDuration(pendingSessionSummary.durationMs);
+  if (summaryPointsGained) summaryPointsGained.textContent = String(pendingSessionSummary.pointsGained);
+  if (confirmWordsButton) { confirmWordsButton.disabled = count === 0; confirmWordsButton.textContent = count ? "Confirm words" : "No new words to confirm"; }
+}
+
+function exitSessionToHome() {
+  activeChatSession = null; pendingSessionSummary = null; confirmationQueue = []; confirmationIndex = 0;
+  messages.length = 0; messageState.clear(); userMessageState.clear(); correctionState.clear();
+  if (messageHistory) messageHistory.innerHTML = "";
+  showSignedInHome();
+}
+
+function getSpeechRecognitionLanguage(language) {
+  return ({English:"en-US",Hebrew:"he-IL",Spanish:"es-ES",French:"fr-FR",German:"de-DE",Arabic:"ar-SA",Russian:"ru-RU",Italian:"it-IT",Portuguese:"pt-BR",Chinese:"zh-CN",Japanese:"ja-JP",Korean:"ko-KR"})[language] || "en-US";
+}
+
+function renderConfirmationWord() {
+  const word = confirmationQueue[confirmationIndex];
+  if (!word) { finishWordConfirmation(); return; }
+  if (confirmationProgressText) confirmationProgressText.textContent = `Word ${confirmationIndex+1} of ${confirmationQueue.length}`;
+  if (confirmationProgressFill) confirmationProgressFill.style.width = `${(confirmationIndex/Math.max(1,confirmationQueue.length))*100}%`;
+  if (confirmWordHeading) confirmWordHeading.textContent = word.word_text;
+  if (wordConfirmationInput) { wordConfirmationInput.value = ""; wordConfirmationInput.disabled = false; }
+  if (confirmationFeedback) confirmationFeedback.textContent = "";
+  if (submitWordConfirmationButton) submitWordConfirmationButton.disabled = false;
+  wordConfirmationInput?.focus();
+}
+
+function startWordConfirmation() {
+  if (!pendingSessionSummary) return;
+  confirmationQueue = [...(pendingSessionSummary.learnedWords || [])]; confirmationIndex = 0; confirmedThisRun = 0;
+  sessionSummaryPage?.classList.add("hidden"); unconfirmedExitModal?.classList.add("hidden");
+  if (!confirmationQueue.length) { finishWordConfirmation(); return; }
+  wordConfirmationPage?.classList.remove("hidden"); renderConfirmationWord();
+}
+
+async function submitWordConfirmation(answer) {
+  const word = confirmationQueue[confirmationIndex];
+  if (!word || !answer.trim()) return;
+  submitWordConfirmationButton.disabled = true;
+  if (confirmationFeedback) confirmationFeedback.textContent = "Checking…";
+  try {
+    const data = await callChatFunction({ action:"confirm-word", word:word.word_text, learnerTranslation:answer.trim(), chatLanguage:word.language, fluentLanguage:getCurrentFluentLanguage() },"Word confirmation");
+    if (!data.correct) {
+      if (confirmationFeedback) confirmationFeedback.textContent = "Not quite. Try another translation, or choose “I don’t remember.”";
+      return;
+    }
+    saveConfirmedWord(word); confirmedThisRun += 1;
+    await recordWordStats([word],"familiar",word.language);
+    confirmationIndex += 1; renderConfirmationWord();
+  } catch (error) {
+    if (confirmationFeedback) confirmationFeedback.textContent = getReadableError(error);
+  } finally {
+    if (submitWordConfirmationButton) submitWordConfirmationButton.disabled = false;
+  }
+}
+
+async function forgetConfirmationWord() {
+  const word = confirmationQueue[confirmationIndex];
+  if (!word) return;
+  submitWordConfirmationButton.disabled = true; forgotConfirmationWordButton.disabled = true;
+  try {
+    const data = await callChatFunction({action:"translate-word",word:word.word_text,sentence:word.word_text,chatLanguage:word.language,fluentLanguage:getCurrentFluentLanguage()},"Word translation");
+    if (confirmationFeedback) confirmationFeedback.textContent = `${word.word_text} — ${data.translation || "Translation unavailable"}`;
+    await scheduleWordReview(word,"missed",word.language);
+    await new Promise(resolve => setTimeout(resolve,1300));
+    confirmationIndex += 1; renderConfirmationWord();
+  } catch (error) { if (confirmationFeedback) confirmationFeedback.textContent = getReadableError(error); }
+  finally { submitWordConfirmationButton.disabled = false; forgotConfirmationWordButton.disabled = false; }
+}
+
+function finishWordConfirmation() {
+  wordConfirmationPage?.classList.add("hidden"); confirmationCompletePage?.classList.remove("hidden");
+  if (confirmedWordTotal) confirmedWordTotal.textContent = String(confirmedThisRun);
+  if (pendingSessionSummary) { pendingSessionSummary.confirmed = true; pendingSessionSummary.confirmedWords = confirmedThisRun; saveSessionSummary(pendingSessionSummary); }
+  setTimeout(exitSessionToHome,1800);
+}
+
+function openAllChats() { allChatsPageIndex=0; signedInHome?.classList.add("hidden"); allChatsPage?.classList.remove("hidden"); renderAllChats(); }
+function renderAllChats() {
+  const language = homeLanguageSelect?.value || selectedChatLanguage || "English";
+  const rows = getSessionHistory().filter(row => row.language === language);
+  const start=allChatsPageIndex*25;
+  if (allChatsTitle) allChatsTitle.textContent=`My Previous ${language} Chats`;
+  renderSessionList(allChatsList,rows.slice(start,start+25));
+  if(chatsPageLabel)chatsPageLabel.textContent=`Page ${allChatsPageIndex+1}`;
+  if(previousChatsPageButton)previousChatsPageButton.disabled=allChatsPageIndex===0;
+  if(nextChatsPageButton)nextChatsPageButton.disabled=start+25>=rows.length;
+}
+
+function getMasterThreads() { const rows=readMemberJson("master-threads",[]); return Array.isArray(rows)?rows:[]; }
+function saveMasterThreads(rows) { writeMemberJson("master-threads",rows.slice(0,200)); }
+function ensureMasterThread() {
+  const rows=getMasterThreads(); let thread=rows.find(row=>row.id===activeMasterThreadId);
+  if(!thread){thread={id:globalThis.crypto?.randomUUID?globalThis.crypto.randomUUID():`master-${Date.now()}`,title:"New chat",createdAt:Date.now(),updatedAt:Date.now(),messages:[]};activeMasterThreadId=thread.id;rows.unshift(thread);saveMasterThreads(rows);}
+  return thread;
+}
+function renderMasterSidebar(){if(!masterThreadList)return;masterThreadList.textContent="";getMasterThreads().forEach(thread=>{const button=document.createElement("button");button.type="button";button.className=`master-thread-button${thread.id===activeMasterThreadId?" active":""}`;button.textContent=thread.title||"LipsMaster chat";button.addEventListener("click",()=>{activeMasterThreadId=thread.id;renderMasterPage();});masterThreadList.appendChild(button);});}
+function appendMasterMessage(role,text){if(!masterChatMessages)return;const row=document.createElement("div");row.className=`master-chat-row ${role}`;if(role==="assistant"){const mark=document.createElement("span");mark.className="master-mini-mark";mark.innerHTML='<img src="assets/language-logo.png" alt="" />';row.appendChild(mark);}const content=document.createElement("div");content.className="master-chat-content";content.textContent=text;row.appendChild(content);masterChatMessages.appendChild(row);masterChatMessages.scrollTop=masterChatMessages.scrollHeight;return {row,content};}
+function renderMasterPage(){const thread=ensureMasterThread();if(masterChatMessages){masterChatMessages.textContent="";(thread.messages||[]).forEach(message=>appendMasterMessage(message.role,message.content));}renderMasterSidebar();}
+async function loadMasterHistoryFromServer(){
+  if(!currentUser)return;
+  try{
+    const data=await callChatFunction({action:"lipsmaster-history"},"LipsMaster history");
+    const local=getMasterThreads();const byId=new Map(local.map(thread=>[thread.id,thread]));
+    for(const remote of Array.isArray(data.threads)?data.threads:[]){
+      const existing=byId.get(remote.id);
+      if(!existing){byId.set(remote.id,remote);continue;}
+      const combined=[...(existing.messages||[]),...(remote.messages||[])];
+      const seen=new Set();existing.messages=combined.filter(message=>{const key=`${message.role}|${message.content}`;if(seen.has(key))return false;seen.add(key);return true;});
+      existing.updatedAt=Math.max(new Date(existing.updatedAt||0).getTime(),new Date(remote.updatedAt||0).getTime());
+    }
+    saveMasterThreads([...byId.values()].sort((a,b)=>new Date(b.updatedAt||0).getTime()-new Date(a.updatedAt||0).getTime()));
+    renderMasterPage();
+  }catch(error){console.warn("LipsMaster history load failed",error);}
+}
+function openLipsMaster(){signedInHome?.classList.add("hidden");lipsMasterPage?.classList.remove("hidden");ensureMasterThread();renderMasterPage();loadMasterHistoryFromServer();masterChatInput?.focus();}
+function persistMasterMessage(threadId,role,content,title=""){const rows=getMasterThreads();const thread=rows.find(row=>row.id===threadId);if(!thread)return;thread.messages=Array.isArray(thread.messages)?thread.messages:[];thread.messages.push({role,content,createdAt:Date.now()});thread.updatedAt=Date.now();if(title)thread.title=title;else if(thread.title==="New chat"&&role==="user")thread.title=content.replace(/\s+/g," ").slice(0,48);rows.sort((a,b)=>Number(b.updatedAt||0)-Number(a.updatedAt||0));saveMasterThreads(rows);}
+async function sendMasterMessage(text){const thread=ensureMasterThread();persistMasterMessage(thread.id,"user",text);appendMasterMessage("user",text);const thinking=appendMasterMessage("assistant","Thinking…");masterChatSendButton.disabled=true;try{const fresh=getMasterThreads().find(row=>row.id===thread.id);const data=await callChatFunction({action:"lipsmaster-chat",threadId:thread.id,messages:(fresh?.messages||[]).slice(-40),chatLanguage:homeLanguageSelect?.value||selectedChatLanguage,fluentLanguage:getCurrentFluentLanguage()},"LipsMaster");thinking.content.textContent=data.reply;persistMasterMessage(thread.id,"assistant",data.reply);renderMasterSidebar();}catch(error){thinking.content.textContent=getReadableError(error);}finally{masterChatSendButton.disabled=false;masterChatInput?.focus();}}
+
+function saveGrammarConversationToMaster(context) {
+  if (!currentUser || !context) return;
+  const id = context.lipsMasterThreadId || `grammar-${context.correctionId || Date.now()}`;
+  context.lipsMasterThreadId = id;
+  const rows=getMasterThreads();let thread=rows.find(row=>row.id===id);
+  if(!thread){thread={id,title:context.grammarRuleTitle||"Grammar correction",createdAt:Date.now(),updatedAt:Date.now(),messages:[]};rows.unshift(thread);}
+  thread.title=context.grammarRuleTitle||thread.title;thread.updatedAt=Date.now();thread.messages=[...(context.grammarConversation||[])];saveMasterThreads(rows);
+}
+
   function attachUiHandlers() {
   if (form) {
     form.addEventListener("submit", event => {
@@ -11620,6 +12437,51 @@ if (saveProfileButton) {
     });
   });
 }
+
+profileGenderManButton?.addEventListener("click", () => setSelectedGender("man"));
+profileGenderWomanButton?.addEventListener("click", () => setSelectedGender("woman"));
+editAccountButton?.addEventListener("click", openProfileModal);
+endChatButton?.addEventListener("click", openSessionSummary);
+homeStartChatButton?.addEventListener("click", () => startMemberChat().catch(error => showSystemMessage(getReadableError(error))));
+homeModeToggle?.addEventListener("click", event => {
+  const button = event.target.closest("[data-home-mode]");
+  if (!button) return;
+  homeSelectedMode = button.dataset.homeMode === "speech" ? "speech" : "writing";
+  homeModeToggle.querySelectorAll("button").forEach(item => item.classList.toggle("active", item === button));
+});
+homeLanguageSelect?.addEventListener("change", () => {
+  selectedChatLanguage = homeLanguageSelect.value;
+  renderMemberHome().catch(() => {});
+  prefetchLanguageFact(selectedChatLanguage).catch(() => {});
+});
+askLipsMasterButton?.addEventListener("click", openLipsMaster);
+seeAllChatsButton?.addEventListener("click", openAllChats);
+allChatsBackButton?.addEventListener("click", showSignedInHome);
+previousChatsPageButton?.addEventListener("click", () => { allChatsPageIndex=Math.max(0,allChatsPageIndex-1);renderAllChats(); });
+nextChatsPageButton?.addEventListener("click", () => { allChatsPageIndex+=1;renderAllChats(); });
+summaryReturnHomeButton?.addEventListener("click", () => {
+  if (pendingSessionSummary?.wordsLearned && !pendingSessionSummary?.confirmed) unconfirmedExitModal?.classList.remove("hidden");
+  else exitSessionToHome();
+});
+confirmWordsButton?.addEventListener("click", startWordConfirmation);
+modalConfirmWordsButton?.addEventListener("click", startWordConfirmation);
+closeUnconfirmedExitButton?.addEventListener("click", () => unconfirmedExitModal?.classList.add("hidden"));
+exitChatAnywayButton?.addEventListener("click", exitSessionToHome);
+wordConfirmationForm?.addEventListener("submit", event => { event.preventDefault(); submitWordConfirmation(wordConfirmationInput?.value || ""); });
+forgotConfirmationWordButton?.addEventListener("click", () => forgetConfirmationWord().catch(() => {}));
+wordConfirmationSpeechButton?.addEventListener("click", () => {
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Recognition) { if(confirmationFeedback)confirmationFeedback.textContent="Speech input is not supported in this browser."; return; }
+  const recognition = new Recognition(); recognition.lang=getSpeechRecognitionLanguage(getCurrentFluentLanguage()); recognition.interimResults=false; recognition.maxAlternatives=1;
+  if(confirmationFeedback)confirmationFeedback.textContent="Listening…";
+  recognition.onresult=event=>{if(wordConfirmationInput)wordConfirmationInput.value=event.results[0][0].transcript;if(confirmationFeedback)confirmationFeedback.textContent="";};
+  recognition.onerror=()=>{if(confirmationFeedback)confirmationFeedback.textContent="I couldn’t hear that. You can type the translation instead.";}; recognition.start();
+});
+lipsMasterBackButton?.addEventListener("click", showSignedInHome);
+newMasterChatButton?.addEventListener("click", () => { activeMasterThreadId="";renderMasterPage();masterChatInput?.focus(); });
+masterChatForm?.addEventListener("submit", event => {event.preventDefault();const text=masterChatInput?.value.trim()||"";if(!text)return;masterChatInput.value="";sendMasterMessage(text);});
+masterChatInput?.addEventListener("input",()=>{masterChatInput.style.height="auto";masterChatInput.style.height=`${Math.min(masterChatInput.scrollHeight,140)}px`;});
+masterChatInput?.addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.shiftKey){event.preventDefault();masterChatForm?.requestSubmit();}});
 
   }
 
