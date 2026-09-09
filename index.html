@@ -3203,7 +3203,9 @@ form {
 }
 
 .response-progress-card.fact-pending {
-  visibility: hidden;
+  /* Keep the progress surface visible even if the prefetched fact missed its
+     deadline. Hiding the whole card also hid the progress bar. */
+  visibility: visible;
 }
 
 .message-card.synchronized-pending {
@@ -9558,7 +9560,7 @@ function markLanguageFactSeen(language, fact) {
   }
 }
 
-function maintainLanguageFactBuffer(language = getCurrentChatLanguage(), targetSize = 4) {
+function maintainLanguageFactBuffer(language = getCurrentChatLanguage(), targetSize = 2) {
   const safeLanguage = language || "English";
   if (languageFactRequests.has(safeLanguage)) {
     return languageFactRequests.get(safeLanguage);
@@ -9595,12 +9597,12 @@ function maintainLanguageFactBuffer(language = getCurrentChatLanguage(), targetS
 }
 
 function prefetchLanguageFact(language = getCurrentChatLanguage()) {
-  return maintainLanguageFactBuffer(language, 4);
+  return maintainLanguageFactBuffer(language, 2);
 }
 
 async function ensureLanguageFact(language = getCurrentChatLanguage()) {
   const queue = getLanguageFactQueue(language);
-  return queue[0] || await maintainLanguageFactBuffer(language, 4);
+  return queue[0] || await maintainLanguageFactBuffer(language, 2);
 }
 
 function consumePreparedLanguageFact(language = getCurrentChatLanguage()) {
@@ -9608,7 +9610,7 @@ function consumePreparedLanguageFact(language = getCurrentChatLanguage()) {
   const fact = queue.shift() || "";
   saveLanguageFactQueue(language);
   markLanguageFactSeen(language, fact);
-  maintainLanguageFactBuffer(language, 4).catch(() => {});
+  maintainLanguageFactBuffer(language, 2).catch(() => {});
   return fact;
 }
 
@@ -9895,7 +9897,7 @@ function isSamePlayback(button, type, id) {
 
     if (!fact) {
       card.classList.add("fact-pending");
-      maintainLanguageFactBuffer(factLanguage, 4).then(() => {
+      maintainLanguageFactBuffer(factLanguage, 2).then(() => {
         if (stopped) return;
         fact = consumePreparedLanguageFact(factLanguage);
         if (!fact) return;
@@ -9964,19 +9966,10 @@ function isSamePlayback(button, type, id) {
     const cachedProfile = profileCacheKey
       ? vocabularyProfileCache.get(profileCacheKey)?.value || null
       : null;
-    if (currentUser) {
-      getVocabularyProfileForPrompt(language, []).catch(error => {
-        console.warn("vocabulary profile refresh failed", error);
-      });
-    }
     const dataPromise = callChatFunction({
         ...payload,
         vocabularyProfile: cachedProfile,
-        clientTurnId,
-        previousFacts: [
-          ...getSeenLanguageFacts(language),
-          ...getLanguageFactQueue(language)
-        ].slice(-80)
+        clientTurnId
       }, label);
     const preparedBonusWordsPromise = targetRowsPromise.then(rows =>
       prepareUpcomingWords(language, rows)
@@ -10057,6 +10050,15 @@ function isSamePlayback(button, type, id) {
     }
 
     progress?.finish();
+
+    // Refresh familiarity only after the synchronized prompt/audio/bonus-word
+    // presentation has completed. This avoids a duplicate word_stats query on
+    // the opening request while keeping the next turn's level data warm.
+    if (currentUser) {
+      getVocabularyProfileForPrompt(language, []).catch(error => {
+        console.warn("vocabulary profile refresh failed", error);
+      });
+    }
 
     return botMessageId;
   }
@@ -12534,10 +12536,6 @@ function showSignedInHome() {
   // Prime an unseen fact before Start is pressed. Persisting the queue also
   // makes the first progress card immediate after a reload.
   prefetchLanguageFact(selectedChatLanguage).catch(() => {});
-  // Warm the signed-in-only vocabulary frontier while the learner is reading
-  // the home page, rather than downloading and joining it after Start.
-  getFrequencyFrontierTargets(selectedChatLanguage, 2).catch(() => {});
-  getVocabularyProfileForPrompt(selectedChatLanguage, []).catch(() => {});
   homeModeToggle?.querySelectorAll("[data-home-mode]").forEach(button => {
     button.classList.toggle("active", button.dataset.homeMode === homeSelectedMode);
   });
