@@ -10104,23 +10104,43 @@ async function parseJsonResponse(response, label) {
   return data;
 }
 
+let pendingRequestSeq = 0;
+const pendingRequests = new Map();
+const CHAT_REQUEST_TIMEOUT_MS = 60000;
+
 async function callChatFunction(payload, label = "Chat") {
   const url = chatFunctionUrl();
   const started = performance.now();
+  const seq = ++pendingRequestSeq;
+  const action = payload?.action || "chat";
+
+  // A request that never returns used to leave no trace at all. Record it
+  // on the way out, and clear the entry when it resolves.
+  pendingRequests.set(seq, { label, action, startedAt: new Date().toISOString() });
+  recordDiagnostic({ label, action, stage: "start", seq, inFlight: pendingRequests.size });
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), CHAT_REQUEST_TIMEOUT_MS);
   let response;
 
   try {
     response = await fetch(url, {
       method: "POST",
       headers: getFunctionHeaders(),
-      body: functionBody(payload)
+      body: functionBody(payload),
+      signal: controller.signal
     });
+    clearTimeout(timer);
   } catch (error) {
+    clearTimeout(timer);
+    pendingRequests.delete(seq);
     const elapsed = Math.round(performance.now() - started);
     const detail = describeFetchFailure(error);
     recordDiagnostic({
       label,
       ok: false,
+      seq,
+      timedOut: error?.name === "AbortError",
       stage: "fetch",
       elapsed,
       url,
@@ -10153,8 +10173,10 @@ async function callChatFunction(payload, label = "Chat") {
   }
 
   const elapsed = Math.round(performance.now() - started);
+  pendingRequests.delete(seq);
   recordDiagnostic({
     label,
+    seq,
     stage: "response",
     status: response.status,
     ok: response.ok,
@@ -10180,8 +10202,13 @@ async function callChatFunction(payload, label = "Chat") {
       stage: "timing",
       action: payload?.action || "chat",
       elapsed,
+      serverAuthMs: data.serverTiming.authMs,
+      serverProfileMs: data.serverTiming.profileMs,
       serverChatMs: data.serverTiming.chatMs,
-      unaccountedMs: elapsed - (Number(data.serverTiming.chatMs) || 0),
+      serverTotalMs: data.serverTiming.totalMs,
+      profileUpdateScheduled: data.serverTiming.profileUpdateScheduled,
+      workerBootedAt: data.serverTiming.bootedAt,
+      queueMs: elapsed - (Number(data.serverTiming.totalMs) || 0),
       historySaved: data.historySaved,
       profileFactCount: data.profileFactCount
     });
@@ -10797,6 +10824,7 @@ function isSamePlayback(button, type, id) {
         ...payload,
         vocabularyProfile: cachedProfile,
         previousFacts: getKnownLanguageFacts(language),
+        turnIndex: conversationTurn,
         clientTurnId
       }, label);
     const preparedBonusWordsPromise = targetRowsPromise.then(rows =>
