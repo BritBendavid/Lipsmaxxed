@@ -977,6 +977,7 @@ form {
   line-height: 1;
   cursor: pointer;
 }
+.grammar-detail-close svg,.auth-close-button svg,.chat-setup-close svg,.stats-close-button svg,.dialog-close svg { width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round; }
 
 .grammar-detail-thread {
   min-height: 180px;
@@ -3154,14 +3155,15 @@ form {
 }
 
 .upcoming-word-action {
-  width: 34px;
-  min-width: 0;
+  width: auto;
+  min-width: 54px;
   height: 34px;
-  padding: 0;
+  padding: 0 10px;
   border: 1px solid rgba(148, 163, 184, 0.18);
   background: rgba(255, 255, 255, 0.055);
   box-shadow: none;
-  font-size: 0.95rem;
+  font-size: 0.72rem;
+  font-weight: 800;
 }
 
 .upcoming-word-action:hover {
@@ -3876,6 +3878,7 @@ form {
 .completion-shell p { margin-top:12px;color:#93c5fd;font-size:1.15rem;font-weight:750; }
 .list-page-shell { align-self:start;margin:0 auto;padding:10px 0 50px; }
 .back-button { display:inline-flex;align-items:center;gap:8px;margin:0 0 35px;padding:9px 12px;border:1px solid rgba(255,255,255,.09);border-radius:10px;background:rgba(255,255,255,.045);color:#cbd5e1;font:inherit;font-weight:750;cursor:pointer; }
+.back-button svg { width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round; }
 .list-page-shell h2 { margin:6px 0 24px; }
 .list-page-shell .session-list { padding:8px 20px;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:rgba(255,255,255,.035); }
 .session-list-item { cursor:pointer;border-radius:10px; }
@@ -4105,7 +4108,7 @@ form {
       <div>
         <h2 id="grammarDetailTitle">Grammar rule</h2>
       </div>
-      <button id="grammarDetailClose" class="grammar-detail-close" type="button" aria-label="Close grammar explanation">&times;</button>
+      <button id="grammarDetailClose" class="grammar-detail-close" type="button" aria-label="Close grammar explanation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </header>
     <div id="grammarDetailBody" class="grammar-detail-thread" aria-live="polite"></div>
     <form id="grammarFollowUpForm" class="grammar-follow-up-form">
@@ -4127,7 +4130,7 @@ form {
 
 <div id="speechShell" class="speech-shell hidden">
   <button id="speechRecordButton" class="speech-record-button" type="button" title="Record speech">
-    <span class="mic-symbol" aria-hidden="true">&#127908;</span>
+    <span class="mic-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 15.5a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v5.5a4 4 0 0 0 4 4Zm6.5-4a1 1 0 0 0-2 0 4.5 4.5 0 0 1-9 0 1 1 0 0 0-2 0 6.5 6.5 0 0 0 5.5 6.42V20H8.5v2h7v-2H13v-2.08a6.5 6.5 0 0 0 5.5-6.42Z"/></svg></span>
   </button>
 
   <div id="speechStatus" class="speech-status">
@@ -4141,7 +4144,7 @@ form {
 
   <div class="auth-panel">
     <button id="authCloseButton" class="auth-close-button" type="button">
-      &times;
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
 
     <div class="auth-title">My Account</div>
@@ -4339,7 +4342,7 @@ form {
 <section id="chatSetupModal" class="chat-setup-modal hidden">
   <div class="chat-setup-panel">
     <button id="closeChatSetupButton" class="chat-setup-close" type="button" aria-label="Close practice setup">
-      &times;
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
 
     <div class="chat-setup-heading">
@@ -4424,7 +4427,7 @@ form {
 <section id="profileModal" class="profile-modal hidden">
   <div class="profile-panel">
     <button id="closeProfileButton" class="chat-setup-close" type="button">
-      &times;
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
 
     <div class="chat-setup-kicker">My profile</div>
@@ -4508,7 +4511,7 @@ form {
 
 <section id="unconfirmedExitModal" class="decision-modal hidden" role="dialog" aria-modal="true" aria-labelledby="unconfirmedExitTitle">
   <div class="decision-panel">
-    <button id="closeUnconfirmedExitButton" class="dialog-close" type="button" aria-label="Close">&times;</button>
+    <button id="closeUnconfirmedExitButton" class="dialog-close" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     <h2 id="unconfirmedExitTitle">Are you sure?</h2>
     <p>If you do not confirm the new words you learned, they will not save to your profile!</p>
     <div class="decision-actions"><button id="modalConfirmWordsButton" class="primary-action" type="button">Confirm words</button><button id="exitChatAnywayButton" class="danger-outline" type="button">Exit chat anyway</button></div>
@@ -4536,7 +4539,7 @@ form {
 
 <section id="sessionReviewPage" class="product-page hidden" aria-labelledby="sessionReviewTitle">
   <div class="product-page-shell review-page-shell">
-    <button id="sessionReviewBackButton" class="back-button" type="button"><span aria-hidden="true">&larr;</span> Back to summary</button>
+    <button id="sessionReviewBackButton" class="back-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Back to summary</button>
     <div class="member-eyebrow">Completed session</div>
     <h2 id="sessionReviewTitle">Review chat</h2>
     <div id="sessionReviewMeta" class="session-review-meta"></div>
@@ -4549,11 +4552,11 @@ form {
 </section>
 
 <section id="allChatsPage" class="product-page hidden" aria-labelledby="allChatsTitle">
-  <div class="product-page-shell list-page-shell"><button id="allChatsBackButton" class="back-button" type="button"><span aria-hidden="true">&larr;</span> Back</button><div class="member-eyebrow">Conversation history</div><h2 id="allChatsTitle">My Previous Chats</h2><div id="allChatsList" class="session-list expanded"></div><div class="pagination-row"><button id="previousChatsPageButton" type="button">Previous</button><span id="chatsPageLabel">Page 1</span><button id="nextChatsPageButton" type="button">Next</button></div></div>
+  <div class="product-page-shell list-page-shell"><button id="allChatsBackButton" class="back-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Back</button><div class="member-eyebrow">Conversation history</div><h2 id="allChatsTitle">My Previous Chats</h2><div id="allChatsList" class="session-list expanded"></div><div class="pagination-row"><button id="previousChatsPageButton" type="button">Previous</button><span id="chatsPageLabel">Page 1</span><button id="nextChatsPageButton" type="button">Next</button></div></div>
 </section>
 
 <section id="lipsMasterPage" class="master-page hidden" aria-labelledby="lipsMasterPageTitle">
-  <aside class="master-sidebar"><button id="lipsMasterBackButton" class="back-button" type="button"><span aria-hidden="true">&larr;</span> Back</button><button id="newMasterChatButton" class="new-master-chat" type="button">New chat</button><div id="masterThreadList" class="master-thread-list"></div></aside>
+  <aside class="master-sidebar"><button id="lipsMasterBackButton" class="back-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Back</button><button id="newMasterChatButton" class="new-master-chat" type="button">New chat</button><div id="masterThreadList" class="master-thread-list"></div></aside>
   <div class="master-workspace"><header class="master-page-header"><span class="master-mini-mark"><img src="assets/language-logo.png" alt="" /></span><div><h2 id="lipsMasterPageTitle">LipsMaster</h2><p>Language help, when you need it.</p></div></header><div id="masterChatMessages" class="master-chat-messages" aria-live="polite"></div><form id="masterChatForm" class="master-composer"><textarea id="masterChatInput" rows="1" maxlength="1200" placeholder="Message LipsMaster" aria-label="Message LipsMaster"></textarea><button id="masterChatSendButton" type="submit" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button></form></div>
 </section>
 
@@ -4569,7 +4572,7 @@ form {
       </div>
 
       <button id="closeStatsButton" class="stats-close-button" type="button">
-      &times;
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
       </button>
     </header>
 
@@ -4649,7 +4652,7 @@ form {
         </div>
 
         <button id="closeStatsDetailButton" class="stats-close-button" type="button">
-          &times;
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
         </button>
       </div>
 
@@ -4821,8 +4824,8 @@ const wordConfirmationForm = document.getElementById("wordConfirmationForm");
 const wordConfirmationInput = document.getElementById("wordConfirmationInput");
 const confirmationWritingControl = document.getElementById("confirmationWritingControl");
 const confirmationSpeechControl = document.getElementById("confirmationSpeechControl");
-const confirmationSpeechStatus = document.getElementById("confirmationSpeechStatus");
 const wordConfirmationSpeechButton = document.getElementById("wordConfirmationSpeechButton");
+const confirmationSpeechStatus = document.getElementById("confirmationSpeechStatus");
 const submitWordConfirmationButton = document.getElementById("submitWordConfirmationButton");
 const forgotConfirmationWordButton = document.getElementById("forgotConfirmationWordButton");
 const confirmationFeedback = document.getElementById("confirmationFeedback");
@@ -4924,6 +4927,7 @@ let pendingBackgroundBot = null;
 const correctionState = new Map();
 let activeGrammarDetailContext = null;
 let grammarDetailRenderToken = 0;
+let correctionOutcomeSequence = 0;
 const languageFactQueues = new Map();
 const languageFactRequests = new Map();
 const recentLanguageFacts = new Map();
@@ -4970,7 +4974,6 @@ let conversationTurn = 0;
 let activeExpectedTarget = null;
 const reviewCooldownTurnByKey = new Map();
 const frequencyListCache = new Map();
-const frequencyListRequests = new Map();
 
 let selectedChatLanguage = "English";
 let selectedInputMode = "speech";
@@ -5038,10 +5041,6 @@ async function getRankedFrequencyList(language) {
   const cached = frequencyListCache.get(language);
   if (cached) return cached;
 
-  const inFlight = frequencyListRequests.get(language);
-  if (inFlight) return await inFlight;
-
-  const request = (async () => {
   const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
     method: "POST",
     headers: {
@@ -5082,14 +5081,6 @@ async function getRankedFrequencyList(language) {
 
   frequencyListCache.set(language, words);
   return words;
-  })();
-
-  frequencyListRequests.set(language, request);
-  try {
-    return await request;
-  } finally {
-    frequencyListRequests.delete(language);
-  }
 }
 
 function normalizeVocabularyTarget(value, fallbackUpostag = "X") {
@@ -5441,7 +5432,7 @@ function renderPreparedUpcomingWords(prepared) {
     const actionButton = document.createElement("button");
     actionButton.type = "button";
     actionButton.className = "upcoming-word-action";
-    actionButton.textContent = "?";
+    actionButton.textContent = "Reveal";
     actionButton.title = "Reveal word";
     actionButton.setAttribute("aria-label", "Reveal word");
     actionButton.dataset.revealed = "false";
@@ -5531,7 +5522,7 @@ async function getVocabularyProfileForPrompt(languageOverride = null, frontierOv
     .eq("user_id", currentUser.id)
     .eq("language", language)
     .order("last_encountered_at", { ascending: false })
-    .limit(500);
+    .limit(3000);
 
   if (error) {
     console.warn("vocabulary profile load failed", error);
@@ -5588,7 +5579,6 @@ async function getVocabularyProfileForPrompt(languageOverride = null, frontierOv
 
     // Complete working inventory for deterministic question validation.
     knownWords: understoodRows
-      .slice(0, 180)
       .map(row => row.word_text)
       .filter(Boolean),
 
@@ -5730,9 +5720,7 @@ async function startConfiguredChat() {
   } catch {
     // Name remains available for this session when storage is unavailable.
   }
-  await ensureLanguageFact(selectedChatLanguage).catch(error => {
-    console.warn("language fact preparation failed", error);
-  });
+  await ensureLanguageFact(selectedChatLanguage);
 
   if (selectedInputMode === "speech") {
     const permissionGranted = await requestSetupSpeechPermission();
@@ -8529,6 +8517,7 @@ function addContextResponseReviewCard({
 
   card.dataset.correctionId = suggestedRow.correctionId;
   messageHistory.appendChild(card);
+  correctionOutcomeSequence += 1;
   scrollMessagesToBottom();
 
   card.pointsEarnedEl = null;
@@ -9042,6 +9031,7 @@ card.appendChild(layout);
   }
 
   messageHistory.appendChild(card);
+  correctionOutcomeSequence += 1;
 
   if (activeChatSession) {
     activeChatSession.timeline = Array.isArray(activeChatSession.timeline)
@@ -9432,26 +9422,19 @@ function getFunctionHeaders() {
 }
 
 async function callChatFunction(payload, label = "Chat") {
-  let lastNetworkError = null;
+  let response;
 
-  for (let attempt = 0; attempt < 2; attempt += 1) {
-    let response;
-    try {
-      response = await fetch(chatFunctionUrl(), {
-        method: "POST",
-        headers: getFunctionHeaders(),
-        body: JSON.stringify(payload)
-      });
-    } catch (error) {
-      lastNetworkError = error;
-      if (attempt === 0) {
-        await new Promise(resolve => setTimeout(resolve, 250));
-      }
-      continue;
-    }
-    return await parseJsonResponse(response, label);
+  try {
+    response = await fetch(chatFunctionUrl(), {
+      method: "POST",
+      headers: getFunctionHeaders(),
+      body: JSON.stringify(payload)
+    });
+  } catch (error) {
+    throw new Error(`${label} request failed: ${getReadableError(error)}`);
   }
-  throw new Error(`${label} request failed: ${getReadableError(lastNetworkError)}`);
+
+  return await parseJsonResponse(response, label);
 }
 
 function rememberLanguageFact(language, fact) {
@@ -9818,7 +9801,7 @@ function isSamePlayback(button, type, id) {
     let fact = consumePreparedLanguageFact(factLanguage);
     card.innerHTML = `
       <div class="response-progress-copy">
-        <div class="response-progress-kicker">DID YOU KNOW&hellip;</div>
+        <div class="response-progress-kicker">DID YOU KNOW...</div>
         <div class="response-progress-fact"></div>
       </div>
       <div class="response-progress-track" aria-hidden="true">
@@ -9900,9 +9883,9 @@ function isSamePlayback(button, type, id) {
         console.warn("frequency targets unavailable for response", error);
         return [];
       });
-    // Question generation never waits for the vocabulary profile. Use a warm,
-    // compact snapshot when available and refresh it in the background. The
-    // independent bonus queue continues loading on its own path.
+    // Bonus words are an independent practice queue. They must never select
+    // or shape the question. A warm familiarity snapshot may constrain level,
+    // but question generation does not wait for bonus targets or profile data.
     const profileCacheKey = currentUser ? `${currentUser.id}|${language}` : "";
     const cachedProfile = profileCacheKey
       ? vocabularyProfileCache.get(profileCacheKey)?.value || null
@@ -10145,37 +10128,13 @@ const responsePromise = generatePreparedChatTurn(
   }
 }
 
-async function showReviewUnavailableOutcome({
-  transcript,
-  responseMode,
-  expectedTarget,
-  responseProgress,
-  replaceLatestUser = false
-}) {
-  let prepared = pendingBackgroundBot;
-  try {
-    if (!prepared) {
-      prepared = await prepareBotResponseInBackground(
-        transcript,
-        responseProgress,
-        { replaceLatestUser }
-      );
-    }
-  } catch (error) {
-    showSystemMessage(getReadableError(error));
-    prepared = null;
-  }
-
-  responseProgress?.remove();
-  if (prepared) prepared.progress = null;
-  pendingBackgroundBot = prepared;
-
-  const retry = () => {
+function showGuaranteedReviewFallback(transcript, responseMode, expectedTarget = null) {
+  document.querySelectorAll(".response-progress-card").forEach(card => card.remove());
+  const onRetry = () => {
     if (responseMode === "speech") {
       setSpeechStatus("Recording");
       return;
     }
-    pendingBackgroundBot = null;
     activeSpeechCorrection = null;
     activeCorrectionUserMessageId = null;
     removeSpeechReviewCard();
@@ -10185,35 +10144,39 @@ async function showReviewUnavailableOutcome({
       input.select();
     }
   };
-  const continueAnyway = async () => {
-    const next = activeSpeechCorrection?.prepared || pendingBackgroundBot;
+  const onContinue = async () => {
+    let prepared = pendingBackgroundBot;
+    if (!prepared) {
+      prepared = await prepareBotResponseInBackground(transcript, null, {
+        replaceLatestUser: false
+      });
+    }
     activeSpeechCorrection = null;
     pendingBackgroundBot = null;
     activeCorrectionUserMessageId = null;
-    if (next) await revealPreparedBotResponse(next);
+    await revealPreparedBotResponse(prepared);
   };
-
   activeSpeechCorrection = {
     transcript,
     reviewMode: "language",
     expectedTarget,
-    prepared
+    prepared: pendingBackgroundBot
   };
-  addSpeechReviewCard({
+  return addSpeechReviewCard({
     transcript,
     suggestion: transcript,
-    parts: [{ text: transcript, isChatLanguage: false, translation: "" }],
+    parts: [{ text: transcript, isChatLanguage: true }],
     correctedText: transcript,
     reviewTitle: `Try again in ${languageSelect.value}`,
     reviewMode: "language",
     scheduleCorrections: false,
     responseMode,
-    onRetry: retry,
-    onContinue: continueAnyway
+    onRetry,
+    onContinue
   });
 }
-    
-  async function handleSpeechTranscript(transcript, responseMode = "speech") {
+
+  async function handleSpeechTranscriptCore(transcript, responseMode = "speech") {
   if (!transcript.trim()) return;
 
   const responseProgress = addResponseProgress("language");
@@ -10270,13 +10233,12 @@ if (!isCorrectionRetry) {
     );
   } catch (error) {
     console.warn("response analysis failed", error);
-    await showReviewUnavailableOutcome({
+    responseProgress.remove();
+    showGuaranteedReviewFallback(
       transcript,
       responseMode,
-      expectedTarget: expectedTargetForAnswer,
-      responseProgress,
-      replaceLatestUser: isCorrectionRetry
-    });
+      expectedTargetForAnswer
+    );
     return;
   }
 
@@ -10346,8 +10308,14 @@ if ((!responseMakesSense || !confirmedSpokenText) && expectedTargetForAnswer) {
   }
 }
 
-const pointsAward = confirmedSpokenText
-  ? await awardPointsForUserMessage(
+let pointsAward = {
+  pointsGained: 0,
+  newTotal: currentLanguagePoints,
+  language: languageSelect.value
+};
+if (confirmedSpokenText) {
+  try {
+    pointsAward = await awardPointsForUserMessage(
       confirmedSpokenText,
       languageSelect.value,
       {
@@ -10356,12 +10324,11 @@ const pointsAward = confirmedSpokenText
         targetProduced: analysis.targetProduced,
         producedLexemes: analysis.producedLexemes
       }
-    )
-  : {
-      pointsGained: 0,
-      newTotal: currentLanguagePoints,
-      language: languageSelect.value
-    };
+    );
+  } catch (error) {
+    console.warn("points calculation failed", error);
+  }
+}
 
 /*
   Select the next bonus words only after this answer has been evaluated and
@@ -10369,17 +10336,11 @@ const pointsAward = confirmedSpokenText
   the immediately following prompt, even while a database update is settling.
 */
 if (!pendingBackgroundBot || pendingBackgroundBot.userText !== reviewedTranscript) {
-  try {
-    pendingBackgroundBot = await prepareBotResponseInBackground(
-      reviewedTranscript,
-      responseProgress,
-      { replaceLatestUser: isCorrectionRetry }
-    );
-  } catch (error) {
-    pendingBackgroundBot = null;
-    responseProgress.remove();
-    showSystemMessage(getReadableError(error));
-  }
+  pendingBackgroundBot = await prepareBotResponseInBackground(
+    reviewedTranscript,
+    responseProgress,
+    { replaceLatestUser: isCorrectionRetry }
+  );
 }
 
   if (
@@ -10527,6 +10488,20 @@ if (!pendingBackgroundBot || pendingBackgroundBot.userText !== reviewedTranscrip
 
   if (correctionId && isSpeechResponse) {
     playCorrection(correctionId).catch(() => {});
+  }
+}
+
+async function handleSpeechTranscript(transcript, responseMode = "speech") {
+  if (!String(transcript || "").trim()) return;
+  const outcomeAtStart = correctionOutcomeSequence;
+  try {
+    await handleSpeechTranscriptCore(transcript, responseMode);
+  } catch (error) {
+    console.warn("response review did not complete", error);
+    if (correctionOutcomeSequence === outcomeAtStart) {
+      showGuaranteedReviewFallback(transcript, responseMode, null);
+    }
+    showSystemMessage(getReadableError(error));
   }
 }
 
@@ -12114,9 +12089,14 @@ function normalizeInterfacePunctuation(value) {
   return String(value ?? "")
     .normalize("NFC")
     .replace(/\uFFFD/g, "")
+    .replace(/\u00C3\u00A2\u00C2\u0080\u00C2[\u0098\u0099]/g, "'")
+    .replace(/\u00E2\u0080[\u0098\u0099]/g, "'")
     .replace(/(?:\u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u201E\u00A2|\u00E2\u20AC[\u2122\u02DC\u0098])/g, "'")
+    .replace(/\u00E2\u0080[\u009C\u009D]/g, '"')
     .replace(/\u00E2\u20AC[\u0153\u009C\u009D]/g, '"')
+    .replace(/\u00E2\u0080\u00A6/g, "...")
     .replace(/\u00E2\u20AC\u00A6/g, "...")
+    .replace(/\u00E2\u0080[\u0093\u0094]/g, "-")
     .replace(/\u00E2\u20AC[\u201C\u0093]/g, "-")
     .replace(/[\u2018\u2019\u201B]/g, "'")
     .replace(/[\u201C\u201D]/g, '"')
@@ -12124,7 +12104,7 @@ function normalizeInterfacePunctuation(value) {
     .replace(/\u2026/g, "...")
     .replace(/\u00C2(?=\s)/g, "")
     .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
-    .replace(/[\u200B\u200C\u200D\u2060\uFEFF]/g, "");
+    .replace(/[\u200B\u2060\uFEFF]/g, "");
 }
 
 function cleanInterfaceText(value) {
@@ -12187,7 +12167,8 @@ const PRACTICE_LANGUAGES = [
 function getMemberChatDefaults() {
   const stored = readMemberJson("chat-preferences", {});
   const metadata = currentUser?.user_metadata || {};
-  const mostRecentSession = getSessionHistory()[0] || {};
+  const mostRecentSession = getSessionHistory()
+    .sort((a, b) => Number(b.startedAt || 0) - Number(a.startedAt || 0))[0] || {};
   const fluentLanguage = String(metadata.fluentLanguage || "English");
   const savedLanguage = String(
     stored.language || metadata.lastChatLanguage || mostRecentSession.language || ""
@@ -12686,11 +12667,15 @@ function getSpeechRecognitionLanguage(language) {
 function renderConfirmationWord() {
   const word = confirmationQueue[confirmationIndex];
   if (!word) { finishWordConfirmation(); return; }
+  const usesSpeech = pendingSessionSummary?.inputMode === "speech";
   if (confirmationProgressText) confirmationProgressText.textContent = `Word ${confirmationIndex+1} of ${confirmationQueue.length}`;
   if (confirmationProgressFill) confirmationProgressFill.style.width = `${(confirmationIndex/Math.max(1,confirmationQueue.length))*100}%`;
   if (confirmWordHeading) confirmWordHeading.textContent = word.fluent_prompt || word.word_text;
   if (confirmationPrompt) confirmationPrompt.textContent = `Enter the ${word.language || "practice-language"} word.`;
-  if (wordConfirmationInput) { wordConfirmationInput.value = ""; wordConfirmationInput.disabled = false; }
+  if (wordConfirmationInput) {
+    wordConfirmationInput.value = "";
+    wordConfirmationInput.disabled = usesSpeech;
+  }
   if (confirmationFeedback) confirmationFeedback.textContent = "";
   if (submitWordConfirmationButton) submitWordConfirmationButton.disabled = false;
   if (wordConfirmationSpeechButton) {
@@ -12699,7 +12684,7 @@ function renderConfirmationWord() {
     wordConfirmationSpeechButton.innerHTML = `<span class="mic-symbol" aria-hidden="true">${microphoneIconSvg()}</span>`;
   }
   if (confirmationSpeechStatus) confirmationSpeechStatus.textContent = "Tap to speak";
-  if (pendingSessionSummary?.inputMode !== "speech") wordConfirmationInput?.focus();
+  if (!usesSpeech) wordConfirmationInput?.focus();
 }
 
 async function startWordConfirmation() {
@@ -12739,7 +12724,7 @@ async function submitWordConfirmation(answer) {
       fluentLanguage:getCurrentFluentLanguage()
     },"Word confirmation");
     if (!data.correct) {
-      if (confirmationFeedback) confirmationFeedback.textContent = `Not quite. Try another translation, or choose "I don't remember."`;
+      if (confirmationFeedback) confirmationFeedback.textContent = "Not quite. Try another translation, or choose \"I don't remember.\"";
       return;
     }
     saveConfirmedWord(word); confirmedThisRun += 1;
