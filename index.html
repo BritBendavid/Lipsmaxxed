@@ -9810,10 +9810,17 @@ async function runConnectionProbes() {
       the offending variable on its own.
 ------------------------------------------------------------------ */
 
+const PROBE_TIMEOUT_MS = 12000;
+
 async function probeVariant(name, url, init) {
   const started = performance.now();
+  // A blocked variant hangs for 80+ seconds. Cut it short so the rest of
+  // the matrix still runs.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
   try {
-    const response = await fetch(url, init);
+    const response = await fetch(url, { ...init, signal: controller.signal });
+    clearTimeout(timer);
     const elapsed = Math.round(performance.now() - started);
     let snippet = "";
     try {
@@ -9821,15 +9828,20 @@ async function probeVariant(name, url, init) {
     } catch {
       snippet = "(body unreadable)";
     }
+    const build = response.headers.get("x-build-id") || "?";
     appendDiagnosticText(
-      `  ${response.ok ? "PASS" : "HTTP " + response.status} ${name} (${elapsed}ms) ${snippet ? "| " + snippet.replace(/\s+/g, " ") : ""}`
+      `  ${response.ok ? "PASS" : "HTTP " + response.status} ${name} (${elapsed}ms) [build ${build}] ${snippet ? "| " + snippet.replace(/\s+/g, " ") : ""}`
     );
-    recordDiagnostic({ variant: name, status: response.status, ok: response.ok, elapsed });
+    recordDiagnostic({ variant: name, status: response.status, ok: response.ok, elapsed, build });
     return { blocked: false, status: response.status };
   } catch (error) {
+    clearTimeout(timer);
     const elapsed = Math.round(performance.now() - started);
     const detail = describeFetchFailure(error);
-    appendDiagnosticText(`  BLOCKED ${name} (${elapsed}ms) | ${detail.name}: ${detail.message}`);
+    const label = error?.name === "AbortError"
+      ? `TIMED OUT after ${PROBE_TIMEOUT_MS}ms`
+      : `${detail.name}: ${detail.message}`;
+    appendDiagnosticText(`  BLOCKED ${name} (${elapsed}ms) | ${label}`);
     recordDiagnostic({ variant: name, ok: false, blocked: true, elapsed, ...detail });
     return { blocked: true, status: null };
   }
@@ -9847,8 +9859,20 @@ async function runRequestBisect() {
   appendDiagnosticText(`\n--- bisect @ ${new Date().toLocaleTimeString()} ---`);
   appendDiagnosticText(`token present: ${Boolean(token)} | anon length: ${String(anon || "").length}`);
 
-  // Controls: these already work, and confirm nothing has changed.
-  appendDiagnosticText("method / auth:");
+  // The live configuration goes first. Everything after it is a control.
+  appendDiagnosticText("live config (what the app actually sends):");
+  await probeVariant("POST ?diag, live headers", `${url}?diag=1`, {
+    method: "POST",
+    headers: getFunctionHeaders(),
+    body: "{}"
+  });
+  await probeVariant("POST real path, live headers", url, {
+    method: "POST",
+    headers: getFunctionHeaders(),
+    body: JSON.stringify(json)
+  });
+
+  appendDiagnosticText("controls — method / auth:");
   await probeVariant("GET  ?diag, no headers", `${url}?diag=1`, { method: "GET" });
   await probeVariant("GET  ?diag, anon headers", `${url}?diag=1`, {
     method: "GET",
