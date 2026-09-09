@@ -5123,10 +5123,9 @@ async function getRankedFrequencyList(language) {
     headers: {
       "Content-Type": "application/json",
       "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-      "x-user-token": currentSession?.access_token || ""
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
     },
-    body: JSON.stringify({
+    body: functionBody({
       action: "frequency-list",
       language,
       limit: 20000
@@ -6761,10 +6760,9 @@ async function translateReviewTargetForCue(word, languageOverride = null, fluent
     headers: {
       "Content-Type": "application/json",
       "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-      "x-user-token": currentSession?.access_token || ""
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
     },
-    body: JSON.stringify({
+    body: functionBody({
       action: "translate-word",
       word: cleanWord,
       sentence: cleanWord,
@@ -9555,26 +9553,32 @@ function playCorrectionWordSchedule(state, button = null) {
 
 function getFunctionHeaders() {
   /*
-    The user's access token deliberately does NOT go in Authorization.
+    No user token in any header.
 
-    This project signs user JWTs with ES256 (asymmetric signing keys). The
-    edge-function gateway tries to verify those itself, and that lookup
-    hangs — a request carrying a user token in Authorization stalls for
-    80+ seconds and is then torn down without CORS headers, which the
-    browser reports as "Load failed". The same request with the anon key
-    in Authorization answers in about a second.
+    A JWT in Authorization OR in a custom header makes the edge-function
+    gateway hang for 80+ seconds and then drop the request without CORS
+    headers, which the browser reports as "Load failed". The identical
+    request passes in about a second with no token in any header, so
+    something upstream is inspecting header values.
 
-    So Authorization carries the publishable key, which needs no key
-    lookup, and the user token rides in a custom header the gateway does
-    not inspect. Nothing is weakened: the function still validates the
-    token with supabaseAdmin.auth.getUser() before trusting it.
+    The token now travels in the request body instead — see
+    withUserToken(). The function validates it server-side exactly as
+    before, so nothing is weakened.
   */
   return {
     "Content-Type": "application/json",
     "apikey": SUPABASE_ANON_KEY,
-    "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-    "x-user-token": currentSession?.access_token || ""
+    "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
   };
+}
+
+// Attaches the access token to any edge-function request body.
+function withUserToken(payload) {
+  return { ...payload, userToken: currentSession?.access_token || "" };
+}
+
+function functionBody(payload) {
+  return JSON.stringify(withUserToken(payload));
 }
 
 /* ------------------------------------------------------------------
@@ -9773,7 +9777,7 @@ async function runConnectionProbes() {
     const response = await fetch(url, {
       method: "POST",
       headers: getFunctionHeaders(),
-      body: JSON.stringify({ action: "language-fun-fact", language: "English", count: 1 })
+      body: functionBody({ action: "language-fun-fact", language: "English", count: 1 })
     });
     const text = await response.text();
     const elapsed = Math.round(performance.now() - started);
@@ -9869,8 +9873,28 @@ async function runRequestBisect() {
   await probeVariant("POST real path, live headers", url, {
     method: "POST",
     headers: getFunctionHeaders(),
-    body: JSON.stringify(json)
+    body: JSON.stringify(withUserToken(json))
   });
+
+  // Where can the token safely live? Header name vs value vs carrier.
+  appendDiagnosticText("token carrier:");
+  await probeVariant("POST ?diag, token in BODY", `${url}?diag=1`, {
+    method: "POST",
+    headers: { apikey: anon, Authorization: `Bearer ${anon}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ userToken: token })
+  });
+  await probeVariant("POST ?diag, short custom header", `${url}?diag=1`, {
+    method: "POST",
+    headers: { apikey: anon, Authorization: `Bearer ${anon}`, "x-user-token": "not-a-jwt" },
+    body: "{}"
+  });
+  if (token) {
+    await probeVariant("POST ?diag, JWT in custom header", `${url}?diag=1`, {
+      method: "POST",
+      headers: { apikey: anon, Authorization: `Bearer ${anon}`, "x-user-token": token },
+      body: "{}"
+    });
+  }
 
   appendDiagnosticText("controls — method / auth:");
   await probeVariant("GET  ?diag, no headers", `${url}?diag=1`, { method: "GET" });
@@ -9907,17 +9931,17 @@ async function runRequestBisect() {
   appendDiagnosticText("real path:");
   await probeVariant("POST no headers", url, {
     method: "POST",
-    body: JSON.stringify(json)
+    body: JSON.stringify(withUserToken(json))
   });
   await probeVariant("POST apikey only", url, {
     method: "POST",
     headers: { apikey: anon },
-    body: JSON.stringify(json)
+    body: JSON.stringify(withUserToken(json))
   });
   await probeVariant("POST + content-type", url, {
     method: "POST",
     headers: { apikey: anon, "Content-Type": "application/json" },
-    body: JSON.stringify(json)
+    body: JSON.stringify(withUserToken(json))
   });
   await probeVariant("POST + anon bearer", url, {
     method: "POST",
@@ -9926,13 +9950,13 @@ async function runRequestBisect() {
       Authorization: `Bearer ${anon}`,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify(json)
+    body: JSON.stringify(withUserToken(json))
   });
   if (token) {
     await probeVariant("POST + user bearer (live config)", url, {
       method: "POST",
       headers: getFunctionHeaders(),
-      body: JSON.stringify(json)
+      body: JSON.stringify(withUserToken(json))
     });
   }
 
@@ -10085,7 +10109,7 @@ async function callChatFunction(payload, label = "Chat") {
     response = await fetch(url, {
       method: "POST",
       headers: getFunctionHeaders(),
-      body: JSON.stringify(payload)
+      body: functionBody(payload)
     });
   } catch (error) {
     const elapsed = Math.round(performance.now() - started);
@@ -10917,10 +10941,9 @@ const responsePromise = generatePreparedChatTurn(
         headers: {
           "Content-Type": "application/json",
           "apikey": SUPABASE_ANON_KEY,
-          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-      "x-user-token": currentSession?.access_token || ""
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
         },
-        body: JSON.stringify({
+        body: functionBody({
           action: "translate-word",
           word,
           sentence: state.correctionText,
@@ -11379,10 +11402,9 @@ async function handleSpeechTranscript(transcript, responseMode = "speech") {
     headers: {
       "Content-Type": "application/json",
       "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-      "x-user-token": currentSession?.access_token || ""
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
     },
-    body: JSON.stringify({
+    body: functionBody({
       action: "translate-message-parts",
       text,
       chatLanguage: languageSelect.value,
@@ -11770,10 +11792,9 @@ async function handleMessagePlayButton(messageId, button) {
     headers: {
       "Content-Type": "application/json",
       "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-      "x-user-token": currentSession?.access_token || ""
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
     },
-    body: JSON.stringify({
+    body: functionBody({
       action: "speak-full",
       text,
       language: languageOverride || getCurrentChatLanguage()
@@ -11794,10 +11815,9 @@ async function handleMessagePlayButton(messageId, button) {
     headers: {
       "Content-Type": "application/json",
       "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-      "x-user-token": currentSession?.access_token || ""
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
     },
-    body: JSON.stringify({
+    body: functionBody({
       action: "speak-words",
       items: tokens,
       language: languageOverride || getCurrentChatLanguage()
@@ -12435,10 +12455,9 @@ async function playBonusWordAudio(chatWord, language, button = null) {
         headers: {
           "Content-Type": "application/json",
           "apikey": SUPABASE_ANON_KEY,
-          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-      "x-user-token": currentSession?.access_token || ""
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
         },
-        body: JSON.stringify({
+        body: functionBody({
           action: "translate-word",
           word: cleanWord,
           sentence,
@@ -12653,6 +12672,7 @@ async function transcribeAudioBlob(audioBlob, mimeType, context = {}) {
   ).trim().slice(0, 100);
 
   formData.append("action", "transcribe-audio");
+  formData.append("userToken", currentSession?.access_token || "");
   formData.append("audio", audioFile);
   formData.append("chatLanguage", context.chatLanguage || languageSelect.value);
   formData.append("fluentLanguage", context.fluentLanguage || fluentLanguageSelect.value);
@@ -12663,8 +12683,7 @@ async function transcribeAudioBlob(audioBlob, mimeType, context = {}) {
     method: "POST",
     headers: {
       "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-      "x-user-token": currentSession?.access_token || ""
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
     },
     body: formData
   });
