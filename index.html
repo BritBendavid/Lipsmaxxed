@@ -9637,6 +9637,10 @@ function diagnosticReportText() {
       online: navigator.onLine,
       signedIn: Boolean(currentUser),
       functionUrl: chatFunctionUrl(),
+      stageTimings: (() => {
+        try { return JSON.parse(localStorage.getItem("lipsmaxxed-response-timings") || "{}"); }
+        catch { return {}; }
+      })(),
       supabaseUrl: SUPABASE_URL,
       anonKeyLength: String(SUPABASE_ANON_KEY || "").length,
       log: diagnosticLog
@@ -10159,7 +10163,31 @@ async function callChatFunction(payload, label = "Chat") {
     buildId: response.headers.get("x-build-id") || undefined
   });
 
-  return await parseJsonResponse(response, label);
+  const data = await parseJsonResponse(response, label);
+
+  /*
+    Split the wall-clock time three ways so the slow part is identifiable:
+      serverChatMs  - time the function spent inside the OpenAI call
+      elapsed       - total time the browser waited
+      unaccounted   - everything else: gateway, cold boot, auth lookup,
+                      profile read, and any background work the runtime
+                      holds the response for.
+    A large unaccounted figure means the delay is NOT the model.
+  */
+  if (data?.serverTiming) {
+    recordDiagnostic({
+      label,
+      stage: "timing",
+      action: payload?.action || "chat",
+      elapsed,
+      serverChatMs: data.serverTiming.chatMs,
+      unaccountedMs: elapsed - (Number(data.serverTiming.chatMs) || 0),
+      historySaved: data.historySaved,
+      profileFactCount: data.profileFactCount
+    });
+  }
+
+  return data;
 }
 
 function rememberLanguageFact(language, fact) {
