@@ -9432,19 +9432,26 @@ function getFunctionHeaders() {
 }
 
 async function callChatFunction(payload, label = "Chat") {
-  let response;
+  let lastNetworkError = null;
 
-  try {
-    response = await fetch(chatFunctionUrl(), {
-      method: "POST",
-      headers: getFunctionHeaders(),
-      body: JSON.stringify(payload)
-    });
-  } catch (error) {
-    throw new Error(`${label} request failed: ${getReadableError(error)}`);
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    let response;
+    try {
+      response = await fetch(chatFunctionUrl(), {
+        method: "POST",
+        headers: getFunctionHeaders(),
+        body: JSON.stringify(payload)
+      });
+    } catch (error) {
+      lastNetworkError = error;
+      if (attempt === 0) {
+        await new Promise(resolve => setTimeout(resolve, 250));
+      }
+      continue;
+    }
+    return await parseJsonResponse(response, label);
   }
-
-  return await parseJsonResponse(response, label);
+  throw new Error(`${label} request failed: ${getReadableError(lastNetworkError)}`);
 }
 
 function rememberLanguageFact(language, fact) {
