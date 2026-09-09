@@ -3870,9 +3870,6 @@ form {
 .confirmation-input-wrap input { min-width:0;height:54px;padding:0 16px;border:0;background:transparent;color:white;font:inherit;outline:none; }
 .confirmation-input-wrap button { display:grid;place-items:center;border:0;border-left:1px solid rgba(255,255,255,.1);background:transparent;color:#93c5fd;cursor:pointer; }
 .confirmation-input-wrap svg { width:20px;height:20px;fill:currentColor; }
-.confirmation-speech-control { display:grid;justify-items:center;gap:9px;padding:2px 0 8px; }
-.confirmation-speech-control .speech-record-button { margin:0; }
-.confirmation-speech-control .speech-status { min-height:20px; }
 .confirmation-feedback { min-height:22px;color:#93c5fd;font-size:.86rem; }
 .confirmation-form .quiet-link { margin-top:4px;color:#aab3bf; }
 .completion-shell p { margin-top:12px;color:#93c5fd;font-size:1.15rem;font-weight:750; }
@@ -4053,7 +4050,7 @@ form {
 
   <section class="home-language-control app-surface" aria-label="Current practice language">
     <label class="member-field home-language-field"><span>Language</span><select id="homeLanguageSelect">
-      <option value="English">&#127482;&#127480; English</option><option value="Hebrew">&#127470;&#127473; Hebrew</option><option value="Spanish">&#127466;&#127480; Spanish</option><option value="French">&#127467;&#127479; French</option><option value="German">&#127465;&#127466; German</option><option value="Arabic">&#127480;&#127462; Arabic</option><option value="Russian">&#127479;&#127482; Russian</option><option value="Italian">&#127470;&#127481; Italian</option><option value="Portuguese">&#127477;&#127481; Portuguese</option><option value="Chinese">&#127464;&#127475; Chinese</option><option value="Japanese">&#127471;&#127477; Japanese</option><option value="Korean">&#127472;&#127479; Korean</option>
+      <option value="English">English</option><option value="Hebrew">Hebrew</option><option value="Spanish">Spanish</option><option value="French">French</option><option value="German">German</option><option value="Arabic">Arabic</option><option value="Russian">Russian</option><option value="Italian">Italian</option><option value="Portuguese">Portuguese</option><option value="Chinese">Chinese</option><option value="Japanese">Japanese</option><option value="Korean">Korean</option>
     </select></label>
   </section>
 
@@ -4063,8 +4060,8 @@ form {
     </div>
     <div class="practice-launch-row compact-practice-launch">
       <div id="homeModeToggle" class="horizontal-mode-toggle" role="group" aria-label="Input mode">
-        <button class="active" type="button" data-home-mode="speech">Speech</button>
-        <button type="button" data-home-mode="writing">Writing</button>
+        <button class="active" type="button" data-home-mode="writing">Writing</button>
+        <button type="button" data-home-mode="speech">Speech</button>
       </div>
       <button id="homeStartChatButton" class="primary-action" type="button">Start chat</button>
     </div>
@@ -4310,7 +4307,7 @@ form {
     <div id="authNativeLanguageGroup" class="auth-field-group">
       <label class="auth-label centered-auth-label" for="authNativeLanguage">Native language</label>
       <div class="select-wrap setup-select-wrap auth-language-select"><select id="authNativeLanguage">
-        <option value="English">&#127482;&#127480; English</option><option value="Hebrew">&#127470;&#127473; Hebrew</option><option value="Spanish">&#127466;&#127480; Spanish</option><option value="French">&#127467;&#127479; French</option><option value="German">&#127465;&#127466; German</option><option value="Arabic">&#127480;&#127462; Arabic</option><option value="Russian">&#127479;&#127482; Russian</option><option value="Italian">&#127470;&#127481; Italian</option><option value="Portuguese">&#127477;&#127481; Portuguese</option><option value="Chinese">&#127464;&#127475; Chinese</option><option value="Japanese">&#127471;&#127477; Japanese</option><option value="Korean">&#127472;&#127479; Korean</option>
+        <option value="English">English</option><option value="Hebrew">Hebrew</option><option value="Spanish">Spanish</option><option value="French">French</option><option value="German">German</option><option value="Arabic">Arabic</option><option value="Russian">Russian</option><option value="Italian">Italian</option><option value="Portuguese">Portuguese</option><option value="Chinese">Chinese</option><option value="Japanese">Japanese</option><option value="Korean">Korean</option>
       </select></div>
     </div>
   </div>
@@ -4361,18 +4358,18 @@ form {
         <div class="setup-language-control">
           <div class="select-wrap setup-select-wrap">
             <select id="chatSetupLanguageSelect">
-              <option value="English" selected>&#127482;&#127480; English</option>
-              <option value="Hebrew">&#127470;&#127473; Hebrew</option>
-              <option value="Spanish">&#127466;&#127480; Spanish</option>
-              <option value="French">&#127467;&#127479; French</option>
-              <option value="German">&#127465;&#127466; German</option>
-              <option value="Arabic">&#127480;&#127462; Arabic</option>
-              <option value="Russian">&#127479;&#127482; Russian</option>
-              <option value="Italian">&#127470;&#127481; Italian</option>
-              <option value="Portuguese">&#127477;&#127481; Portuguese</option>
-              <option value="Chinese">&#127464;&#127475; Chinese</option>
-              <option value="Japanese">&#127471;&#127477; Japanese</option>
-              <option value="Korean">&#127472;&#127479; Korean</option>
+              <option value="English" selected>English</option>
+              <option value="Hebrew">Hebrew</option>
+              <option value="Spanish">Spanish</option>
+              <option value="French">French</option>
+              <option value="German">German</option>
+              <option value="Arabic">Arabic</option>
+              <option value="Russian">Russian</option>
+              <option value="Italian">Italian</option>
+              <option value="Portuguese">Portuguese</option>
+              <option value="Chinese">Chinese</option>
+              <option value="Japanese">Japanese</option>
+              <option value="Korean">Korean</option>
             </select>
           </div>
         </div>
@@ -4461,18 +4458,18 @@ form {
 
       <div class="select-wrap setup-select-wrap">
         <select id="profileFluentLanguageSelect">
-          <option value="English" selected>&#127482;&#127480; English</option>
-          <option value="Hebrew">&#127470;&#127473; Hebrew</option>
-          <option value="Spanish">&#127466;&#127480; Spanish</option>
-          <option value="French">&#127467;&#127479; French</option>
-          <option value="German">&#127465;&#127466; German</option>
-          <option value="Arabic">&#127480;&#127462; Arabic</option>
-          <option value="Russian">&#127479;&#127482; Russian</option>
-          <option value="Italian">&#127470;&#127481; Italian</option>
-          <option value="Portuguese">&#127477;&#127481; Portuguese</option>
-          <option value="Chinese">&#127464;&#127475; Chinese</option>
-          <option value="Japanese">&#127471;&#127477; Japanese</option>
-          <option value="Korean">&#127472;&#127479; Korean</option>
+          <option value="English" selected>English</option>
+          <option value="Hebrew">Hebrew</option>
+          <option value="Spanish">Spanish</option>
+          <option value="French">French</option>
+          <option value="German">German</option>
+          <option value="Arabic">Arabic</option>
+          <option value="Russian">Russian</option>
+          <option value="Italian">Italian</option>
+          <option value="Portuguese">Portuguese</option>
+          <option value="Chinese">Chinese</option>
+          <option value="Japanese">Japanese</option>
+          <option value="Korean">Korean</option>
         </select>
       </div>
     </div>
@@ -4502,7 +4499,7 @@ form {
     </section>
     <button id="reviewSessionChatButton" class="review-session-button" type="button">Review chat</button>
     <div id="summaryConfirmCallout" class="confirm-callout">
-      <h3>Before you go, don't forget to confirm the new words you learned</h3>
+      <h3>Before you go, donât forget to confirm the new words you learned</h3>
       <button id="confirmWordsButton" class="primary-action" type="button">Confirm words</button>
     </div>
     <button id="summaryReturnHomeButton" class="quiet-link" type="button">Return to home</button>
@@ -4525,14 +4522,10 @@ form {
     <h2 id="confirmWordHeading" dir="auto"></h2>
     <p id="confirmationPrompt">Enter the word in the language you are learning.</p>
     <form id="wordConfirmationForm" class="confirmation-form">
-      <div id="confirmationWritingControl" class="confirmation-input-wrap text-only"><input id="wordConfirmationInput" autocomplete="off" aria-label="Word translation" /></div>
-      <div id="confirmationSpeechControl" class="confirmation-speech-control hidden">
-        <button id="wordConfirmationSpeechButton" class="speech-record-button" type="button" aria-label="Speak translation" title="Speak translation"><span class="mic-symbol" aria-hidden="true">&#127908;</span></button>
-        <div id="confirmationSpeechStatus" class="speech-status">Tap to speak</div>
-      </div>
+      <div class="confirmation-input-wrap"><input id="wordConfirmationInput" autocomplete="off" aria-label="Word translation" /><button id="wordConfirmationSpeechButton" type="button" aria-label="Speak translation" title="Speak translation"><svg viewBox="0 0 24 24"><path d="M12 15.5a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v5.5a4 4 0 0 0 4 4Zm6.5-4a1 1 0 0 0-2 0 4.5 4.5 0 0 1-9 0 1 1 0 0 0-2 0 6.5 6.5 0 0 0 5.5 6.42V20H8.5v2h7v-2H13v-2.08a6.5 6.5 0 0 0 5.5-6.42Z"/></svg></button></div>
       <div id="confirmationFeedback" class="confirmation-feedback" aria-live="polite"></div>
       <button id="submitWordConfirmationButton" class="primary-action" type="submit">Confirm translation</button>
-      <button id="forgotConfirmationWordButton" class="quiet-link" type="button">I don't remember</button>
+      <button id="forgotConfirmationWordButton" class="quiet-link" type="button">I donât remember</button>
     </form>
   </div>
 </section>
@@ -4548,7 +4541,7 @@ form {
 </section>
 
 <section id="confirmationCompletePage" class="product-page hidden" aria-labelledby="confirmationCompleteTitle">
-  <div class="product-page-shell completion-shell"><div class="completion-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"/></svg></div><h2 id="confirmationCompleteTitle"><span id="confirmedWordTotal">0</span> words confirmed</h2><p>You're doing amazing!</p></div>
+  <div class="product-page-shell completion-shell"><div class="completion-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"/></svg></div><h2 id="confirmationCompleteTitle"><span id="confirmedWordTotal">0</span> words confirmed</h2><p>Youâre doing amazing!</p></div>
 </section>
 
 <section id="allChatsPage" class="product-page hidden" aria-labelledby="allChatsTitle">
@@ -4581,18 +4574,18 @@ form {
 
       <div class="select-wrap stats-select-wrap">
         <select id="statsLanguageSelect">
-          <option value="English">&#127482;&#127480; English</option>
-          <option value="Hebrew">&#127470;&#127473; Hebrew</option>
-          <option value="Spanish">&#127466;&#127480; Spanish</option>
-          <option value="French">&#127467;&#127479; French</option>
-          <option value="German">&#127465;&#127466; German</option>
-          <option value="Arabic">&#127480;&#127462; Arabic</option>
-          <option value="Russian">&#127479;&#127482; Russian</option>
-          <option value="Italian">&#127470;&#127481; Italian</option>
-          <option value="Portuguese">&#127477;&#127481; Portuguese</option>
-          <option value="Chinese">&#127464;&#127475; Chinese</option>
-          <option value="Japanese">&#127471;&#127477; Japanese</option>
-          <option value="Korean">&#127472;&#127479; Korean</option>
+          <option value="English">English</option>
+          <option value="Hebrew">Hebrew</option>
+          <option value="Spanish">Spanish</option>
+          <option value="French">French</option>
+          <option value="German">German</option>
+          <option value="Arabic">Arabic</option>
+          <option value="Russian">Russian</option>
+          <option value="Italian">Italian</option>
+          <option value="Portuguese">Portuguese</option>
+          <option value="Chinese">Chinese</option>
+          <option value="Japanese">Japanese</option>
+          <option value="Korean">Korean</option>
         </select>
       </div>
     </div>
@@ -4822,10 +4815,7 @@ const confirmWordHeading = document.getElementById("confirmWordHeading");
 const confirmationPrompt = document.getElementById("confirmationPrompt");
 const wordConfirmationForm = document.getElementById("wordConfirmationForm");
 const wordConfirmationInput = document.getElementById("wordConfirmationInput");
-const confirmationWritingControl = document.getElementById("confirmationWritingControl");
-const confirmationSpeechControl = document.getElementById("confirmationSpeechControl");
 const wordConfirmationSpeechButton = document.getElementById("wordConfirmationSpeechButton");
-const confirmationSpeechStatus = document.getElementById("confirmationSpeechStatus");
 const submitWordConfirmationButton = document.getElementById("submitWordConfirmationButton");
 const forgotConfirmationWordButton = document.getElementById("forgotConfirmationWordButton");
 const confirmationFeedback = document.getElementById("confirmationFeedback");
@@ -4874,7 +4864,7 @@ const renderedBotTurnIds = new Set();
 let authMode = "sign-in";
 let currentSession = null;
 let currentUser = null;
-let homeSelectedMode = "speech";
+let homeSelectedMode = "writing";
 let pendingSessionSummary = null;
 let confirmationQueue = [];
 let confirmationIndex = 0;
@@ -4927,7 +4917,6 @@ let pendingBackgroundBot = null;
 const correctionState = new Map();
 let activeGrammarDetailContext = null;
 let grammarDetailRenderToken = 0;
-let correctionOutcomeSequence = 0;
 const languageFactQueues = new Map();
 const languageFactRequests = new Map();
 const recentLanguageFacts = new Map();
@@ -5769,8 +5758,6 @@ async function startConfiguredChat() {
     grammarTips: [],
     timeline: []
   };
-
-  saveMemberChatDefaults(selectedChatLanguage, selectedInputMode);
 
   signedInHome?.classList.add("hidden");
   messageHistory?.classList.remove("hidden");
@@ -7971,15 +7958,15 @@ function pauseIconSvg() {
 }
 
 function speakerIconSvg() {
-  return "\u{1F50A}";
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="playback-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h3l4-3v12l-4-3H5V9Z"></path><path d="M15 9.5a4 4 0 0 1 0 5M17.5 7a7 7 0 0 1 0 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>`;
 }
 
 function microphoneIconSvg() {
-  return "\u{1F3A4}";
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="playback-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v5.5a4 4 0 0 0 4 4Zm6.5-4a1 1 0 0 0-2 0 4.5 4.5 0 0 1-9 0 1 1 0 0 0-2 0 6.5 6.5 0 0 0 5.5 6.42V20H8.5v2h7v-2H13v-2.08a6.5 6.5 0 0 0 5.5-6.42Z"></path></svg>`;
 }
 
 function stopIconSvg() {
-  return "\u25A0";
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="playback-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1.5"></rect></svg>`;
 }
 
 function loadingIconHtml() {
@@ -8517,7 +8504,6 @@ function addContextResponseReviewCard({
 
   card.dataset.correctionId = suggestedRow.correctionId;
   messageHistory.appendChild(card);
-  correctionOutcomeSequence += 1;
   scrollMessagesToBottom();
 
   card.pointsEarnedEl = null;
@@ -8682,7 +8668,7 @@ function grammarMessageToPlainText(message) {
       ? message.sections.map(section => `${section?.heading || ""}: ${section?.body || ""}`)
       : []),
     ...(Array.isArray(message?.examples)
-      ? message.examples.map(example => `${example?.target || ""} - ${example?.translation || ""}`)
+      ? message.examples.map(example => `${example?.target || ""} â ${example?.translation || ""}`)
       : []),
     message?.takeaway
   ].map(value => String(value || "").trim()).filter(Boolean).join("\n");
@@ -9031,7 +9017,6 @@ card.appendChild(layout);
   }
 
   messageHistory.appendChild(card);
-  correctionOutcomeSequence += 1;
 
   if (activeChatSession) {
     activeChatSession.timeline = Array.isArray(activeChatSession.timeline)
@@ -9883,27 +9868,23 @@ function isSamePlayback(button, type, id) {
         console.warn("frequency targets unavailable for response", error);
         return [];
       });
-    // Bonus words are an independent practice queue. They must never select
-    // or shape the question. A warm familiarity snapshot may constrain level,
-    // but question generation does not wait for bonus targets or profile data.
-    const profileCacheKey = currentUser ? `${currentUser.id}|${language}` : "";
-    const cachedProfile = profileCacheKey
-      ? vocabularyProfileCache.get(profileCacheKey)?.value || null
-      : null;
-    if (currentUser) {
-      getVocabularyProfileForPrompt(language, []).catch(error => {
-        console.warn("vocabulary profile refresh failed", error);
-      });
-    }
-    const dataPromise = callChatFunction({
+    // The prompt and card must use the same two frozen frequency targets.
+    // Waiting for this small profile lookup prevents the model from asking a
+    // generic question unrelated to the words displayed beside it.
+    const vocabularyProfilePromise = targetRowsPromise.then(rows =>
+      getVocabularyProfileForPrompt(language, rows)
+    );
+    const dataPromise = vocabularyProfilePromise.then(vocabularyProfile =>
+      callChatFunction({
         ...payload,
-        vocabularyProfile: cachedProfile,
+        vocabularyProfile,
         clientTurnId,
         previousFacts: [
           ...getSeenLanguageFacts(language),
           ...getLanguageFactQueue(language)
         ].slice(-80)
-      }, label);
+      }, label)
+    );
     const preparedBonusWordsPromise = targetRowsPromise.then(rows =>
       prepareUpcomingWords(language, rows)
     );
@@ -10127,56 +10108,8 @@ const responsePromise = generatePreparedChatTurn(
     setSpeechStatus("Tap to speak");
   }
 }
-
-function showGuaranteedReviewFallback(transcript, responseMode, expectedTarget = null) {
-  document.querySelectorAll(".response-progress-card").forEach(card => card.remove());
-  const onRetry = () => {
-    if (responseMode === "speech") {
-      setSpeechStatus("Recording");
-      return;
-    }
-    activeSpeechCorrection = null;
-    activeCorrectionUserMessageId = null;
-    removeSpeechReviewCard();
-    if (input) {
-      input.value = transcript;
-      input.focus();
-      input.select();
-    }
-  };
-  const onContinue = async () => {
-    let prepared = pendingBackgroundBot;
-    if (!prepared) {
-      prepared = await prepareBotResponseInBackground(transcript, null, {
-        replaceLatestUser: false
-      });
-    }
-    activeSpeechCorrection = null;
-    pendingBackgroundBot = null;
-    activeCorrectionUserMessageId = null;
-    await revealPreparedBotResponse(prepared);
-  };
-  activeSpeechCorrection = {
-    transcript,
-    reviewMode: "language",
-    expectedTarget,
-    prepared: pendingBackgroundBot
-  };
-  return addSpeechReviewCard({
-    transcript,
-    suggestion: transcript,
-    parts: [{ text: transcript, isChatLanguage: true }],
-    correctedText: transcript,
-    reviewTitle: `Try again in ${languageSelect.value}`,
-    reviewMode: "language",
-    scheduleCorrections: false,
-    responseMode,
-    onRetry,
-    onContinue
-  });
-}
-
-  async function handleSpeechTranscriptCore(transcript, responseMode = "speech") {
+    
+  async function handleSpeechTranscript(transcript, responseMode = "speech") {
   if (!transcript.trim()) return;
 
   const responseProgress = addResponseProgress("language");
@@ -10231,14 +10164,18 @@ if (!isCorrectionRetry) {
             : ""
       }
     );
-  } catch (error) {
-    console.warn("response analysis failed", error);
-    responseProgress.remove();
-    showGuaranteedReviewFallback(
-      transcript,
-      responseMode,
-      expectedTargetForAnswer
-    );
+  } catch {
+    if (!pendingBackgroundBot) {
+      pendingBackgroundBot = await prepareBotResponseInBackground(
+        transcript,
+        responseProgress,
+        { replaceLatestUser: isCorrectionRetry }
+      );
+    }
+    pendingBackgroundBot.progress = responseProgress;
+    responseProgress.setStage("chat");
+    await revealPreparedBotResponse(pendingBackgroundBot);
+    pendingBackgroundBot = null;
     return;
   }
 
@@ -10298,24 +10235,14 @@ const confirmedSpokenText = getConfirmedSpokenTextFromCorrection(
 );
 
 if ((!responseMakesSense || !confirmedSpokenText) && expectedTargetForAnswer) {
-  try {
-    await markReviewWordMissed(
-      expectedTargetForAnswer,
-      languageSelect.value
-    );
-  } catch (error) {
-    console.warn("review scheduling failed", error);
-  }
+  await markReviewWordMissed(
+    expectedTargetForAnswer,
+    languageSelect.value
+  );
 }
 
-let pointsAward = {
-  pointsGained: 0,
-  newTotal: currentLanguagePoints,
-  language: languageSelect.value
-};
-if (confirmedSpokenText) {
-  try {
-    pointsAward = await awardPointsForUserMessage(
+const pointsAward = confirmedSpokenText
+  ? await awardPointsForUserMessage(
       confirmedSpokenText,
       languageSelect.value,
       {
@@ -10324,11 +10251,12 @@ if (confirmedSpokenText) {
         targetProduced: analysis.targetProduced,
         producedLexemes: analysis.producedLexemes
       }
-    );
-  } catch (error) {
-    console.warn("points calculation failed", error);
-  }
-}
+    )
+  : {
+      pointsGained: 0,
+      newTotal: currentLanguagePoints,
+      language: languageSelect.value
+    };
 
 /*
   Select the next bonus words only after this answer has been evaluated and
@@ -10488,20 +10416,6 @@ if (!pendingBackgroundBot || pendingBackgroundBot.userText !== reviewedTranscrip
 
   if (correctionId && isSpeechResponse) {
     playCorrection(correctionId).catch(() => {});
-  }
-}
-
-async function handleSpeechTranscript(transcript, responseMode = "speech") {
-  if (!String(transcript || "").trim()) return;
-  const outcomeAtStart = correctionOutcomeSequence;
-  try {
-    await handleSpeechTranscriptCore(transcript, responseMode);
-  } catch (error) {
-    console.warn("response review did not complete", error);
-    if (correctionOutcomeSequence === outcomeAtStart) {
-      showGuaranteedReviewFallback(transcript, responseMode, null);
-    }
-    showSystemMessage(getReadableError(error));
   }
 }
 
@@ -12085,66 +11999,21 @@ function memberStorageKey(kind) {
   return `lipsmaxxed-${kind}:${currentUser?.id || "signed-out"}`;
 }
 
-function normalizeInterfacePunctuation(value) {
+function cleanInterfaceText(value) {
   return String(value ?? "")
     .normalize("NFC")
     .replace(/\uFFFD/g, "")
-    .replace(/\u00C3\u00A2\u00C2\u0080\u00C2[\u0098\u0099]/g, "'")
-    .replace(/\u00E2\u0080[\u0098\u0099]/g, "'")
-    .replace(/(?:\u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u201E\u00A2|\u00E2\u20AC[\u2122\u02DC\u0098])/g, "'")
-    .replace(/\u00E2\u0080[\u009C\u009D]/g, '"')
-    .replace(/\u00E2\u20AC[\u0153\u009C\u009D]/g, '"')
-    .replace(/\u00E2\u0080\u00A6/g, "...")
+    .replace(/\u00E2\u20AC(?:\u2122|\u02DC)/g, "'")
+    .replace(/\u00E2\u20AC(?:\u0153|\u009D)/g, '"')
     .replace(/\u00E2\u20AC\u00A6/g, "...")
-    .replace(/\u00E2\u0080[\u0093\u0094]/g, "-")
-    .replace(/\u00E2\u20AC[\u201C\u0093]/g, "-")
-    .replace(/[\u2018\u2019\u201B]/g, "'")
-    .replace(/[\u201C\u201D]/g, '"')
-    .replace(/[\u2013\u2014]/g, "-")
-    .replace(/\u2026/g, "...")
-    .replace(/\u00C2(?=\s)/g, "")
+    .replace(/\p{Extended_Pictographic}|\p{Regional_Indicator}/gu, "")
+    .replace(/[\uFE0E\uFE0F]/g, "")
     .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
-    .replace(/[\u200B\u2060\uFEFF]/g, "");
-}
-
-function cleanInterfaceText(value) {
-  return normalizeInterfacePunctuation(value)
+    .replace(/[\u200B\u200C\u200D\u2060\uFEFF]/g, "")
     .replace(/^#{1,6}\s+/gm, "")
     .replace(/\*\*([^*]+)\*\*/g, "$1")
     .replace(/^\s*[-*\u2022]\s+/gm, "");
 }
-
-function sanitizeInterfaceTextTree(root) {
-  if (!root) return;
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-  const nodes = [];
-  while (walker.nextNode()) nodes.push(walker.currentNode);
-  for (const node of nodes) {
-    if (node.parentElement?.closest("script,style")) continue;
-    const normalized = normalizeInterfacePunctuation(node.nodeValue || "");
-    if (normalized !== node.nodeValue) node.nodeValue = normalized;
-  }
-}
-
-const interfaceTextObserver = new MutationObserver(records => {
-  for (const record of records) {
-    if (record.type === "characterData") {
-      const node = record.target;
-      if (node.parentElement?.closest("script,style")) continue;
-      const normalized = normalizeInterfacePunctuation(node.nodeValue || "");
-      if (normalized !== node.nodeValue) node.nodeValue = normalized;
-      continue;
-    }
-    record.addedNodes.forEach(node => {
-      if (node.nodeType === Node.TEXT_NODE) {
-        const normalized = normalizeInterfacePunctuation(node.nodeValue || "");
-        if (normalized !== node.nodeValue) node.nodeValue = normalized;
-      } else if (node.nodeType === Node.ELEMENT_NODE) {
-        sanitizeInterfaceTextTree(node);
-      }
-    });
-  }
-});
 
 function readMemberJson(kind, fallback) {
   try {
@@ -12157,46 +12026,6 @@ function readMemberJson(kind, fallback) {
 
 function writeMemberJson(kind, value) {
   try { localStorage.setItem(memberStorageKey(kind), JSON.stringify(value)); } catch {}
-}
-
-const PRACTICE_LANGUAGES = [
-  "English", "Hebrew", "Spanish", "French", "German", "Arabic",
-  "Russian", "Italian", "Portuguese", "Chinese", "Japanese", "Korean"
-];
-
-function getMemberChatDefaults() {
-  const stored = readMemberJson("chat-preferences", {});
-  const metadata = currentUser?.user_metadata || {};
-  const mostRecentSession = getSessionHistory()
-    .sort((a, b) => Number(b.startedAt || 0) - Number(a.startedAt || 0))[0] || {};
-  const fluentLanguage = String(metadata.fluentLanguage || "English");
-  const savedLanguage = String(
-    stored.language || metadata.lastChatLanguage || mostRecentSession.language || ""
-  );
-  const language = PRACTICE_LANGUAGES.includes(savedLanguage)
-    ? savedLanguage
-    : (PRACTICE_LANGUAGES.find(item => item !== fluentLanguage) || "English");
-  const savedMode = String(
-    stored.inputMode || metadata.lastChatInputMode || mostRecentSession.inputMode || ""
-  );
-  return {
-    language,
-    inputMode: savedMode === "writing" ? "writing" : "speech"
-  };
-}
-
-function saveMemberChatDefaults(language, inputMode) {
-  if (!currentUser) return;
-  const preferences = {
-    language: PRACTICE_LANGUAGES.includes(language) ? language : "English",
-    inputMode: inputMode === "writing" ? "writing" : "speech",
-    updatedAt: new Date().toISOString()
-  };
-  writeMemberJson("chat-preferences", preferences);
-  queueAccountMetadataUpdate({
-    lastChatLanguage: preferences.language,
-    lastChatInputMode: preferences.inputMode
-  });
 }
 
 function formatDuration(milliseconds) {
@@ -12444,10 +12273,6 @@ function hideProductPages() {
 
 function showSignedInHome() {
   if (!currentUser) return;
-  const defaults = getMemberChatDefaults();
-  selectedChatLanguage = defaults.language;
-  selectedInputMode = defaults.inputMode;
-  homeSelectedMode = defaults.inputMode;
   stopAllSpeech();
   hideProductPages();
   signedInHome?.classList.remove("hidden");
@@ -12456,10 +12281,7 @@ function showSignedInHome() {
   composerShell?.classList.add("hidden");
   speechShell?.classList.add("hidden");
   endChatButton?.classList.add("hidden");
-  if (homeLanguageSelect) homeLanguageSelect.value = selectedChatLanguage;
-  homeModeToggle?.querySelectorAll("[data-home-mode]").forEach(button => {
-    button.classList.toggle("active", button.dataset.homeMode === homeSelectedMode);
-  });
+  if (homeLanguageSelect) homeLanguageSelect.value = selectedChatLanguage || "English";
   renderMemberHome().catch(() => {});
 }
 
@@ -12667,24 +12489,19 @@ function getSpeechRecognitionLanguage(language) {
 function renderConfirmationWord() {
   const word = confirmationQueue[confirmationIndex];
   if (!word) { finishWordConfirmation(); return; }
-  const usesSpeech = pendingSessionSummary?.inputMode === "speech";
   if (confirmationProgressText) confirmationProgressText.textContent = `Word ${confirmationIndex+1} of ${confirmationQueue.length}`;
   if (confirmationProgressFill) confirmationProgressFill.style.width = `${(confirmationIndex/Math.max(1,confirmationQueue.length))*100}%`;
   if (confirmWordHeading) confirmWordHeading.textContent = word.fluent_prompt || word.word_text;
   if (confirmationPrompt) confirmationPrompt.textContent = `Enter the ${word.language || "practice-language"} word.`;
-  if (wordConfirmationInput) {
-    wordConfirmationInput.value = "";
-    wordConfirmationInput.disabled = usesSpeech;
-  }
+  if (wordConfirmationInput) { wordConfirmationInput.value = ""; wordConfirmationInput.disabled = false; }
   if (confirmationFeedback) confirmationFeedback.textContent = "";
   if (submitWordConfirmationButton) submitWordConfirmationButton.disabled = false;
   if (wordConfirmationSpeechButton) {
     wordConfirmationSpeechButton.disabled = false;
     wordConfirmationSpeechButton.classList.remove("recording", "processing");
-    wordConfirmationSpeechButton.innerHTML = `<span class="mic-symbol" aria-hidden="true">${microphoneIconSvg()}</span>`;
+    wordConfirmationSpeechButton.innerHTML = microphoneIconSvg();
   }
-  if (confirmationSpeechStatus) confirmationSpeechStatus.textContent = "Tap to speak";
-  if (!usesSpeech) wordConfirmationInput?.focus();
+  wordConfirmationInput?.focus();
 }
 
 async function startWordConfirmation() {
@@ -12701,9 +12518,9 @@ async function startWordConfirmation() {
   }));
   confirmationIndex = 0; confirmedThisRun = 0;
   const usesSpeech = pendingSessionSummary.inputMode === "speech";
-  confirmationWritingControl?.classList.toggle("hidden", usesSpeech);
-  confirmationSpeechControl?.classList.toggle("hidden", !usesSpeech);
-  submitWordConfirmationButton?.classList.toggle("hidden", usesSpeech);
+  wordConfirmationSpeechButton?.classList.toggle("hidden", !usesSpeech);
+  wordConfirmationSpeechButton?.closest(".confirmation-input-wrap")
+    ?.classList.toggle("text-only", !usesSpeech);
   sessionSummaryPage?.classList.add("hidden"); unconfirmedExitModal?.classList.add("hidden");
   if (!confirmationQueue.length) { finishWordConfirmation(); return; }
   wordConfirmationPage?.classList.remove("hidden"); renderConfirmationWord();
@@ -12724,7 +12541,7 @@ async function submitWordConfirmation(answer) {
       fluentLanguage:getCurrentFluentLanguage()
     },"Word confirmation");
     if (!data.correct) {
-      if (confirmationFeedback) confirmationFeedback.textContent = "Not quite. Try another translation, or choose \"I don't remember.\"";
+      if (confirmationFeedback) confirmationFeedback.textContent = "Not quite. Try another translation, or choose âI donât remember.â";
       return;
     }
     saveConfirmedWord(word); confirmedThisRun += 1;
@@ -12742,7 +12559,7 @@ async function forgetConfirmationWord() {
   if (!word) return;
   submitWordConfirmationButton.disabled = true; forgotConfirmationWordButton.disabled = true;
   try {
-    if (confirmationFeedback) confirmationFeedback.textContent = `${word.fluent_prompt || "Answer"} - ${word.word_text}`;
+    if (confirmationFeedback) confirmationFeedback.textContent = `${word.fluent_prompt || "Answer"} â ${word.word_text}`;
     await scheduleWordReview(word,"missed",word.language);
     await new Promise(resolve => setTimeout(resolve,1300));
     confirmationIndex += 1; renderConfirmationWord();
@@ -12785,11 +12602,8 @@ async function toggleConfirmationRecording() {
   });
   confirmationRecorder.addEventListener("start", () => {
     wordConfirmationSpeechButton?.classList.add("recording");
-    if (wordConfirmationSpeechButton) {
-      wordConfirmationSpeechButton.innerHTML = `<span class="mic-symbol" aria-hidden="true">${stopIconSvg()}</span>`;
-    }
-    if (confirmationSpeechStatus) confirmationSpeechStatus.textContent = "Listening";
-    if (confirmationFeedback) confirmationFeedback.textContent = "";
+    if (wordConfirmationSpeechButton) wordConfirmationSpeechButton.innerHTML = stopIconSvg();
+    if (confirmationFeedback) confirmationFeedback.textContent = "Listening...";
   });
   confirmationRecorder.addEventListener("stop", async () => {
     confirmationRecordingStream?.getTracks().forEach(track => track.stop());
@@ -12798,9 +12612,9 @@ async function toggleConfirmationRecording() {
     wordConfirmationSpeechButton?.classList.add("processing");
     if (wordConfirmationSpeechButton) {
       wordConfirmationSpeechButton.disabled = true;
-      wordConfirmationSpeechButton.innerHTML = `<span class="mic-symbol" aria-label="Processing">${loadingIconHtml()}</span>`;
+      wordConfirmationSpeechButton.innerHTML = loadingIconHtml();
     }
-    if (confirmationSpeechStatus) confirmationSpeechStatus.textContent = "Transcribing";
+    if (confirmationFeedback) confirmationFeedback.textContent = "Transcribing...";
 
     try {
       const word = confirmationQueue[confirmationIndex];
@@ -12813,17 +12627,17 @@ async function toggleConfirmationRecording() {
         precedingMessage: `Translate ${word?.fluent_prompt || "the displayed word"} into ${word?.language || "the practice language"}.`,
         practiceWord: word?.word_text || word?.word || word?.word_key || ""
       });
-      if (confirmationSpeechStatus) confirmationSpeechStatus.textContent = "Checking";
-      await submitWordConfirmation(transcript);
+      if (wordConfirmationInput) wordConfirmationInput.value = transcript;
+      if (confirmationFeedback) confirmationFeedback.textContent = "";
+      wordConfirmationInput?.focus();
     } catch (error) {
       if (confirmationFeedback) confirmationFeedback.textContent = getReadableError(error);
     } finally {
       if (wordConfirmationSpeechButton) {
         wordConfirmationSpeechButton.disabled = false;
         wordConfirmationSpeechButton.classList.remove("processing");
-        wordConfirmationSpeechButton.innerHTML = `<span class="mic-symbol" aria-hidden="true">${microphoneIconSvg()}</span>`;
+        wordConfirmationSpeechButton.innerHTML = microphoneIconSvg();
       }
-      if (confirmationSpeechStatus) confirmationSpeechStatus.textContent = "Tap to speak";
     }
   });
 
@@ -13483,12 +13297,6 @@ masterChatInput?.addEventListener("keydown",event=>{if(event.key==="Enter"&&!eve
   }
 
   attachUiHandlers();
-  sanitizeInterfaceTextTree(document.body);
-  interfaceTextObserver.observe(document.body, {
-    childList: true,
-    subtree: true,
-    characterData: true
-  });
   setInputMode("speech");
   initAuth();
 </script>
