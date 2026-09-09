@@ -4060,8 +4060,8 @@ form {
     </div>
     <div class="practice-launch-row compact-practice-launch">
       <div id="homeModeToggle" class="horizontal-mode-toggle" role="group" aria-label="Input mode">
-        <button class="active" type="button" data-home-mode="writing">Writing</button>
-        <button type="button" data-home-mode="speech">Speech</button>
+        <button class="active" type="button" data-home-mode="speech">Speech</button>
+        <button type="button" data-home-mode="writing">Writing</button>
       </div>
       <button id="homeStartChatButton" class="primary-action" type="button">Start chat</button>
     </div>
@@ -4871,7 +4871,7 @@ const renderedBotTurnIds = new Set();
 let authMode = "sign-in";
 let currentSession = null;
 let currentUser = null;
-let homeSelectedMode = "writing";
+let homeSelectedMode = "speech";
 let pendingSessionSummary = null;
 let confirmationQueue = [];
 let confirmationIndex = 0;
@@ -5531,7 +5531,7 @@ async function getVocabularyProfileForPrompt(languageOverride = null, frontierOv
     .eq("user_id", currentUser.id)
     .eq("language", language)
     .order("last_encountered_at", { ascending: false })
-    .limit(3000);
+    .limit(500);
 
   if (error) {
     console.warn("vocabulary profile load failed", error);
@@ -5588,6 +5588,7 @@ async function getVocabularyProfileForPrompt(languageOverride = null, frontierOv
 
     // Complete working inventory for deterministic question validation.
     knownWords: understoodRows
+      .slice(0, 180)
       .map(row => row.word_text)
       .filter(Boolean),
 
@@ -5729,10 +5730,9 @@ async function startConfiguredChat() {
   } catch {
     // Name remains available for this session when storage is unavailable.
   }
-  // A fact is useful during loading, but it must never block the chat from
-  // opening. addResponseProgress fills it from the prepared buffer as soon as
-  // the parallel request completes.
-  ensureLanguageFact(selectedChatLanguage).catch(() => {});
+  await ensureLanguageFact(selectedChatLanguage).catch(error => {
+    console.warn("language fact preparation failed", error);
+  });
 
   if (selectedInputMode === "speech") {
     const permissionGranted = await requestSetupSpeechPermission();
@@ -5781,6 +5781,8 @@ async function startConfiguredChat() {
     grammarTips: [],
     timeline: []
   };
+
+  saveMemberChatDefaults(selectedChatLanguage, selectedInputMode);
 
   signedInHome?.classList.add("hidden");
   messageHistory?.classList.remove("hidden");
@@ -9891,21 +9893,27 @@ function isSamePlayback(button, type, id) {
         console.warn("frequency targets unavailable for response", error);
         return [];
       });
-    // Bonus words no longer influence question selection. Load the learner's
-    // familiarity profile and the next two bonus words in parallel so a large
-    // frequency asset cannot delay the AI question request.
-    const vocabularyProfilePromise = getVocabularyProfileForPrompt(language, []);
-    const dataPromise = vocabularyProfilePromise.then(vocabularyProfile =>
-      callChatFunction({
+    // Question generation never waits for the vocabulary profile. Use a warm,
+    // compact snapshot when available and refresh it in the background. The
+    // independent bonus queue continues loading on its own path.
+    const profileCacheKey = currentUser ? `${currentUser.id}|${language}` : "";
+    const cachedProfile = profileCacheKey
+      ? vocabularyProfileCache.get(profileCacheKey)?.value || null
+      : null;
+    if (currentUser) {
+      getVocabularyProfileForPrompt(language, []).catch(error => {
+        console.warn("vocabulary profile refresh failed", error);
+      });
+    }
+    const dataPromise = callChatFunction({
         ...payload,
-        vocabularyProfile,
+        vocabularyProfile: cachedProfile,
         clientTurnId,
         previousFacts: [
           ...getSeenLanguageFacts(language),
           ...getLanguageFactQueue(language)
         ].slice(-80)
-      }, label)
-    );
+      }, label);
     const preparedBonusWordsPromise = targetRowsPromise.then(rows =>
       prepareUpcomingWords(language, rows)
     );
@@ -12164,6 +12172,45 @@ function writeMemberJson(kind, value) {
   try { localStorage.setItem(memberStorageKey(kind), JSON.stringify(value)); } catch {}
 }
 
+const PRACTICE_LANGUAGES = [
+  "English", "Hebrew", "Spanish", "French", "German", "Arabic",
+  "Russian", "Italian", "Portuguese", "Chinese", "Japanese", "Korean"
+];
+
+function getMemberChatDefaults() {
+  const stored = readMemberJson("chat-preferences", {});
+  const metadata = currentUser?.user_metadata || {};
+  const mostRecentSession = getSessionHistory()[0] || {};
+  const fluentLanguage = String(metadata.fluentLanguage || "English");
+  const savedLanguage = String(
+    stored.language || metadata.lastChatLanguage || mostRecentSession.language || ""
+  );
+  const language = PRACTICE_LANGUAGES.includes(savedLanguage)
+    ? savedLanguage
+    : (PRACTICE_LANGUAGES.find(item => item !== fluentLanguage) || "English");
+  const savedMode = String(
+    stored.inputMode || metadata.lastChatInputMode || mostRecentSession.inputMode || ""
+  );
+  return {
+    language,
+    inputMode: savedMode === "writing" ? "writing" : "speech"
+  };
+}
+
+function saveMemberChatDefaults(language, inputMode) {
+  if (!currentUser) return;
+  const preferences = {
+    language: PRACTICE_LANGUAGES.includes(language) ? language : "English",
+    inputMode: inputMode === "writing" ? "writing" : "speech",
+    updatedAt: new Date().toISOString()
+  };
+  writeMemberJson("chat-preferences", preferences);
+  queueAccountMetadataUpdate({
+    lastChatLanguage: preferences.language,
+    lastChatInputMode: preferences.inputMode
+  });
+}
+
 function formatDuration(milliseconds) {
   const totalSeconds = Math.max(0, Math.round(Number(milliseconds || 0) / 1000));
   const hours = Math.floor(totalSeconds / 3600);
@@ -12376,9 +12423,6 @@ async function renderMemberHome() {
   if (!currentUser) return;
   renderMemberIdentity();
   const language = homeLanguageSelect?.value || selectedChatLanguage || "English";
-  // Warm the large frequency asset while the member is on the home screen so
-  // Start chat does not pay its download cost.
-  getRankedFrequencyList(language).catch(() => {});
   const history = getSessionHistory();
   const languageHistory = history.filter(row => row.language === language);
   if (homeHistoryTitle) homeHistoryTitle.textContent = `My Previous ${language} Chats`;
@@ -12412,6 +12456,10 @@ function hideProductPages() {
 
 function showSignedInHome() {
   if (!currentUser) return;
+  const defaults = getMemberChatDefaults();
+  selectedChatLanguage = defaults.language;
+  selectedInputMode = defaults.inputMode;
+  homeSelectedMode = defaults.inputMode;
   stopAllSpeech();
   hideProductPages();
   signedInHome?.classList.remove("hidden");
@@ -12420,7 +12468,10 @@ function showSignedInHome() {
   composerShell?.classList.add("hidden");
   speechShell?.classList.add("hidden");
   endChatButton?.classList.add("hidden");
-  if (homeLanguageSelect) homeLanguageSelect.value = selectedChatLanguage || "English";
+  if (homeLanguageSelect) homeLanguageSelect.value = selectedChatLanguage;
+  homeModeToggle?.querySelectorAll("[data-home-mode]").forEach(button => {
+    button.classList.toggle("active", button.dataset.homeMode === homeSelectedMode);
+  });
   renderMemberHome().catch(() => {});
 }
 
