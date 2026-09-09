@@ -977,6 +977,7 @@ form {
   line-height: 1;
   cursor: pointer;
 }
+.grammar-detail-close svg,.auth-close-button svg,.chat-setup-close svg,.stats-close-button svg,.dialog-close svg { width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round; }
 
 .grammar-detail-thread {
   min-height: 180px;
@@ -3154,12 +3155,15 @@ form {
 }
 
 .upcoming-word-action {
-  width: 34px;
+  width: auto;
+  min-width: 54px;
   height: 34px;
+  padding: 0 10px;
   border: 1px solid rgba(148, 163, 184, 0.18);
   background: rgba(255, 255, 255, 0.055);
   box-shadow: none;
-  font-size: 0.95rem;
+  font-size: 0.72rem;
+  font-weight: 800;
 }
 
 .upcoming-word-action:hover {
@@ -3731,10 +3735,10 @@ form {
 .end-chat-button:hover { background: #ef4444; }
 
 .member-home {
-  width: min(1160px, 100%);
-  margin: 14px auto 70px;
+  width: min(1080px, 100%);
+  margin: 12px auto 64px;
   display: grid;
-  gap: 18px;
+  gap: 14px;
 }
 
 .app-surface {
@@ -3750,7 +3754,7 @@ form {
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  padding: 24px;
+  padding: 20px 22px;
 }
 
 .member-profile { display: flex; align-items: center; gap: 16px; min-width: 0; }
@@ -3761,15 +3765,18 @@ form {
 }
 .member-avatar img { width:100%; height:100%; object-fit:cover; }
 .member-eyebrow { color:#93c5fd; font-size:.7rem; font-weight:850; letter-spacing:.12em; text-transform:uppercase; }
-.member-hero h2 { margin:4px 0 0; font-size:clamp(1.6rem,4vw,2.35rem); letter-spacing:-.045em; }
+.member-hero h2 { margin:3px 0 0; font-size:clamp(1.5rem,4vw,2.15rem); letter-spacing:-.045em; }
 .icon-button { width:42px; height:42px; display:grid; place-items:center; border:1px solid rgba(255,255,255,.11); border-radius:12px; background:rgba(255,255,255,.055); color:#cbd5e1; cursor:pointer; }
 .icon-button svg { width:19px; height:19px; fill:currentColor; }
 .icon-button:hover { color:white; background:rgba(255,255,255,.1); }
 
-.member-practice, .history-surface, .stats-surface { padding: 22px; }
+.member-practice, .history-surface, .stats-surface { padding: 20px; }
+.home-language-control { display:flex;align-items:center;justify-content:space-between;gap:18px;padding:13px 16px; }
+.home-language-field { width:min(390px,100%);grid-template-columns:auto minmax(210px,1fr);align-items:center;gap:14px; }
 .section-heading-row { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:17px; }
 .section-heading-row h3 { margin:0; font-size:1.18rem; letter-spacing:-.025em; }
 .practice-launch-row { display:grid; grid-template-columns:minmax(190px,1fr) auto auto; align-items:end; gap:12px; }
+.practice-launch-row.compact-practice-launch { grid-template-columns:minmax(250px,1fr) auto; }
 .member-field { display:grid; gap:7px; min-width:0; }
 .member-field > span { color:#94a3b8; font-size:.72rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
 .member-field select { width:100%; height:48px; padding:0 40px 0 14px; border:1px solid rgba(255,255,255,.12); border-radius:13px; background:#171b22; color:white; }
@@ -3784,30 +3791,35 @@ form {
 .ask-master-button strong,.ask-master-button small { display:block; }
 .ask-master-button small { margin-top:2px; color:#94a3b8; font-size:.79rem; font-weight:500; }
 .ask-master-button > svg { width:18px; height:18px; fill:none; stroke:#93c5fd; stroke-width:2; }
+.ask-master-standalone { margin-top:0;padding:14px 17px;background:linear-gradient(115deg,rgba(37,99,235,.1),rgba(255,255,255,.03));box-shadow:0 14px 34px rgba(0,0,0,.14); }
 .master-mini-mark { width:34px; height:34px; overflow:hidden; display:grid; place-items:center; border-radius:10px; background:white; }
 .master-mini-mark img { width:100%; height:100%; object-fit:cover; }
-.home-grid { display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); gap:18px; }
+.home-grid { display:grid; grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr); gap:14px; }
 .text-link,.quiet-link { padding:0; border:0; background:transparent; color:#60a5fa; font:inherit; font-weight:750; cursor:pointer; }
 .session-list { display:grid; gap:2px; }
 .session-list-empty { padding:28px 12px; color:#7f8997; text-align:center; border:1px dashed rgba(255,255,255,.1); border-radius:14px; }
-.session-list-item { width:100%; min-width:0; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px; align-items:center; padding:14px 4px; border:0; border-top:1px solid rgba(255,255,255,.075); background:transparent; color:white; text-align:left; }
+.session-list-item { width:100%; min-width:0; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px; align-items:center; padding:14px 4px; border:0; border-top:1px solid rgba(255,255,255,.075); background:transparent; color:white; font:inherit; text-align:left; }
 .session-list-item:first-child { border-top:0; }
 .session-list-title { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:760; }
 .session-list-date { display:block; margin-top:3px; color:#778191; font-size:.78rem; }
 .session-list-meta { color:#9ca3af; font-size:.76rem; text-align:right; white-space:nowrap; }
 .home-stat-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
-.home-stat-grid > div { min-width:0; padding:12px; border-radius:13px; background:rgba(255,255,255,.045); }
+.home-stat-grid > div { min-width:0; padding:10px 11px; border-radius:11px; background:rgba(255,255,255,.038); }
 .home-stat-grid strong,.home-stat-grid span { display:block; }
 .home-stat-grid strong { font-size:1.28rem; letter-spacing:-.04em; }
 .home-stat-grid span { margin-top:3px; color:#8590a0; font-size:.68rem; }
 .chart-heading { display:flex; justify-content:space-between; margin:19px 2px 7px; color:#8d97a5; font-size:.72rem; font-weight:700; }
-.session-time-chart { display:block; width:100%; height:150px; overflow:visible; }
+.session-time-chart { display:block; width:100%; height:180px; overflow:visible; }
+.session-time-chart .chart-axis { stroke:rgba(203,213,225,.34);stroke-width:1; }
+.session-time-chart .chart-grid { stroke:rgba(255,255,255,.07);stroke-width:1; }
+.session-time-chart .chart-label { fill:#8290a3;font-size:11px;font-family:inherit; }
+.session-time-chart .chart-axis-title { fill:#a9b4c2;font-size:11px;font-family:inherit;font-weight:700;letter-spacing:.02em; }
 
 /* Grammar composer containment and stable assistant identity */
 .grammar-detail-panel,.grammar-detail-header,.grammar-detail-thread { min-width:0; box-sizing:border-box; }
 .grammar-detail-thread { flex:1 1 auto; min-height:0; overscroll-behavior:contain; }
 .grammar-thread-message.assistant { position:relative; align-items:flex-start; }
-.grammar-assistant-identity { position:sticky; top:0; align-self:flex-start; z-index:2; padding:3px 0 7px; background:linear-gradient(180deg,#12151a 75%,rgba(18,21,26,0)); }
+.grammar-assistant-identity { position:static; align-self:flex-start; padding:3px 0 7px; }
 .grammar-follow-up-form { width:calc(100% - 36px); max-width:calc(100% - 36px); min-width:0; box-sizing:border-box; flex:0 0 auto; overflow:hidden; }
 .grammar-follow-up-input { width:0; flex:1 1 0; min-width:0; box-sizing:border-box; overflow-x:hidden; overflow-wrap:anywhere; }
 .grammar-follow-up-send { flex:0 0 36px; }
@@ -3829,6 +3841,16 @@ form {
 .confirm-callout { padding:25px; border-radius:20px; background:rgba(37,99,235,.08); border:1px solid rgba(96,165,250,.18); }
 .confirm-callout h3 { max-width:620px;margin:0 auto 18px;font-size:1.16rem;line-height:1.4; }
 .summary-shell > .quiet-link { margin-top:28px;color:#aeb7c4; }
+.summary-grammar-section { margin:0 0 24px;padding:22px;text-align:left;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:rgba(255,255,255,.035); }
+.summary-section-heading h3 { margin:4px 0 0;font-size:1.2rem;letter-spacing:-.025em; }
+.summary-grammar-tips { display:grid;gap:10px;margin-top:16px; }
+.summary-grammar-tip { padding:15px 16px;border-left:2px solid #fbbf24;border-radius:4px 12px 12px 4px;background:rgba(245,158,11,.065); }
+.summary-grammar-tip strong,.summary-grammar-tip span,.summary-grammar-tip p { display:block; }
+.summary-grammar-tip strong { color:#fde68a;font-size:.9rem; }
+.summary-grammar-tip span { margin-top:7px;color:#f8fafc;font-weight:700;line-height:1.45; }
+.summary-grammar-tip p { margin:7px 0 0;color:#b6beca;font-size:.88rem;line-height:1.55; }
+.review-session-button { width:100%;min-height:50px;margin:0 0 16px;border:1px solid rgba(147,197,253,.25);border-radius:13px;background:rgba(37,99,235,.08);color:#bfdbfe;font:inherit;font-weight:820;cursor:pointer; }
+.review-session-button:hover { background:rgba(37,99,235,.14);border-color:rgba(147,197,253,.4); }
 .decision-modal { position:fixed;inset:0;z-index:140;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(12px); }
 .decision-panel { position:relative;width:min(490px,100%);padding:28px;border:1px solid rgba(255,255,255,.12);border-radius:20px;background:#14171d;box-shadow:0 30px 90px rgba(0,0,0,.55); }
 .decision-panel h2 { margin:0;font-size:1.75rem;letter-spacing:-.04em; }
@@ -3844,16 +3866,23 @@ form {
 .confirmation-shell > p { margin:12px 0 26px;color:#9099a8; }
 .confirmation-form { width:min(560px,100%);margin:0 auto;display:grid;gap:12px; }
 .confirmation-input-wrap { display:grid;grid-template-columns:minmax(0,1fr) 48px;overflow:hidden;border:1px solid rgba(255,255,255,.14);border-radius:14px;background:#151920; }
+.confirmation-input-wrap.text-only { grid-template-columns:minmax(0,1fr); }
 .confirmation-input-wrap input { min-width:0;height:54px;padding:0 16px;border:0;background:transparent;color:white;font:inherit;outline:none; }
 .confirmation-input-wrap button { display:grid;place-items:center;border:0;border-left:1px solid rgba(255,255,255,.1);background:transparent;color:#93c5fd;cursor:pointer; }
 .confirmation-input-wrap svg { width:20px;height:20px;fill:currentColor; }
+.confirmation-speech-control { display:grid;justify-items:center;gap:9px;padding:2px 0 8px; }
+.confirmation-speech-control .speech-record-button { margin:0; }
+.confirmation-speech-control .speech-status { min-height:20px; }
 .confirmation-feedback { min-height:22px;color:#93c5fd;font-size:.86rem; }
 .confirmation-form .quiet-link { margin-top:4px;color:#aab3bf; }
 .completion-shell p { margin-top:12px;color:#93c5fd;font-size:1.15rem;font-weight:750; }
 .list-page-shell { align-self:start;margin:0 auto;padding:10px 0 50px; }
 .back-button { display:inline-flex;align-items:center;gap:8px;margin:0 0 35px;padding:9px 12px;border:1px solid rgba(255,255,255,.09);border-radius:10px;background:rgba(255,255,255,.045);color:#cbd5e1;font:inherit;font-weight:750;cursor:pointer; }
+.back-button svg { width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round; }
 .list-page-shell h2 { margin:6px 0 24px; }
 .list-page-shell .session-list { padding:8px 20px;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:rgba(255,255,255,.035); }
+.session-list-item { cursor:pointer;border-radius:10px; }
+.session-list-item:hover,.session-list-item:focus-visible { background:rgba(255,255,255,.045);outline:none; }
 .pagination-row { display:flex;justify-content:center;align-items:center;gap:14px;margin-top:20px;color:#8b95a3;font-size:.82rem; }
 .pagination-row button { min-height:38px;padding:0 14px;border:1px solid rgba(255,255,255,.1);border-radius:9px;background:rgba(255,255,255,.05);color:white;cursor:pointer; }
 .pagination-row button:disabled { opacity:.35;cursor:default; }
@@ -3869,18 +3898,53 @@ form {
 .master-page-header { display:flex;align-items:center;gap:12px;padding:16px 22px;border-bottom:1px solid rgba(255,255,255,.07); }
 .master-page-header h2,.master-page-header p { margin:0; }.master-page-header h2{font-size:1rem;}.master-page-header p{margin-top:2px;color:#798391;font-size:.74rem;}
 .master-chat-messages { min-width:0;overflow-y:auto;padding:30px max(22px,calc((100% - 760px)/2)); }
-.master-chat-row { min-width:0;margin-bottom:24px;display:flex;gap:12px;align-items:flex-start; }
+.master-chat-row { min-width:0;margin-bottom:28px;display:flex;gap:12px;align-items:flex-start; }
 .master-chat-row.user { justify-content:flex-end; }
 .master-chat-row.user .master-chat-content { max-width:75%;padding:11px 15px;border-radius:16px 16px 4px 16px;background:#252a31; }
-.master-chat-row.assistant .master-chat-content { flex:1;line-height:1.65;color:#d9dee6; }
+.master-chat-row.assistant { display:block; }
+.master-assistant-heading { display:flex;align-items:center;gap:9px;margin-bottom:9px; }
+.master-assistant-heading .master-mini-mark { width:30px;height:30px;border-radius:9px; }
+.master-assistant-name { color:#f8fafc;font-size:.86rem;font-weight:800; }
+.master-chat-row.assistant .master-chat-content { padding-left:39px;line-height:1.68;color:#e2e8f0; }
 .master-chat-content { min-width:0;white-space:pre-wrap;overflow-wrap:anywhere; }
+.master-chat-content p { margin:0 0 11px; }
+.master-chat-content p:last-child { margin-bottom:0; }
+.master-thinking { display:flex;align-items:center;gap:7px;color:#9aa4b2;font-size:.9rem; }
+.master-thinking-dots { display:inline-flex;gap:3px; }
+.master-thinking-dots i { width:4px;height:4px;border-radius:50%;background:currentColor;animation:grammarDot 1.1s infinite ease-in-out; }
+.master-thinking-dots i:nth-child(2){animation-delay:.14s}.master-thinking-dots i:nth-child(3){animation-delay:.28s}
+.master-session-group { margin-top:20px;padding-top:13px;border-top:1px solid rgba(255,255,255,.07); }
+.master-session-title { margin:0 8px 7px;color:#93a0b2;font-size:.69rem;font-weight:800;line-height:1.35; }
+.master-thread-empty { margin:12px 8px;color:#687385;font-size:.76rem;line-height:1.5; }
+.review-page-shell { align-self:start;margin:0 auto;padding:10px 0 55px; }
+.review-page-shell h2 { margin:5px 0 0;font-size:clamp(2rem,5vw,3.4rem); }
+.session-review-meta { margin:10px 0 30px;color:#8e99a8;font-size:.82rem; }
+.session-review-messages { width:min(820px,100%);margin:0 auto;padding:25px;border:1px solid rgba(255,255,255,.09);border-radius:20px;background:rgba(255,255,255,.025); }
+.session-review-messages.session-review-live-snapshot { width:min(980px,100%); }
+.session-review-live-snapshot .message-card { pointer-events:none; }
+.session-review-live-snapshot button { cursor:default; }
+.session-review-row { margin:0 0 24px; }
+.session-review-row:last-child { margin-bottom:0; }
+.session-review-row.user { display:flex;justify-content:flex-end; }
+.session-review-row.user > div { max-width:78%;padding:11px 15px;border-radius:16px 16px 4px 16px;background:#252a31;color:#f8fafc;white-space:pre-wrap; }
+.session-review-row.assistant .session-review-identity { display:flex;align-items:center;gap:9px;margin-bottom:9px;color:#f8fafc;font-size:.86rem;font-weight:800; }
+.session-review-row.assistant .session-review-copy { padding-left:39px;color:#e2e8f0;line-height:1.65;white-space:pre-wrap; }
+.session-review-outcome { width:min(700px,calc(100% - 30px));margin:0 auto;padding:15px 17px;border:1px solid rgba(147,197,253,.2);border-radius:15px;background:rgba(37,99,235,.07); }
+.session-review-outcome.grammar { border-color:rgba(251,191,36,.28);background:rgba(245,158,11,.065); }
+.session-review-outcome strong,.session-review-outcome span { display:block; }
+.session-review-outcome strong { color:#bfdbfe;font-size:.82rem; }
+.session-review-outcome.grammar strong { color:#fde68a; }
+.session-review-outcome span { margin-top:7px;color:#f8fafc;font-weight:700;line-height:1.5; }
+.session-review-outcome p { margin:8px 0 0;color:#b6beca;font-size:.87rem;line-height:1.55; }
 .master-composer { width:min(780px,calc(100% - 32px));max-width:calc(100% - 32px);min-width:0;margin:0 auto 20px;padding:8px;display:flex;align-items:flex-end;gap:8px;overflow:hidden;box-sizing:border-box;border:1px solid rgba(255,255,255,.14);border-radius:20px;background:#20242a;box-shadow:0 16px 45px rgba(0,0,0,.28); }
 .master-composer textarea { width:0;min-width:0;max-height:140px;flex:1 1 0;resize:none;padding:9px;border:0;background:transparent;color:white;font:inherit;outline:none;overflow-wrap:anywhere; }
 .master-composer button { width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border:0;border-radius:50%;background:#2563eb;color:white;cursor:pointer; }
 .master-composer svg { width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round; }
 
 @media (max-width: 820px) {
-  .practice-launch-row,.home-grid { grid-template-columns:1fr; }
+  .practice-launch-row,.practice-launch-row.compact-practice-launch,.home-grid { grid-template-columns:1fr; }
+  .home-language-control { align-items:stretch; }
+  .home-language-field { width:100%; }
   .home-stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .master-page { grid-template-columns:120px minmax(0,1fr); }
   .master-sidebar { display:block;padding:12px 7px; }
@@ -3895,6 +3959,7 @@ form {
 @media (max-width: 600px) {
   .member-home { margin-top:4px; }
   .member-hero,.member-practice,.history-surface,.stats-surface { padding:16px; }
+  .home-language-field { grid-template-columns:1fr;gap:7px; }
   .member-avatar { width:50px;height:50px;border-radius:15px; }
   .ask-master-button small { display:none; }
   .product-page { padding:20px 16px; }
@@ -3986,26 +4051,30 @@ form {
     </button>
   </section>
 
+  <section class="home-language-control app-surface" aria-label="Current practice language">
+    <label class="member-field home-language-field"><span>Language</span><select id="homeLanguageSelect">
+      <option value="English">&#127482;&#127480; English</option><option value="Hebrew">&#127470;&#127473; Hebrew</option><option value="Spanish">&#127466;&#127480; Spanish</option><option value="French">&#127467;&#127479; French</option><option value="German">&#127465;&#127466; German</option><option value="Arabic">&#127480;&#127462; Arabic</option><option value="Russian">&#127479;&#127482; Russian</option><option value="Italian">&#127470;&#127481; Italian</option><option value="Portuguese">&#127477;&#127481; Portuguese</option><option value="Chinese">&#127464;&#127475; Chinese</option><option value="Japanese">&#127471;&#127477; Japanese</option><option value="Korean">&#127472;&#127479; Korean</option>
+    </select></label>
+  </section>
+
   <section class="member-practice app-surface">
     <div class="section-heading-row">
       <div><div class="member-eyebrow">Practice</div><h3>Start a new chat</h3></div>
     </div>
-    <div class="practice-launch-row">
-      <label class="member-field"><span>Language</span><select id="homeLanguageSelect">
-        <option value="English">&#127482;&#127480; English</option><option value="Hebrew">&#127470;&#127473; Hebrew</option><option value="Spanish">&#127466;&#127480; Spanish</option><option value="French">&#127467;&#127479; French</option><option value="German">&#127465;&#127466; German</option><option value="Arabic">&#127480;&#127462; Arabic</option><option value="Russian">&#127479;&#127482; Russian</option><option value="Italian">&#127470;&#127481; Italian</option><option value="Portuguese">&#127477;&#127481; Portuguese</option><option value="Chinese">&#127464;&#127475; Chinese</option><option value="Japanese">&#127471;&#127477; Japanese</option><option value="Korean">&#127472;&#127479; Korean</option>
-      </select></label>
+    <div class="practice-launch-row compact-practice-launch">
       <div id="homeModeToggle" class="horizontal-mode-toggle" role="group" aria-label="Input mode">
-        <button class="active" type="button" data-home-mode="writing">Writing</button>
-        <button type="button" data-home-mode="speech">Speech</button>
+        <button class="active" type="button" data-home-mode="speech">Speech</button>
+        <button type="button" data-home-mode="writing">Writing</button>
       </div>
       <button id="homeStartChatButton" class="primary-action" type="button">Start chat</button>
     </div>
-    <button id="askLipsMasterButton" class="ask-master-button" type="button">
+  </section>
+
+  <button id="askLipsMasterButton" class="ask-master-button ask-master-standalone" type="button">
       <span class="master-mini-mark"><img src="assets/language-logo.png" alt="" /></span>
       <span><strong>Ask LipsMaster</strong><small>Get help with grammar, wording, or anything you are learning.</small></span>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
-    </button>
-  </section>
+  </button>
 
   <section class="home-grid">
     <div class="app-surface history-surface">
@@ -4039,7 +4108,7 @@ form {
       <div>
         <h2 id="grammarDetailTitle">Grammar rule</h2>
       </div>
-      <button id="grammarDetailClose" class="grammar-detail-close" type="button" aria-label="Close grammar explanation">&times;</button>
+      <button id="grammarDetailClose" class="grammar-detail-close" type="button" aria-label="Close grammar explanation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </header>
     <div id="grammarDetailBody" class="grammar-detail-thread" aria-live="polite"></div>
     <form id="grammarFollowUpForm" class="grammar-follow-up-form">
@@ -4061,7 +4130,7 @@ form {
 
 <div id="speechShell" class="speech-shell hidden">
   <button id="speechRecordButton" class="speech-record-button" type="button" title="Record speech">
-    <span class="mic-symbol" aria-hidden="true">&#127908;</span>
+    <span class="mic-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 15.5a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v5.5a4 4 0 0 0 4 4Zm6.5-4a1 1 0 0 0-2 0 4.5 4.5 0 0 1-9 0 1 1 0 0 0-2 0 6.5 6.5 0 0 0 5.5 6.42V20H8.5v2h7v-2H13v-2.08a6.5 6.5 0 0 0 5.5-6.42Z"/></svg></span>
   </button>
 
   <div id="speechStatus" class="speech-status">
@@ -4075,7 +4144,7 @@ form {
 
   <div class="auth-panel">
     <button id="authCloseButton" class="auth-close-button" type="button">
-      &times;
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
 
     <div class="auth-title">My Account</div>
@@ -4273,7 +4342,7 @@ form {
 <section id="chatSetupModal" class="chat-setup-modal hidden">
   <div class="chat-setup-panel">
     <button id="closeChatSetupButton" class="chat-setup-close" type="button" aria-label="Close practice setup">
-      &times;
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
 
     <div class="chat-setup-heading">
@@ -4358,7 +4427,7 @@ form {
 <section id="profileModal" class="profile-modal hidden">
   <div class="profile-panel">
     <button id="closeProfileButton" class="chat-setup-close" type="button">
-      &times;
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
 
     <div class="chat-setup-kicker">My profile</div>
@@ -4425,8 +4494,15 @@ form {
       <div><span>Words learned</span><strong id="summaryWordsLearned">0</strong></div>
       <div><span>Points gained</span><strong id="summaryPointsGained">0</strong></div>
     </div>
-    <div class="confirm-callout">
-      <h3>Before you go, donât forget to confirm the new words you learned</h3>
+    <section id="summaryGrammarSection" class="summary-grammar-section hidden" aria-labelledby="summaryGrammarTitle">
+      <div class="summary-section-heading">
+        <div><div class="member-eyebrow">From this session</div><h3 id="summaryGrammarTitle">Grammar tips</h3></div>
+      </div>
+      <div id="summaryGrammarTips" class="summary-grammar-tips"></div>
+    </section>
+    <button id="reviewSessionChatButton" class="review-session-button" type="button">Review chat</button>
+    <div id="summaryConfirmCallout" class="confirm-callout">
+      <h3>Before you go, don't forget to confirm the new words you learned</h3>
       <button id="confirmWordsButton" class="primary-action" type="button">Confirm words</button>
     </div>
     <button id="summaryReturnHomeButton" class="quiet-link" type="button">Return to home</button>
@@ -4435,7 +4511,7 @@ form {
 
 <section id="unconfirmedExitModal" class="decision-modal hidden" role="dialog" aria-modal="true" aria-labelledby="unconfirmedExitTitle">
   <div class="decision-panel">
-    <button id="closeUnconfirmedExitButton" class="dialog-close" type="button" aria-label="Close">&times;</button>
+    <button id="closeUnconfirmedExitButton" class="dialog-close" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     <h2 id="unconfirmedExitTitle">Are you sure?</h2>
     <p>If you do not confirm the new words you learned, they will not save to your profile!</p>
     <div class="decision-actions"><button id="modalConfirmWordsButton" class="primary-action" type="button">Confirm words</button><button id="exitChatAnywayButton" class="danger-outline" type="button">Exit chat anyway</button></div>
@@ -4447,26 +4523,40 @@ form {
     <div class="confirmation-progress"><span id="confirmationProgressText">Word 1 of 1</span><div><i id="confirmationProgressFill"></i></div></div>
     <div class="member-eyebrow">Confirm what you learned</div>
     <h2 id="confirmWordHeading" dir="auto"></h2>
-    <p id="confirmationPrompt">Enter the translation in your language.</p>
+    <p id="confirmationPrompt">Enter the word in the language you are learning.</p>
     <form id="wordConfirmationForm" class="confirmation-form">
-      <div class="confirmation-input-wrap"><input id="wordConfirmationInput" autocomplete="off" aria-label="Word translation" /><button id="wordConfirmationSpeechButton" type="button" aria-label="Speak translation" title="Speak translation"><svg viewBox="0 0 24 24"><path d="M12 15.5a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v5.5a4 4 0 0 0 4 4Zm6.5-4a1 1 0 0 0-2 0 4.5 4.5 0 0 1-9 0 1 1 0 0 0-2 0 6.5 6.5 0 0 0 5.5 6.42V20H8.5v2h7v-2H13v-2.08a6.5 6.5 0 0 0 5.5-6.42Z"/></svg></button></div>
+      <div id="confirmationWritingControl" class="confirmation-input-wrap text-only"><input id="wordConfirmationInput" autocomplete="off" aria-label="Word translation" /></div>
+      <div id="confirmationSpeechControl" class="confirmation-speech-control hidden">
+        <button id="wordConfirmationSpeechButton" class="speech-record-button" type="button" aria-label="Speak translation" title="Speak translation"><span class="mic-symbol" aria-hidden="true">&#127908;</span></button>
+        <div id="confirmationSpeechStatus" class="speech-status">Tap to speak</div>
+      </div>
       <div id="confirmationFeedback" class="confirmation-feedback" aria-live="polite"></div>
       <button id="submitWordConfirmationButton" class="primary-action" type="submit">Confirm translation</button>
-      <button id="forgotConfirmationWordButton" class="quiet-link" type="button">I donât remember</button>
+      <button id="forgotConfirmationWordButton" class="quiet-link" type="button">I don't remember</button>
     </form>
   </div>
 </section>
 
+<section id="sessionReviewPage" class="product-page hidden" aria-labelledby="sessionReviewTitle">
+  <div class="product-page-shell review-page-shell">
+    <button id="sessionReviewBackButton" class="back-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Back to summary</button>
+    <div class="member-eyebrow">Completed session</div>
+    <h2 id="sessionReviewTitle">Review chat</h2>
+    <div id="sessionReviewMeta" class="session-review-meta"></div>
+    <div id="sessionReviewMessages" class="session-review-messages" aria-label="Read-only chat transcript"></div>
+  </div>
+</section>
+
 <section id="confirmationCompletePage" class="product-page hidden" aria-labelledby="confirmationCompleteTitle">
-  <div class="product-page-shell completion-shell"><div class="completion-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"/></svg></div><h2 id="confirmationCompleteTitle"><span id="confirmedWordTotal">0</span> words confirmed</h2><p>Youâre doing amazing!</p></div>
+  <div class="product-page-shell completion-shell"><div class="completion-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"/></svg></div><h2 id="confirmationCompleteTitle"><span id="confirmedWordTotal">0</span> words confirmed</h2><p>You're doing amazing!</p></div>
 </section>
 
 <section id="allChatsPage" class="product-page hidden" aria-labelledby="allChatsTitle">
-  <div class="product-page-shell list-page-shell"><button id="allChatsBackButton" class="back-button" type="button"><span aria-hidden="true">&larr;</span> Back</button><div class="member-eyebrow">Conversation history</div><h2 id="allChatsTitle">My Previous Chats</h2><div id="allChatsList" class="session-list expanded"></div><div class="pagination-row"><button id="previousChatsPageButton" type="button">Previous</button><span id="chatsPageLabel">Page 1</span><button id="nextChatsPageButton" type="button">Next</button></div></div>
+  <div class="product-page-shell list-page-shell"><button id="allChatsBackButton" class="back-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Back</button><div class="member-eyebrow">Conversation history</div><h2 id="allChatsTitle">My Previous Chats</h2><div id="allChatsList" class="session-list expanded"></div><div class="pagination-row"><button id="previousChatsPageButton" type="button">Previous</button><span id="chatsPageLabel">Page 1</span><button id="nextChatsPageButton" type="button">Next</button></div></div>
 </section>
 
 <section id="lipsMasterPage" class="master-page hidden" aria-labelledby="lipsMasterPageTitle">
-  <aside class="master-sidebar"><button id="lipsMasterBackButton" class="back-button" type="button"><span aria-hidden="true">&larr;</span> Back</button><button id="newMasterChatButton" class="new-master-chat" type="button">New chat</button><div class="master-sidebar-label">Previous chats</div><div id="masterThreadList" class="master-thread-list"></div></aside>
+  <aside class="master-sidebar"><button id="lipsMasterBackButton" class="back-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Back</button><button id="newMasterChatButton" class="new-master-chat" type="button">New chat</button><div id="masterThreadList" class="master-thread-list"></div></aside>
   <div class="master-workspace"><header class="master-page-header"><span class="master-mini-mark"><img src="assets/language-logo.png" alt="" /></span><div><h2 id="lipsMasterPageTitle">LipsMaster</h2><p>Language help, when you need it.</p></div></header><div id="masterChatMessages" class="master-chat-messages" aria-live="polite"></div><form id="masterChatForm" class="master-composer"><textarea id="masterChatInput" rows="1" maxlength="1200" placeholder="Message LipsMaster" aria-label="Message LipsMaster"></textarea><button id="masterChatSendButton" type="submit" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button></form></div>
 </section>
 
@@ -4482,7 +4572,7 @@ form {
       </div>
 
       <button id="closeStatsButton" class="stats-close-button" type="button">
-        &times;
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
       </button>
     </header>
 
@@ -4562,7 +4652,7 @@ form {
         </div>
 
         <button id="closeStatsDetailButton" class="stats-close-button" type="button">
-          &times;
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
         </button>
       </div>
 
@@ -4715,6 +4805,10 @@ const summaryLearnedInline = document.getElementById("summaryLearnedInline");
 const summarySessionTime = document.getElementById("summarySessionTime");
 const summaryWordsLearned = document.getElementById("summaryWordsLearned");
 const summaryPointsGained = document.getElementById("summaryPointsGained");
+const summaryGrammarSection = document.getElementById("summaryGrammarSection");
+const summaryGrammarTips = document.getElementById("summaryGrammarTips");
+const reviewSessionChatButton = document.getElementById("reviewSessionChatButton");
+const summaryConfirmCallout = document.getElementById("summaryConfirmCallout");
 const confirmWordsButton = document.getElementById("confirmWordsButton");
 const summaryReturnHomeButton = document.getElementById("summaryReturnHomeButton");
 const unconfirmedExitModal = document.getElementById("unconfirmedExitModal");
@@ -4725,9 +4819,13 @@ const wordConfirmationPage = document.getElementById("wordConfirmationPage");
 const confirmationProgressText = document.getElementById("confirmationProgressText");
 const confirmationProgressFill = document.getElementById("confirmationProgressFill");
 const confirmWordHeading = document.getElementById("confirmWordHeading");
+const confirmationPrompt = document.getElementById("confirmationPrompt");
 const wordConfirmationForm = document.getElementById("wordConfirmationForm");
 const wordConfirmationInput = document.getElementById("wordConfirmationInput");
+const confirmationWritingControl = document.getElementById("confirmationWritingControl");
+const confirmationSpeechControl = document.getElementById("confirmationSpeechControl");
 const wordConfirmationSpeechButton = document.getElementById("wordConfirmationSpeechButton");
+const confirmationSpeechStatus = document.getElementById("confirmationSpeechStatus");
 const submitWordConfirmationButton = document.getElementById("submitWordConfirmationButton");
 const forgotConfirmationWordButton = document.getElementById("forgotConfirmationWordButton");
 const confirmationFeedback = document.getElementById("confirmationFeedback");
@@ -4740,6 +4838,11 @@ const allChatsBackButton = document.getElementById("allChatsBackButton");
 const previousChatsPageButton = document.getElementById("previousChatsPageButton");
 const nextChatsPageButton = document.getElementById("nextChatsPageButton");
 const chatsPageLabel = document.getElementById("chatsPageLabel");
+const sessionReviewPage = document.getElementById("sessionReviewPage");
+const sessionReviewBackButton = document.getElementById("sessionReviewBackButton");
+const sessionReviewTitle = document.getElementById("sessionReviewTitle");
+const sessionReviewMeta = document.getElementById("sessionReviewMeta");
+const sessionReviewMessages = document.getElementById("sessionReviewMessages");
 const lipsMasterPage = document.getElementById("lipsMasterPage");
 const lipsMasterBackButton = document.getElementById("lipsMasterBackButton");
 const newMasterChatButton = document.getElementById("newMasterChatButton");
@@ -4771,13 +4874,18 @@ const renderedBotTurnIds = new Set();
 let authMode = "sign-in";
 let currentSession = null;
 let currentUser = null;
-let homeSelectedMode = "writing";
+let homeSelectedMode = "speech";
 let pendingSessionSummary = null;
 let confirmationQueue = [];
 let confirmationIndex = 0;
 let confirmedThisRun = 0;
+let confirmationRecorder = null;
+let confirmationRecordedChunks = [];
+let confirmationRecordingStream = null;
 let allChatsPageIndex = 0;
 let activeMasterThreadId = "";
+let activeMasterDraftThread = null;
+let viewingSavedSession = false;
 let accountMetadataWrite = Promise.resolve();
 
 let inputMode = "writing";
@@ -4819,6 +4927,7 @@ let pendingBackgroundBot = null;
 const correctionState = new Map();
 let activeGrammarDetailContext = null;
 let grammarDetailRenderToken = 0;
+let correctionOutcomeSequence = 0;
 const languageFactQueues = new Map();
 const languageFactRequests = new Map();
 const recentLanguageFacts = new Map();
@@ -4865,6 +4974,9 @@ let conversationTurn = 0;
 let activeExpectedTarget = null;
 const reviewCooldownTurnByKey = new Map();
 const frequencyListCache = new Map();
+const frequencyFrontierCache = new Map();
+const frequencyFrontierRequests = new Map();
+const FREQUENCY_FRONTIER_CACHE_MS = 60 * 1000;
 
 let selectedChatLanguage = "English";
 let selectedInputMode = "speech";
@@ -5109,6 +5221,9 @@ function targetFromVocabularyProfile(profile) {
 function beginUserAnswer() {
   conversationTurn += 1;
   saveReviewScheduleState();
+  if (currentUser) {
+    frequencyFrontierCache.delete(`${currentUser.id}|${getCurrentChatLanguage()}`);
+  }
 
   // Freeze the two words shown with the question. The next reply begins
   // loading immediately and clears/replaces the visible card, but analysis of
@@ -5121,7 +5236,7 @@ function beginUserAnswer() {
   return expectedTarget;
 }
 
-async function getFrequencyFrontierTargets(languageOverride = null, limit = 2) {
+async function loadFrequencyFrontierTargets(languageOverride = null, limit = 2) {
   if (!currentUser) return [];
 
   const language = languageOverride || getCurrentChatLanguage();
@@ -5172,7 +5287,8 @@ async function getFrequencyFrontierTargets(languageOverride = null, limit = 2) {
   // The natural frontier is simply the most common corpus words the learner
   // has never produced. A word is no longer removed only after three passes.
   const unspokenWords = frequencyWords.filter(item =>
-    Number(statsByKey.get(item.word_key)?.spoken_count || 0) === 0
+    Number(statsByKey.get(item.word_key)?.spoken_count || 0) === 0 &&
+    getReviewCooldownTurn(item.word_key) <= conversationTurn
   );
   const naturalWindow = unspokenWords.slice(0, Math.max(limit, 5));
   const frontierRank = naturalWindow[0]?.frequency_rank ||
@@ -5267,6 +5383,29 @@ async function getFrequencyFrontierTargets(languageOverride = null, limit = 2) {
 
   return targets;
 }
+
+async function getFrequencyFrontierTargets(languageOverride = null, limit = 2) {
+  if (!currentUser) return [];
+  const language = languageOverride || getCurrentChatLanguage();
+  const cacheKey = `${currentUser.id}|${language}`;
+  const cached = frequencyFrontierCache.get(cacheKey);
+  if (cached && Date.now() - cached.savedAt < FREQUENCY_FRONTIER_CACHE_MS) {
+    return cached.rows.slice(0, limit);
+  }
+  if (frequencyFrontierRequests.has(cacheKey)) {
+    const rows = await frequencyFrontierRequests.get(cacheKey);
+    return rows.slice(0, limit);
+  }
+  const request = loadFrequencyFrontierTargets(language, Math.max(2, limit))
+    .then(rows => {
+      frequencyFrontierCache.set(cacheKey, { savedAt: Date.now(), rows });
+      return rows;
+    })
+    .finally(() => frequencyFrontierRequests.delete(cacheKey));
+  frequencyFrontierRequests.set(cacheKey, request);
+  const rows = await request;
+  return rows.slice(0, limit);
+}
     
 async function prepareUpcomingWords(language, rows) {
   if (!currentUser || !Array.isArray(rows) || !rows.length) {
@@ -5322,7 +5461,7 @@ function renderPreparedUpcomingWords(prepared) {
     const actionButton = document.createElement("button");
     actionButton.type = "button";
     actionButton.className = "upcoming-word-action";
-    actionButton.textContent = "?";
+    actionButton.textContent = "Reveal";
     actionButton.title = "Reveal word";
     actionButton.setAttribute("aria-label", "Reveal word");
     actionButton.dataset.revealed = "false";
@@ -5610,7 +5749,10 @@ async function startConfiguredChat() {
   } catch {
     // Name remains available for this session when storage is unavailable.
   }
-  await ensureLanguageFact(selectedChatLanguage);
+  // Facts are prepared while the learner is on the home/setup screen. Keep
+  // fact generation out of the Start click path so the prepared fact can be
+  // painted immediately with the progress card.
+  prefetchLanguageFact(selectedChatLanguage).catch(() => {});
 
   if (selectedInputMode === "speech") {
     const permissionGranted = await requestSetupSpeechPermission();
@@ -5655,8 +5797,12 @@ async function startConfiguredChat() {
     startedAt: Date.now(),
     pointsGained: 0,
     messageCount: 0,
-    learnedWords: new Map()
+    learnedWords: new Map(),
+    grammarTips: [],
+    timeline: []
   };
+
+  saveMemberChatDefaults(selectedChatLanguage, selectedInputMode);
 
   signedInHome?.classList.add("hidden");
   messageHistory?.classList.remove("hidden");
@@ -5905,6 +6051,11 @@ function rememberSessionLearnedWord(word, languageOverride = null) {
   activeChatSession.learnedWords.set(normalized.word_key, {
     word_key: normalized.word_key,
     word_text: normalized.word_text,
+    lemma: String(word?.lemma || normalized.word_text).normalize("NFC").trim(),
+    upos: String(word?.upos || normalized.upos || "X").toUpperCase(),
+    fluent_prompt: String(
+      word?.fluent_prompt || word?.displayWord || word?.translation || ""
+    ).trim(),
     language: languageOverride || activeChatSession.language || getCurrentChatLanguage()
   });
 }
@@ -6722,7 +6873,9 @@ async function recordUserWordsAndAwardPoints(
   }
 
   if (expectedTargetKey) {
-    if (reviewResult.targetProduced === true && !matchedBonusTargetKeys.has(expectedTargetKey)) {
+    if (matchedBonusTargetKeys.has(expectedTargetKey)) {
+      // Deterministic surface/lemma matching already confirmed this target.
+    } else if (reviewResult.targetProduced === true) {
       spokenBonusWordKeys.add(expectedTargetKey);
       rememberSessionLearnedWord(expectedTarget, language);
       await markReviewWordSpoken(expectedTarget, language);
@@ -8316,6 +8469,7 @@ function addContextResponseReviewCard({
   transcript,
   didYouMeanText,
   parts,
+  responseMode = "speech",
   onRetry,
   onContinue
 }) {
@@ -8356,7 +8510,7 @@ function addContextResponseReviewCard({
   const retryButton = document.createElement("button");
   retryButton.type = "button";
   retryButton.className = "speech-review-button primary";
-  retryButton.textContent = "Re-record";
+  retryButton.textContent = responseMode === "writing" ? "Try again" : "Re-record";
 
   const continueButton = document.createElement("button");
   continueButton.type = "button";
@@ -8364,10 +8518,11 @@ function addContextResponseReviewCard({
   continueButton.textContent = "Continue anyway";
 
   retryButton.addEventListener("click", async () => {
-    if (typeof onRetry === "function") {
-      onRetry();
+    if (responseMode === "writing") {
+      if (typeof onRetry === "function") await onRetry();
+      return;
     }
-
+    if (typeof onRetry === "function") onRetry();
     await startCorrectionRetryRecording();
   });
 
@@ -8394,6 +8549,7 @@ function addContextResponseReviewCard({
 
   card.dataset.correctionId = suggestedRow.correctionId;
   messageHistory.appendChild(card);
+  correctionOutcomeSequence += 1;
   scrollMessagesToBottom();
 
   card.pointsEarnedEl = null;
@@ -8558,10 +8714,59 @@ function grammarMessageToPlainText(message) {
       ? message.sections.map(section => `${section?.heading || ""}: ${section?.body || ""}`)
       : []),
     ...(Array.isArray(message?.examples)
-      ? message.examples.map(example => `${example?.target || ""} â ${example?.translation || ""}`)
+      ? message.examples.map(example => `${example?.target || ""} - ${example?.translation || ""}`)
       : []),
     message?.takeaway
   ].map(value => String(value || "").trim()).filter(Boolean).join("\n");
+}
+
+function rememberSessionGrammarTip({
+  correctionId,
+  title,
+  learnerText,
+  correctedText,
+  explanation,
+  threadId
+}) {
+  if (!activeChatSession || !explanation) return;
+  const tips = Array.isArray(activeChatSession.grammarTips)
+    ? activeChatSession.grammarTips
+    : (activeChatSession.grammarTips = []);
+  const identity = `${String(title || "").toLocaleLowerCase()}|${String(correctedText || "").toLocaleLowerCase()}|${String(explanation || "").toLocaleLowerCase()}`;
+  if (tips.some(tip => tip.identity === identity)) return;
+
+  const tip = {
+    id: correctionId,
+    identity,
+    title: title || "Grammar rule",
+    learnerText: String(learnerText || "").trim(),
+    correctedText: String(correctedText || "").trim(),
+    explanation: String(explanation || "").trim(),
+    threadId,
+    createdAt: Date.now()
+  };
+  tips.push(tip);
+
+  if (!currentUser) return;
+  const rows = getMasterThreads();
+  if (!rows.some(row => row.id === threadId)) {
+    rows.unshift({
+      id: threadId,
+      kind: "grammar",
+      language: activeChatSession.language,
+      sessionId: activeChatSession.id,
+      sessionTitle: formatSessionStartedAt(activeChatSession.startedAt),
+      title: tip.title,
+      createdAt: tip.createdAt,
+      updatedAt: tip.createdAt,
+      messages: [{
+        role: "assistant",
+        content: `Corrected form: ${tip.correctedText}\n\n${tip.explanation}`,
+        createdAt: tip.createdAt
+      }]
+    });
+    saveMasterThreads(rows);
+  }
 }
 
 async function requestGrammarDetail(followUpQuestion = "") {
@@ -8632,7 +8837,7 @@ function openGrammarDetailModal(context) {
     detailedExplanation: "",
     grammarConversation: []
   };
-  activeGrammarDetailContext.lipsMasterThreadId =
+  activeGrammarDetailContext.lipsMasterThreadId = context.lipsMasterThreadId ||
     `grammar-${context.correctionId || Date.now()}-${Math.random().toString(36).slice(2,8)}`;
   if (grammarDetailBody) grammarDetailBody.textContent = "";
   if (grammarDetailTitle) {
@@ -8655,6 +8860,7 @@ function addSpeechReviewCard({
   grammarRuleTitle = "",
   scheduleCorrections = true,
   pointsAward = null,
+  responseMode = "speech",
   onRetry,
   onContinue
 }) {
@@ -8663,6 +8869,7 @@ function addSpeechReviewCard({
       transcript,
       didYouMeanText: didYouMeanText || suggestion || correctedText || transcript,
       parts,
+      responseMode,
       onRetry,
       onContinue
     });
@@ -8673,6 +8880,9 @@ function addSpeechReviewCard({
   removeSpeechReviewCard();
 
   const correctionId = `correction-${++correctionCounter}`;
+  const grammarThreadId = reviewMode === "grammar"
+    ? `grammar-${activeChatSession?.id || "session"}-${correctionId}`
+    : "";
 
   const correctionText = correctedText || suggestion || transcript;
   const pairs = isPerfect
@@ -8769,6 +8979,14 @@ headerRow.appendChild(pointsEarned);
 card.appendChild(layout);
 
   if (reviewMode === "grammar" && grammarExplanation.trim()) {
+    rememberSessionGrammarTip({
+      correctionId,
+      title: grammarRuleTitle || "Grammar rule",
+      learnerText: transcript,
+      correctedText: correctionText,
+      explanation: grammarExplanation.trim(),
+      threadId: grammarThreadId
+    });
     const ruleNote = document.createElement("div");
     ruleNote.className = "grammar-rule-note";
     ruleNote.appendChild(document.createTextNode(`${grammarExplanation.trim()} `));
@@ -8782,7 +9000,8 @@ card.appendChild(layout);
         learnerText: transcript,
         correctedText: correctionText,
         briefExplanation: grammarExplanation.trim(),
-        grammarRuleTitle: grammarRuleTitle || "Grammar rule"
+        grammarRuleTitle: grammarRuleTitle || "Grammar rule",
+        lipsMasterThreadId: grammarThreadId
       });
     });
     ruleNote.appendChild(learnMore);
@@ -8796,7 +9015,7 @@ card.appendChild(layout);
     const retryButton = document.createElement("button");
     retryButton.type = "button";
     retryButton.className = "speech-review-button primary";
-    retryButton.textContent = "Re-record";
+    retryButton.textContent = responseMode === "writing" ? "Try again" : "Re-record";
 
     const continueButton = document.createElement("button");
     continueButton.type = "button";
@@ -8804,10 +9023,12 @@ card.appendChild(layout);
     continueButton.textContent = "Continue anyway";
 
     retryButton.addEventListener("click", async () => {
-  if (typeof onRetry === "function") {
-    onRetry();
+  if (responseMode === "writing") {
+    if (typeof onRetry === "function") await onRetry();
+    return;
   }
 
+  if (typeof onRetry === "function") onRetry();
   await startCorrectionRetryRecording();
 });
 
@@ -8842,6 +9063,21 @@ card.appendChild(layout);
   }
 
   messageHistory.appendChild(card);
+  correctionOutcomeSequence += 1;
+
+  if (activeChatSession) {
+    activeChatSession.timeline = Array.isArray(activeChatSession.timeline)
+      ? activeChatSession.timeline
+      : [];
+    activeChatSession.timeline.push({
+      id: correctionId,
+      role: "review",
+      reviewMode,
+      title: isPerfect ? "Perfect!" : (reviewTitle || `Try again in ${languageSelect.value}`),
+      content: correctionText,
+      explanation: grammarExplanation || ""
+    });
+  }
 
   correctionState.set(correctionId, {
   id: correctionId,
@@ -9241,11 +9477,18 @@ function rememberLanguageFact(language, fact) {
   const normalized = cleanFact.toLocaleLowerCase();
   const alreadyKnown = [...seen, ...queue]
     .some(item => item.toLocaleLowerCase() === normalized);
-  if (!alreadyKnown) queue.push(cleanFact);
+  if (!alreadyKnown) {
+    queue.push(cleanFact);
+    saveLanguageFactQueue(language);
+  }
 }
 
 function languageFactStorageKey(language) {
   return `lipsmaxxed-seen-language-facts:${language}`;
+}
+
+function languageFactQueueStorageKey(language) {
+  return `lipsmaxxed-prepared-language-facts:${language}`;
 }
 
 function getSeenLanguageFacts(language) {
@@ -9264,8 +9507,42 @@ function getSeenLanguageFacts(language) {
 }
 
 function getLanguageFactQueue(language) {
-  if (!languageFactQueues.has(language)) languageFactQueues.set(language, []);
+  if (!languageFactQueues.has(language)) {
+    let prepared = [];
+    try {
+      const stored = JSON.parse(
+        localStorage.getItem(languageFactQueueStorageKey(language)) || "[]"
+      );
+      const seen = new Set(
+        getSeenLanguageFacts(language).map(item => item.toLocaleLowerCase())
+      );
+      prepared = (Array.isArray(stored) ? stored : [])
+        .map(item => String(item || "").replace(/\s+/g, " ").trim())
+        .filter(Boolean)
+        .filter((item, index, all) =>
+          !seen.has(item.toLocaleLowerCase()) &&
+          all.findIndex(other =>
+            other.toLocaleLowerCase() === item.toLocaleLowerCase()
+          ) === index
+        )
+        .slice(0, 8);
+    } catch {
+      prepared = [];
+    }
+    languageFactQueues.set(language, prepared);
+  }
   return languageFactQueues.get(language);
+}
+
+function saveLanguageFactQueue(language) {
+  try {
+    localStorage.setItem(
+      languageFactQueueStorageKey(language),
+      JSON.stringify(getLanguageFactQueue(language).slice(0, 8))
+    );
+  } catch {
+    // The in-memory queue still works for the current page session.
+  }
 }
 
 function markLanguageFactSeen(language, fact) {
@@ -9329,6 +9606,7 @@ async function ensureLanguageFact(language = getCurrentChatLanguage()) {
 function consumePreparedLanguageFact(language = getCurrentChatLanguage()) {
   const queue = getLanguageFactQueue(language);
   const fact = queue.shift() || "";
+  saveLanguageFactQueue(language);
   markLanguageFactSeen(language, fact);
   maintainLanguageFactBuffer(language, 4).catch(() => {});
   return fact;
@@ -9502,6 +9780,7 @@ function isSamePlayback(button, type, id) {
   }
 
   function addUserMessage(text) {
+    text = cleanInterfaceText(text);
     removeSignedOutProTip();
 
     if (activeChatSession) {
@@ -9522,6 +9801,12 @@ function isSamePlayback(button, type, id) {
     messageHistory.appendChild(card);
 
     userMessageState.set(id, { id, text, bubble });
+    if (activeChatSession) {
+      activeChatSession.timeline = Array.isArray(activeChatSession.timeline)
+        ? activeChatSession.timeline
+        : [];
+      activeChatSession.timeline.push({ id, role: "user", content: text });
+    }
 
     scrollMessagesToBottom();
 
@@ -9542,6 +9827,8 @@ function isSamePlayback(button, type, id) {
     state.bubble.classList.remove("user-annotated");
     state.bubble.textContent = text;
   }
+  const timelineItem = activeChatSession?.timeline?.find(item => item.id === userMessageId);
+  if (timelineItem) timelineItem.content = text;
 }
 
   const RESPONSE_STAGE_DEFAULTS = {
@@ -9588,7 +9875,7 @@ function isSamePlayback(button, type, id) {
     let fact = consumePreparedLanguageFact(factLanguage);
     card.innerHTML = `
       <div class="response-progress-copy">
-        <div class="response-progress-kicker">DID YOU KNOW&hellip;</div>
+        <div class="response-progress-kicker">DID YOU KNOW...</div>
         <div class="response-progress-fact"></div>
       </div>
       <div class="response-progress-track" aria-hidden="true">
@@ -9597,7 +9884,7 @@ function isSamePlayback(button, type, id) {
 
     const factEl = card.querySelector(".response-progress-fact");
     const fill = card.querySelector(".response-progress-fill");
-    factEl.textContent = fact;
+    factEl.textContent = cleanInterfaceText(fact);
     const samples = {};
     let stage = initialStage;
     let stageStartedAt = performance.now();
@@ -9612,7 +9899,7 @@ function isSamePlayback(button, type, id) {
         if (stopped) return;
         fact = consumePreparedLanguageFact(factLanguage);
         if (!fact) return;
-        factEl.textContent = fact;
+        factEl.textContent = cleanInterfaceText(fact);
         card.classList.remove("fact-pending");
         scrollMessagesToBottom();
       }).catch(() => {});
@@ -9670,14 +9957,27 @@ function isSamePlayback(button, type, id) {
         console.warn("frequency targets unavailable for response", error);
         return [];
       });
+    // Bonus words are an independent practice queue. They must never select
+    // or shape the question. A warm familiarity snapshot may constrain level,
+    // but question generation does not wait for bonus targets or profile data.
+    const profileCacheKey = currentUser ? `${currentUser.id}|${language}` : "";
+    const cachedProfile = profileCacheKey
+      ? vocabularyProfileCache.get(profileCacheKey)?.value || null
+      : null;
+    if (currentUser) {
+      getVocabularyProfileForPrompt(language, []).catch(error => {
+        console.warn("vocabulary profile refresh failed", error);
+      });
+    }
     const dataPromise = callChatFunction({
-      ...payload,
-      clientTurnId,
-      previousFacts: [
-        ...getSeenLanguageFacts(language),
-        ...getLanguageFactQueue(language)
-      ].slice(-80)
-    }, label);
+        ...payload,
+        vocabularyProfile: cachedProfile,
+        clientTurnId,
+        previousFacts: [
+          ...getSeenLanguageFacts(language),
+          ...getLanguageFactQueue(language)
+        ].slice(-80)
+      }, label);
     const preparedBonusWordsPromise = targetRowsPromise.then(rows =>
       prepareUpcomingWords(language, rows)
     );
@@ -9901,12 +10201,61 @@ const responsePromise = generatePreparedChatTurn(
     setSpeechStatus("Tap to speak");
   }
 }
-    
-  async function handleSpeechTranscript(transcript) {
+
+function showGuaranteedReviewFallback(transcript, responseMode, expectedTarget = null) {
+  document.querySelectorAll(".response-progress-card").forEach(card => card.remove());
+  const onRetry = () => {
+    if (responseMode === "speech") {
+      setSpeechStatus("Recording");
+      return;
+    }
+    activeSpeechCorrection = null;
+    activeCorrectionUserMessageId = null;
+    removeSpeechReviewCard();
+    if (input) {
+      input.value = transcript;
+      input.focus();
+      input.select();
+    }
+  };
+  const onContinue = async () => {
+    let prepared = pendingBackgroundBot;
+    if (!prepared) {
+      prepared = await prepareBotResponseInBackground(transcript, null, {
+        replaceLatestUser: false
+      });
+    }
+    activeSpeechCorrection = null;
+    pendingBackgroundBot = null;
+    activeCorrectionUserMessageId = null;
+    await revealPreparedBotResponse(prepared);
+  };
+  activeSpeechCorrection = {
+    transcript,
+    reviewMode: "language",
+    expectedTarget,
+    prepared: pendingBackgroundBot
+  };
+  return addSpeechReviewCard({
+    transcript,
+    suggestion: transcript,
+    parts: [{ text: transcript, isChatLanguage: true }],
+    correctedText: transcript,
+    reviewTitle: `Try again in ${languageSelect.value}`,
+    reviewMode: "language",
+    scheduleCorrections: false,
+    responseMode,
+    onRetry,
+    onContinue
+  });
+}
+
+  async function handleSpeechTranscriptCore(transcript, responseMode = "speech") {
   if (!transcript.trim()) return;
 
   const responseProgress = addResponseProgress("language");
-  const isCorrectionRetry = correctionRetryMode;
+  const isSpeechResponse = responseMode === "speech";
+  const isCorrectionRetry = isSpeechResponse && correctionRetryMode;
 const retrySourceMode = isCorrectionRetry ? correctionRetrySourceMode : "";
 const retryPriorGrammar = isCorrectionRetry
   ? correctionRetryPriorGrammar
@@ -9920,12 +10269,6 @@ const expectedTargetForAnswer = isCorrectionRetry
 
 if (!isCorrectionRetry) {
   activeCorrectionUserMessageId = addUserMessage(transcript);
-
-  /*
-    The bot receives the original message immediately.
-    Re-recording is only for practice.
-  */
-  pendingBackgroundBot = await prepareBotResponseInBackground(transcript, responseProgress);
 } else {
   /*
     Retry should replace the original speech bubble, not create a new one.
@@ -9946,7 +10289,8 @@ if (!isCorrectionRetry) {
       transcript,
       expectedTargetForAnswer,
       {
-        allowPhoneticRescue: true,
+        allowPhoneticRescue: isSpeechResponse,
+        inputMode: responseMode,
         priorGrammarCorrectedText:
           retrySourceMode === "grammar"
             ? retryPriorGrammar?.correctedText || ""
@@ -9961,15 +10305,14 @@ if (!isCorrectionRetry) {
             : ""
       }
     );
-  } catch {
-    if (pendingBackgroundBot) {
-      pendingBackgroundBot.progress = responseProgress;
-      responseProgress.setStage("chat");
-      await revealPreparedBotResponse(pendingBackgroundBot);
-    } else {
-      responseProgress.remove();
-    }
-    pendingBackgroundBot = null;
+  } catch (error) {
+    console.warn("response analysis failed", error);
+    responseProgress.remove();
+    showGuaranteedReviewFallback(
+      transcript,
+      responseMode,
+      expectedTargetForAnswer
+    );
     return;
   }
 
@@ -10023,31 +10366,30 @@ if (
   updateUserMessageText(activeCorrectionUserMessageId, reviewedTranscript);
 }
 
-if (
-  pendingBackgroundBot?.userText !== reviewedTranscript &&
-  (phoneticRescueApplied || isCorrectionRetry)
-) {
-  pendingBackgroundBot = await prepareBotResponseInBackground(
-    reviewedTranscript,
-    responseProgress,
-    { replaceLatestUser: true }
-  );
-}
-
 const confirmedSpokenText = getConfirmedSpokenTextFromCorrection(
   responseMakesSense ? reviewedTranscript : "",
   correctedText
 );
 
 if ((!responseMakesSense || !confirmedSpokenText) && expectedTargetForAnswer) {
-  await markReviewWordMissed(
-    expectedTargetForAnswer,
-    languageSelect.value
-  );
+  try {
+    await markReviewWordMissed(
+      expectedTargetForAnswer,
+      languageSelect.value
+    );
+  } catch (error) {
+    console.warn("review scheduling failed", error);
+  }
 }
 
-const pointsAward = confirmedSpokenText
-  ? await awardPointsForUserMessage(
+let pointsAward = {
+  pointsGained: 0,
+  newTotal: currentLanguagePoints,
+  language: languageSelect.value
+};
+if (confirmedSpokenText) {
+  try {
+    pointsAward = await awardPointsForUserMessage(
       confirmedSpokenText,
       languageSelect.value,
       {
@@ -10056,12 +10398,24 @@ const pointsAward = confirmedSpokenText
         targetProduced: analysis.targetProduced,
         producedLexemes: analysis.producedLexemes
       }
-    )
-  : {
-      pointsGained: 0,
-      newTotal: currentLanguagePoints,
-      language: languageSelect.value
-    };
+    );
+  } catch (error) {
+    console.warn("points calculation failed", error);
+  }
+}
+
+/*
+  Select the next bonus words only after this answer has been evaluated and
+  credited. This guarantees that a word just produced cannot be selected for
+  the immediately following prompt, even while a database update is settling.
+*/
+if (!pendingBackgroundBot || pendingBackgroundBot.userText !== reviewedTranscript) {
+  pendingBackgroundBot = await prepareBotResponseInBackground(
+    reviewedTranscript,
+    responseProgress,
+    { replaceLatestUser: isCorrectionRetry }
+  );
+}
 
   if (
     responseMakesSense &&
@@ -10113,7 +10467,20 @@ const pointsAward = confirmedSpokenText
   };
 
   const onRetry = () => {
-    setSpeechStatus("Recording");
+    if (isSpeechResponse) {
+      setSpeechStatus("Recording");
+      return;
+    }
+    pendingBackgroundBot?.progress?.remove?.();
+    pendingBackgroundBot = null;
+    activeSpeechCorrection = null;
+    activeCorrectionUserMessageId = null;
+    removeSpeechReviewCard();
+    if (input) {
+      input.value = transcript;
+      input.focus();
+      input.select();
+    }
   };
 
   const onContinue = async () => {
@@ -10141,6 +10508,7 @@ const pointsAward = confirmedSpokenText
       isPerfect: false,
       reviewMode: "language",
       pointsAward,
+      responseMode,
       onRetry,
       onContinue
     });
@@ -10154,6 +10522,7 @@ const pointsAward = confirmedSpokenText
       isPerfect: false,
       reviewMode: "context",
       pointsAward,
+      responseMode,
       onRetry,
       onContinue
     });
@@ -10170,6 +10539,7 @@ const pointsAward = confirmedSpokenText
       grammarRuleTitle,
       scheduleCorrections: false,
       pointsAward,
+      responseMode,
       onRetry,
       onContinue
     });
@@ -10190,8 +10560,22 @@ const pointsAward = confirmedSpokenText
 
   const correctionId = correctionCard.dataset.correctionId;
 
-  if (correctionId) {
+  if (correctionId && isSpeechResponse) {
     playCorrection(correctionId).catch(() => {});
+  }
+}
+
+async function handleSpeechTranscript(transcript, responseMode = "speech") {
+  if (!String(transcript || "").trim()) return;
+  const outcomeAtStart = correctionOutcomeSequence;
+  try {
+    await handleSpeechTranscriptCore(transcript, responseMode);
+  } catch (error) {
+    console.warn("response review did not complete", error);
+    if (correctionOutcomeSequence === outcomeAtStart) {
+      showGuaranteedReviewFallback(transcript, responseMode, null);
+    }
+    showSystemMessage(getReadableError(error));
   }
 }
 
@@ -10220,6 +10604,7 @@ const pointsAward = confirmedSpokenText
       chatLanguage: languageSelect.value,
       precedingMessage,
       allowPhoneticRescue: options.allowPhoneticRescue === true,
+      inputMode: options.inputMode === "speech" ? "speech" : "writing",
       priorGrammarCorrectedText:
         options.priorGrammarCorrectedText || "",
       priorGrammarExplanation:
@@ -10307,6 +10692,7 @@ const pointsAward = confirmedSpokenText
   }
 
   function addBotMessage(text, options = {}) {
+    text = cleanInterfaceText(text);
     const id = `bot-${++messageCounter}`;
 
     const card = document.createElement("div");
@@ -10383,6 +10769,12 @@ translateAllButton.addEventListener("click", () => {
 promptStack.appendChild(translateAllButton);
 
 messageHistory.appendChild(card);
+if (activeChatSession) {
+  activeChatSession.timeline = Array.isArray(activeChatSession.timeline)
+    ? activeChatSession.timeline
+    : [];
+  activeChatSession.timeline.push({ id, role: "assistant", content: text });
+}
 
     /*
       Begin the batched per-word recording request as soon as the reply is on
@@ -10441,7 +10833,8 @@ messageHistory.appendChild(card);
   function renderWordsIntoElement(text, container, messageId) {
     container.innerHTML = "";
 
-    const parts = splitTextIntoParts(text);
+    const safeText = cleanInterfaceText(text);
+    const parts = splitTextIntoParts(safeText);
     const speakableTokens = [];
     let tokenIndex = 0;
 
@@ -10470,7 +10863,7 @@ messageHistory.appendChild(card);
         unit.appendChild(translation);
 
         unit.addEventListener("click", () => {
-          handleBotWordClick(unit, part, messageId, text);
+          handleBotWordClick(unit, part, messageId, safeText);
         });
 
         container.appendChild(unit);
@@ -10478,7 +10871,7 @@ messageHistory.appendChild(card);
         speakableTokens.push({
           tokenId,
           word: part,
-          sentence: text
+          sentence: safeText
         });
 
         tokenIndex++;
@@ -11296,71 +11689,6 @@ async function playBonusWordAudio(chatWord, language, button = null) {
     }
   }
 
-  async function sendToBot(userText) {
-    const expectedTargetForAnswer = beginUserAnswer();
-    hideBonusWordsWhilePromptLoads();
-
-    messages.push({
-      role: "user",
-      content: userText
-    });
-
-    addUserMessage(userText);
-    getChatLanguageOnlyText(userText, expectedTargetForAnswer)
-  .then(result => {
-    if (result.responseMakesSense && result.chatLanguageText) {
-      return awardPointsForUserMessage(
-        result.chatLanguageText,
-        languageSelect.value,
-        {
-          expectedTarget: expectedTargetForAnswer,
-          targetProduced: result.targetProduced,
-          producedLexemes: result.producedLexemes
-        }
-      );
-    }
-
-    if (expectedTargetForAnswer) {
-      return markReviewWordMissed(
-        expectedTargetForAnswer,
-        languageSelect.value
-      );
-    }
-
-    return null;
-  })
-  .catch(() => {
-    /*
-      If language analysis fails, do not award points.
-      This prevents accidental foreign-language points.
-    */
-  });
-
-    const progress = addResponseProgress("context");
-
-    try {
-      progress.setStage("chat");
-
-      const prepared = await generatePreparedChatTurn({
-        messages,
-        language: languageSelect.value,
-        userGenderInstruction: getUserGenderInstruction(),
-        chatRole: activeChatSession?.topicRole || "",
-        chatTopic: activeChatSession?.topicTitle || ""
-      }, "Chat");
-
-      await presentBotReply(prepared.data, progress, {
-        autoplay: true,
-        clientTurnId: prepared.clientTurnId,
-        expectedTarget: prepared.expectedTargetForReply,
-        preparedBonusWordsPromise: prepared.preparedBonusWordsPromise
-      });
-    } catch (error) {
-      progress.remove();
-      showSystemMessage(getReadableError(error));
-    }
-  }
-
   function openProfileModal() {
   if (!currentUser) {
     openAuthModal("sign-in");
@@ -11460,7 +11788,7 @@ async function saveProfileSettings() {
   sendButton.disabled = true;
 
   try {
-    await sendToBot(userText);
+    await handleSpeechTranscript(userText, "writing");
   } catch (error) {
     showSystemMessage(getReadableError(error));
   } finally {
@@ -11505,7 +11833,7 @@ function getAudioFileName(mimeType) {
   return `recording.${getAudioFileExtension(mimeType)}`;
 }
 
-async function transcribeAudioBlob(audioBlob, mimeType) {
+async function transcribeAudioBlob(audioBlob, mimeType, context = {}) {
   if (!audioBlob || audioBlob.size < 1000) {
     throw new Error("The recording was too short or empty.");
   }
@@ -11525,11 +11853,12 @@ async function transcribeAudioBlob(audioBlob, mimeType) {
     .trim()
     .slice(0, 500) || "";
 
-  const answerContext = latestAssistantMessage
-    ? latestAssistantMessage
-    : "";
+  const answerContext = String(
+    context.precedingMessage ?? latestAssistantMessage ?? ""
+  ).trim().slice(0, 500);
 
   const practiceWord = String(
+    context.practiceWord ||
     activeExpectedTarget?.word_text ||
     activeExpectedTarget?.word ||
     activeExpectedTarget?.word_key ||
@@ -11538,8 +11867,8 @@ async function transcribeAudioBlob(audioBlob, mimeType) {
 
   formData.append("action", "transcribe-audio");
   formData.append("audio", audioFile);
-  formData.append("chatLanguage", languageSelect.value);
-  formData.append("fluentLanguage", fluentLanguageSelect.value);
+  formData.append("chatLanguage", context.chatLanguage || languageSelect.value);
+  formData.append("fluentLanguage", context.fluentLanguage || fluentLanguageSelect.value);
   formData.append("precedingMessage", answerContext);
   formData.append("practiceWord", practiceWord);
 
@@ -11830,6 +12159,67 @@ function memberStorageKey(kind) {
   return `lipsmaxxed-${kind}:${currentUser?.id || "signed-out"}`;
 }
 
+function normalizeInterfacePunctuation(value) {
+  return String(value ?? "")
+    .normalize("NFC")
+    .replace(/\uFFFD/g, "")
+    .replace(/\u00C3\u00A2\u00C2\u0080\u00C2[\u0098\u0099]/g, "'")
+    .replace(/\u00E2\u0080[\u0098\u0099]/g, "'")
+    .replace(/(?:\u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u201E\u00A2|\u00E2\u20AC[\u2122\u02DC\u0098])/g, "'")
+    .replace(/\u00E2\u0080[\u009C\u009D]/g, '"')
+    .replace(/\u00E2\u20AC[\u0153\u009C\u009D]/g, '"')
+    .replace(/\u00E2\u0080\u00A6/g, "...")
+    .replace(/\u00E2\u20AC\u00A6/g, "...")
+    .replace(/\u00E2\u0080[\u0093\u0094]/g, "-")
+    .replace(/\u00E2\u20AC[\u201C\u0093]/g, "-")
+    .replace(/[\u2018\u2019\u201B]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2013\u2014]/g, "-")
+    .replace(/\u2026/g, "...")
+    .replace(/\u00C2(?=\s)/g, "")
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
+    .replace(/[\u200B\u2060\uFEFF]/g, "");
+}
+
+function cleanInterfaceText(value) {
+  return normalizeInterfacePunctuation(value)
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/^\s*[-*\u2022]\s+/gm, "");
+}
+
+function sanitizeInterfaceTextTree(root) {
+  if (!root) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  for (const node of nodes) {
+    if (node.parentElement?.closest("script,style")) continue;
+    const normalized = normalizeInterfacePunctuation(node.nodeValue || "");
+    if (normalized !== node.nodeValue) node.nodeValue = normalized;
+  }
+}
+
+const interfaceTextObserver = new MutationObserver(records => {
+  for (const record of records) {
+    if (record.type === "characterData") {
+      const node = record.target;
+      if (node.parentElement?.closest("script,style")) continue;
+      const normalized = normalizeInterfacePunctuation(node.nodeValue || "");
+      if (normalized !== node.nodeValue) node.nodeValue = normalized;
+      continue;
+    }
+    record.addedNodes.forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const normalized = normalizeInterfacePunctuation(node.nodeValue || "");
+        if (normalized !== node.nodeValue) node.nodeValue = normalized;
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        sanitizeInterfaceTextTree(node);
+      }
+    });
+  }
+});
+
 function readMemberJson(kind, fallback) {
   try {
     const parsed = JSON.parse(localStorage.getItem(memberStorageKey(kind)) || "null");
@@ -11841,6 +12231,46 @@ function readMemberJson(kind, fallback) {
 
 function writeMemberJson(kind, value) {
   try { localStorage.setItem(memberStorageKey(kind), JSON.stringify(value)); } catch {}
+}
+
+const PRACTICE_LANGUAGES = [
+  "English", "Hebrew", "Spanish", "French", "German", "Arabic",
+  "Russian", "Italian", "Portuguese", "Chinese", "Japanese", "Korean"
+];
+
+function getMemberChatDefaults() {
+  const stored = readMemberJson("chat-preferences", {});
+  const metadata = currentUser?.user_metadata || {};
+  const mostRecentSession = getSessionHistory()
+    .sort((a, b) => Number(b.startedAt || 0) - Number(a.startedAt || 0))[0] || {};
+  const fluentLanguage = String(metadata.fluentLanguage || "English");
+  const savedLanguage = String(
+    stored.language || metadata.lastChatLanguage || mostRecentSession.language || ""
+  );
+  const language = PRACTICE_LANGUAGES.includes(savedLanguage)
+    ? savedLanguage
+    : (PRACTICE_LANGUAGES.find(item => item !== fluentLanguage) || "English");
+  const savedMode = String(
+    stored.inputMode || metadata.lastChatInputMode || mostRecentSession.inputMode || ""
+  );
+  return {
+    language,
+    inputMode: savedMode === "writing" ? "writing" : "speech"
+  };
+}
+
+function saveMemberChatDefaults(language, inputMode) {
+  if (!currentUser) return;
+  const preferences = {
+    language: PRACTICE_LANGUAGES.includes(language) ? language : "English",
+    inputMode: inputMode === "writing" ? "writing" : "speech",
+    updatedAt: new Date().toISOString()
+  };
+  writeMemberJson("chat-preferences", preferences);
+  queueAccountMetadataUpdate({
+    lastChatLanguage: preferences.language,
+    lastChatInputMode: preferences.inputMode
+  });
 }
 
 function formatDuration(milliseconds) {
@@ -11876,19 +12306,32 @@ function renderMemberIdentity() {
 function getSessionHistory() {
   const localRows = readMemberJson("session-history", []);
   const accountRows = currentUser?.user_metadata?.lipsmaxxedSessions;
-  const merged = [...(Array.isArray(localRows) ? localRows : []), ...(Array.isArray(accountRows) ? accountRows : [])];
-  return [...new Map(merged.filter(Boolean).map(row => [row.id, row])).values()]
+  // Keep the richer local snapshot when the portable account copy has the
+  // same session id. The portable copy intentionally omits rendered HTML.
+  const merged = [...(Array.isArray(accountRows) ? accountRows : []), ...(Array.isArray(localRows) ? localRows : [])];
+  return [...new Map(
+    merged
+      .filter(row => row && Number(row.messageCount || 0) > 0)
+      .map(row => [row.id, row])
+  ).values()]
     .sort((a,b) => Number(b.endedAt || 0) - Number(a.endedAt || 0));
 }
 
 function saveSessionSummary(summary) {
+  if (!summary || Number(summary.messageCount || 0) < 1) return;
   const rows = getSessionHistory().filter(row => row?.id !== summary.id);
   rows.unshift(summary);
   writeMemberJson("session-history", rows.slice(0, 500));
-  const portableRows = rows.slice(0,100).map(row => ({
+  const portableRows = rows.slice(0,25).map(row => ({
     id:row.id,language:row.language,inputMode:row.inputMode,startedAt:row.startedAt,endedAt:row.endedAt,
     durationMs:row.durationMs,pointsGained:row.pointsGained,messageCount:row.messageCount,
-    wordsLearned:row.wordsLearned,confirmed:row.confirmed,confirmedWords:row.confirmedWords,title:row.title
+    wordsLearned:row.wordsLearned,learnedWords:Array.isArray(row.learnedWords)?row.learnedWords.slice(0,50):[],
+    confirmed:row.confirmed,confirmedWords:row.confirmedWords,title:row.title,
+    transcript:Array.isArray(row.transcript)?row.transcript.slice(-100).map(message=>({
+      id:message.id,role:message.role,reviewMode:message.reviewMode,title:String(message.title||"").slice(0,160),
+      content:String(message.content||"").slice(0,1600),explanation:String(message.explanation||"").slice(0,1000)
+    })):[],
+    grammarTips:Array.isArray(row.grammarTips)?row.grammarTips.slice(0,30):[]
   }));
   queueAccountMetadataUpdate({ lipsmaxxedSessions: portableRows });
 }
@@ -11920,21 +12363,34 @@ function queueAccountMetadataUpdate(patch) {
   }).catch(error => console.warn("account progress sync failed", error));
 }
 
+function formatSessionStartedAt(value) {
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short"
+  }).format(new Date(value || Date.now()));
+}
+
 function createSessionListItem(session) {
-  const row = document.createElement("div");
+  const row = document.createElement("button");
+  row.type = "button";
   row.className = "session-list-item";
   const main = document.createElement("div");
   const title = document.createElement("div");
   title.className = "session-list-title";
-  title.textContent = new Intl.DateTimeFormat(undefined, { dateStyle: "long" }).format(new Date(session.endedAt || session.startedAt || Date.now()));
+  title.textContent = formatSessionStartedAt(session.startedAt || session.endedAt);
   const date = document.createElement("span");
   date.className = "session-list-date";
   date.textContent = session.title || `${session.language || "Language"} practice`;
   main.append(title,date);
   const meta = document.createElement("div");
   meta.className = "session-list-meta";
-  meta.innerHTML = `<div>${Number(session.pointsGained || 0)} points</div><div>${Number(session.wordsLearned || 0)} words &middot; ${formatDuration(session.durationMs)}</div>`;
+  const pointsLine = document.createElement("div");
+  pointsLine.textContent = `${Number(session.pointsGained || 0)} points`;
+  const detailLine = document.createElement("div");
+  detailLine.textContent = `${Number(session.wordsLearned || 0)} words | ${formatDuration(session.durationMs)}`;
+  meta.append(pointsLine, detailLine);
   row.append(main,meta);
+  row.addEventListener("click", () => openSavedSessionSummary(session));
   return row;
 }
 
@@ -11954,19 +12410,75 @@ function renderSessionList(container, rows) {
 function renderSessionTimeChart(rows) {
   if (!sessionTimeChart) return;
   sessionTimeChart.textContent = "";
-  const values = rows.slice(0, 10).reverse().map(row => Math.max(0, Number(row.durationMs || 0) / 60000));
+  const recentRows = rows.slice(0, 10).reverse();
+  const values = recentRows.map(row => Math.max(0, Number(row.durationMs || 0) / 60000));
   const ns = "http://www.w3.org/2000/svg";
-  [35,90,145].forEach(y => {
+  const width = 640;
+  const height = 180;
+  const margin = { top: 12, right: 14, bottom: 36, left: 50 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
+  const rawMax = Math.max(1, ...values);
+  const magnitude = 10 ** Math.floor(Math.log10(rawMax));
+  const normalized = rawMax / magnitude;
+  const niceMax = (normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10) * magnitude;
+  const yTicks = [0, niceMax / 2, niceMax];
+
+  yTicks.forEach(value => {
+    const y = margin.top + plotHeight - (value / niceMax) * plotHeight;
     const line = document.createElementNS(ns,"line");
-    line.setAttribute("x1","0"); line.setAttribute("x2","640"); line.setAttribute("y1",String(y)); line.setAttribute("y2",String(y));
-    line.setAttribute("stroke","rgba(255,255,255,.08)"); line.setAttribute("stroke-width","1"); sessionTimeChart.appendChild(line);
+    line.setAttribute("x1",String(margin.left)); line.setAttribute("x2",String(width-margin.right));
+    line.setAttribute("y1",String(y)); line.setAttribute("y2",String(y)); line.setAttribute("class","chart-grid");
+    sessionTimeChart.appendChild(line);
+    const label = document.createElementNS(ns,"text");
+    label.setAttribute("x",String(margin.left-9)); label.setAttribute("y",String(y+4));
+    label.setAttribute("text-anchor","end"); label.setAttribute("class","chart-label");
+    label.textContent = `${Math.round(value)}m`;
+    sessionTimeChart.appendChild(label);
   });
+
+  const yAxis = document.createElementNS(ns,"line");
+  yAxis.setAttribute("x1",String(margin.left)); yAxis.setAttribute("x2",String(margin.left));
+  yAxis.setAttribute("y1",String(margin.top)); yAxis.setAttribute("y2",String(margin.top+plotHeight));
+  yAxis.setAttribute("class","chart-axis"); sessionTimeChart.appendChild(yAxis);
+  const xAxis = document.createElementNS(ns,"line");
+  xAxis.setAttribute("x1",String(margin.left)); xAxis.setAttribute("x2",String(width-margin.right));
+  xAxis.setAttribute("y1",String(margin.top+plotHeight)); xAxis.setAttribute("y2",String(margin.top+plotHeight));
+  xAxis.setAttribute("class","chart-axis"); sessionTimeChart.appendChild(xAxis);
+
+  const yTitle = document.createElementNS(ns,"text");
+  yTitle.setAttribute("x","12"); yTitle.setAttribute("y",String(margin.top + plotHeight/2));
+  yTitle.setAttribute("text-anchor","middle"); yTitle.setAttribute("class","chart-axis-title");
+  yTitle.setAttribute("transform",`rotate(-90 12 ${margin.top + plotHeight/2})`);
+  yTitle.textContent = "Minutes"; sessionTimeChart.appendChild(yTitle);
+  const xTitle = document.createElementNS(ns,"text");
+  xTitle.setAttribute("x",String(margin.left + plotWidth/2)); xTitle.setAttribute("y",String(height-2));
+  xTitle.setAttribute("text-anchor","middle"); xTitle.setAttribute("class","chart-axis-title");
+  xTitle.textContent = "Session date"; sessionTimeChart.appendChild(xTitle);
+
   if (!values.length) return;
-  const max = Math.max(1,...values);
-  const points = values.map((value,index) => `${values.length === 1 ? 320 : index * 640/(values.length-1)},${155-value/max*120}`).join(" ");
+  const xFor = index => values.length === 1
+    ? margin.left + plotWidth / 2
+    : margin.left + index * plotWidth / (values.length - 1);
+  const points = values.map((value,index) =>
+    `${xFor(index)},${margin.top + plotHeight - value/niceMax*plotHeight}`
+  ).join(" ");
   const polyline = document.createElementNS(ns,"polyline");
   polyline.setAttribute("points",points); polyline.setAttribute("fill","none"); polyline.setAttribute("stroke","#60a5fa"); polyline.setAttribute("stroke-width","4"); polyline.setAttribute("stroke-linecap","round"); polyline.setAttribute("stroke-linejoin","round");
   sessionTimeChart.appendChild(polyline);
+
+  const labelStep = Math.max(1, Math.ceil(values.length / 5));
+  recentRows.forEach((row,index) => {
+    if (index % labelStep !== 0 && index !== recentRows.length - 1) return;
+    const date = new Date(Number(row.startedAt || row.endedAt || 0));
+    const label = document.createElementNS(ns,"text");
+    label.setAttribute("x",String(xFor(index))); label.setAttribute("y",String(margin.top+plotHeight+17));
+    label.setAttribute("text-anchor","middle"); label.setAttribute("class","chart-label");
+    label.textContent = Number.isNaN(date.getTime())
+      ? String(index + 1)
+      : date.toLocaleDateString(undefined,{month:"short",day:"numeric"});
+    sessionTimeChart.appendChild(label);
+  });
 }
 
 async function renderMemberHome() {
@@ -12000,12 +12512,16 @@ async function renderMemberHome() {
 }
 
 function hideProductPages() {
-  [sessionSummaryPage,wordConfirmationPage,confirmationCompletePage,allChatsPage,lipsMasterPage].forEach(page => page?.classList.add("hidden"));
+  [sessionSummaryPage,wordConfirmationPage,confirmationCompletePage,allChatsPage,lipsMasterPage,sessionReviewPage].forEach(page => page?.classList.add("hidden"));
   unconfirmedExitModal?.classList.add("hidden");
 }
 
 function showSignedInHome() {
   if (!currentUser) return;
+  const defaults = getMemberChatDefaults();
+  selectedChatLanguage = defaults.language;
+  selectedInputMode = defaults.inputMode;
+  homeSelectedMode = defaults.inputMode;
   stopAllSpeech();
   hideProductPages();
   signedInHome?.classList.remove("hidden");
@@ -12014,7 +12530,17 @@ function showSignedInHome() {
   composerShell?.classList.add("hidden");
   speechShell?.classList.add("hidden");
   endChatButton?.classList.add("hidden");
-  if (homeLanguageSelect) homeLanguageSelect.value = selectedChatLanguage || "English";
+  if (homeLanguageSelect) homeLanguageSelect.value = selectedChatLanguage;
+  // Prime an unseen fact before Start is pressed. Persisting the queue also
+  // makes the first progress card immediate after a reload.
+  prefetchLanguageFact(selectedChatLanguage).catch(() => {});
+  // Warm the signed-in-only vocabulary frontier while the learner is reading
+  // the home page, rather than downloading and joining it after Start.
+  getFrequencyFrontierTargets(selectedChatLanguage, 2).catch(() => {});
+  getVocabularyProfileForPrompt(selectedChatLanguage, []).catch(() => {});
+  homeModeToggle?.querySelectorAll("[data-home-mode]").forEach(button => {
+    button.classList.toggle("active", button.dataset.homeMode === homeSelectedMode);
+  });
   renderMemberHome().catch(() => {});
 }
 
@@ -12033,6 +12559,24 @@ async function startMemberChat() {
   finally { chatStartInFlight = false; if (homeStartChatButton) homeStartChatButton.disabled = false; }
 }
 
+function buildReadOnlyChatSnapshot() {
+  if (!messageHistory) return "";
+  const clone = messageHistory.cloneNode(true);
+  clone.querySelectorAll(".response-progress-card").forEach(node => node.remove());
+  clone.querySelectorAll("[id]").forEach(node => node.removeAttribute("id"));
+  clone.querySelectorAll("button,input,textarea,select").forEach(control => {
+    control.disabled = true;
+    control.setAttribute("tabindex", "-1");
+  });
+  clone.querySelectorAll("[data-message-id],[data-user-message-id],[data-correction-id]")
+    .forEach(node => {
+      node.removeAttribute("data-message-id");
+      node.removeAttribute("data-user-message-id");
+      node.removeAttribute("data-correction-id");
+    });
+  return clone.innerHTML;
+}
+
 function buildPendingSessionSummary() {
   if (!activeChatSession) return null;
   const learnedWords = activeChatSession.learnedWords instanceof Map ? [...activeChatSession.learnedWords.values()] : [];
@@ -12048,32 +12592,153 @@ function buildPendingSessionSummary() {
     messageCount: Number(activeChatSession.messageCount || 0),
     wordsLearned: learnedWords.length,
     learnedWords,
-    transcript: messages.map(message => ({ role: message.role, content: message.content })),
+    transcript: Array.isArray(activeChatSession.timeline) && activeChatSession.timeline.length
+      ? activeChatSession.timeline.map(item => ({ ...item }))
+      : messages.map(message => ({ role: message.role, content: message.content })),
+    reviewHtml: buildReadOnlyChatSnapshot(),
+    grammarTips: Array.isArray(activeChatSession.grammarTips)
+      ? activeChatSession.grammarTips.map(tip => ({ ...tip }))
+      : [],
     confirmed: false,
     title: `${activeChatSession.language} practice`
   };
 }
 
+function renderSummaryGrammarTips(summary) {
+  if (!summaryGrammarTips || !summaryGrammarSection) return;
+  const tips = Array.isArray(summary?.grammarTips) ? summary.grammarTips : [];
+  summaryGrammarTips.textContent = "";
+  summaryGrammarSection.classList.toggle("hidden", tips.length === 0);
+  for (const tip of tips) {
+    const card = document.createElement("article");
+    card.className = "summary-grammar-tip";
+    const title = document.createElement("strong");
+    title.textContent = cleanInterfaceText(tip.title || "Grammar rule");
+    const corrected = document.createElement("span");
+    corrected.textContent = cleanInterfaceText(tip.correctedText || "");
+    const explanation = document.createElement("p");
+    explanation.textContent = cleanInterfaceText(tip.explanation || "");
+    card.append(title, corrected, explanation);
+    summaryGrammarTips.appendChild(card);
+  }
+}
+
+function renderSessionSummary(summary, { saved = false } = {}) {
+  if (!summary) return;
+  const count = Number(summary.wordsLearned || 0);
+  if (summaryLearnedInline) summaryLearnedInline.textContent = String(count);
+  if (summaryWordsLearned) summaryWordsLearned.textContent = String(count);
+  if (summarySessionTime) summarySessionTime.textContent = formatDuration(summary.durationMs);
+  if (summaryPointsGained) summaryPointsGained.textContent = String(summary.pointsGained || 0);
+  renderSummaryGrammarTips(summary);
+  if (summaryConfirmCallout) summaryConfirmCallout.classList.toggle("hidden", saved);
+  if (reviewSessionChatButton) reviewSessionChatButton.disabled = !(summary.transcript || []).length;
+  if (confirmWordsButton) {
+    confirmWordsButton.disabled = count === 0;
+    confirmWordsButton.textContent = count ? "Confirm words" : "No new words to confirm";
+  }
+}
+
+function showSessionSummaryPage() {
+  signedInHome?.classList.add("hidden"); messageHistory?.classList.add("hidden"); composerShell?.classList.add("hidden"); speechShell?.classList.add("hidden"); endChatButton?.classList.add("hidden");
+  hideProductPages();
+  sessionSummaryPage?.classList.remove("hidden");
+  renderSessionSummary(pendingSessionSummary, { saved: viewingSavedSession });
+}
+
 function openSessionSummary() {
   if (!currentUser || !activeChatSession) return;
   stopAllSpeech();
+  viewingSavedSession = false;
   pendingSessionSummary = buildPendingSessionSummary();
-  saveSessionSummary(pendingSessionSummary);
-  signedInHome?.classList.add("hidden"); messageHistory?.classList.add("hidden"); composerShell?.classList.add("hidden"); speechShell?.classList.add("hidden"); endChatButton?.classList.add("hidden");
-  sessionSummaryPage?.classList.remove("hidden");
-  const count = pendingSessionSummary.wordsLearned;
-  if (summaryLearnedInline) summaryLearnedInline.textContent = String(count);
-  if (summaryWordsLearned) summaryWordsLearned.textContent = String(count);
-  if (summarySessionTime) summarySessionTime.textContent = formatDuration(pendingSessionSummary.durationMs);
-  if (summaryPointsGained) summaryPointsGained.textContent = String(pendingSessionSummary.pointsGained);
-  if (confirmWordsButton) { confirmWordsButton.disabled = count === 0; confirmWordsButton.textContent = count ? "Confirm words" : "No new words to confirm"; }
+  if (Number(pendingSessionSummary?.messageCount || 0) > 0) {
+    saveSessionSummary(pendingSessionSummary);
+  }
+  showSessionSummaryPage();
+}
+
+function openSavedSessionSummary(session) {
+  if (!session) return;
+  stopAllSpeech();
+  viewingSavedSession = true;
+  pendingSessionSummary = { ...session };
+  showSessionSummaryPage();
 }
 
 function exitSessionToHome() {
+  viewingSavedSession = false;
   activeChatSession = null; pendingSessionSummary = null; confirmationQueue = []; confirmationIndex = 0;
   messages.length = 0; messageState.clear(); userMessageState.clear(); correctionState.clear();
   if (messageHistory) messageHistory.innerHTML = "";
   showSignedInHome();
+}
+
+function renderSessionReview(summary) {
+  if (!sessionReviewMessages || !summary) return;
+  if (sessionReviewTitle) sessionReviewTitle.textContent = `${summary.language || "Language"} chat`;
+  if (sessionReviewMeta) {
+    sessionReviewMeta.textContent = `${formatSessionStartedAt(summary.startedAt)} | ${formatDuration(summary.durationMs)} | ${Number(summary.pointsGained || 0)} points`;
+  }
+  sessionReviewMessages.textContent = "";
+  sessionReviewMessages.classList.remove("session-review-live-snapshot");
+  if (summary.reviewHtml) {
+    sessionReviewMessages.classList.add("session-review-live-snapshot");
+    sessionReviewMessages.innerHTML = summary.reviewHtml;
+    sessionReviewMessages.querySelectorAll("button,input,textarea,select").forEach(control => {
+      control.disabled = true;
+      control.setAttribute("tabindex", "-1");
+    });
+    return;
+  }
+  for (const message of Array.isArray(summary.transcript) ? summary.transcript : []) {
+    const role = message?.role === "user"
+      ? "user"
+      : message?.role === "review"
+        ? "review"
+        : "assistant";
+    const row = document.createElement("div");
+    row.className = `session-review-row ${role}`;
+    if (role === "review") {
+      const review = document.createElement("article");
+      review.className = `session-review-outcome ${message.reviewMode || ""}`;
+      const title = document.createElement("strong");
+      title.textContent = cleanInterfaceText(message.title || "Practice check");
+      const content = document.createElement("span");
+      content.textContent = cleanInterfaceText(message.content || "");
+      review.append(title, content);
+      if (message.explanation) {
+        const explanation = document.createElement("p");
+        explanation.textContent = cleanInterfaceText(message.explanation);
+        review.appendChild(explanation);
+      }
+      row.appendChild(review);
+    } else if (role === "assistant") {
+      const identity = document.createElement("div");
+      identity.className = "session-review-identity";
+      const mark = document.createElement("span");
+      mark.className = "master-mini-mark";
+      mark.innerHTML = '<img src="assets/language-logo.png" alt="" />';
+      const name = document.createElement("span");
+      name.textContent = "LipsMaster";
+      identity.append(mark, name);
+      const copy = document.createElement("div");
+      copy.className = "session-review-copy";
+      copy.textContent = cleanInterfaceText(message.content || "");
+      row.append(identity, copy);
+    } else {
+      const copy = document.createElement("div");
+      copy.textContent = cleanInterfaceText(message.content || "");
+      row.appendChild(copy);
+    }
+    sessionReviewMessages.appendChild(row);
+  }
+}
+
+function openSessionReview() {
+  if (!pendingSessionSummary) return;
+  sessionSummaryPage?.classList.add("hidden");
+  sessionReviewPage?.classList.remove("hidden");
+  renderSessionReview(pendingSessionSummary);
 }
 
 function getSpeechRecognitionLanguage(language) {
@@ -12083,18 +12748,43 @@ function getSpeechRecognitionLanguage(language) {
 function renderConfirmationWord() {
   const word = confirmationQueue[confirmationIndex];
   if (!word) { finishWordConfirmation(); return; }
+  const usesSpeech = pendingSessionSummary?.inputMode === "speech";
   if (confirmationProgressText) confirmationProgressText.textContent = `Word ${confirmationIndex+1} of ${confirmationQueue.length}`;
   if (confirmationProgressFill) confirmationProgressFill.style.width = `${(confirmationIndex/Math.max(1,confirmationQueue.length))*100}%`;
-  if (confirmWordHeading) confirmWordHeading.textContent = word.word_text;
-  if (wordConfirmationInput) { wordConfirmationInput.value = ""; wordConfirmationInput.disabled = false; }
+  if (confirmWordHeading) confirmWordHeading.textContent = word.fluent_prompt || word.word_text;
+  if (confirmationPrompt) confirmationPrompt.textContent = `Enter the ${word.language || "practice-language"} word.`;
+  if (wordConfirmationInput) {
+    wordConfirmationInput.value = "";
+    wordConfirmationInput.disabled = usesSpeech;
+  }
   if (confirmationFeedback) confirmationFeedback.textContent = "";
   if (submitWordConfirmationButton) submitWordConfirmationButton.disabled = false;
-  wordConfirmationInput?.focus();
+  if (wordConfirmationSpeechButton) {
+    wordConfirmationSpeechButton.disabled = false;
+    wordConfirmationSpeechButton.classList.remove("recording", "processing");
+    wordConfirmationSpeechButton.innerHTML = `<span class="mic-symbol" aria-hidden="true">${microphoneIconSvg()}</span>`;
+  }
+  if (confirmationSpeechStatus) confirmationSpeechStatus.textContent = "Tap to speak";
+  if (!usesSpeech) wordConfirmationInput?.focus();
 }
 
-function startWordConfirmation() {
-  if (!pendingSessionSummary) return;
-  confirmationQueue = [...(pendingSessionSummary.learnedWords || [])]; confirmationIndex = 0; confirmedThisRun = 0;
+async function startWordConfirmation() {
+  if (!pendingSessionSummary || viewingSavedSession) return;
+  const sourceWords = [...(pendingSessionSummary.learnedWords || [])];
+  confirmationQueue = await Promise.all(sourceWords.map(async word => {
+    if (word.fluent_prompt) return { ...word };
+    const fluentPrompt = await translateReviewTargetForCue(
+      word.word_text,
+      word.language,
+      getCurrentFluentLanguage()
+    ).catch(() => "");
+    return { ...word, fluent_prompt: fluentPrompt || word.word_text };
+  }));
+  confirmationIndex = 0; confirmedThisRun = 0;
+  const usesSpeech = pendingSessionSummary.inputMode === "speech";
+  confirmationWritingControl?.classList.toggle("hidden", usesSpeech);
+  confirmationSpeechControl?.classList.toggle("hidden", !usesSpeech);
+  submitWordConfirmationButton?.classList.toggle("hidden", usesSpeech);
   sessionSummaryPage?.classList.add("hidden"); unconfirmedExitModal?.classList.add("hidden");
   if (!confirmationQueue.length) { finishWordConfirmation(); return; }
   wordConfirmationPage?.classList.remove("hidden"); renderConfirmationWord();
@@ -12104,11 +12794,18 @@ async function submitWordConfirmation(answer) {
   const word = confirmationQueue[confirmationIndex];
   if (!word || !answer.trim()) return;
   submitWordConfirmationButton.disabled = true;
-  if (confirmationFeedback) confirmationFeedback.textContent = "Checkingâ¦";
+  if (confirmationFeedback) confirmationFeedback.textContent = "Checking...";
   try {
-    const data = await callChatFunction({ action:"confirm-word", word:word.word_text, learnerTranslation:answer.trim(), chatLanguage:word.language, fluentLanguage:getCurrentFluentLanguage() },"Word confirmation");
+    const data = await callChatFunction({
+      action:"confirm-word",
+      word:word.word_text,
+      fluentPrompt:word.fluent_prompt || "",
+      learnerAnswer:answer.trim(),
+      chatLanguage:word.language,
+      fluentLanguage:getCurrentFluentLanguage()
+    },"Word confirmation");
     if (!data.correct) {
-      if (confirmationFeedback) confirmationFeedback.textContent = "Not quite. Try another translation, or choose âI donât remember.â";
+      if (confirmationFeedback) confirmationFeedback.textContent = "Not quite. Try another translation, or choose \"I don't remember.\"";
       return;
     }
     saveConfirmedWord(word); confirmedThisRun += 1;
@@ -12126,13 +12823,92 @@ async function forgetConfirmationWord() {
   if (!word) return;
   submitWordConfirmationButton.disabled = true; forgotConfirmationWordButton.disabled = true;
   try {
-    const data = await callChatFunction({action:"translate-word",word:word.word_text,sentence:word.word_text,chatLanguage:word.language,fluentLanguage:getCurrentFluentLanguage()},"Word translation");
-    if (confirmationFeedback) confirmationFeedback.textContent = `${word.word_text} â ${data.translation || "Translation unavailable"}`;
+    if (confirmationFeedback) confirmationFeedback.textContent = `${word.fluent_prompt || "Answer"} - ${word.word_text}`;
     await scheduleWordReview(word,"missed",word.language);
     await new Promise(resolve => setTimeout(resolve,1300));
     confirmationIndex += 1; renderConfirmationWord();
   } catch (error) { if (confirmationFeedback) confirmationFeedback.textContent = getReadableError(error); }
   finally { submitWordConfirmationButton.disabled = false; forgotConfirmationWordButton.disabled = false; }
+}
+
+async function toggleConfirmationRecording() {
+  if (pendingSessionSummary?.inputMode !== "speech") return;
+
+  if (confirmationRecorder?.state === "recording") {
+    confirmationRecorder.stop();
+    return;
+  }
+
+  if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+    if (confirmationFeedback) {
+      confirmationFeedback.textContent = "Audio recording is not supported in this browser.";
+    }
+    return;
+  }
+
+  confirmationRecordingStream = await navigator.mediaDevices.getUserMedia({
+    audio: {
+      echoCancellation: { ideal: true },
+      noiseSuppression: { ideal: true },
+      autoGainControl: { ideal: true },
+      channelCount: { ideal: 1 }
+    }
+  });
+  confirmationRecordedChunks = [];
+  const mimeType = getBestRecordingMimeType();
+  confirmationRecorder = new MediaRecorder(
+    confirmationRecordingStream,
+    mimeType ? { mimeType } : undefined
+  );
+
+  confirmationRecorder.addEventListener("dataavailable", event => {
+    if (event.data?.size) confirmationRecordedChunks.push(event.data);
+  });
+  confirmationRecorder.addEventListener("start", () => {
+    wordConfirmationSpeechButton?.classList.add("recording");
+    if (wordConfirmationSpeechButton) {
+      wordConfirmationSpeechButton.innerHTML = `<span class="mic-symbol" aria-hidden="true">${stopIconSvg()}</span>`;
+    }
+    if (confirmationSpeechStatus) confirmationSpeechStatus.textContent = "Listening";
+    if (confirmationFeedback) confirmationFeedback.textContent = "";
+  });
+  confirmationRecorder.addEventListener("stop", async () => {
+    confirmationRecordingStream?.getTracks().forEach(track => track.stop());
+    confirmationRecordingStream = null;
+    wordConfirmationSpeechButton?.classList.remove("recording");
+    wordConfirmationSpeechButton?.classList.add("processing");
+    if (wordConfirmationSpeechButton) {
+      wordConfirmationSpeechButton.disabled = true;
+      wordConfirmationSpeechButton.innerHTML = `<span class="mic-symbol" aria-label="Processing">${loadingIconHtml()}</span>`;
+    }
+    if (confirmationSpeechStatus) confirmationSpeechStatus.textContent = "Transcribing";
+
+    try {
+      const word = confirmationQueue[confirmationIndex];
+      const actualMimeType = confirmationRecorder?.mimeType || mimeType ||
+        confirmationRecordedChunks[0]?.type || "audio/webm";
+      const audioBlob = new Blob(confirmationRecordedChunks, { type: actualMimeType });
+      const transcript = await transcribeAudioBlob(audioBlob, actualMimeType, {
+        chatLanguage: word?.language || pendingSessionSummary?.language || getCurrentChatLanguage(),
+        fluentLanguage: getCurrentFluentLanguage(),
+        precedingMessage: `Translate ${word?.fluent_prompt || "the displayed word"} into ${word?.language || "the practice language"}.`,
+        practiceWord: word?.word_text || word?.word || word?.word_key || ""
+      });
+      if (confirmationSpeechStatus) confirmationSpeechStatus.textContent = "Checking";
+      await submitWordConfirmation(transcript);
+    } catch (error) {
+      if (confirmationFeedback) confirmationFeedback.textContent = getReadableError(error);
+    } finally {
+      if (wordConfirmationSpeechButton) {
+        wordConfirmationSpeechButton.disabled = false;
+        wordConfirmationSpeechButton.classList.remove("processing");
+        wordConfirmationSpeechButton.innerHTML = `<span class="mic-symbol" aria-hidden="true">${microphoneIconSvg()}</span>`;
+      }
+      if (confirmationSpeechStatus) confirmationSpeechStatus.textContent = "Tap to speak";
+    }
+  });
+
+  confirmationRecorder.start();
 }
 
 function finishWordConfirmation() {
@@ -12154,23 +12930,164 @@ function renderAllChats() {
   if(nextChatsPageButton)nextChatsPageButton.disabled=start+25>=rows.length;
 }
 
-function getMasterThreads() { const rows=readMemberJson("master-threads",[]); return Array.isArray(rows)?rows:[]; }
-function saveMasterThreads(rows) { writeMemberJson("master-threads",rows.slice(0,200)); }
-function ensureMasterThread() {
-  const rows=getMasterThreads(); let thread=rows.find(row=>row.id===activeMasterThreadId);
-  if(!thread){thread={id:globalThis.crypto?.randomUUID?globalThis.crypto.randomUUID():`master-${Date.now()}`,title:"New chat",createdAt:Date.now(),updatedAt:Date.now(),messages:[]};activeMasterThreadId=thread.id;rows.unshift(thread);saveMasterThreads(rows);}
-  return thread;
+function getMasterThreads() {
+  const rows = readMemberJson("master-threads", []);
+  return Array.isArray(rows) ? rows.filter(row => Array.isArray(row?.messages) && row.messages.length > 0) : [];
 }
-function renderMasterSidebar(){if(!masterThreadList)return;masterThreadList.textContent="";getMasterThreads().forEach(thread=>{const button=document.createElement("button");button.type="button";button.className=`master-thread-button${thread.id===activeMasterThreadId?" active":""}`;button.textContent=thread.title||"LipsMaster chat";button.addEventListener("click",()=>{activeMasterThreadId=thread.id;renderMasterPage();});masterThreadList.appendChild(button);});}
-function appendMasterMessage(role,text){if(!masterChatMessages)return;const row=document.createElement("div");row.className=`master-chat-row ${role}`;if(role==="assistant"){const mark=document.createElement("span");mark.className="master-mini-mark";mark.innerHTML='<img src="assets/language-logo.png" alt="" />';row.appendChild(mark);}const content=document.createElement("div");content.className="master-chat-content";content.textContent=text;row.appendChild(content);masterChatMessages.appendChild(row);masterChatMessages.scrollTop=masterChatMessages.scrollHeight;return {row,content};}
-function renderMasterPage(){const thread=ensureMasterThread();if(masterChatMessages){masterChatMessages.textContent="";(thread.messages||[]).forEach(message=>appendMasterMessage(message.role,message.content));}renderMasterSidebar();}
+function saveMasterThreads(rows) {
+  const populated = (Array.isArray(rows) ? rows : [])
+    .filter(row => Array.isArray(row?.messages) && row.messages.length > 0)
+    .slice(0, 200);
+  writeMemberJson("master-threads", populated);
+}
+function makeMasterDraftThread() {
+  return {
+    id: globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : `master-${Date.now()}`,
+    kind: "general",
+    language: homeLanguageSelect?.value || selectedChatLanguage || "English",
+    title: "New chat",
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    messages: []
+  };
+}
+function getActiveMasterThread() {
+  const language = homeLanguageSelect?.value || selectedChatLanguage || "English";
+  const existing = getMasterThreads().find(row => row.id === activeMasterThreadId);
+  if (existing && (!existing.language || existing.language === language)) return existing;
+  if (activeMasterDraftThread?.language !== language) activeMasterDraftThread = null;
+  if (!activeMasterDraftThread) activeMasterDraftThread = makeMasterDraftThread();
+  activeMasterThreadId = activeMasterDraftThread.id;
+  return activeMasterDraftThread;
+}
+function createMasterThreadButton(thread) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = `master-thread-button${thread.id === activeMasterThreadId ? " active" : ""}`;
+  button.textContent = cleanInterfaceText(thread.title || "LipsMaster chat");
+  button.addEventListener("click", () => {
+    activeMasterThreadId = thread.id;
+    activeMasterDraftThread = null;
+    renderMasterPage();
+  });
+  return button;
+}
+function appendMasterSidebarLabel(text, parent = masterThreadList) {
+  const label = document.createElement("div");
+  label.className = "master-sidebar-label";
+  label.textContent = text;
+  parent.appendChild(label);
+}
+function renderMasterSidebar() {
+  if (!masterThreadList) return;
+  masterThreadList.textContent = "";
+  const language = homeLanguageSelect?.value || selectedChatLanguage || "English";
+  const rows = getMasterThreads().filter(thread => !thread.language || thread.language === language);
+  const general = rows.filter(thread => thread.kind !== "grammar");
+  const grammar = rows.filter(thread => thread.kind === "grammar");
+
+  appendMasterSidebarLabel("Previous chats");
+  if (!general.length) {
+    const empty = document.createElement("div");
+    empty.className = "master-thread-empty";
+    empty.textContent = "Your LipsMaster chats will appear here after you send a message.";
+    masterThreadList.appendChild(empty);
+  } else {
+    general.forEach(thread => masterThreadList.appendChild(createMasterThreadButton(thread)));
+  }
+
+  if (grammar.length) {
+    appendMasterSidebarLabel("Session grammar");
+    const groups = new Map();
+    for (const thread of grammar) {
+      const key = thread.sessionId || "other";
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(thread);
+    }
+    for (const threads of groups.values()) {
+      const group = document.createElement("section");
+      group.className = "master-session-group";
+      const heading = document.createElement("div");
+      heading.className = "master-session-title";
+      heading.textContent = cleanInterfaceText(threads[0]?.sessionTitle || "Previous session");
+      group.appendChild(heading);
+      threads.forEach(thread => group.appendChild(createMasterThreadButton(thread)));
+      masterThreadList.appendChild(group);
+    }
+  }
+}
+function renderMasterContent(container, text) {
+  container.textContent = "";
+  const paragraphs = cleanInterfaceText(text).split(/\n{2,}/).map(value => value.trim()).filter(Boolean);
+  for (const paragraphText of paragraphs.length ? paragraphs : [""]) {
+    const paragraph = document.createElement("p");
+    paragraph.textContent = paragraphText;
+    container.appendChild(paragraph);
+  }
+}
+function appendMasterMessage(role, text = "", { thinking = false } = {}) {
+  if (!masterChatMessages) return null;
+  const row = document.createElement("div");
+  row.className = `master-chat-row ${role}`;
+  if (role === "assistant") {
+    const heading = document.createElement("div");
+    heading.className = "master-assistant-heading";
+    const mark = document.createElement("span");
+    mark.className = "master-mini-mark";
+    mark.innerHTML = '<img src="assets/language-logo.png" alt="" />';
+    const name = document.createElement("span");
+    name.className = "master-assistant-name";
+    name.textContent = "LipsMaster";
+    heading.append(mark, name);
+    row.appendChild(heading);
+  }
+  const content = document.createElement("div");
+  content.className = "master-chat-content";
+  if (thinking) {
+    const indicator = document.createElement("div");
+    indicator.className = "master-thinking";
+    const label = document.createElement("span");
+    label.textContent = "Thinking";
+    const dots = document.createElement("span");
+    dots.className = "master-thinking-dots";
+    dots.innerHTML = "<i></i><i></i><i></i>";
+    indicator.append(label, dots);
+    content.appendChild(indicator);
+  } else {
+    renderMasterContent(content, text);
+  }
+  row.appendChild(content);
+  masterChatMessages.appendChild(row);
+  masterChatMessages.scrollTop = masterChatMessages.scrollHeight;
+  return { row, content };
+}
+function renderMasterPage() {
+  const thread = getActiveMasterThread();
+  if (masterChatMessages) {
+    masterChatMessages.textContent = "";
+    (thread.messages || []).forEach(message => appendMasterMessage(message.role, message.content));
+  }
+  renderMasterSidebar();
+}
 async function loadMasterHistoryFromServer(){
   if(!currentUser)return;
   try{
-    const data=await callChatFunction({action:"lipsmaster-history"},"LipsMaster history");
+    const language = homeLanguageSelect?.value || selectedChatLanguage || "English";
+    const data=await callChatFunction({action:"lipsmaster-history",language},"LipsMaster history");
     const local=getMasterThreads();const byId=new Map(local.map(thread=>[thread.id,thread]));
     for(const remote of Array.isArray(data.threads)?data.threads:[]){
       const existing=byId.get(remote.id);
+      remote.language = remote.language || language;
+      remote.kind = remote.kind || (String(remote.id || "").startsWith("grammar-") ? "grammar" : "general");
+      if (remote.kind === "grammar" && !remote.sessionId) {
+        const rawId = String(remote.id || "");
+        const markerIndex = rawId.indexOf("-correction-");
+        remote.sessionId = markerIndex > 8 ? rawId.slice(8, markerIndex) : "";
+        const session = getSessionHistory().find(row => row.id === remote.sessionId);
+        remote.sessionTitle = session
+          ? formatSessionStartedAt(session.startedAt)
+          : "Previous session";
+      }
       if(!existing){byId.set(remote.id,remote);continue;}
       const combined=[...(existing.messages||[]),...(remote.messages||[])];
       const seen=new Set();existing.messages=combined.filter(message=>{const key=`${message.role}|${message.content}`;if(seen.has(key))return false;seen.add(key);return true;});
@@ -12180,9 +13097,42 @@ async function loadMasterHistoryFromServer(){
     renderMasterPage();
   }catch(error){console.warn("LipsMaster history load failed",error);}
 }
-function openLipsMaster(){signedInHome?.classList.add("hidden");lipsMasterPage?.classList.remove("hidden");ensureMasterThread();renderMasterPage();loadMasterHistoryFromServer();masterChatInput?.focus();}
-function persistMasterMessage(threadId,role,content,title=""){const rows=getMasterThreads();const thread=rows.find(row=>row.id===threadId);if(!thread)return;thread.messages=Array.isArray(thread.messages)?thread.messages:[];thread.messages.push({role,content,createdAt:Date.now()});thread.updatedAt=Date.now();if(title)thread.title=title;else if(thread.title==="New chat"&&role==="user")thread.title=content.replace(/\s+/g," ").slice(0,48);rows.sort((a,b)=>Number(b.updatedAt||0)-Number(a.updatedAt||0));saveMasterThreads(rows);}
-async function sendMasterMessage(text){const thread=ensureMasterThread();persistMasterMessage(thread.id,"user",text);appendMasterMessage("user",text);const thinking=appendMasterMessage("assistant","Thinkingâ¦");masterChatSendButton.disabled=true;try{const fresh=getMasterThreads().find(row=>row.id===thread.id);const data=await callChatFunction({action:"lipsmaster-chat",threadId:thread.id,messages:(fresh?.messages||[]).slice(-40),chatLanguage:homeLanguageSelect?.value||selectedChatLanguage,fluentLanguage:getCurrentFluentLanguage()},"LipsMaster");thinking.content.textContent=data.reply;persistMasterMessage(thread.id,"assistant",data.reply);renderMasterSidebar();}catch(error){thinking.content.textContent=getReadableError(error);}finally{masterChatSendButton.disabled=false;masterChatInput?.focus();}}
+function openLipsMaster(){signedInHome?.classList.add("hidden");lipsMasterPage?.classList.remove("hidden");getActiveMasterThread();renderMasterPage();loadMasterHistoryFromServer();masterChatInput?.focus();}
+function persistMasterMessage(threadId,role,content,title=""){
+  const rows=getMasterThreads();
+  let thread=rows.find(row=>row.id===threadId);
+  if(!thread && activeMasterDraftThread?.id===threadId){
+    thread={...activeMasterDraftThread,messages:[]};
+    rows.unshift(thread);
+    activeMasterDraftThread=null;
+  }
+  if(!thread)return null;
+  thread.language=thread.language||homeLanguageSelect?.value||selectedChatLanguage||"English";
+  thread.kind=thread.kind||"general";
+  thread.messages=Array.isArray(thread.messages)?thread.messages:[];
+  thread.messages.push({role,content:cleanInterfaceText(content),createdAt:Date.now()});
+  thread.updatedAt=Date.now();
+  if(title)thread.title=title;
+  else if(thread.title==="New chat"&&role==="user")thread.title=cleanInterfaceText(content).replace(/\s+/g," ").slice(0,48);
+  rows.sort((a,b)=>Number(b.updatedAt||0)-Number(a.updatedAt||0));
+  saveMasterThreads(rows);
+  return thread;
+}
+async function sendMasterMessage(text){
+  const thread=getActiveMasterThread();
+  persistMasterMessage(thread.id,"user",text);
+  appendMasterMessage("user",text);
+  const thinking=appendMasterMessage("assistant","",{thinking:true});
+  masterChatSendButton.disabled=true;
+  try{
+    const fresh=getMasterThreads().find(row=>row.id===thread.id);
+    const data=await callChatFunction({action:"lipsmaster-chat",threadId:thread.id,messages:(fresh?.messages||[]).slice(-40),chatLanguage:homeLanguageSelect?.value||selectedChatLanguage,fluentLanguage:getCurrentFluentLanguage()},"LipsMaster");
+    renderMasterContent(thinking.content,data.reply);
+    persistMasterMessage(thread.id,"assistant",data.reply);
+    renderMasterSidebar();
+  }catch(error){renderMasterContent(thinking.content,getReadableError(error));}
+  finally{masterChatSendButton.disabled=false;masterChatInput?.focus();}
+}
 
 function saveGrammarConversationToMaster(context) {
   if (!currentUser || !context) return;
@@ -12190,6 +13140,10 @@ function saveGrammarConversationToMaster(context) {
   context.lipsMasterThreadId = id;
   const rows=getMasterThreads();let thread=rows.find(row=>row.id===id);
   if(!thread){thread={id,title:context.grammarRuleTitle||"Grammar correction",createdAt:Date.now(),updatedAt:Date.now(),messages:[]};rows.unshift(thread);}
+  thread.kind="grammar";
+  thread.language=context.chatLanguage||activeChatSession?.language||getCurrentChatLanguage();
+  thread.sessionId=thread.sessionId||activeChatSession?.id||"";
+  thread.sessionTitle=thread.sessionTitle||formatSessionStartedAt(activeChatSession?.startedAt||Date.now());
   thread.title=context.grammarRuleTitle||thread.title;thread.updatedAt=Date.now();thread.messages=[...(context.grammarConversation||[])];saveMasterThreads(rows);
 }
 
@@ -12565,6 +13519,8 @@ homeModeToggle?.addEventListener("click", event => {
 });
 homeLanguageSelect?.addEventListener("change", () => {
   selectedChatLanguage = homeLanguageSelect.value;
+  activeMasterThreadId = "";
+  activeMasterDraftThread = null;
   renderMemberHome().catch(() => {});
   prefetchLanguageFact(selectedChatLanguage).catch(() => {});
 });
@@ -12574,8 +13530,14 @@ allChatsBackButton?.addEventListener("click", showSignedInHome);
 previousChatsPageButton?.addEventListener("click", () => { allChatsPageIndex=Math.max(0,allChatsPageIndex-1);renderAllChats(); });
 nextChatsPageButton?.addEventListener("click", () => { allChatsPageIndex+=1;renderAllChats(); });
 summaryReturnHomeButton?.addEventListener("click", () => {
-  if (pendingSessionSummary?.wordsLearned && !pendingSessionSummary?.confirmed) unconfirmedExitModal?.classList.remove("hidden");
+  if (viewingSavedSession) exitSessionToHome();
+  else if (pendingSessionSummary?.wordsLearned && !pendingSessionSummary?.confirmed) unconfirmedExitModal?.classList.remove("hidden");
   else exitSessionToHome();
+});
+reviewSessionChatButton?.addEventListener("click", openSessionReview);
+sessionReviewBackButton?.addEventListener("click", () => {
+  sessionReviewPage?.classList.add("hidden");
+  sessionSummaryPage?.classList.remove("hidden");
 });
 confirmWordsButton?.addEventListener("click", startWordConfirmation);
 modalConfirmWordsButton?.addEventListener("click", startWordConfirmation);
@@ -12584,15 +13546,17 @@ exitChatAnywayButton?.addEventListener("click", exitSessionToHome);
 wordConfirmationForm?.addEventListener("submit", event => { event.preventDefault(); submitWordConfirmation(wordConfirmationInput?.value || ""); });
 forgotConfirmationWordButton?.addEventListener("click", () => forgetConfirmationWord().catch(() => {}));
 wordConfirmationSpeechButton?.addEventListener("click", () => {
-  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!Recognition) { if(confirmationFeedback)confirmationFeedback.textContent="Speech input is not supported in this browser."; return; }
-  const recognition = new Recognition(); recognition.lang=getSpeechRecognitionLanguage(getCurrentFluentLanguage()); recognition.interimResults=false; recognition.maxAlternatives=1;
-  if(confirmationFeedback)confirmationFeedback.textContent="Listeningâ¦";
-  recognition.onresult=event=>{if(wordConfirmationInput)wordConfirmationInput.value=event.results[0][0].transcript;if(confirmationFeedback)confirmationFeedback.textContent="";};
-  recognition.onerror=()=>{if(confirmationFeedback)confirmationFeedback.textContent="I couldnât hear that. You can type the translation instead.";}; recognition.start();
+  toggleConfirmationRecording().catch(error => {
+    if (confirmationFeedback) confirmationFeedback.textContent = getReadableError(error);
+  });
 });
 lipsMasterBackButton?.addEventListener("click", showSignedInHome);
-newMasterChatButton?.addEventListener("click", () => { activeMasterThreadId="";renderMasterPage();masterChatInput?.focus(); });
+newMasterChatButton?.addEventListener("click", () => {
+  activeMasterDraftThread=makeMasterDraftThread();
+  activeMasterThreadId=activeMasterDraftThread.id;
+  renderMasterPage();
+  masterChatInput?.focus();
+});
 masterChatForm?.addEventListener("submit", event => {event.preventDefault();const text=masterChatInput?.value.trim()||"";if(!text)return;masterChatInput.value="";sendMasterMessage(text);});
 masterChatInput?.addEventListener("input",()=>{masterChatInput.style.height="auto";masterChatInput.style.height=`${Math.min(masterChatInput.scrollHeight,140)}px`;});
 masterChatInput?.addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.shiftKey){event.preventDefault();masterChatForm?.requestSubmit();}});
@@ -12600,6 +13564,12 @@ masterChatInput?.addEventListener("keydown",event=>{if(event.key==="Enter"&&!eve
   }
 
   attachUiHandlers();
+  sanitizeInterfaceTextTree(document.body);
+  interfaceTextObserver.observe(document.body, {
+    childList: true,
+    subtree: true,
+    characterData: true
+  });
   setInputMode("speech");
   initAuth();
 </script>
