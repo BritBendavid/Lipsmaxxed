@@ -5123,7 +5123,8 @@ async function getRankedFrequencyList(language) {
     headers: {
       "Content-Type": "application/json",
       "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "x-user-token": currentSession?.access_token || ""
     },
     body: JSON.stringify({
       action: "frequency-list",
@@ -6760,7 +6761,8 @@ async function translateReviewTargetForCue(word, languageOverride = null, fluent
     headers: {
       "Content-Type": "application/json",
       "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "x-user-token": currentSession?.access_token || ""
     },
     body: JSON.stringify({
       action: "translate-word",
@@ -9552,10 +9554,26 @@ function playCorrectionWordSchedule(state, button = null) {
 }
 
 function getFunctionHeaders() {
+  /*
+    The user's access token deliberately does NOT go in Authorization.
+
+    This project signs user JWTs with ES256 (asymmetric signing keys). The
+    edge-function gateway tries to verify those itself, and that lookup
+    hangs — a request carrying a user token in Authorization stalls for
+    80+ seconds and is then torn down without CORS headers, which the
+    browser reports as "Load failed". The same request with the anon key
+    in Authorization answers in about a second.
+
+    So Authorization carries the publishable key, which needs no key
+    lookup, and the user token rides in a custom header the gateway does
+    not inspect. Nothing is weakened: the function still validates the
+    token with supabaseAdmin.auth.getUser() before trusting it.
+  */
   return {
     "Content-Type": "application/json",
     "apikey": SUPABASE_ANON_KEY,
-    "Authorization": `Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`
+    "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+    "x-user-token": currentSession?.access_token || ""
   };
 }
 
@@ -9926,6 +9944,58 @@ function openRawResponseView() {
     "\nOpened the raw response in a new tab. Whatever it shows is the server's actual reply — JSON means the function answered, an HTML error page is the gateway rejection."
   );
 }
+
+/*
+  Ways to open the panel without waiting for a failure:
+    - add #debug to the URL
+    - press Cmd/Ctrl + Shift + D
+    - tap the top-left corner of the screen five times (phone-friendly)
+    - call openDiagnostics() from the console
+*/
+function openDiagnostics() {
+  const panel = ensureDiagnosticPanel();
+  panel.classList.remove("hidden");
+  const body = document.getElementById("diagnosticBody");
+  if (!body.textContent.trim()) {
+    body.textContent = [
+      "Diagnostics ready. No failure recorded yet.",
+      "",
+      `page:      ${location.href}`,
+      `function:  ${chatFunctionUrl()}`,
+      `signedIn:  ${Boolean(currentUser)}`,
+      `online:    ${navigator.onLine}`,
+      "",
+      "Bisect changes one request variable at a time; the first BLOCKED line is the cause.",
+      "View raw response opens the server's actual reply in a new tab, past CORS."
+    ].join("\n");
+  }
+  return panel;
+}
+window.openDiagnostics = openDiagnostics;
+
+if (location.hash.toLowerCase().includes("debug")) {
+  window.addEventListener("load", () => openDiagnostics());
+}
+
+window.addEventListener("keydown", event => {
+  if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key.toLowerCase() === "d") {
+    event.preventDefault();
+    openDiagnostics();
+  }
+});
+
+let diagnosticCornerTaps = 0;
+let diagnosticCornerTimer = 0;
+window.addEventListener("pointerdown", event => {
+  if (event.clientX > 60 || event.clientY > 60) return;
+  diagnosticCornerTaps += 1;
+  clearTimeout(diagnosticCornerTimer);
+  diagnosticCornerTimer = setTimeout(() => { diagnosticCornerTaps = 0; }, 1200);
+  if (diagnosticCornerTaps >= 5) {
+    diagnosticCornerTaps = 0;
+    openDiagnostics();
+  }
+});
 
 // Surface errors that never reach a catch block.
 window.addEventListener("error", event => {
@@ -10823,7 +10893,8 @@ const responsePromise = generatePreparedChatTurn(
         headers: {
           "Content-Type": "application/json",
           "apikey": SUPABASE_ANON_KEY,
-          "Authorization": `Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "x-user-token": currentSession?.access_token || ""
         },
         body: JSON.stringify({
           action: "translate-word",
@@ -11284,7 +11355,8 @@ async function handleSpeechTranscript(transcript, responseMode = "speech") {
     headers: {
       "Content-Type": "application/json",
       "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "x-user-token": currentSession?.access_token || ""
     },
     body: JSON.stringify({
       action: "translate-message-parts",
@@ -11674,7 +11746,8 @@ async function handleMessagePlayButton(messageId, button) {
     headers: {
       "Content-Type": "application/json",
       "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "x-user-token": currentSession?.access_token || ""
     },
     body: JSON.stringify({
       action: "speak-full",
@@ -11697,7 +11770,8 @@ async function handleMessagePlayButton(messageId, button) {
     headers: {
       "Content-Type": "application/json",
       "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "x-user-token": currentSession?.access_token || ""
     },
     body: JSON.stringify({
       action: "speak-words",
@@ -12337,7 +12411,8 @@ async function playBonusWordAudio(chatWord, language, button = null) {
         headers: {
           "Content-Type": "application/json",
           "apikey": SUPABASE_ANON_KEY,
-          "Authorization": `Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "x-user-token": currentSession?.access_token || ""
         },
         body: JSON.stringify({
           action: "translate-word",
@@ -12564,7 +12639,8 @@ async function transcribeAudioBlob(audioBlob, mimeType, context = {}) {
     method: "POST",
     headers: {
       "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "x-user-token": currentSession?.access_token || ""
     },
     body: formData
   });
