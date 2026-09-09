@@ -3202,12 +3202,6 @@ form {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
 }
 
-.response-progress-card.fact-pending {
-  /* Keep the progress surface visible even if the prefetched fact missed its
-     deadline. Hiding the whole card also hid the progress bar. */
-  visibility: visible;
-}
-
 .message-card.synchronized-pending {
   visibility: hidden;
 }
@@ -5224,7 +5218,14 @@ function beginUserAnswer() {
   conversationTurn += 1;
   saveReviewScheduleState();
   if (currentUser) {
-    frequencyFrontierCache.delete(`${currentUser.id}|${getCurrentChatLanguage()}`);
+    // Age the cache out rather than deleting it. The next read still gets
+    // rows instantly while a fresh load runs behind it.
+    const frontierKey = `${currentUser.id}|${getCurrentChatLanguage()}`;
+    const cachedFrontier = frequencyFrontierCache.get(frontierKey);
+    if (cachedFrontier) {
+      cachedFrontier.savedAt = 0;
+      refreshFrequencyFrontierTargets(getCurrentChatLanguage());
+    }
   }
 
   // Freeze the two words shown with the question. The next reply begins
@@ -5386,12 +5387,38 @@ async function loadFrequencyFrontierTargets(languageOverride = null, limit = 2) 
   return targets;
 }
 
+/*
+  Refresh the frontier in the background. The visible turn keeps using the
+  rows already in cache, so a stale entry costs nothing on the hot path.
+*/
+function refreshFrequencyFrontierTargets(language) {
+  if (!currentUser) return;
+  const cacheKey = `${currentUser.id}|${language}`;
+  if (frequencyFrontierRequests.has(cacheKey)) return;
+  const request = loadFrequencyFrontierTargets(language, 2)
+    .then(rows => {
+      frequencyFrontierCache.set(cacheKey, { savedAt: Date.now(), rows });
+      return rows;
+    })
+    .catch(error => {
+      console.warn("frequency frontier refresh failed", error);
+      return [];
+    })
+    .finally(() => frequencyFrontierRequests.delete(cacheKey));
+  frequencyFrontierRequests.set(cacheKey, request);
+}
+
 async function getFrequencyFrontierTargets(languageOverride = null, limit = 2) {
   if (!currentUser) return [];
   const language = languageOverride || getCurrentChatLanguage();
   const cacheKey = `${currentUser.id}|${language}`;
   const cached = frequencyFrontierCache.get(cacheKey);
-  if (cached && Date.now() - cached.savedAt < FREQUENCY_FRONTIER_CACHE_MS) {
+  if (cached && cached.rows.length) {
+    // Serve what we already have, immediately. If it is past its freshness
+    // window, a background refresh has already been started.
+    if (Date.now() - cached.savedAt >= FREQUENCY_FRONTIER_CACHE_MS) {
+      refreshFrequencyFrontierTargets(language);
+    }
     return cached.rows.slice(0, limit);
   }
   if (frequencyFrontierRequests.has(cacheKey)) {
@@ -8634,7 +8661,7 @@ function addGrammarThinking() {
 
 function grammarPhrases(text) {
   return String(text || "")
-    .split(/(?<=[.!?ãï¼ï¼])\s+|\n+/u)
+    .split(/(?<=[.!?。！？])\s+|\n+/u)
     .map(part => part.trim())
     .filter(Boolean);
 }
@@ -9596,22 +9623,127 @@ function maintainLanguageFactBuffer(language = getCurrentChatLanguage(), targetS
   return request;
 }
 
+/* ------------------------------------------------------------------
+   Fun facts
+   ------------------------------------------------------------------
+   The card must paint text in the same frame as the progress bar, so
+   the queue is never allowed to run dry:
+
+   1. A bundled fallback set guarantees text on the very first render,
+      before any network call has ever completed.
+   2. The buffer is refilled at a floor of 3 rather than at zero, and
+      holds 5, so a normal session never reaches the fallback again.
+   3. The chat request now sends previousFacts, so the nextFunFact the
+      backend piggybacks on each reply is no longer a duplicate that
+      rememberLanguageFact silently discards.
+------------------------------------------------------------------ */
+
+const LANGUAGE_FACT_BUFFER_TARGET = 5;
+const LANGUAGE_FACT_REFILL_FLOOR = 3;
+const LANGUAGE_FACT_QUEUE_MAX = 12;
+
+const FALLBACK_LANGUAGE_FACTS = {
+  English: [
+    "English has borrowed words from more than 350 other languages.",
+    "English lost its formal \"you\" — the modern word was originally the polite plural.",
+    "The letter pair \"th\" is common in English and rare in almost every other language."
+  ],
+  Hebrew: [
+    "Hebrew was revived as an everyday spoken language after roughly 1,700 years used mainly in writing and prayer.",
+    "Hebrew has no verb for \"to have\" — possession is phrased as \"there is to me\".",
+    "Almost every Hebrew word is built from a three-letter root slotted into a fixed pattern."
+  ],
+  Spanish: [
+    "Spanish opens a question with an inverted question mark so you know the tone before you start reading.",
+    "Spanish has two verbs for \"to be\": ser for lasting traits, estar for states and places.",
+    "Around 4,000 Spanish words come from Arabic, and most of them begin with al-."
+  ],
+  French: [
+    "French was the official language of England for roughly 300 years after 1066.",
+    "French spells many sounds it no longer pronounces, which is why final consonants are usually silent.",
+    "The Académie Française has been issuing opinions on correct French since 1635."
+  ],
+  German: [
+    "German writes every noun with a capital letter, whatever its position in the sentence.",
+    "German can build a new compound noun on the spot simply by joining existing words together.",
+    "In many German sentence types the verb is held back until the very end."
+  ],
+  Arabic: [
+    "Arabic is written from right to left, but its numbers still run left to right.",
+    "Most Arabic words grow from a three-consonant root that carries the core meaning.",
+    "Arabic has a special grammatical form used only for exactly two of something."
+  ],
+  Russian: [
+    "Russian has no words for \"a\" or \"the\" — definiteness comes from context and word order.",
+    "Russian nouns change their ending depending on their job in the sentence, across six cases.",
+    "Russian verbs mark whether an action was completed or ongoing, rather than simply when it happened."
+  ],
+  Italian: [
+    "Italian is unusually close to Latin, and standard Italian grew out of the Florentine dialect.",
+    "Almost every Italian word ends in a vowel, which is part of why the language sounds so even.",
+    "Italian spelling is highly regular: once you know the rules you can pronounce a word you have never seen."
+  ],
+  Portuguese: [
+    "Portuguese has a personal infinitive, a verb form that changes according to who is doing the action.",
+    "There are more Portuguese speakers in Brazil than in all other Portuguese-speaking countries combined.",
+    "European and Brazilian Portuguese differ enough in rhythm that speakers often notice it immediately."
+  ],
+  Chinese: [
+    "Mandarin uses tone to distinguish words, so the same syllable can mean several different things.",
+    "Chinese characters carry meaning rather than sound, so speakers of different dialects can read the same text.",
+    "Chinese verbs never change form for tense — time is shown with separate words."
+  ],
+  Japanese: [
+    "Japanese uses three writing systems together in ordinary sentences: hiragana, katakana and kanji.",
+    "Japanese usually puts the verb at the end of the sentence.",
+    "Japanese grammar changes to reflect the social relationship between the speaker and the listener."
+  ],
+  Korean: [
+    "The Korean alphabet was deliberately designed in the 15th century rather than evolving gradually.",
+    "Korean letters are grouped into square syllable blocks instead of being written in a straight line.",
+    "Korean has several distinct politeness levels, each with its own verb endings."
+  ]
+};
+
+function getFallbackLanguageFact(language) {
+  const pool = FALLBACK_LANGUAGE_FACTS[language] || FALLBACK_LANGUAGE_FACTS.English;
+  const seen = new Set(
+    getSeenLanguageFacts(language).map(item => item.toLocaleLowerCase())
+  );
+  const unseen = pool.filter(item => !seen.has(item.toLocaleLowerCase()));
+  const choices = unseen.length ? unseen : pool;
+  return choices[Math.floor(Math.random() * choices.length)];
+}
+
 function prefetchLanguageFact(language = getCurrentChatLanguage()) {
-  return maintainLanguageFactBuffer(language, 2);
+  return maintainLanguageFactBuffer(language, LANGUAGE_FACT_BUFFER_TARGET);
 }
 
 async function ensureLanguageFact(language = getCurrentChatLanguage()) {
   const queue = getLanguageFactQueue(language);
-  return queue[0] || await maintainLanguageFactBuffer(language, 2);
+  return queue[0] ||
+    await maintainLanguageFactBuffer(language, LANGUAGE_FACT_BUFFER_TARGET);
 }
 
 function consumePreparedLanguageFact(language = getCurrentChatLanguage()) {
   const queue = getLanguageFactQueue(language);
   const fact = queue.shift() || "";
   saveLanguageFactQueue(language);
-  markLanguageFactSeen(language, fact);
-  maintainLanguageFactBuffer(language, 2).catch(() => {});
+  if (fact) markLanguageFactSeen(language, fact);
+  // Refill at a floor, not at empty, so the next card never has to wait.
+  if (queue.length < LANGUAGE_FACT_REFILL_FLOOR) {
+    maintainLanguageFactBuffer(language, LANGUAGE_FACT_BUFFER_TARGET).catch(() => {});
+  }
   return fact;
+}
+
+// The facts the client already holds, sent with each chat request so the
+// backend's piggybacked nextFunFact is not one the learner has seen.
+function getKnownLanguageFacts(language = getCurrentChatLanguage()) {
+  return [
+    ...getSeenLanguageFacts(language),
+    ...getLanguageFactQueue(language)
+  ].slice(-80);
 }
 
   function scrollMessagesToBottom() {
@@ -9875,6 +10007,14 @@ function isSamePlayback(button, type, id) {
     card.setAttribute("aria-live", "polite");
     const factLanguage = getCurrentChatLanguage();
     let fact = consumePreparedLanguageFact(factLanguage);
+    let usedFallback = false;
+    if (!fact) {
+      // Never render an empty card. A bundled fact is better than a gap
+      // that fills in a second later under the reader's eyes.
+      fact = getFallbackLanguageFact(factLanguage);
+      usedFallback = true;
+      markLanguageFactSeen(factLanguage, fact);
+    }
     card.innerHTML = `
       <div class="response-progress-copy">
         <div class="response-progress-kicker">DID YOU KNOW...</div>
@@ -9895,16 +10035,11 @@ function isSamePlayback(button, type, id) {
     messageHistory.appendChild(card);
     scrollMessagesToBottom();
 
-    if (!fact) {
-      card.classList.add("fact-pending");
-      maintainLanguageFactBuffer(factLanguage, 2).then(() => {
-        if (stopped) return;
-        fact = consumePreparedLanguageFact(factLanguage);
-        if (!fact) return;
-        factEl.textContent = cleanInterfaceText(fact);
-        card.classList.remove("fact-pending");
-        scrollMessagesToBottom();
-      }).catch(() => {});
+    // The text is already on screen. Top the buffer up quietly so the
+    // fallback pool is not needed again, and never swap the visible fact.
+    if (usedFallback) {
+      maintainLanguageFactBuffer(factLanguage, LANGUAGE_FACT_BUFFER_TARGET)
+        .catch(() => {});
     }
 
     function render() {
@@ -9969,25 +10104,30 @@ function isSamePlayback(button, type, id) {
     const dataPromise = callChatFunction({
         ...payload,
         vocabularyProfile: cachedProfile,
+        previousFacts: getKnownLanguageFacts(language),
         clientTurnId
       }, label);
     const preparedBonusWordsPromise = targetRowsPromise.then(rows =>
       prepareUpcomingWords(language, rows)
     );
-    const [data, targetRows] = await Promise.all([dataPromise, targetRowsPromise]);
+
+    // The reply does not depend on the bonus targets, so it is no longer
+    // held behind them. presentBotReply resolves the target later, at the
+    // point it actually needs one.
+    const data = await dataPromise;
 
     return {
       data,
       clientTurnId,
       preparedBonusWordsPromise,
-      expectedTargetForReply: targetRows[0] || null
+      expectedTargetForReply: targetRowsPromise.then(rows => rows[0] || null)
     };
   }
 
   async function presentBotReply(data, progress, options = {}) {
     const autoplay = options.autoplay !== false;
     const language = options.language || getCurrentChatLanguage();
-    const expectedTarget = options.expectedTarget || null;
+    const expectedTargetSource = options.expectedTarget || null;
     const preparedBonusWordsPromise = options.preparedBonusWordsPromise ||
       Promise.resolve({ language, rows: [] });
     const clientTurnId = options.clientTurnId || data.clientTurnId || "";
@@ -10028,7 +10168,7 @@ function isSamePlayback(button, type, id) {
       showSignedOutProTip: options.showSignedOutProTip === true
     });
 
-    activeExpectedTarget = expectedTarget;
+    activeExpectedTarget = await Promise.resolve(expectedTargetSource);
 
     const botCard = document.querySelector(`[data-message-id="${botMessageId}"]`);
     botCard?.classList.add("synchronized-pending");
