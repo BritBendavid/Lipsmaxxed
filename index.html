@@ -9577,6 +9577,7 @@ function getFunctionHeaders() {
 ------------------------------------------------------------------ */
 
 const DIAGNOSTIC_LOG_LIMIT = 40;
+let diagnosticProbesRunning = false;
 const diagnosticLog = [];
 
 function recordDiagnostic(entry) {
@@ -9638,6 +9639,10 @@ function ensureDiagnosticPanel() {
     <pre id="diagnosticBody" class="diagnostic-body"></pre>
     <div class="diagnostic-actions">
       <button type="button" data-diag-probe>Run probes</button>
+      <button type="button" data-diag-bisect>Bisect</button>
+    </div>
+    <div class="diagnostic-actions">
+      <button type="button" data-diag-raw>View raw response</button>
       <button type="button" data-diag-copy>Copy report</button>
     </div>`;
   document.body.appendChild(panel);
@@ -9649,6 +9654,14 @@ function ensureDiagnosticPanel() {
     runConnectionProbes().catch(error => {
       appendDiagnosticText(`Probe run failed: ${getReadableError(error)}`);
     });
+  });
+  panel.querySelector("[data-diag-bisect]").addEventListener("click", () => {
+    runRequestBisect().catch(error => {
+      appendDiagnosticText(`Bisect failed: ${getReadableError(error)}`);
+    });
+  });
+  panel.querySelector("[data-diag-raw]").addEventListener("click", () => {
+    openRawResponseView();
   });
   panel.querySelector("[data-diag-copy]").addEventListener("click", async () => {
     const text = diagnosticReportText();
@@ -9707,7 +9720,10 @@ async function runConnectionProbes() {
     const elapsed = Math.round(performance.now() - started);
     appendDiagnosticText(`[1] GET ?diag=1 -> ${response.status} in ${elapsed}ms`);
     appendDiagnosticText(text.slice(0, 2000));
-    recordDiagnostic({ probe: "diag", status: response.status, ok: response.ok, elapsed });
+    let selfCheck;
+    try { selfCheck = JSON.parse(text).diagnostic; } catch { selfCheck = text.slice(0, 800); }
+    // Keep the self-check in the report, not just on screen.
+    recordDiagnostic({ probe: "diag", status: response.status, ok: response.ok, elapsed, selfCheck });
   } catch (error) {
     const detail = describeFetchFailure(error);
     appendDiagnosticText(`[1] GET ?diag=1 -> ${detail.name}: ${detail.message}`);
@@ -9754,6 +9770,161 @@ async function runConnectionProbes() {
   }
 
   appendDiagnosticText("--- probes complete ---");
+}
+
+
+/* ------------------------------------------------------------------
+   Reading a response the browser will not hand over
+   ------------------------------------------------------------------
+   A gateway 400 arrives without CORS headers, so fetch() rejects and the
+   body is unreadable from script. Two ways around that:
+
+   1. openRawResponseView() — a form POST is a NAVIGATION, and navigations
+      are not subject to CORS. The browser renders the error page itself,
+      so the bytes become visible even though script cannot touch them.
+      Headers cannot be set on a form, so the anon key goes in the query
+      string, which Supabase accepts.
+
+   2. runRequestBisect() — we do not actually need to read the 400. We
+      need to know which part of the request provokes it. A rejected
+      request throws; an accepted one resolves with a readable status.
+      That throw/resolve pattern across a matrix of variants identifies
+      the offending variable on its own.
+------------------------------------------------------------------ */
+
+async function probeVariant(name, url, init) {
+  const started = performance.now();
+  try {
+    const response = await fetch(url, init);
+    const elapsed = Math.round(performance.now() - started);
+    let snippet = "";
+    try {
+      snippet = (await response.text()).slice(0, 200);
+    } catch {
+      snippet = "(body unreadable)";
+    }
+    appendDiagnosticText(
+      `  ${response.ok ? "PASS" : "HTTP " + response.status} ${name} (${elapsed}ms) ${snippet ? "| " + snippet.replace(/\s+/g, " ") : ""}`
+    );
+    recordDiagnostic({ variant: name, status: response.status, ok: response.ok, elapsed });
+    return { blocked: false, status: response.status };
+  } catch (error) {
+    const elapsed = Math.round(performance.now() - started);
+    const detail = describeFetchFailure(error);
+    appendDiagnosticText(`  BLOCKED ${name} (${elapsed}ms) | ${detail.name}: ${detail.message}`);
+    recordDiagnostic({ variant: name, ok: false, blocked: true, elapsed, ...detail });
+    return { blocked: true, status: null };
+  }
+}
+
+/*
+  Changes one variable at a time. The first BLOCKED line names the cause.
+*/
+async function runRequestBisect() {
+  const url = chatFunctionUrl();
+  const anon = SUPABASE_ANON_KEY;
+  const token = currentSession?.access_token || "";
+  const json = { action: "language-fun-fact", language: "English", count: 1 };
+
+  appendDiagnosticText(`\n--- bisect @ ${new Date().toLocaleTimeString()} ---`);
+  appendDiagnosticText(`token present: ${Boolean(token)} | anon length: ${String(anon || "").length}`);
+
+  // Controls: these already work, and confirm nothing has changed.
+  appendDiagnosticText("method / auth:");
+  await probeVariant("GET  ?diag, no headers", `${url}?diag=1`, { method: "GET" });
+  await probeVariant("GET  ?diag, anon headers", `${url}?diag=1`, {
+    method: "GET",
+    headers: { apikey: anon, Authorization: `Bearer ${anon}` }
+  });
+
+  // Does POST work at all? ?diag=1 returns before the body is parsed, so
+  // this isolates the method from everything downstream of it.
+  await probeVariant("POST ?diag, no headers", `${url}?diag=1`, {
+    method: "POST",
+    body: "{}"
+  });
+  await probeVariant("POST ?diag, apikey only", `${url}?diag=1`, {
+    method: "POST",
+    headers: { apikey: anon },
+    body: "{}"
+  });
+  await probeVariant("POST ?diag, apikey + anon bearer", `${url}?diag=1`, {
+    method: "POST",
+    headers: { apikey: anon, Authorization: `Bearer ${anon}` },
+    body: "{}"
+  });
+  if (token) {
+    await probeVariant("POST ?diag, apikey + user bearer", `${url}?diag=1`, {
+      method: "POST",
+      headers: { apikey: anon, Authorization: `Bearer ${token}` },
+      body: "{}"
+    });
+  }
+
+  // Now the same ladder against the real path, which parses the body.
+  appendDiagnosticText("real path:");
+  await probeVariant("POST no headers", url, {
+    method: "POST",
+    body: JSON.stringify(json)
+  });
+  await probeVariant("POST apikey only", url, {
+    method: "POST",
+    headers: { apikey: anon },
+    body: JSON.stringify(json)
+  });
+  await probeVariant("POST + content-type", url, {
+    method: "POST",
+    headers: { apikey: anon, "Content-Type": "application/json" },
+    body: JSON.stringify(json)
+  });
+  await probeVariant("POST + anon bearer", url, {
+    method: "POST",
+    headers: {
+      apikey: anon,
+      Authorization: `Bearer ${anon}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(json)
+  });
+  if (token) {
+    await probeVariant("POST + user bearer (live config)", url, {
+      method: "POST",
+      headers: getFunctionHeaders(),
+      body: JSON.stringify(json)
+    });
+  }
+
+  appendDiagnosticText("--- bisect complete ---");
+  appendDiagnosticText(
+    "The first BLOCKED line is the cause. If every POST is blocked but GET passes, the method is being rejected upstream, not by the function."
+  );
+}
+
+/*
+  Opens the raw response in a new tab as a navigation, sidestepping CORS.
+  ?diag=1 returns before the body is parsed, so a reachable function shows
+  its diagnostics JSON; a gateway rejection shows the error page instead.
+*/
+function openRawResponseView() {
+  const url = `${chatFunctionUrl()}?diag=1&apikey=${encodeURIComponent(SUPABASE_ANON_KEY)}`;
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = url;
+  form.target = "_blank";
+  // text/plain is one of the three encodings a form may use, and it is
+  // the only one that leaves the body roughly intact.
+  form.enctype = "text/plain";
+  const field = document.createElement("input");
+  field.type = "hidden";
+  field.name = "diagnostic";
+  field.value = "1";
+  form.appendChild(field);
+  document.body.appendChild(form);
+  form.submit();
+  setTimeout(() => form.remove(), 1000);
+  appendDiagnosticText(
+    "\nOpened the raw response in a new tab. Whatever it shows is the server's actual reply — JSON means the function answered, an HTML error page is the gateway rejection."
+  );
 }
 
 // Surface errors that never reach a catch block.
@@ -9849,7 +10020,12 @@ async function callChatFunction(payload, label = "Chat") {
     });
 
     // Kick the probes off automatically; this is the failure that needs them.
-    if (detail.networkLevel) runConnectionProbes().catch(() => {});
+    if (detail.networkLevel && !diagnosticProbesRunning) {
+      diagnosticProbesRunning = true;
+      runConnectionProbes()
+        .catch(() => {})
+        .finally(() => { diagnosticProbesRunning = false; });
+    }
 
     throw new Error(`${label} request failed: ${detail.message}`);
   }
