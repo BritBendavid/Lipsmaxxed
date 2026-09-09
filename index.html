@@ -4970,6 +4970,7 @@ let conversationTurn = 0;
 let activeExpectedTarget = null;
 const reviewCooldownTurnByKey = new Map();
 const frequencyListCache = new Map();
+const frequencyListRequests = new Map();
 
 let selectedChatLanguage = "English";
 let selectedInputMode = "speech";
@@ -5037,6 +5038,10 @@ async function getRankedFrequencyList(language) {
   const cached = frequencyListCache.get(language);
   if (cached) return cached;
 
+  const inFlight = frequencyListRequests.get(language);
+  if (inFlight) return await inFlight;
+
+  const request = (async () => {
   const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
     method: "POST",
     headers: {
@@ -5077,6 +5082,14 @@ async function getRankedFrequencyList(language) {
 
   frequencyListCache.set(language, words);
   return words;
+  })();
+
+  frequencyListRequests.set(language, request);
+  try {
+    return await request;
+  } finally {
+    frequencyListRequests.delete(language);
+  }
 }
 
 function normalizeVocabularyTarget(value, fallbackUpostag = "X") {
@@ -5716,7 +5729,10 @@ async function startConfiguredChat() {
   } catch {
     // Name remains available for this session when storage is unavailable.
   }
-  await ensureLanguageFact(selectedChatLanguage);
+  // A fact is useful during loading, but it must never block the chat from
+  // opening. addResponseProgress fills it from the prepared buffer as soon as
+  // the parallel request completes.
+  ensureLanguageFact(selectedChatLanguage).catch(() => {});
 
   if (selectedInputMode === "speech") {
     const permissionGranted = await requestSetupSpeechPermission();
@@ -9875,12 +9891,10 @@ function isSamePlayback(button, type, id) {
         console.warn("frequency targets unavailable for response", error);
         return [];
       });
-    // The prompt and card must use the same two frozen frequency targets.
-    // Waiting for this small profile lookup prevents the model from asking a
-    // generic question unrelated to the words displayed beside it.
-    const vocabularyProfilePromise = targetRowsPromise.then(rows =>
-      getVocabularyProfileForPrompt(language, rows)
-    );
+    // Bonus words no longer influence question selection. Load the learner's
+    // familiarity profile and the next two bonus words in parallel so a large
+    // frequency asset cannot delay the AI question request.
+    const vocabularyProfilePromise = getVocabularyProfileForPrompt(language, []);
     const dataPromise = vocabularyProfilePromise.then(vocabularyProfile =>
       callChatFunction({
         ...payload,
@@ -12362,6 +12376,9 @@ async function renderMemberHome() {
   if (!currentUser) return;
   renderMemberIdentity();
   const language = homeLanguageSelect?.value || selectedChatLanguage || "English";
+  // Warm the large frequency asset while the member is on the home screen so
+  // Start chat does not pay its download cost.
+  getRankedFrequencyList(language).catch(() => {});
   const history = getSessionHistory();
   const languageHistory = history.filter(row => row.language === language);
   if (homeHistoryTitle) homeHistoryTitle.textContent = `My Previous ${language} Chats`;
