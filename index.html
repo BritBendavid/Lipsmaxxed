@@ -3202,6 +3202,84 @@ form {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
 }
 
+.diagnostic-panel {
+  position: fixed;
+  right: 8px;
+  bottom: 8px;
+  left: 8px;
+  z-index: 9999;
+  display: flex;
+  max-height: 62vh;
+  flex-direction: column;
+  border: 1px solid rgba(248, 113, 113, 0.5);
+  border-radius: 12px;
+  background: #0b0d10;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.55);
+}
+
+.diagnostic-panel.hidden { display: none; }
+
+.diagnostic-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fca5a5;
+  font-size: 0.82rem;
+}
+
+.diagnostic-head button {
+  border: 0;
+  background: none;
+  color: #94a3b8;
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.diagnostic-body {
+  margin: 0;
+  padding: 10px 12px;
+  overflow: auto;
+  color: #cbd5e1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.diagnostic-actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.diagnostic-actions button {
+  flex: 1;
+  padding: 9px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.system-message-details {
+  margin-left: 10px;
+  padding: 3px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
 .message-card.synchronized-pending {
   visibility: hidden;
 }
@@ -9226,11 +9304,26 @@ function resetSpeechButton() {
     const existing = document.querySelector(".system-message");
     if (existing) existing.remove();
 
+    const message = getReadableError(text);
     const div = document.createElement("div");
     div.className = "system-message";
-    div.textContent = getReadableError(text);
-    document.body.appendChild(div);
+    div.textContent = message;
 
+    // The toast disappears after five seconds, which is no use for a
+    // failure you are trying to diagnose. Keep a way back to the detail.
+    const details = document.createElement("button");
+    details.type = "button";
+    details.className = "system-message-details";
+    details.textContent = "Details";
+    details.addEventListener("click", () => {
+      const panel = ensureDiagnosticPanel();
+      panel.classList.remove("hidden");
+      const body = document.getElementById("diagnosticBody");
+      if (!body.textContent.trim()) body.textContent = diagnosticReportText();
+    });
+    div.appendChild(details);
+
+    document.body.appendChild(div);
     setTimeout(() => div.remove(), 5200);
   }
 
@@ -9453,22 +9546,6 @@ function playCorrectionWordSchedule(state, button = null) {
   }, totalDuration * 1000 + 1200);
 }
 
-  async function parseJsonResponse(response, label) {
-    const rawText = await response.text();
-
-    let data;
-    try {
-      data = JSON.parse(rawText);
-    } catch {
-      throw new Error(`${label} returned non-JSON response: ${rawText}`);
-    }
-
-    if (!response.ok) {
-      throwApiError(data, `${label} failed with status ${response.status}`);
-    }
-
-    return data;
-  }
 
   function chatFunctionUrl() {
   return `${SUPABASE_URL.replace(/\/$/, "")}/functions/v1/chat`;
@@ -9482,18 +9559,311 @@ function getFunctionHeaders() {
   };
 }
 
+/* ------------------------------------------------------------------
+   Diagnostics
+   ------------------------------------------------------------------
+   Every request to the edge function is recorded with its status,
+   duration and response body. On failure the panel opens with the full
+   detail and a one-tap probe sequence, so the cause is visible on the
+   device instead of only in a desktop console.
+
+   Note on "Load failed" / "Failed to fetch": that is the browser
+   refusing to hand over a response it could not validate. If the edge
+   function crashes at BOOT, its CORS headers never get applied, so the
+   browser will not let the page read the error. In that case every
+   probe below fails at the network layer, which is itself the answer:
+   the function did not start, and the real message is in
+   `supabase functions logs chat`.
+------------------------------------------------------------------ */
+
+const DIAGNOSTIC_LOG_LIMIT = 40;
+const diagnosticLog = [];
+
+function recordDiagnostic(entry) {
+  diagnosticLog.push({ at: new Date().toISOString(), ...entry });
+  if (diagnosticLog.length > DIAGNOSTIC_LOG_LIMIT) {
+    diagnosticLog.splice(0, diagnosticLog.length - DIAGNOSTIC_LOG_LIMIT);
+  }
+  if (entry.ok === false) console.error("[diagnostic]", entry);
+  return entry;
+}
+
+function describeFetchFailure(error) {
+  const name = error?.name || "Error";
+  const message = String(error?.message || error || "");
+  // Every browser words a network-layer refusal differently.
+  const looksNetworkLevel =
+    name === "TypeError" ||
+    /load failed|failed to fetch|networkerror|network request failed/i.test(message);
+  return {
+    name,
+    message,
+    networkLevel: looksNetworkLevel,
+    interpretation: looksNetworkLevel
+      ? "No HTTP response reached the page. The function did not start, was unreachable, or returned without CORS headers."
+      : "The request completed but the response was rejected."
+  };
+}
+
+function diagnosticReportText() {
+  return JSON.stringify(
+    {
+      generatedAt: new Date().toISOString(),
+      page: location.href,
+      userAgent: navigator.userAgent,
+      online: navigator.onLine,
+      signedIn: Boolean(currentUser),
+      functionUrl: chatFunctionUrl(),
+      supabaseUrl: SUPABASE_URL,
+      anonKeyLength: String(SUPABASE_ANON_KEY || "").length,
+      log: diagnosticLog
+    },
+    null,
+    2
+  );
+}
+
+function ensureDiagnosticPanel() {
+  let panel = document.getElementById("diagnosticPanel");
+  if (panel) return panel;
+
+  panel = document.createElement("div");
+  panel.id = "diagnosticPanel";
+  panel.className = "diagnostic-panel hidden";
+  panel.innerHTML = `
+    <div class="diagnostic-head">
+      <strong>Request diagnostics</strong>
+      <button type="button" data-diag-close aria-label="Close">&times;</button>
+    </div>
+    <pre id="diagnosticBody" class="diagnostic-body"></pre>
+    <div class="diagnostic-actions">
+      <button type="button" data-diag-probe>Run probes</button>
+      <button type="button" data-diag-copy>Copy report</button>
+    </div>`;
+  document.body.appendChild(panel);
+
+  panel.querySelector("[data-diag-close]").addEventListener("click", () => {
+    panel.classList.add("hidden");
+  });
+  panel.querySelector("[data-diag-probe]").addEventListener("click", () => {
+    runConnectionProbes().catch(error => {
+      appendDiagnosticText(`Probe run failed: ${getReadableError(error)}`);
+    });
+  });
+  panel.querySelector("[data-diag-copy]").addEventListener("click", async () => {
+    const text = diagnosticReportText();
+    try {
+      await navigator.clipboard.writeText(text);
+      appendDiagnosticText("Report copied to clipboard.");
+    } catch {
+      // Clipboard is blocked in some mobile contexts. Select it instead.
+      const body = document.getElementById("diagnosticBody");
+      body.textContent = text;
+      const range = document.createRange();
+      range.selectNodeContents(body);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      appendDiagnosticText("\nClipboard blocked — text selected for manual copy.");
+    }
+  });
+
+  return panel;
+}
+
+function appendDiagnosticText(text) {
+  const panel = ensureDiagnosticPanel();
+  panel.classList.remove("hidden");
+  const body = document.getElementById("diagnosticBody");
+  body.textContent = `${body.textContent}\n${text}`.trimStart();
+  body.scrollTop = body.scrollHeight;
+}
+
+function showDiagnosticFailure(headline, detail) {
+  const panel = ensureDiagnosticPanel();
+  panel.classList.remove("hidden");
+  document.getElementById("diagnosticBody").textContent =
+    `${headline}\n\n${typeof detail === "string" ? detail : JSON.stringify(detail, null, 2)}`;
+}
+
+/*
+  Four probes, ordered so the first failure identifies the layer.
+    1. the site itself is online
+    2. the function answers an unauthenticated GET (boot + config)
+    3. preflight succeeds (CORS)
+    4. a minimal authenticated POST succeeds (auth + handler)
+*/
+async function runConnectionProbes() {
+  const url = chatFunctionUrl();
+  appendDiagnosticText(`\n--- probes @ ${new Date().toLocaleTimeString()} ---`);
+  appendDiagnosticText(`url: ${url}`);
+  appendDiagnosticText(`online: ${navigator.onLine} | signedIn: ${Boolean(currentUser)}`);
+
+  // 1. Health + self-diagnostics, no auth, no body.
+  try {
+    const started = performance.now();
+    const response = await fetch(`${url}?diag=1`, { method: "GET" });
+    const text = await response.text();
+    const elapsed = Math.round(performance.now() - started);
+    appendDiagnosticText(`[1] GET ?diag=1 -> ${response.status} in ${elapsed}ms`);
+    appendDiagnosticText(text.slice(0, 2000));
+    recordDiagnostic({ probe: "diag", status: response.status, ok: response.ok, elapsed });
+  } catch (error) {
+    const detail = describeFetchFailure(error);
+    appendDiagnosticText(`[1] GET ?diag=1 -> ${detail.name}: ${detail.message}`);
+    appendDiagnosticText(detail.interpretation);
+    appendDiagnosticText(
+      "The function is not answering at all. Check `supabase functions logs chat` for a boot error, and confirm the function is deployed."
+    );
+    recordDiagnostic({ probe: "diag", ok: false, ...detail });
+    return;
+  }
+
+  // 2. Preflight.
+  try {
+    const response = await fetch(url, {
+      method: "OPTIONS",
+      headers: { "Access-Control-Request-Method": "POST" }
+    });
+    appendDiagnosticText(`[2] OPTIONS -> ${response.status}`);
+    recordDiagnostic({ probe: "options", status: response.status, ok: response.ok });
+  } catch (error) {
+    const detail = describeFetchFailure(error);
+    appendDiagnosticText(`[2] OPTIONS -> ${detail.name}: ${detail.message}`);
+    recordDiagnostic({ probe: "options", ok: false, ...detail });
+  }
+
+  // 3. Minimal authenticated POST through the real code path.
+  try {
+    const started = performance.now();
+    const response = await fetch(url, {
+      method: "POST",
+      headers: getFunctionHeaders(),
+      body: JSON.stringify({ action: "language-fun-fact", language: "English", count: 1 })
+    });
+    const text = await response.text();
+    const elapsed = Math.round(performance.now() - started);
+    appendDiagnosticText(`[3] POST language-fun-fact -> ${response.status} in ${elapsed}ms`);
+    appendDiagnosticText(text.slice(0, 1200));
+    recordDiagnostic({ probe: "post", status: response.status, ok: response.ok, elapsed });
+  } catch (error) {
+    const detail = describeFetchFailure(error);
+    appendDiagnosticText(`[3] POST -> ${detail.name}: ${detail.message}`);
+    appendDiagnosticText(detail.interpretation);
+    recordDiagnostic({ probe: "post", ok: false, ...detail });
+  }
+
+  appendDiagnosticText("--- probes complete ---");
+}
+
+// Surface errors that never reach a catch block.
+window.addEventListener("error", event => {
+  recordDiagnostic({
+    kind: "window.error",
+    ok: false,
+    message: String(event.message || ""),
+    source: `${event.filename || ""}:${event.lineno || 0}`
+  });
+});
+window.addEventListener("unhandledrejection", event => {
+  recordDiagnostic({
+    kind: "unhandledrejection",
+    ok: false,
+    message: getReadableError(event.reason)
+  });
+});
+
+async function parseJsonResponse(response, label) {
+  const rawText = await response.text();
+
+  let data;
+  try {
+    data = JSON.parse(rawText);
+  } catch {
+    recordDiagnostic({
+      label,
+      ok: false,
+      status: response.status,
+      stage: "parse",
+      bodySnippet: rawText.slice(0, 600)
+    });
+    showDiagnosticFailure(
+      `${label}: server returned a non-JSON response (HTTP ${response.status})`,
+      rawText.slice(0, 2000) || "(empty body)"
+    );
+    throw new Error(`${label} returned non-JSON response (HTTP ${response.status})`);
+  }
+
+  if (!response.ok) {
+    recordDiagnostic({
+      label,
+      ok: false,
+      status: response.status,
+      stage: "status",
+      body: data
+    });
+    // The backend attaches a `diagnostic` object with the phase and stack.
+    showDiagnosticFailure(`${label} failed with HTTP ${response.status}`, data);
+    throwApiError(data, `${label} failed with status ${response.status}`);
+  }
+
+  recordDiagnostic({ label, ok: true, status: response.status });
+  return data;
+}
+
 async function callChatFunction(payload, label = "Chat") {
+  const url = chatFunctionUrl();
+  const started = performance.now();
   let response;
 
   try {
-    response = await fetch(chatFunctionUrl(), {
+    response = await fetch(url, {
       method: "POST",
       headers: getFunctionHeaders(),
       body: JSON.stringify(payload)
     });
   } catch (error) {
-    throw new Error(`${label} request failed: ${getReadableError(error)}`);
+    const elapsed = Math.round(performance.now() - started);
+    const detail = describeFetchFailure(error);
+    recordDiagnostic({
+      label,
+      ok: false,
+      stage: "fetch",
+      elapsed,
+      url,
+      action: payload?.action || "chat",
+      signedIn: Boolean(currentUser),
+      ...detail
+    });
+
+    showDiagnosticFailure(`${label} request failed: ${detail.message}`, {
+      interpretation: detail.interpretation,
+      url,
+      action: payload?.action || "chat",
+      elapsedMs: elapsed,
+      signedIn: Boolean(currentUser),
+      online: navigator.onLine,
+      nextStep: detail.networkLevel
+        ? "Tap Run probes below. If probe [1] also fails, the edge function is not booting — check `supabase functions logs chat`."
+        : "Tap Run probes below for the full request trace."
+    });
+
+    // Kick the probes off automatically; this is the failure that needs them.
+    if (detail.networkLevel) runConnectionProbes().catch(() => {});
+
+    throw new Error(`${label} request failed: ${detail.message}`);
   }
+
+  const elapsed = Math.round(performance.now() - started);
+  recordDiagnostic({
+    label,
+    stage: "response",
+    status: response.status,
+    ok: response.ok,
+    elapsed,
+    action: payload?.action || "chat",
+    buildId: response.headers.get("x-build-id") || undefined
+  });
 
   return await parseJsonResponse(response, label);
 }
