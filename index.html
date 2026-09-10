@@ -763,6 +763,57 @@ form {
     );
 }
 
+.speech-control-cluster {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+}
+
+.speech-start-over-button {
+  position: absolute;
+  top: 2px;
+  right: -10px;
+  z-index: 2;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(147, 197, 253, 0.5);
+  border-radius: 50%;
+  color: #ffffff;
+  background: linear-gradient(145deg, #2563eb, #1e40af);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.34), 0 0 0 3px #050505;
+  cursor: pointer;
+  transition: transform 150ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+
+.speech-start-over-button:hover {
+  transform: translateY(-1px) scale(1.04);
+  background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+  box-shadow: 0 10px 28px rgba(37, 99, 235, 0.42), 0 0 0 3px #050505;
+}
+
+.speech-start-over-button:focus-visible {
+  outline: 3px solid rgba(147, 197, 253, 0.72);
+  outline-offset: 3px;
+}
+
+.speech-start-over-button:disabled {
+  opacity: 0.68;
+  cursor: wait;
+}
+
+.speech-start-over-button svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .speech-record-button {
   width: 104px;
   height: 104px;
@@ -3202,84 +3253,6 @@ form {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
 }
 
-.diagnostic-panel {
-  position: fixed;
-  right: 8px;
-  bottom: 8px;
-  left: 8px;
-  z-index: 9999;
-  display: flex;
-  max-height: 62vh;
-  flex-direction: column;
-  border: 1px solid rgba(248, 113, 113, 0.5);
-  border-radius: 12px;
-  background: #0b0d10;
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.55);
-}
-
-.diagnostic-panel.hidden { display: none; }
-
-.diagnostic-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: #fca5a5;
-  font-size: 0.82rem;
-}
-
-.diagnostic-head button {
-  border: 0;
-  background: none;
-  color: #94a3b8;
-  font-size: 1.3rem;
-  line-height: 1;
-}
-
-.diagnostic-body {
-  margin: 0;
-  padding: 10px 12px;
-  overflow: auto;
-  color: #cbd5e1;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.72rem;
-  line-height: 1.45;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  -webkit-user-select: text;
-  user-select: text;
-}
-
-.diagnostic-actions {
-  display: flex;
-  gap: 8px;
-  padding: 10px 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.diagnostic-actions button {
-  flex: 1;
-  padding: 9px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 9px;
-  background: rgba(255, 255, 255, 0.05);
-  color: #e2e8f0;
-  font-size: 0.78rem;
-  font-weight: 650;
-}
-
-.system-message-details {
-  margin-left: 10px;
-  padding: 3px 9px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  border-radius: 7px;
-  background: transparent;
-  color: inherit;
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
 .message-card.synchronized-pending {
   visibility: hidden;
 }
@@ -4203,9 +4176,14 @@ form {
 </div>
 
 <div id="speechShell" class="speech-shell hidden">
-  <button id="speechRecordButton" class="speech-record-button" type="button" title="Record speech">
-    <span class="mic-symbol" aria-hidden="true">&#127908;</span>
-  </button>
+  <div class="speech-control-cluster">
+    <button id="speechRecordButton" class="speech-record-button" type="button" title="Record speech">
+      <span class="mic-symbol" aria-hidden="true">&#127908;</span>
+    </button>
+    <button id="speechStartOverButton" class="speech-start-over-button hidden" type="button" title="Start this response over" aria-label="Start this response over">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v6h6"/><path d="M5.6 15a8 8 0 1 0 .5-7.4L4 10"/></svg>
+    </button>
+  </div>
 
   <div id="speechStatus" class="speech-status">
     Tap to speak
@@ -4748,6 +4726,7 @@ const sendButton = document.getElementById("sendButton");
 const composerShell = document.getElementById("composerShell");
 const speechShell = document.getElementById("speechShell");
 const speechRecordButton = document.getElementById("speechRecordButton");
+const speechStartOverButton = document.getElementById("speechStartOverButton");
 const speechStatus = document.getElementById("speechStatus");
 const endChatButton = document.getElementById("endChatButton");
 const signedInHome = document.getElementById("signedInHome");
@@ -4966,6 +4945,7 @@ let inputMode = "writing";
 
   const messages = [];
   const translationCache = new Map();
+  const bonusWordAudioCache = new Map();
   const translationLexemeCache = new Map();
   const vocabularyProfileCache = new Map();
   const VOCABULARY_PROFILE_TTL_MS = 5 * 60 * 1000;
@@ -4982,6 +4962,8 @@ let inputMode = "writing";
   let recordedChunks = [];
   let isRecording = false;
   let microphoneBusy = false;
+  let discardCurrentRecording = false;
+  let restartRecordingAfterDiscard = false;
   let audioPlaybackBusy = false;
   let setupSpeechPermissionGranted = false;
   let micMonitorContext = null;
@@ -5051,6 +5033,66 @@ const frequencyListCache = new Map();
 const frequencyFrontierCache = new Map();
 const frequencyFrontierRequests = new Map();
 const FREQUENCY_FRONTIER_CACHE_MS = 60 * 1000;
+const BONUS_CACHE_DB_NAME = "lipsmaxxed-bonus-cache-v1";
+const BONUS_CACHE_STORE = "entries";
+const FREQUENCY_LIST_CACHE_MS = 30 * 24 * 60 * 60 * 1000;
+const BONUS_TRANSLATION_CACHE_MS = 180 * 24 * 60 * 60 * 1000;
+const BONUS_AUDIO_CACHE_MS = 30 * 24 * 60 * 60 * 1000;
+let bonusCacheDbPromise = null;
+
+function openBonusCacheDb() {
+  if (!window.indexedDB) return Promise.resolve(null);
+  if (bonusCacheDbPromise) return bonusCacheDbPromise;
+  bonusCacheDbPromise = new Promise(resolve => {
+    const request = indexedDB.open(BONUS_CACHE_DB_NAME, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      const store = db.objectStoreNames.contains(BONUS_CACHE_STORE)
+        ? request.transaction.objectStore(BONUS_CACHE_STORE)
+        : db.createObjectStore(BONUS_CACHE_STORE, { keyPath: "id" });
+      if (!store.indexNames.contains("namespace")) {
+        store.createIndex("namespace", "namespace", { unique: false });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => resolve(null);
+  });
+  return bonusCacheDbPromise;
+}
+
+async function getBonusCacheValue(namespace, key, maxAgeMs) {
+  try {
+    const db = await openBonusCacheDb();
+    if (!db) return null;
+    const entry = await new Promise(resolve => {
+      const request = db.transaction(BONUS_CACHE_STORE, "readonly")
+        .objectStore(BONUS_CACHE_STORE)
+        .get(`${namespace}:${key}`);
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => resolve(null);
+    });
+    if (!entry || Date.now() - Number(entry.savedAt || 0) > maxAgeMs) return null;
+    return entry.value;
+  } catch {
+    return null;
+  }
+}
+
+async function setBonusCacheValue(namespace, key, value) {
+  try {
+    const db = await openBonusCacheDb();
+    if (!db) return;
+    await new Promise(resolve => {
+      const request = db.transaction(BONUS_CACHE_STORE, "readwrite")
+        .objectStore(BONUS_CACHE_STORE)
+        .put({ id: `${namespace}:${key}`, namespace, key, value, savedAt: Date.now() });
+      request.onsuccess = () => resolve();
+      request.onerror = () => resolve();
+    });
+  } catch {
+    // Cache failure must never block a chat turn.
+  }
+}
 
 let selectedChatLanguage = "English";
 let selectedInputMode = "speech";
@@ -5118,6 +5160,17 @@ async function getRankedFrequencyList(language) {
   const cached = frequencyListCache.get(language);
   if (cached) return cached;
 
+  const persistentKey = String(language || "").toLocaleLowerCase();
+  const persistent = await getBonusCacheValue(
+    "frequency",
+    persistentKey,
+    FREQUENCY_LIST_CACHE_MS
+  );
+  if (Array.isArray(persistent) && persistent.length) {
+    frequencyListCache.set(language, persistent);
+    return persistent;
+  }
+
   const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
     method: "POST",
     headers: {
@@ -5157,6 +5210,7 @@ async function getRankedFrequencyList(language) {
     .filter(item => item.word && item.word_key && item.frequency_rank > 0);
 
   frequencyListCache.set(language, words);
+  setBonusCacheValue("frequency", persistentKey, words).catch(() => {});
   return words;
 }
 
@@ -5519,22 +5573,26 @@ async function prepareUpcomingWords(language, rows) {
   }
 
   const fluentLanguage = getCurrentFluentLanguage();
-  const preparedRows = await Promise.all(rows.slice(0, 2).map(async row => {
+  const sourceRows = rows.slice(0, 2);
+  const chatWords = sourceRows
+    .map(row => String(row.word_text || row.word || row.word_key || "").trim())
+    .filter(Boolean);
+  let translations = new Map();
+  try {
+    translations = await translateReviewTargetsForCue(
+      chatWords,
+      language,
+      fluentLanguage
+    );
+  } catch (error) {
+    console.warn("bonus word translation failed", error);
+  }
+  const preparedRows = sourceRows.map(row => {
     const chatWord = String(row.word_text || row.word || row.word_key || "").trim();
     if (!chatWord) return null;
-
-    try {
-      const translated = await translateReviewTargetForCue(
-        chatWord,
-        language,
-        fluentLanguage
-      );
-      return { ...row, chatWord, displayWord: String(translated || "").trim() || chatWord };
-    } catch (error) {
-      console.warn("bonus word translation failed", error);
-      return { ...row, chatWord, displayWord: chatWord };
-    }
-  }));
+    const translated = translations.get(chatWord) || "";
+    return { ...row, chatWord, displayWord: String(translated).trim() || chatWord };
+  });
 
   return { language, rows: preparedRows.filter(Boolean) };
 }
@@ -6748,11 +6806,44 @@ async function translateReviewTargetForCue(word, languageOverride = null, fluent
 
   if (!cleanWord) return "";
 
-  const cacheKey = `review-cue|${cleanWord}|${chatLanguage}|${fluentLanguage}`;
+  const translated = await translateReviewTargetsForCue(
+    [cleanWord],
+    chatLanguage,
+    fluentLanguage
+  );
+  return translated.get(cleanWord) || "";
+}
 
-  if (translationCache.has(cacheKey)) {
-    return translationCache.get(cacheKey);
-  }
+async function translateReviewTargetsForCue(words, languageOverride = null, fluentLanguageOverride = null) {
+  const chatLanguage = languageOverride || languageSelect.value;
+  const fluentLanguage = fluentLanguageOverride || getCurrentFluentLanguage();
+  const cleanWords = [...new Set((Array.isArray(words) ? words : [])
+    .map(word => String(word || "").normalize("NFC").trim())
+    .filter(Boolean))].slice(0, 2);
+  const results = new Map();
+  const missing = [];
+
+  await Promise.all(cleanWords.map(async cleanWord => {
+    const cacheKey = `review-cue|${cleanWord}|${chatLanguage}|${fluentLanguage}`;
+    if (translationCache.has(cacheKey)) {
+      results.set(cleanWord, translationCache.get(cacheKey));
+      return;
+    }
+    const persistentKey = `${chatLanguage}|${fluentLanguage}|${cleanWord.toLocaleLowerCase()}`;
+    const cached = await getBonusCacheValue(
+      "translation",
+      persistentKey,
+      BONUS_TRANSLATION_CACHE_MS
+    );
+    if (typeof cached === "string" && cached) {
+      translationCache.set(cacheKey, cached);
+      results.set(cleanWord, cached);
+      return;
+    }
+    missing.push(cleanWord);
+  }));
+
+  if (!missing.length) return results;
 
   const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
     method: "POST",
@@ -6762,20 +6853,26 @@ async function translateReviewTargetForCue(word, languageOverride = null, fluent
       "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
     },
     body: functionBody({
-      action: "translate-word",
-      word: cleanWord,
-      sentence: cleanWord,
+      action: "translate-bonus-words",
+      words: missing,
       chatLanguage,
       fluentLanguage
     })
   });
 
-  const data = await parseJsonResponse(response, "Review cue translation");
-  const translated = data.translation || "";
+  const data = await parseJsonResponse(response, "Bonus word translation");
+  for (const item of Array.isArray(data.items) ? data.items : []) {
+    const cleanWord = String(item?.word || "").normalize("NFC").trim();
+    const translated = String(item?.translation || "").trim();
+    if (!cleanWord || !translated) continue;
+    const cacheKey = `review-cue|${cleanWord}|${chatLanguage}|${fluentLanguage}`;
+    const persistentKey = `${chatLanguage}|${fluentLanguage}|${cleanWord.toLocaleLowerCase()}`;
+    translationCache.set(cacheKey, translated);
+    results.set(cleanWord, translated);
+    setBonusCacheValue("translation", persistentKey, translated).catch(() => {});
+  }
 
-  translationCache.set(cacheKey, translated);
-
-  return translated;
+  return results;
 }
 
 async function getDueReviewTarget(languageOverride = null) {
@@ -9309,6 +9406,8 @@ function resetSpeechButton() {
   speechRecordButton.disabled = false;
   speechRecordButton.classList.remove("recording", "processing");
   speechRecordButton.innerHTML = `<span class="mic-symbol">${microphoneIconSvg()}</span>`;
+  speechStartOverButton?.classList.add("hidden");
+  if (speechStartOverButton) speechStartOverButton.disabled = false;
 }
     
   function getReadableError(error) {
@@ -9339,20 +9438,6 @@ function resetSpeechButton() {
     const div = document.createElement("div");
     div.className = "system-message";
     div.textContent = message;
-
-    // The toast disappears after five seconds, which is no use for a
-    // failure you are trying to diagnose. Keep a way back to the detail.
-    const details = document.createElement("button");
-    details.type = "button";
-    details.className = "system-message-details";
-    details.textContent = "Details";
-    details.addEventListener("click", () => {
-      const panel = ensureDiagnosticPanel();
-      panel.classList.remove("hidden");
-      const body = document.getElementById("diagnosticBody");
-      if (!body.textContent.trim()) body.textContent = diagnosticReportText();
-    });
-    div.appendChild(details);
 
     document.body.appendChild(div);
     setTimeout(() => div.remove(), 5200);
@@ -9612,491 +9697,6 @@ function functionBody(payload) {
   return JSON.stringify(withUserToken(payload));
 }
 
-/* ------------------------------------------------------------------
-   Diagnostics
-   ------------------------------------------------------------------
-   Every request to the edge function is recorded with its status,
-   duration and response body. On failure the panel opens with the full
-   detail and a one-tap probe sequence, so the cause is visible on the
-   device instead of only in a desktop console.
-
-   Note on "Load failed" / "Failed to fetch": that is the browser
-   refusing to hand over a response it could not validate. If the edge
-   function crashes at BOOT, its CORS headers never get applied, so the
-   browser will not let the page read the error. In that case every
-   probe below fails at the network layer, which is itself the answer:
-   the function did not start, and the real message is in
-   `supabase functions logs chat`.
------------------------------------------------------------------- */
-
-const DIAGNOSTIC_LOG_LIMIT = 40;
-let diagnosticProbesRunning = false;
-const diagnosticLog = [];
-
-function recordDiagnostic(entry) {
-  diagnosticLog.push({ at: new Date().toISOString(), ...entry });
-  if (diagnosticLog.length > DIAGNOSTIC_LOG_LIMIT) {
-    diagnosticLog.splice(0, diagnosticLog.length - DIAGNOSTIC_LOG_LIMIT);
-  }
-  if (entry.ok === false) console.error("[diagnostic]", entry);
-  return entry;
-}
-
-function describeFetchFailure(error) {
-  const name = error?.name || "Error";
-  const message = String(error?.message || error || "");
-  // Every browser words a network-layer refusal differently.
-  const looksNetworkLevel =
-    name === "TypeError" ||
-    /load failed|failed to fetch|networkerror|network request failed/i.test(message);
-  return {
-    name,
-    message,
-    networkLevel: looksNetworkLevel,
-    interpretation: looksNetworkLevel
-      ? "No HTTP response reached the page. The function did not start, was unreachable, or returned without CORS headers."
-      : "The request completed but the response was rejected."
-  };
-}
-
-function diagnosticReportText() {
-  return JSON.stringify(
-    {
-      generatedAt: new Date().toISOString(),
-      page: location.href,
-      userAgent: navigator.userAgent,
-      online: navigator.onLine,
-      signedIn: Boolean(currentUser),
-      functionUrl: chatFunctionUrl(),
-      stageTimings: (() => {
-        try { return JSON.parse(localStorage.getItem("lipsmaxxed-response-timings") || "{}"); }
-        catch { return {}; }
-      })(),
-      supabaseUrl: SUPABASE_URL,
-      anonKeyLength: String(SUPABASE_ANON_KEY || "").length,
-      log: diagnosticLog
-    },
-    null,
-    2
-  );
-}
-
-function ensureDiagnosticPanel() {
-  let panel = document.getElementById("diagnosticPanel");
-  if (panel) return panel;
-
-  panel = document.createElement("div");
-  panel.id = "diagnosticPanel";
-  panel.className = "diagnostic-panel hidden";
-  panel.innerHTML = `
-    <div class="diagnostic-head">
-      <strong>Request diagnostics</strong>
-      <button type="button" data-diag-close aria-label="Close">&times;</button>
-    </div>
-    <pre id="diagnosticBody" class="diagnostic-body"></pre>
-    <div class="diagnostic-actions">
-      <button type="button" data-diag-probe>Run probes</button>
-      <button type="button" data-diag-bisect>Bisect</button>
-    </div>
-    <div class="diagnostic-actions">
-      <button type="button" data-diag-raw>View raw response</button>
-      <button type="button" data-diag-copy>Copy report</button>
-    </div>`;
-  document.body.appendChild(panel);
-
-  panel.querySelector("[data-diag-close]").addEventListener("click", () => {
-    panel.classList.add("hidden");
-  });
-  panel.querySelector("[data-diag-probe]").addEventListener("click", () => {
-    runConnectionProbes().catch(error => {
-      appendDiagnosticText(`Probe run failed: ${getReadableError(error)}`);
-    });
-  });
-  panel.querySelector("[data-diag-bisect]").addEventListener("click", () => {
-    runRequestBisect().catch(error => {
-      appendDiagnosticText(`Bisect failed: ${getReadableError(error)}`);
-    });
-  });
-  panel.querySelector("[data-diag-raw]").addEventListener("click", () => {
-    openRawResponseView();
-  });
-  panel.querySelector("[data-diag-copy]").addEventListener("click", async () => {
-    const text = diagnosticReportText();
-    try {
-      await navigator.clipboard.writeText(text);
-      appendDiagnosticText("Report copied to clipboard.");
-    } catch {
-      // Clipboard is blocked in some mobile contexts. Select it instead.
-      const body = document.getElementById("diagnosticBody");
-      body.textContent = text;
-      const range = document.createRange();
-      range.selectNodeContents(body);
-      const selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(range);
-      appendDiagnosticText("\nClipboard blocked â text selected for manual copy.");
-    }
-  });
-
-  return panel;
-}
-
-function appendDiagnosticText(text) {
-  const panel = ensureDiagnosticPanel();
-  panel.classList.remove("hidden");
-  const body = document.getElementById("diagnosticBody");
-  body.textContent = `${body.textContent}\n${text}`.trimStart();
-  body.scrollTop = body.scrollHeight;
-}
-
-function showDiagnosticFailure(headline, detail) {
-  const panel = ensureDiagnosticPanel();
-  panel.classList.remove("hidden");
-  document.getElementById("diagnosticBody").textContent =
-    `${headline}\n\n${typeof detail === "string" ? detail : JSON.stringify(detail, null, 2)}`;
-}
-
-/*
-  Four probes, ordered so the first failure identifies the layer.
-    1. the site itself is online
-    2. the function answers an unauthenticated GET (boot + config)
-    3. preflight succeeds (CORS)
-    4. a minimal authenticated POST succeeds (auth + handler)
-*/
-async function runConnectionProbes() {
-  const url = chatFunctionUrl();
-  appendDiagnosticText(`\n--- probes @ ${new Date().toLocaleTimeString()} ---`);
-  appendDiagnosticText(`url: ${url}`);
-  appendDiagnosticText(`online: ${navigator.onLine} | signedIn: ${Boolean(currentUser)}`);
-
-  // 1. Health + self-diagnostics, no auth, no body.
-  try {
-    const started = performance.now();
-    const response = await fetch(`${url}?diag=1`, { method: "GET" });
-    const text = await response.text();
-    const elapsed = Math.round(performance.now() - started);
-    appendDiagnosticText(`[1] GET ?diag=1 -> ${response.status} in ${elapsed}ms`);
-    appendDiagnosticText(text.slice(0, 2000));
-    let selfCheck;
-    try { selfCheck = JSON.parse(text).diagnostic; } catch { selfCheck = text.slice(0, 800); }
-    // Keep the self-check in the report, not just on screen.
-    recordDiagnostic({ probe: "diag", status: response.status, ok: response.ok, elapsed, selfCheck });
-  } catch (error) {
-    const detail = describeFetchFailure(error);
-    appendDiagnosticText(`[1] GET ?diag=1 -> ${detail.name}: ${detail.message}`);
-    appendDiagnosticText(detail.interpretation);
-    appendDiagnosticText(
-      "The function is not answering at all. Check `supabase functions logs chat` for a boot error, and confirm the function is deployed."
-    );
-    recordDiagnostic({ probe: "diag", ok: false, ...detail });
-    return;
-  }
-
-  // 2. Preflight.
-  try {
-    const response = await fetch(url, {
-      method: "OPTIONS",
-      headers: { "Access-Control-Request-Method": "POST" }
-    });
-    appendDiagnosticText(`[2] OPTIONS -> ${response.status}`);
-    recordDiagnostic({ probe: "options", status: response.status, ok: response.ok });
-  } catch (error) {
-    const detail = describeFetchFailure(error);
-    appendDiagnosticText(`[2] OPTIONS -> ${detail.name}: ${detail.message}`);
-    recordDiagnostic({ probe: "options", ok: false, ...detail });
-  }
-
-  // 3. Minimal authenticated POST through the real code path.
-  try {
-    const started = performance.now();
-    const response = await fetch(url, {
-      method: "POST",
-      headers: getFunctionHeaders(),
-      body: functionBody({ action: "language-fun-fact", language: "English", count: 1 })
-    });
-    const text = await response.text();
-    const elapsed = Math.round(performance.now() - started);
-    appendDiagnosticText(`[3] POST language-fun-fact -> ${response.status} in ${elapsed}ms`);
-    appendDiagnosticText(text.slice(0, 1200));
-    recordDiagnostic({ probe: "post", status: response.status, ok: response.ok, elapsed });
-  } catch (error) {
-    const detail = describeFetchFailure(error);
-    appendDiagnosticText(`[3] POST -> ${detail.name}: ${detail.message}`);
-    appendDiagnosticText(detail.interpretation);
-    recordDiagnostic({ probe: "post", ok: false, ...detail });
-  }
-
-  appendDiagnosticText("--- probes complete ---");
-}
-
-
-/* ------------------------------------------------------------------
-   Reading a response the browser will not hand over
-   ------------------------------------------------------------------
-   A gateway 400 arrives without CORS headers, so fetch() rejects and the
-   body is unreadable from script. Two ways around that:
-
-   1. openRawResponseView() â a form POST is a NAVIGATION, and navigations
-      are not subject to CORS. The browser renders the error page itself,
-      so the bytes become visible even though script cannot touch them.
-      Headers cannot be set on a form, so the anon key goes in the query
-      string, which Supabase accepts.
-
-   2. runRequestBisect() â we do not actually need to read the 400. We
-      need to know which part of the request provokes it. A rejected
-      request throws; an accepted one resolves with a readable status.
-      That throw/resolve pattern across a matrix of variants identifies
-      the offending variable on its own.
------------------------------------------------------------------- */
-
-const PROBE_TIMEOUT_MS = 12000;
-
-async function probeVariant(name, url, init) {
-  const started = performance.now();
-  // A blocked variant hangs for 80+ seconds. Cut it short so the rest of
-  // the matrix still runs.
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
-  try {
-    const response = await fetch(url, { ...init, signal: controller.signal });
-    clearTimeout(timer);
-    const elapsed = Math.round(performance.now() - started);
-    let snippet = "";
-    try {
-      snippet = (await response.text()).slice(0, 200);
-    } catch {
-      snippet = "(body unreadable)";
-    }
-    const build = response.headers.get("x-build-id") || "?";
-    appendDiagnosticText(
-      `  ${response.ok ? "PASS" : "HTTP " + response.status} ${name} (${elapsed}ms) [build ${build}] ${snippet ? "| " + snippet.replace(/\s+/g, " ") : ""}`
-    );
-    recordDiagnostic({ variant: name, status: response.status, ok: response.ok, elapsed, build });
-    return { blocked: false, status: response.status };
-  } catch (error) {
-    clearTimeout(timer);
-    const elapsed = Math.round(performance.now() - started);
-    const detail = describeFetchFailure(error);
-    const label = error?.name === "AbortError"
-      ? `TIMED OUT after ${PROBE_TIMEOUT_MS}ms`
-      : `${detail.name}: ${detail.message}`;
-    appendDiagnosticText(`  BLOCKED ${name} (${elapsed}ms) | ${label}`);
-    recordDiagnostic({ variant: name, ok: false, blocked: true, elapsed, ...detail });
-    return { blocked: true, status: null };
-  }
-}
-
-/*
-  Changes one variable at a time. The first BLOCKED line names the cause.
-*/
-async function runRequestBisect() {
-  const url = chatFunctionUrl();
-  const anon = SUPABASE_ANON_KEY;
-  const token = currentSession?.access_token || "";
-  const json = { action: "language-fun-fact", language: "English", count: 1 };
-
-  appendDiagnosticText(`\n--- bisect @ ${new Date().toLocaleTimeString()} ---`);
-  appendDiagnosticText(`token present: ${Boolean(token)} | anon length: ${String(anon || "").length}`);
-
-  // The live configuration goes first. Everything after it is a control.
-  appendDiagnosticText("live config (what the app actually sends):");
-  await probeVariant("POST ?diag, live headers", `${url}?diag=1`, {
-    method: "POST",
-    headers: getFunctionHeaders(),
-    body: "{}"
-  });
-  await probeVariant("POST real path, live headers", url, {
-    method: "POST",
-    headers: getFunctionHeaders(),
-    body: JSON.stringify(withUserToken(json))
-  });
-
-  // Where can the token safely live? Header name vs value vs carrier.
-  appendDiagnosticText("token carrier:");
-  await probeVariant("POST ?diag, token in BODY", `${url}?diag=1`, {
-    method: "POST",
-    headers: { apikey: anon, Authorization: `Bearer ${anon}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ userToken: token })
-  });
-  await probeVariant("POST ?diag, short custom header", `${url}?diag=1`, {
-    method: "POST",
-    headers: { apikey: anon, Authorization: `Bearer ${anon}`, "x-user-token": "not-a-jwt" },
-    body: "{}"
-  });
-  if (token) {
-    await probeVariant("POST ?diag, JWT in custom header", `${url}?diag=1`, {
-      method: "POST",
-      headers: { apikey: anon, Authorization: `Bearer ${anon}`, "x-user-token": token },
-      body: "{}"
-    });
-  }
-
-  appendDiagnosticText("controls â method / auth:");
-  await probeVariant("GET  ?diag, no headers", `${url}?diag=1`, { method: "GET" });
-  await probeVariant("GET  ?diag, anon headers", `${url}?diag=1`, {
-    method: "GET",
-    headers: { apikey: anon, Authorization: `Bearer ${anon}` }
-  });
-
-  // Does POST work at all? ?diag=1 returns before the body is parsed, so
-  // this isolates the method from everything downstream of it.
-  await probeVariant("POST ?diag, no headers", `${url}?diag=1`, {
-    method: "POST",
-    body: "{}"
-  });
-  await probeVariant("POST ?diag, apikey only", `${url}?diag=1`, {
-    method: "POST",
-    headers: { apikey: anon },
-    body: "{}"
-  });
-  await probeVariant("POST ?diag, apikey + anon bearer", `${url}?diag=1`, {
-    method: "POST",
-    headers: { apikey: anon, Authorization: `Bearer ${anon}` },
-    body: "{}"
-  });
-  if (token) {
-    await probeVariant("POST ?diag, apikey + user bearer", `${url}?diag=1`, {
-      method: "POST",
-      headers: { apikey: anon, Authorization: `Bearer ${token}` },
-      body: "{}"
-    });
-  }
-
-  // Now the same ladder against the real path, which parses the body.
-  appendDiagnosticText("real path:");
-  await probeVariant("POST no headers", url, {
-    method: "POST",
-    body: JSON.stringify(withUserToken(json))
-  });
-  await probeVariant("POST apikey only", url, {
-    method: "POST",
-    headers: { apikey: anon },
-    body: JSON.stringify(withUserToken(json))
-  });
-  await probeVariant("POST + content-type", url, {
-    method: "POST",
-    headers: { apikey: anon, "Content-Type": "application/json" },
-    body: JSON.stringify(withUserToken(json))
-  });
-  await probeVariant("POST + anon bearer", url, {
-    method: "POST",
-    headers: {
-      apikey: anon,
-      Authorization: `Bearer ${anon}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(withUserToken(json))
-  });
-  if (token) {
-    await probeVariant("POST + user bearer (live config)", url, {
-      method: "POST",
-      headers: getFunctionHeaders(),
-      body: JSON.stringify(withUserToken(json))
-    });
-  }
-
-  appendDiagnosticText("--- bisect complete ---");
-  appendDiagnosticText(
-    "The first BLOCKED line is the cause. If every POST is blocked but GET passes, the method is being rejected upstream, not by the function."
-  );
-}
-
-/*
-  Opens the raw response in a new tab as a navigation, sidestepping CORS.
-  ?diag=1 returns before the body is parsed, so a reachable function shows
-  its diagnostics JSON; a gateway rejection shows the error page instead.
-*/
-function openRawResponseView() {
-  const url = `${chatFunctionUrl()}?diag=1&apikey=${encodeURIComponent(SUPABASE_ANON_KEY)}`;
-  const form = document.createElement("form");
-  form.method = "POST";
-  form.action = url;
-  form.target = "_blank";
-  // text/plain is one of the three encodings a form may use, and it is
-  // the only one that leaves the body roughly intact.
-  form.enctype = "text/plain";
-  const field = document.createElement("input");
-  field.type = "hidden";
-  field.name = "diagnostic";
-  field.value = "1";
-  form.appendChild(field);
-  document.body.appendChild(form);
-  form.submit();
-  setTimeout(() => form.remove(), 1000);
-  appendDiagnosticText(
-    "\nOpened the raw response in a new tab. Whatever it shows is the server's actual reply â JSON means the function answered, an HTML error page is the gateway rejection."
-  );
-}
-
-/*
-  Ways to open the panel without waiting for a failure:
-    - add #debug to the URL
-    - press Cmd/Ctrl + Shift + D
-    - tap the top-left corner of the screen five times (phone-friendly)
-    - call openDiagnostics() from the console
-*/
-function openDiagnostics() {
-  const panel = ensureDiagnosticPanel();
-  panel.classList.remove("hidden");
-  const body = document.getElementById("diagnosticBody");
-  if (!body.textContent.trim()) {
-    body.textContent = [
-      "Diagnostics ready. No failure recorded yet.",
-      "",
-      `page:      ${location.href}`,
-      `function:  ${chatFunctionUrl()}`,
-      `signedIn:  ${Boolean(currentUser)}`,
-      `online:    ${navigator.onLine}`,
-      "",
-      "Bisect changes one request variable at a time; the first BLOCKED line is the cause.",
-      "View raw response opens the server's actual reply in a new tab, past CORS."
-    ].join("\n");
-  }
-  return panel;
-}
-window.openDiagnostics = openDiagnostics;
-
-if (location.hash.toLowerCase().includes("debug")) {
-  window.addEventListener("load", () => openDiagnostics());
-}
-
-window.addEventListener("keydown", event => {
-  if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key.toLowerCase() === "d") {
-    event.preventDefault();
-    openDiagnostics();
-  }
-});
-
-let diagnosticCornerTaps = 0;
-let diagnosticCornerTimer = 0;
-window.addEventListener("pointerdown", event => {
-  if (event.clientX > 60 || event.clientY > 60) return;
-  diagnosticCornerTaps += 1;
-  clearTimeout(diagnosticCornerTimer);
-  diagnosticCornerTimer = setTimeout(() => { diagnosticCornerTaps = 0; }, 1200);
-  if (diagnosticCornerTaps >= 5) {
-    diagnosticCornerTaps = 0;
-    openDiagnostics();
-  }
-});
-
-// Surface errors that never reach a catch block.
-window.addEventListener("error", event => {
-  recordDiagnostic({
-    kind: "window.error",
-    ok: false,
-    message: String(event.message || ""),
-    source: `${event.filename || ""}:${event.lineno || 0}`
-  });
-});
-window.addEventListener("unhandledrejection", event => {
-  recordDiagnostic({
-    kind: "unhandledrejection",
-    ok: false,
-    message: getReadableError(event.reason)
-  });
-});
-
 async function parseJsonResponse(response, label) {
   const rawText = await response.text();
 
@@ -10104,150 +9704,40 @@ async function parseJsonResponse(response, label) {
   try {
     data = JSON.parse(rawText);
   } catch {
-    recordDiagnostic({
-      label,
-      ok: false,
-      status: response.status,
-      stage: "parse",
-      bodySnippet: rawText.slice(0, 600)
-    });
-    showDiagnosticFailure(
-      `${label}: server returned a non-JSON response (HTTP ${response.status})`,
-      rawText.slice(0, 2000) || "(empty body)"
-    );
-    throw new Error(`${label} returned non-JSON response (HTTP ${response.status})`);
+    throw new Error(`${label} returned an invalid server response.`);
   }
 
   if (!response.ok) {
-    recordDiagnostic({
-      label,
-      ok: false,
-      status: response.status,
-      stage: "status",
-      body: data
-    });
-    // The backend attaches a `diagnostic` object with the phase and stack.
-    showDiagnosticFailure(`${label} failed with HTTP ${response.status}`, data);
     throwApiError(data, `${label} failed with status ${response.status}`);
   }
 
-  recordDiagnostic({ label, ok: true, status: response.status });
   return data;
 }
 
-let pendingRequestSeq = 0;
-const pendingRequests = new Map();
 const CHAT_REQUEST_TIMEOUT_MS = 60000;
 
 async function callChatFunction(payload, label = "Chat") {
-  const url = chatFunctionUrl();
-  const started = performance.now();
-  const seq = ++pendingRequestSeq;
-  const action = payload?.action || "chat";
-
-  // A request that never returns used to leave no trace at all. Record it
-  // on the way out, and clear the entry when it resolves.
-  pendingRequests.set(seq, { label, action, startedAt: new Date().toISOString() });
-  recordDiagnostic({ label, action, stage: "start", seq, inFlight: pendingRequests.size });
-
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), CHAT_REQUEST_TIMEOUT_MS);
-  let response;
 
   try {
-    response = await fetch(url, {
+    const response = await fetch(chatFunctionUrl(), {
       method: "POST",
       headers: getFunctionHeaders(),
       body: functionBody(payload),
       signal: controller.signal
     });
-    clearTimeout(timer);
+
+    return await parseJsonResponse(response, label);
   } catch (error) {
-    clearTimeout(timer);
-    pendingRequests.delete(seq);
-    const elapsed = Math.round(performance.now() - started);
-    const detail = describeFetchFailure(error);
-    recordDiagnostic({
-      label,
-      ok: false,
-      seq,
-      timedOut: error?.name === "AbortError",
-      stage: "fetch",
-      elapsed,
-      url,
-      action: payload?.action || "chat",
-      signedIn: Boolean(currentUser),
-      ...detail
-    });
-
-    showDiagnosticFailure(`${label} request failed: ${detail.message}`, {
-      interpretation: detail.interpretation,
-      url,
-      action: payload?.action || "chat",
-      elapsedMs: elapsed,
-      signedIn: Boolean(currentUser),
-      online: navigator.onLine,
-      nextStep: detail.networkLevel
-        ? "Tap Run probes below. If probe [1] also fails, the edge function is not booting â check `supabase functions logs chat`."
-        : "Tap Run probes below for the full request trace."
-    });
-
-    // Kick the probes off automatically; this is the failure that needs them.
-    if (detail.networkLevel && !diagnosticProbesRunning) {
-      diagnosticProbesRunning = true;
-      runConnectionProbes()
-        .catch(() => {})
-        .finally(() => { diagnosticProbesRunning = false; });
+    if (error?.name === "AbortError") {
+      throw new Error(`${label} took too long. Please try again.`);
     }
-
-    throw new Error(`${label} request failed: ${detail.message}`);
+    throw new Error(`${label} request failed: ${getReadableError(error)}`);
+  } finally {
+    clearTimeout(timer);
   }
-
-  const elapsed = Math.round(performance.now() - started);
-  pendingRequests.delete(seq);
-  recordDiagnostic({
-    label,
-    seq,
-    stage: "response",
-    status: response.status,
-    ok: response.ok,
-    elapsed,
-    action: payload?.action || "chat",
-    buildId: response.headers.get("x-build-id") || undefined
-  });
-
-  const data = await parseJsonResponse(response, label);
-
-  /*
-    Split the wall-clock time three ways so the slow part is identifiable:
-      serverChatMs  - time the function spent inside the OpenAI call
-      elapsed       - total time the browser waited
-      unaccounted   - everything else: gateway, cold boot, auth lookup,
-                      profile read, and any background work the runtime
-                      holds the response for.
-    A large unaccounted figure means the delay is NOT the model.
-  */
-  if (data?.serverTiming) {
-    recordDiagnostic({
-      label,
-      stage: "timing",
-      action: payload?.action || "chat",
-      elapsed,
-      serverAuthMs: data.serverTiming.authMs,
-      serverProfileMs: data.serverTiming.profileMs,
-      serverChatMs: data.serverTiming.chatMs,
-      serverTotalMs: data.serverTiming.totalMs,
-      profileUpdateScheduled: data.serverTiming.profileUpdateScheduled,
-      workerBootedAt: data.serverTiming.bootedAt,
-      queueMs: elapsed - (Number(data.serverTiming.totalMs) || 0),
-      historySaved: data.historySaved,
-      profileFactCount: data.profileFactCount
-    });
-  }
-
-  return data;
 }
-
 function rememberLanguageFact(language, fact) {
   const cleanFact = String(fact || "").replace(/\s+/g, " ").trim();
   if (!cleanFact) return;
@@ -10714,11 +10204,19 @@ function isSamePlayback(button, type, id) {
 }
 
   const RESPONSE_STAGE_DEFAULTS = {
-    language: 1400,
-    context: 300,
-    chat: 2500,
-    speech: 2200,
-    decode: 180
+    language: 3200,
+    context: 650,
+    chat: 4800,
+    speech: 2600,
+    decode: 260
+  };
+
+  const RESPONSE_STAGE_CEILINGS = {
+    language: 42,
+    context: 18,
+    chat: 72,
+    speech: 96,
+    decode: 99
   };
 
   function getResponseTimingEstimates() {
@@ -10778,6 +10276,8 @@ function isSamePlayback(button, type, id) {
     const samples = {};
     let stage = initialStage;
     let stageStartedAt = performance.now();
+    let stageStartPercent = 2;
+    let displayedPercent = 2;
     let stopped = false;
 
     messageHistory.appendChild(card);
@@ -10793,16 +10293,22 @@ function isSamePlayback(button, type, id) {
     function render() {
       if (stopped) return;
 
-      const currentIndex = Math.max(0, stages.indexOf(stage));
-      const completedMs = stages
-        .slice(0, currentIndex)
-        .reduce((sum, name) => sum + estimates[name], 0);
       const stageElapsed = performance.now() - stageStartedAt;
-      const predictedStageProgress = Math.min(stageElapsed / estimates[stage], 0.9);
-      const totalEstimatedMs = stages.reduce((sum, name) => sum + estimates[name], 0);
-      const representedMs = completedMs + estimates[stage] * predictedStageProgress;
-      const percent = Math.min(94, Math.max(2, representedMs / totalEstimatedMs * 100));
-      fill.style.width = `${percent}%`;
+      const expectedDuration = Math.max(100, Number(estimates[stage]) || 1000);
+      const ceiling = Math.max(
+        stageStartPercent + 1,
+        Number(RESPONSE_STAGE_CEILINGS[stage]) || 94
+      );
+      const timeRatio = Math.max(0, stageElapsed / expectedDuration);
+      // Moves briskly at first, then approaches the stage boundary without
+      // falsely claiming completion when a network or model call runs long.
+      const eased = 1 - Math.exp(-2.35 * Math.min(timeRatio, 2.2));
+      const target = stageStartPercent + (ceiling - stageStartPercent) * eased;
+      displayedPercent = Math.max(
+        displayedPercent,
+        Math.min(ceiling - 0.25, target)
+      );
+      fill.style.width = `${displayedPercent.toFixed(1)}%`;
     }
 
     const timer = window.setInterval(render, 100);
@@ -10812,7 +10318,13 @@ function isSamePlayback(button, type, id) {
       element: card,
       setStage(nextStage) {
         if (stopped || nextStage === stage || !stages.includes(nextStage)) return;
+        render();
         samples[stage] = performance.now() - stageStartedAt;
+        displayedPercent = Math.max(
+          displayedPercent,
+          Math.min(98, Number(RESPONSE_STAGE_CEILINGS[stage]) || displayedPercent)
+        );
+        stageStartPercent = displayedPercent;
         stage = nextStage;
         stageStartedAt = performance.now();
         render();
@@ -10857,18 +10369,30 @@ function isSamePlayback(button, type, id) {
         console.warn("frequency targets unavailable for response", error);
         return [];
       });
-    // Bonus words are an independent practice queue. They must never select
-    // or shape the question. A warm familiarity snapshot may constrain level,
-    // but question generation does not wait for bonus targets or profile data.
+    // Bonus words are an independent practice queue. Only general familiarity
+    // may constrain question difficulty; no bonus target enters the AI prompt.
     const profileCacheKey = currentUser ? `${currentUser.id}|${language}` : "";
     const cachedProfile = profileCacheKey
       ? vocabularyProfileCache.get(profileCacheKey)?.value || null
       : null;
+    const promptVocabularyProfile = cachedProfile
+      ? { ...cachedProfile }
+      : null;
+    if (promptVocabularyProfile) {
+      delete promptVocabularyProfile.bonusTargetWords;
+      delete promptVocabularyProfile.upcomingReviewWords;
+      delete promptVocabularyProfile.primaryTargetWord;
+      delete promptVocabularyProfile.primaryTargetKey;
+      delete promptVocabularyProfile.primaryTargetPos;
+      delete promptVocabularyProfile.primaryTargetRank;
+      delete promptVocabularyProfile.primaryTargetStage;
+    }
     const dataPromise = callChatFunction({
         ...requestPayload,
-        vocabularyProfile: cachedProfile,
+        vocabularyProfile: promptVocabularyProfile,
         turnIndex: conversationTurn,
-        clientTurnId
+        clientTurnId,
+        sessionId: activeChatSession?.id || ""
       }, label);
     const preparedBonusWordsPromise = targetRowsPromise.then(rows =>
       prepareUpcomingWords(language, rows)
@@ -12100,13 +11624,37 @@ async function playBonusWordAudio(chatWord, language, button = null) {
 
     await unlockAudioContext();
 
-    const speech = await fetchFullSpeech(cleanWord, language);
+    const audioCacheKey = `${language}|${cleanWord.normalize("NFC").toLocaleLowerCase()}`;
+    let speech = bonusWordAudioCache.get(audioCacheKey) || null;
+    if (!speech) {
+      const persistent = await getBonusCacheValue(
+        "audio",
+        audioCacheKey,
+        BONUS_AUDIO_CACHE_MS
+      );
+      if (persistent?.audioBase64) {
+        speech = {
+          audioBase64: persistent.audioBase64,
+          mimeType: persistent.mimeType || "audio/mpeg"
+        };
+      }
+    }
+    if (!speech) {
+      speech = await fetchFullSpeech(cleanWord, language);
+      if (speech?.audioBase64) {
+        setBonusCacheValue("audio", audioCacheKey, {
+          audioBase64: speech.audioBase64,
+          mimeType: speech.mimeType || "audio/mpeg"
+        }).catch(() => {});
+      }
+    }
 
     if (!speech.audioBuffer) {
       const arrayBuffer = base64ToArrayBuffer(speech.audioBase64);
       const context = getAudioContext();
       speech.audioBuffer = await context.decodeAudioData(arrayBuffer);
     }
+    bonusWordAudioCache.set(audioCacheKey, speech);
 
     if (button) {
       button.classList.remove("loading");
@@ -12938,6 +12486,8 @@ async function startRecording() {
   }
 
   microphoneBusy = true;
+  discardCurrentRecording = false;
+  restartRecordingAfterDiscard = false;
   let stream;
 
   try {
@@ -12985,6 +12535,8 @@ async function startRecording() {
     speechRecordButton.classList.add("recording");
     speechRecordButton.classList.remove("processing");
     speechRecordButton.innerHTML = `<span class="mic-symbol">${stopIconSvg()}</span>`;
+    speechStartOverButton?.classList.remove("hidden");
+    if (speechStartOverButton) speechStartOverButton.disabled = false;
 
     setSpeechStatus("Recording");
   });
@@ -12994,6 +12546,27 @@ async function startRecording() {
   stream.getTracks().forEach(track => track.stop());
   isRecording = false;
   microphoneBusy = false;
+  speechStartOverButton?.classList.add("hidden");
+
+  if (discardCurrentRecording) {
+    const shouldRestart = restartRecordingAfterDiscard;
+    discardCurrentRecording = false;
+    restartRecordingAfterDiscard = false;
+    recordedChunks = [];
+    resetSpeechButton();
+    setSpeechStatus(shouldRestart ? "Starting over" : "Tap to speak");
+    if (shouldRestart) {
+      try {
+        await startRecording();
+      } catch (error) {
+        showSystemMessage(getReadableError(error));
+        setSpeechStatus("Tap to speak");
+        resetSpeechButton();
+      }
+    }
+    return;
+  }
+
   speechRecordButton.disabled = true;
   speechRecordButton.classList.remove("recording");
   speechRecordButton.classList.add("processing");
@@ -13048,6 +12621,17 @@ function stopRecording() {
   if (mediaRecorder && mediaRecorder.state === "recording") {
     mediaRecorder.stop();
   }
+}
+
+function restartCurrentRecording(event) {
+  event?.preventDefault();
+  event?.stopPropagation();
+  if (!isRecording || !mediaRecorder || mediaRecorder.state !== "recording") return;
+  discardCurrentRecording = true;
+  restartRecordingAfterDiscard = true;
+  if (speechStartOverButton) speechStartOverButton.disabled = true;
+  setSpeechStatus("Starting over");
+  mediaRecorder.stop();
 }
 
 async function handleSpeechRecordButtonClick(event) {
@@ -14127,6 +13711,10 @@ function saveGrammarConversationToMaster(context) {
 
   if (speechRecordButton) {
     speechRecordButton.addEventListener("click", handleSpeechRecordButtonClick);
+  }
+
+  if (speechStartOverButton) {
+    speechStartOverButton.addEventListener("click", restartCurrentRecording);
   }
 
   if (authOpenButton) {
