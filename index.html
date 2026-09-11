@@ -10595,6 +10595,10 @@ function isSamePlayback(button, type, id) {
   async function presentBotReply(data, progress, options = {}) {
     const autoplay = options.autoplay !== false;
     const language = options.language || getCurrentChatLanguage();
+    const replyText = String(data?.reply || "").trim();
+    if (!replyText) {
+      throw new Error("LipsMaster returned an empty reply. Please try again.");
+    }
     const expectedTargetSource = options.expectedTarget || null;
     const preparedBonusWordsPromise = options.preparedBonusWordsPromise ||
       Promise.resolve({ language, rows: [] });
@@ -10615,7 +10619,7 @@ function isSamePlayback(button, type, id) {
     progress?.setStage("speech");
     const parallelStatus = { audio: "loading", bonus: "loading" };
     progress?.setParallelStatus(parallelStatus);
-    const fullSpeechPromise = fetchFullSpeech(data.reply, language).then(result => {
+    const fullSpeechPromise = fetchFullSpeech(replyText, language).then(result => {
       parallelStatus.audio = "ready";
       progress?.setParallelStatus(parallelStatus);
       return result;
@@ -10640,9 +10644,9 @@ function isSamePlayback(button, type, id) {
       await unlockAudioContext();
     }
 
-    messages.push({ role: "assistant", content: data.reply });
+    messages.push({ role: "assistant", content: replyText });
 
-    const botMessageId = addBotMessage(data.reply, {
+    const botMessageId = addBotMessage(replyText, {
       fullSpeech,
       fullSpeechPromise: Promise.resolve(fullSpeech),
       showSignedOutProTip: options.showSignedOutProTip === true
