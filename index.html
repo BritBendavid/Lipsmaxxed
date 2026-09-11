@@ -6022,7 +6022,8 @@ async function sendOpeningBotMessage() {
         isOpeningMessage: true,
         userPreferredName: selectedPreferredName
       },
-      "Chat"
+      "Chat",
+      progress
     );
     await presentBotReply(prepared.data, progress, {
       language,
@@ -8885,7 +8886,7 @@ function addGrammarThinking() {
 
 function grammarPhrases(text) {
   return String(text || "")
-    .split(/(?<=[.!?ãï¼ï¼])\s+|\n+/u)
+    .split(/(?<=[.!?。！？])\s+|\n+/u)
     .map(part => part.trim())
     .filter(Boolean);
 }
@@ -9695,7 +9696,7 @@ function getFunctionHeaders() {
     request passes in about a second with no token in any header, so
     something upstream is inspecting header values.
 
-    The token now travels in the request body instead â see
+    The token now travels in the request body instead — see
     withUserToken(). The function validates it server-side exactly as
     before, so nothing is weakened.
   */
@@ -9734,11 +9735,51 @@ async function parseJsonResponse(response, label) {
 
 const CHAT_REQUEST_TIMEOUT_MS = 60000;
 
-async function callChatFunction(payload, label = "Chat") {
+async function readStreamingChatResponse(response, label, onProgress) {
+  if (!response.ok) return parseJsonResponse(response, label);
+  if (!response.body) throw new Error(`${label} returned an empty response stream.`);
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let result = null;
+
+  const processLine = line => {
+    if (!line.trim()) return;
+    let event;
+    try {
+      event = JSON.parse(line);
+    } catch {
+      throw new Error(`${label} returned an invalid progress update.`);
+    }
+    if (event.type === "status") {
+      onProgress?.(event);
+    } else if (event.type === "result") {
+      result = event.data;
+    } else if (event.type === "error") {
+      throw new Error(event.message || event.error?.message || `${label} failed.`);
+    }
+  };
+
+  while (true) {
+    const { value, done } = await reader.read();
+    buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+    for (const line of lines) processLine(line);
+    if (done) break;
+  }
+  if (buffer.trim()) processLine(buffer);
+  if (!result) throw new Error(`${label} ended before returning a result.`);
+  return result;
+}
+
+async function callChatFunction(payload, label = "Chat", onProgress = null) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), CHAT_REQUEST_TIMEOUT_MS);
 
   try {
+    onProgress?.({ type: "status", stage: "edge_connecting", detail: {} });
     const response = await fetch(chatFunctionUrl(), {
       method: "POST",
       headers: getFunctionHeaders(),
@@ -9746,6 +9787,10 @@ async function callChatFunction(payload, label = "Chat") {
       signal: controller.signal
     });
 
+    const contentType = response.headers.get("content-type") || "";
+    if (contentType.includes("application/x-ndjson")) {
+      return await readStreamingChatResponse(response, label, onProgress);
+    }
     return await parseJsonResponse(response, label);
   } catch (error) {
     if (error?.name === "AbortError") {
@@ -9902,12 +9947,12 @@ const LANGUAGE_FACT_QUEUE_MAX = 12;
 const FALLBACK_LANGUAGE_FACTS = {
   English: [
     "English has borrowed words from more than 350 other languages.",
-    "English lost its formal \"you\" â the modern word was originally the polite plural.",
+    "English lost its formal \"you\" — the modern word was originally the polite plural.",
     "The letter pair \"th\" is common in English and rare in almost every other language."
   ],
   Hebrew: [
     "Hebrew was revived as an everyday spoken language after roughly 1,700 years used mainly in writing and prayer.",
-    "Hebrew has no verb for \"to have\" â possession is phrased as \"there is to me\".",
+    "Hebrew has no verb for \"to have\" — possession is phrased as \"there is to me\".",
     "Almost every Hebrew word is built from a three-letter root slotted into a fixed pattern."
   ],
   Spanish: [
@@ -9918,7 +9963,7 @@ const FALLBACK_LANGUAGE_FACTS = {
   French: [
     "French was the official language of England for roughly 300 years after 1066.",
     "French spells many sounds it no longer pronounces, which is why final consonants are usually silent.",
-    "The AcadÃ©mie FranÃ§aise has been issuing opinions on correct French since 1635."
+    "The Académie Française has been issuing opinions on correct French since 1635."
   ],
   German: [
     "German writes every noun with a capital letter, whatever its position in the sentence.",
@@ -9931,7 +9976,7 @@ const FALLBACK_LANGUAGE_FACTS = {
     "Arabic has a special grammatical form used only for exactly two of something."
   ],
   Russian: [
-    "Russian has no words for \"a\" or \"the\" â definiteness comes from context and word order.",
+    "Russian has no words for \"a\" or \"the\" — definiteness comes from context and word order.",
     "Russian nouns change their ending depending on their job in the sentence, across six cases.",
     "Russian verbs mark whether an action was completed or ongoing, rather than simply when it happened."
   ],
@@ -9948,7 +9993,7 @@ const FALLBACK_LANGUAGE_FACTS = {
   Chinese: [
     "Mandarin uses tone to distinguish words, so the same syllable can mean several different things.",
     "Chinese characters carry meaning rather than sound, so speakers of different dialects can read the same text.",
-    "Chinese verbs never change form for tense â time is shown with separate words."
+    "Chinese verbs never change form for tense — time is shown with separate words."
   ],
   Japanese: [
     "Japanese uses three writing systems together in ordinary sentences: hiragana, katakana and kanji.",
@@ -10303,6 +10348,9 @@ function isSamePlayback(button, type, id) {
     const progressStartedAt = performance.now();
     const completedStages = [];
     let backendTiming = null;
+    let backendLiveStatus = null;
+    let backendStatusStartedAt = 0;
+    const backendCompletedStatuses = [];
     let parallelStatus = null;
     let stopped = false;
 
@@ -10344,13 +10392,47 @@ function isSamePlayback(button, type, id) {
         speech: "Preparing synchronized audio",
         decode: "Finalizing playback"
       };
-      statusEl.textContent = `${stageLabels[stage] || "Working"} - ${(stageElapsed / 1000).toFixed(1)}s (total ${(totalElapsed / 1000).toFixed(1)}s)`;
+      const backendStatusLabels = {
+        edge_connecting: "Connecting to the Supabase edge function",
+        edge_connected: "Connected to the edge function",
+        auth_started: "Authenticating the signed-in user",
+        auth_complete: "Authentication complete",
+        history_started: "Loading the 40 most recent messages across all activities",
+        history_complete: "Recent-message history loaded",
+        ai_request_started: "AI request sent; LipsMaster is generating the reply",
+        ai_complete: "AI response received",
+        turn_save_scheduled: "Scheduling this turn to be saved",
+        response_ready: "Backend response ready"
+      };
+      const activeStatusLabel = backendLiveStatus
+        ? backendStatusLabels[backendLiveStatus.stage] || backendLiveStatus.stage
+        : stageLabels[stage] || "Working";
+      const activeStatusElapsed = backendLiveStatus
+        ? performance.now() - backendStatusStartedAt
+        : stageElapsed;
+      statusEl.textContent = `${activeStatusLabel} - ${(activeStatusElapsed / 1000).toFixed(1)}s (total ${(totalElapsed / 1000).toFixed(1)}s)`;
 
       const detailParts = [];
       if (completedStages.length) {
         detailParts.push(`Completed: ${completedStages
           .map(item => `${stageLabels[item.stage] || item.stage} ${(item.duration / 1000).toFixed(1)}s`)
           .join("; ")}`);
+      }
+      if (backendCompletedStatuses.length) {
+        detailParts.push(`Live backend steps: ${backendCompletedStatuses
+          .map(item => `${backendStatusLabels[item.stage] || item.stage} ${(item.duration / 1000).toFixed(1)}s`)
+          .join("; ")}`);
+      }
+      if (backendLiveStatus?.detail) {
+        const detail = backendLiveStatus.detail;
+        const liveDetails = [
+          Number.isFinite(Number(detail.authMs)) ? `auth ${detail.authMs}ms` : "",
+          Number.isFinite(Number(detail.historyMs)) ? `history ${detail.historyMs}ms` : "",
+          Number.isFinite(Number(detail.savedMessageCount)) ? `saved messages ${detail.savedMessageCount}` : "",
+          Number.isFinite(Number(detail.promptMessageCount)) ? `prompt messages ${detail.promptMessageCount}` : "",
+          detail.model ? `model ${detail.model}` : ""
+        ].filter(Boolean);
+        if (liveDetails.length) detailParts.push(`Current checkpoint: ${liveDetails.join("; ")}`);
       }
       if (backendTiming) {
         const timingParts = [
@@ -10391,6 +10473,30 @@ function isSamePlayback(button, type, id) {
         backendTiming = timing && typeof timing === "object" ? timing : null;
         render();
       },
+      setBackendStatus(event) {
+        if (!event?.stage) return;
+        const now = performance.now();
+        if (backendLiveStatus && backendStatusStartedAt) {
+          backendCompletedStatuses.push({
+            stage: backendLiveStatus.stage,
+            duration: now - backendStatusStartedAt
+          });
+        }
+        backendLiveStatus = event;
+        backendStatusStartedAt = now;
+        render();
+      },
+      clearBackendStatus() {
+        if (backendLiveStatus && backendStatusStartedAt) {
+          backendCompletedStatuses.push({
+            stage: backendLiveStatus.stage,
+            duration: performance.now() - backendStatusStartedAt
+          });
+        }
+        backendLiveStatus = null;
+        backendStatusStartedAt = 0;
+        render();
+      },
       setParallelStatus(nextStatus) {
         parallelStatus = nextStatus ? { ...nextStatus } : null;
         render();
@@ -10412,7 +10518,7 @@ function isSamePlayback(button, type, id) {
     };
   }
 
-  async function generatePreparedChatTurn(payload, label = "Chat") {
+  async function generatePreparedChatTurn(payload, label = "Chat", progress = null) {
     const language = payload.language || getCurrentChatLanguage();
     const clientTurnId = payload.clientTurnId || createClientTurnId();
     // Prepare the next unseen fact alongside this prompt. The chat endpoint no
@@ -10458,8 +10564,9 @@ function isSamePlayback(button, type, id) {
         vocabularyProfile: promptVocabularyProfile,
         turnIndex: conversationTurn,
         clientTurnId,
-        sessionId: activeChatSession?.id || ""
-      }, label);
+        sessionId: activeChatSession?.id || "",
+        streamProgress: true
+      }, label, event => progress?.setBackendStatus(event));
     const preparedBonusWordsPromise = targetRowsPromise.then(rows =>
       prepareUpcomingWords(language, rows)
     );
@@ -10498,6 +10605,7 @@ function isSamePlayback(button, type, id) {
     }
 
     progress?.setBackendTiming(data.serverTiming);
+    progress?.clearBackendStatus();
     progress?.setStage("speech");
     const parallelStatus = { audio: "loading", bonus: "loading" };
     progress?.setParallelStatus(parallelStatus);
@@ -10609,7 +10717,8 @@ const responsePromise = generatePreparedChatTurn(
       chatTopic: activeChatSession?.topicTitle || "",
       bonusPrerequisite: options.bonusPrerequisite
   },
-  "Chat"
+  "Chat",
+  progress
 );
 
   return {
