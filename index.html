@@ -5052,6 +5052,7 @@ const frequencyListCache = new Map();
 const frequencyFrontierCache = new Map();
 const frequencyFrontierRequests = new Map();
 const FREQUENCY_FRONTIER_CACHE_MS = 60 * 1000;
+const FREQUENCY_FRONTIER_RESERVE_SIZE = 12;
 const BONUS_CACHE_DB_NAME = "lipsmaxxed-bonus-cache-v1";
 const BONUS_CACHE_STORE = "entries";
 const FREQUENCY_LIST_CACHE_MS = 30 * 24 * 60 * 60 * 1000;
@@ -5545,7 +5546,10 @@ function refreshFrequencyFrontierTargets(language) {
   if (!currentUser) return;
   const cacheKey = `${currentUser.id}|${language}`;
   if (frequencyFrontierRequests.has(cacheKey)) return;
-  const request = loadFrequencyFrontierTargets(language, 2)
+  const request = loadFrequencyFrontierTargets(
+    language,
+    FREQUENCY_FRONTIER_RESERVE_SIZE
+  )
     .then(rows => {
       frequencyFrontierCache.set(cacheKey, { savedAt: Date.now(), rows });
       return rows;
@@ -5575,7 +5579,10 @@ async function getFrequencyFrontierTargets(languageOverride = null, limit = 2) {
     const rows = await frequencyFrontierRequests.get(cacheKey);
     return rows.slice(0, limit);
   }
-  const request = loadFrequencyFrontierTargets(language, Math.max(2, limit))
+  const request = loadFrequencyFrontierTargets(
+    language,
+    Math.max(FREQUENCY_FRONTIER_RESERVE_SIZE, limit)
+  )
     .then(rows => {
       frequencyFrontierCache.set(cacheKey, { savedAt: Date.now(), rows });
       return rows;
@@ -5584,6 +5591,56 @@ async function getFrequencyFrontierTargets(languageOverride = null, limit = 2) {
   frequencyFrontierRequests.set(cacheKey, request);
   const rows = await request;
   return rows.slice(0, limit);
+}
+
+function evictProducedBonusTargetsFromCache(
+  language,
+  displayedTargets,
+  producedLexemes,
+  primaryTargetProduced
+) {
+  if (!currentUser) return;
+  const cacheKey = `${currentUser.id}|${language}`;
+  const cached = frequencyFrontierCache.get(cacheKey);
+  if (!cached?.rows?.length) return;
+
+  const producedKeys = new Set();
+  for (const lexeme of Array.isArray(producedLexemes) ? producedLexemes : []) {
+    const lexemeKey = String(lexeme?.lexemeKey || lexeme?.lexeme_key || "").trim();
+    if (lexemeKey) producedKeys.add(lexemeKey);
+    for (const form of [lexeme?.surface, lexeme?.lemma]) {
+      const key = normalizeStatsWord(form);
+      if (key) producedKeys.add(key);
+    }
+  }
+
+  const removedKeys = new Set();
+  (Array.isArray(displayedTargets) ? displayedTargets : []).forEach((target, index) => {
+    const targetKey = String(target?.word_key || "").trim();
+    const comparable = [
+      targetKey,
+      targetKey.split("::")[0],
+      normalizeStatsWord(target?.word_text || target?.word),
+      normalizeStatsWord(target?.lemma)
+    ].filter(Boolean);
+    if ((index === 0 && primaryTargetProduced === true) ||
+        comparable.some(key => producedKeys.has(key))) {
+      comparable.forEach(key => removedKeys.add(key));
+    }
+  });
+
+  if (!removedKeys.size) return;
+  cached.rows = cached.rows.filter(row => {
+    const rowKey = String(row?.word_key || "").trim();
+    const comparable = [
+      rowKey,
+      rowKey.split("::")[0],
+      normalizeStatsWord(row?.word_text || row?.word),
+      normalizeStatsWord(row?.lemma)
+    ].filter(Boolean);
+    return !comparable.some(key => removedKeys.has(key));
+  });
+  cached.savedAt = 0;
 }
     
 async function prepareUpcomingWords(language, rows) {
@@ -10540,9 +10597,6 @@ function isSamePlayback(button, type, id) {
         console.warn("word progress update failed before bonus refresh", error);
       })
       .then(() => {
-        if (currentUser) {
-          frequencyFrontierCache.delete(`${currentUser.id}|${language}`);
-        }
         return getFrequencyFrontierTargets(language, 2);
       })
       .catch(error => {
@@ -11058,6 +11112,13 @@ if (confirmedSpokenText) {
     console.warn("points calculation failed", error);
   }
 }
+
+evictProducedBonusTargetsFromCache(
+  languageSelect.value,
+  activeAnswerBonusTargets,
+  analysis.producedLexemes,
+  analysis.targetProduced
+);
 
 releaseBonusUpdate();
 
