@@ -656,14 +656,6 @@ select option {
   display: block;
 }
 
-.thinking-card {
-  color: #9ca3af;
-  font-size: 1.1rem;
-  font-weight: 600;
-  text-align: center;
-  padding: 20px;
-}
-
 /* Composer */
 
 .composer-shell {
@@ -904,6 +896,264 @@ form {
   background: rgba(251, 191, 36, 0.07);
   border-left: 2px solid rgba(251, 191, 36, 0.55);
   border-radius: 4px 10px 10px 4px;
+}
+
+.grammar-learn-more {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  margin-left: 6px;
+  background: transparent;
+  color: #60a5fa;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.grammar-learn-more:hover,
+.grammar-learn-more:focus-visible {
+  color: #93c5fd;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.grammar-detail-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1800;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(3, 7, 18, 0.76);
+  backdrop-filter: blur(12px);
+}
+
+.grammar-detail-modal.hidden {
+  display: none;
+}
+
+.grammar-detail-panel {
+  width: min(760px, 100%);
+  max-height: min(760px, calc(100vh - 40px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  background: #121417;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.52);
+}
+
+.grammar-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.grammar-detail-header h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.18rem;
+  letter-spacing: -0.025em;
+}
+
+.grammar-detail-subtitle {
+  margin: 3px 0 0;
+  color: #8f98a7;
+  font-size: 0.82rem;
+}
+
+.grammar-detail-close {
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: #d1d5db;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.grammar-detail-close svg,.auth-close-button svg,.chat-setup-close svg,.stats-close-button svg,.dialog-close svg { width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round; }
+
+.grammar-detail-thread {
+  min-height: 180px;
+  overflow-y: auto;
+  padding: 24px 24px 12px;
+  color: #d8dee9;
+  font-size: 0.96rem;
+  line-height: 1.65;
+}
+
+.grammar-thread-message {
+  display: flex;
+  gap: 12px;
+  margin: 0 0 24px;
+}
+
+.grammar-thread-message.user { justify-content: flex-end; }
+
+.grammar-assistant-mark {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: white;
+  overflow: hidden;
+}
+
+.grammar-assistant-mark img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.grammar-assistant-identity {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.grammar-assistant-name {
+  color: #f1f5f9;
+  font-size: 0.82rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.grammar-message-content { min-width: 0; flex: 1; }
+
+.grammar-thread-message.user .grammar-message-content {
+  flex: 0 1 auto;
+  max-width: 78%;
+  padding: 10px 14px;
+  border-radius: 17px 17px 4px 17px;
+  background: #252a31;
+  color: #f4f6f8;
+}
+
+.grammar-message-title {
+  margin: 0 0 10px;
+  color: #f8fafc;
+  font-size: 1.06rem;
+  font-weight: 750;
+}
+
+.grammar-message-content h3 {
+  margin: 18px 0 6px;
+  color: #f2f5f9;
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.grammar-message-content p { margin: 0 0 9px; }
+.grammar-example-list { display: grid; gap: 8px; margin-top: 8px; }
+
+.grammar-example {
+  padding: 10px 12px;
+  border-left: 2px solid #3b82f6;
+  border-radius: 3px 9px 9px 3px;
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.grammar-example-target { color: #f8fafc; font-weight: 700; }
+.grammar-example-translation { color: #9ca3af; font-size: 0.87rem; }
+
+.grammar-takeaway {
+  margin-top: 18px !important;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  color: #bfdbfe;
+  font-weight: 650;
+}
+
+.grammar-thinking {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #a7afbb;
+  font-size: 0.9rem;
+}
+
+.grammar-thinking-dots { display: inline-flex; gap: 3px; }
+.grammar-thinking-dots i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: grammar-dot 1.15s ease-in-out infinite;
+}
+.grammar-thinking-dots i:nth-child(2) { animation-delay: 0.14s; }
+.grammar-thinking-dots i:nth-child(3) { animation-delay: 0.28s; }
+@keyframes grammar-dot {
+  0%, 70%, 100% { opacity: 0.25; transform: translateY(0); }
+  35% { opacity: 1; transform: translateY(-2px); }
+}
+
+.grammar-follow-up-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin: 0 18px 18px;
+  padding: 8px 8px 8px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 22px;
+  background: #20242a;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.grammar-follow-up-input {
+  flex: 1;
+  min-width: 0;
+  max-height: 120px;
+  resize: none;
+  border: 0;
+  padding: 8px 0;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  outline: none;
+}
+
+.grammar-follow-up-input:focus {
+  box-shadow: none;
+}
+
+.grammar-follow-up-send {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  padding: 0;
+  background: #2563eb;
+  color: white;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.grammar-follow-up-send svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.grammar-follow-up-send:disabled {
+  opacity: 0.55;
+  cursor: wait;
 }
 
 .speech-review-title {
@@ -2724,21 +2974,6 @@ form {
   margin-bottom: 5px;
 }
 
-.upcoming-refresh-button {
-  border: none;
-  border-radius: 999px;
-  padding: 9px 12px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #e5e7eb;
-  font-weight: 900;
-  cursor: pointer;
-}
-
-.upcoming-refresh-button:hover {
-  background: rgba(255, 255, 255, 0.16);
-  color: white;
-}
-
 .upcoming-words-list {
   display: flex;
   flex-direction: column;
@@ -2792,13 +3027,6 @@ form {
 
 .upcoming-word-chat-language.hidden {
   display: none;
-}
-
-.upcoming-word-progress {
-  color: #8f9bad;
-  font-size: 0.72rem;
-  font-weight: 750;
-  letter-spacing: 0.01em;
 }
 
 .upcoming-word-action {
@@ -2864,9 +3092,108 @@ form {
   }
 } 
 
-/* 2026 interface refinement: quieter surfaces, responsive shell, response ETA */
+/* Compact vocabulary cue attached to the current prompt. */
+.upcoming-words-panel {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(17, 24, 39, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(14px);
+}
+
+.upcoming-words-header {
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.upcoming-words-header h3 {
+  color: #cbd5e1;
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.3;
+}
+
+.upcoming-words-kicker {
+  margin-bottom: 3px;
+  color: #60a5fa;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.upcoming-words-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.upcoming-word-card {
+  min-height: 48px;
+  padding: 10px 11px 10px 13px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.045);
+  border-color: rgba(148, 163, 184, 0.16);
+  box-shadow: none;
+}
+
+.upcoming-word-text-stack {
+  gap: 3px;
+}
+
+.upcoming-word-main {
+  font-size: 0.96rem;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+}
+
+.upcoming-word-chat-language {
+  color: #93c5fd;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.upcoming-word-action {
+  width: auto;
+  min-width: 54px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(255, 255, 255, 0.055);
+  box-shadow: none;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.upcoming-word-action:hover {
+  transform: none;
+  background: rgba(96, 165, 250, 0.13);
+  box-shadow: none;
+}
+
+@media (max-width: 520px) {
+  .grammar-detail-modal {
+    padding: 10px;
+  }
+
+  .grammar-detail-panel {
+    max-height: calc(100vh - 20px);
+    border-radius: 20px;
+  }
+
+  .grammar-follow-up-form {
+    margin: 0 10px 10px;
+  }
+}
+
+/* Quiet response progress surface */
 .response-progress-card {
   width: min(720px, 100%);
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
   margin: 8px auto;
   padding: 16px 18px;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -2875,26 +3202,45 @@ form {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
 }
 
+.response-progress-card.fact-pending {
+  visibility: hidden;
+}
+
 .message-card.synchronized-pending {
   visibility: hidden;
 }
 
 .response-progress-copy {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 11px;
-  color: #d8dee8;
-  font-size: 0.9rem;
-  font-weight: 650;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin-bottom: 12px;
 }
 
-.response-progress-eta {
-  color: var(--muted);
-  white-space: nowrap;
+.response-progress-kicker {
+  margin-bottom: 5px;
+  color: #60a5fa;
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.09em;
+}
+
+.response-progress-fact {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  color: #d8dee8;
+  font-size: 0.91rem;
+  font-weight: 520;
+  line-height: 1.48;
 }
 
 .response-progress-track {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   height: 4px;
   overflow: hidden;
   border-radius: 4px;
@@ -3179,6 +3525,41 @@ form {
   gap: 10px;
 }
 
+.setup-name-label {
+  display: block;
+  margin: 0 0 7px;
+  color: #94a3b8;
+  font-size: 0.76rem;
+  font-weight: 650;
+}
+
+.setup-name-input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.055);
+  color: #f8fafc;
+  font: inherit;
+  outline: none;
+}
+
+.setup-name-input:focus {
+  border-color: rgba(96, 165, 250, 0.62);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+.setup-name-input::placeholder { color: #64748b; }
+
+.start-chat-button:disabled {
+  opacity: 0.64;
+  cursor: wait;
+  transform: none !important;
+}
+
 .setup-gender-option {
   min-height: 48px;
   padding: 10px 14px;
@@ -3334,6 +3715,256 @@ form {
     min-height: 62px;
   }
 }
+
+/* Signed-in product shell */
+.end-chat-button {
+  flex: 0 0 auto;
+  min-height: 42px;
+  padding: 0 17px;
+  border: 1px solid rgba(248, 113, 113, 0.42);
+  border-radius: 12px;
+  background: #dc2626;
+  color: #fff;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(220, 38, 38, 0.2);
+}
+
+.end-chat-button:hover { background: #ef4444; }
+
+.member-home {
+  width: min(1080px, 100%);
+  margin: 12px auto 64px;
+  display: grid;
+  gap: 14px;
+}
+
+.app-surface {
+  min-width: 0;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 22px;
+  background: rgba(15,18,24,.8);
+  box-shadow: 0 20px 55px rgba(0,0,0,.22);
+}
+
+.member-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 20px 22px;
+}
+
+.member-profile { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.member-avatar {
+  width: 58px; height: 58px; flex: 0 0 auto; display: grid; place-items: center;
+  overflow: hidden; border-radius: 18px; background: linear-gradient(145deg,#2563eb,#60a5fa);
+  color: white; font-weight: 900; font-size: 1.15rem; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+}
+.member-avatar img { width:100%; height:100%; object-fit:cover; }
+.member-eyebrow { color:#93c5fd; font-size:.7rem; font-weight:850; letter-spacing:.12em; text-transform:uppercase; }
+.member-hero h2 { margin:3px 0 0; font-size:clamp(1.5rem,4vw,2.15rem); letter-spacing:-.045em; }
+.icon-button { width:42px; height:42px; display:grid; place-items:center; border:1px solid rgba(255,255,255,.11); border-radius:12px; background:rgba(255,255,255,.055); color:#cbd5e1; cursor:pointer; }
+.icon-button svg { width:19px; height:19px; fill:currentColor; }
+.icon-button:hover { color:white; background:rgba(255,255,255,.1); }
+
+.member-practice, .history-surface, .stats-surface { padding: 20px; }
+.home-language-control { display:flex;align-items:center;justify-content:space-between;gap:18px;padding:13px 16px; }
+.home-language-field { width:min(390px,100%);grid-template-columns:auto minmax(210px,1fr);align-items:center;gap:14px; }
+.section-heading-row { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:17px; }
+.section-heading-row h3 { margin:0; font-size:1.18rem; letter-spacing:-.025em; }
+.practice-launch-row { display:grid; grid-template-columns:minmax(190px,1fr) auto auto; align-items:end; gap:12px; }
+.practice-launch-row.compact-practice-launch { grid-template-columns:minmax(250px,1fr) auto; }
+.member-field { display:grid; gap:7px; min-width:0; }
+.member-field > span { color:#94a3b8; font-size:.72rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.member-field select { width:100%; height:48px; padding:0 40px 0 14px; border:1px solid rgba(255,255,255,.12); border-radius:13px; background:#171b22; color:white; }
+.horizontal-mode-toggle { display:grid; grid-template-columns:1fr 1fr; padding:4px; border:1px solid rgba(255,255,255,.1); border-radius:13px; background:#11151b; }
+.horizontal-mode-toggle button { min-height:40px; padding:0 16px; border:0; border-radius:9px; background:transparent; color:#94a3b8; font:inherit; font-weight:780; cursor:pointer; }
+.horizontal-mode-toggle button.active { background:#29303a; color:white; box-shadow:0 3px 10px rgba(0,0,0,.2); }
+.primary-action { min-height:48px; padding:0 20px; border:0; border-radius:12px; background:#f8fafc; color:#0b0e13; font:inherit; font-weight:850; cursor:pointer; }
+.primary-action:hover { background:#dbeafe; }
+.primary-action:disabled { opacity:.55; cursor:wait; }
+.ask-master-button { width:100%; margin-top:14px; padding:13px; display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:12px; border:1px solid rgba(96,165,250,.18); border-radius:15px; background:rgba(37,99,235,.07); color:#e5e7eb; text-align:left; cursor:pointer; }
+.ask-master-button:hover { background:rgba(37,99,235,.12); border-color:rgba(96,165,250,.32); }
+.ask-master-button strong,.ask-master-button small { display:block; }
+.ask-master-button small { margin-top:2px; color:#94a3b8; font-size:.79rem; font-weight:500; }
+.ask-master-button > svg { width:18px; height:18px; fill:none; stroke:#93c5fd; stroke-width:2; }
+.ask-master-standalone { margin-top:0;padding:14px 17px;background:linear-gradient(115deg,rgba(37,99,235,.1),rgba(255,255,255,.03));box-shadow:0 14px 34px rgba(0,0,0,.14); }
+.master-mini-mark { width:34px; height:34px; overflow:hidden; display:grid; place-items:center; border-radius:10px; background:white; }
+.master-mini-mark img { width:100%; height:100%; object-fit:cover; }
+.home-grid { display:grid; grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr); gap:14px; }
+.text-link,.quiet-link { padding:0; border:0; background:transparent; color:#60a5fa; font:inherit; font-weight:750; cursor:pointer; }
+.session-list { display:grid; gap:2px; }
+.session-list-empty { padding:28px 12px; color:#7f8997; text-align:center; border:1px dashed rgba(255,255,255,.1); border-radius:14px; }
+.session-list-item { width:100%; min-width:0; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px; align-items:center; padding:14px 4px; border:0; border-top:1px solid rgba(255,255,255,.075); background:transparent; color:white; font:inherit; text-align:left; }
+.session-list-item:first-child { border-top:0; }
+.session-list-title { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:760; }
+.session-list-date { display:block; margin-top:3px; color:#778191; font-size:.78rem; }
+.session-list-meta { color:#9ca3af; font-size:.76rem; text-align:right; white-space:nowrap; }
+.home-stat-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
+.home-stat-grid > div { min-width:0; padding:10px 11px; border-radius:11px; background:rgba(255,255,255,.038); }
+.home-stat-grid strong,.home-stat-grid span { display:block; }
+.home-stat-grid strong { font-size:1.28rem; letter-spacing:-.04em; }
+.home-stat-grid span { margin-top:3px; color:#8590a0; font-size:.68rem; }
+.chart-heading { display:flex; justify-content:space-between; margin:19px 2px 7px; color:#8d97a5; font-size:.72rem; font-weight:700; }
+.session-time-chart { display:block; width:100%; height:180px; overflow:visible; }
+.session-time-chart .chart-axis { stroke:rgba(203,213,225,.34);stroke-width:1; }
+.session-time-chart .chart-grid { stroke:rgba(255,255,255,.07);stroke-width:1; }
+.session-time-chart .chart-label { fill:#8290a3;font-size:11px;font-family:inherit; }
+.session-time-chart .chart-axis-title { fill:#a9b4c2;font-size:11px;font-family:inherit;font-weight:700;letter-spacing:.02em; }
+
+/* Grammar composer containment and stable assistant identity */
+.grammar-detail-panel,.grammar-detail-header,.grammar-detail-thread { min-width:0; box-sizing:border-box; }
+.grammar-detail-thread { flex:1 1 auto; min-height:0; overscroll-behavior:contain; }
+.grammar-thread-message.assistant { position:relative; align-items:flex-start; }
+.grammar-assistant-identity { position:static; align-self:flex-start; padding:3px 0 7px; }
+.grammar-follow-up-form { width:calc(100% - 36px); max-width:calc(100% - 36px); min-width:0; box-sizing:border-box; flex:0 0 auto; overflow:hidden; }
+.grammar-follow-up-input { width:0; flex:1 1 0; min-width:0; box-sizing:border-box; overflow-x:hidden; overflow-wrap:anywhere; }
+.grammar-follow-up-send { flex:0 0 36px; }
+
+/* Full-page completion, confirmation, history, and assistant */
+.product-page,.master-page { position:fixed; inset:0; z-index:100; overflow:auto; background:radial-gradient(circle at 12% 0,rgba(37,99,235,.14),transparent 32%),#07090d; color:white; }
+.product-page { display:grid; place-items:center; padding:28px; }
+.product-page-shell { width:min(920px,100%); }
+.summary-shell,.confirmation-shell,.completion-shell { text-align:center; }
+.completion-mark { width:58px;height:58px;display:grid;place-items:center;margin:0 auto 20px;border-radius:18px;background:rgba(34,197,94,.12);border:1px solid rgba(74,222,128,.25);color:#86efac; }
+.completion-mark svg { width:29px;height:29px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round; }
+.product-page h2 { margin:0; font-size:clamp(2.2rem,6vw,4.6rem); line-height:1; letter-spacing:-.065em; }
+.summary-metrics { display:grid; grid-template-columns:repeat(3,1fr); margin:34px 0 28px; overflow:hidden; border:1px solid rgba(255,255,255,.1); border-radius:18px; background:rgba(255,255,255,.035); }
+.summary-metrics div { padding:24px 15px; border-left:1px solid rgba(255,255,255,.09); }
+.summary-metrics div:first-child { border-left:0; }
+.summary-metrics span,.summary-metrics strong { display:block; }
+.summary-metrics span { color:#8f99a7;font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em; }
+.summary-metrics strong { margin-top:8px;font-size:1.8rem; }
+.confirm-callout { padding:25px; border-radius:20px; background:rgba(37,99,235,.08); border:1px solid rgba(96,165,250,.18); }
+.confirm-callout h3 { max-width:620px;margin:0 auto 18px;font-size:1.16rem;line-height:1.4; }
+.summary-shell > .quiet-link { margin-top:28px;color:#aeb7c4; }
+.summary-grammar-section { margin:0 0 24px;padding:22px;text-align:left;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:rgba(255,255,255,.035); }
+.summary-section-heading h3 { margin:4px 0 0;font-size:1.2rem;letter-spacing:-.025em; }
+.summary-grammar-tips { display:grid;gap:10px;margin-top:16px; }
+.summary-grammar-tip { padding:15px 16px;border-left:2px solid #fbbf24;border-radius:4px 12px 12px 4px;background:rgba(245,158,11,.065); }
+.summary-grammar-tip strong,.summary-grammar-tip span,.summary-grammar-tip p { display:block; }
+.summary-grammar-tip strong { color:#fde68a;font-size:.9rem; }
+.summary-grammar-tip span { margin-top:7px;color:#f8fafc;font-weight:700;line-height:1.45; }
+.summary-grammar-tip p { margin:7px 0 0;color:#b6beca;font-size:.88rem;line-height:1.55; }
+.review-session-button { width:100%;min-height:50px;margin:0 0 16px;border:1px solid rgba(147,197,253,.25);border-radius:13px;background:rgba(37,99,235,.08);color:#bfdbfe;font:inherit;font-weight:820;cursor:pointer; }
+.review-session-button:hover { background:rgba(37,99,235,.14);border-color:rgba(147,197,253,.4); }
+.decision-modal { position:fixed;inset:0;z-index:140;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(12px); }
+.decision-panel { position:relative;width:min(490px,100%);padding:28px;border:1px solid rgba(255,255,255,.12);border-radius:20px;background:#14171d;box-shadow:0 30px 90px rgba(0,0,0,.55); }
+.decision-panel h2 { margin:0;font-size:1.75rem;letter-spacing:-.04em; }
+.decision-panel p { margin:12px 0 24px;color:#aeb6c2;line-height:1.55; }
+.dialog-close { position:absolute;top:13px;right:13px;width:36px;height:36px;border:0;border-radius:10px;background:rgba(255,255,255,.06);color:#cbd5e1;font-size:1.35rem;cursor:pointer; }
+.decision-actions { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+.danger-outline { min-height:48px;padding:0 16px;border:1px solid rgba(248,113,113,.38);border-radius:12px;background:rgba(239,68,68,.08);color:#fecaca;font:inherit;font-weight:800;cursor:pointer; }
+.confirmation-progress { width:min(620px,100%);margin:0 auto 42px;text-align:left; }
+.confirmation-progress > span { color:#94a3b8;font-size:.75rem;font-weight:750; }
+.confirmation-progress > div { height:5px;margin-top:9px;overflow:hidden;border-radius:99px;background:rgba(255,255,255,.1); }
+.confirmation-progress i { display:block;width:0;height:100%;border-radius:inherit;background:#3b82f6;transition:width .25s ease; }
+.confirmation-shell h2 { margin-top:10px; }
+.confirmation-shell > p { margin:12px 0 26px;color:#9099a8; }
+.confirmation-form { width:min(560px,100%);margin:0 auto;display:grid;gap:12px; }
+.confirmation-input-wrap { display:grid;grid-template-columns:minmax(0,1fr) 48px;overflow:hidden;border:1px solid rgba(255,255,255,.14);border-radius:14px;background:#151920; }
+.confirmation-input-wrap.text-only { grid-template-columns:minmax(0,1fr); }
+.confirmation-input-wrap input { min-width:0;height:54px;padding:0 16px;border:0;background:transparent;color:white;font:inherit;outline:none; }
+.confirmation-input-wrap button { display:grid;place-items:center;border:0;border-left:1px solid rgba(255,255,255,.1);background:transparent;color:#93c5fd;cursor:pointer; }
+.confirmation-input-wrap svg { width:20px;height:20px;fill:currentColor; }
+.confirmation-feedback { min-height:22px;color:#93c5fd;font-size:.86rem; }
+.confirmation-form .quiet-link { margin-top:4px;color:#aab3bf; }
+.completion-shell p { margin-top:12px;color:#93c5fd;font-size:1.15rem;font-weight:750; }
+.list-page-shell { align-self:start;margin:0 auto;padding:10px 0 50px; }
+.back-button { display:inline-flex;align-items:center;gap:8px;margin:0 0 35px;padding:9px 12px;border:1px solid rgba(255,255,255,.09);border-radius:10px;background:rgba(255,255,255,.045);color:#cbd5e1;font:inherit;font-weight:750;cursor:pointer; }
+.back-button svg { width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round; }
+.list-page-shell h2 { margin:6px 0 24px; }
+.list-page-shell .session-list { padding:8px 20px;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:rgba(255,255,255,.035); }
+.session-list-item { cursor:pointer;border-radius:10px; }
+.session-list-item:hover,.session-list-item:focus-visible { background:rgba(255,255,255,.045);outline:none; }
+.pagination-row { display:flex;justify-content:center;align-items:center;gap:14px;margin-top:20px;color:#8b95a3;font-size:.82rem; }
+.pagination-row button { min-height:38px;padding:0 14px;border:1px solid rgba(255,255,255,.1);border-radius:9px;background:rgba(255,255,255,.05);color:white;cursor:pointer; }
+.pagination-row button:disabled { opacity:.35;cursor:default; }
+.master-page { display:grid;grid-template-columns:280px minmax(0,1fr);overflow:hidden; }
+.master-sidebar { min-width:0;padding:18px 14px;border-right:1px solid rgba(255,255,255,.08);background:#0d1015;overflow-y:auto; }
+.master-sidebar .back-button { margin-bottom:14px; }
+.new-master-chat { width:100%;min-height:44px;border:1px solid rgba(255,255,255,.12);border-radius:11px;background:rgba(255,255,255,.055);color:white;font:inherit;font-weight:780;cursor:pointer; }
+.master-sidebar-label { margin:25px 8px 9px;color:#697484;font-size:.68rem;font-weight:850;letter-spacing:.11em;text-transform:uppercase; }
+.master-thread-list { display:grid;gap:3px; }
+.master-thread-button { width:100%;padding:10px;border:0;border-radius:9px;background:transparent;color:#aeb6c2;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer; }
+.master-thread-button:hover,.master-thread-button.active { background:rgba(255,255,255,.065);color:white; }
+.master-workspace { min-width:0;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto; }
+.master-page-header { display:flex;align-items:center;gap:12px;padding:16px 22px;border-bottom:1px solid rgba(255,255,255,.07); }
+.master-page-header h2,.master-page-header p { margin:0; }.master-page-header h2{font-size:1rem;}.master-page-header p{margin-top:2px;color:#798391;font-size:.74rem;}
+.master-chat-messages { min-width:0;overflow-y:auto;padding:30px max(22px,calc((100% - 760px)/2)); }
+.master-chat-row { min-width:0;margin-bottom:28px;display:flex;gap:12px;align-items:flex-start; }
+.master-chat-row.user { justify-content:flex-end; }
+.master-chat-row.user .master-chat-content { max-width:75%;padding:11px 15px;border-radius:16px 16px 4px 16px;background:#252a31; }
+.master-chat-row.assistant { display:block; }
+.master-assistant-heading { display:flex;align-items:center;gap:9px;margin-bottom:9px; }
+.master-assistant-heading .master-mini-mark { width:30px;height:30px;border-radius:9px; }
+.master-assistant-name { color:#f8fafc;font-size:.86rem;font-weight:800; }
+.master-chat-row.assistant .master-chat-content { padding-left:39px;line-height:1.68;color:#e2e8f0; }
+.master-chat-content { min-width:0;white-space:pre-wrap;overflow-wrap:anywhere; }
+.master-chat-content p { margin:0 0 11px; }
+.master-chat-content p:last-child { margin-bottom:0; }
+.master-thinking { display:flex;align-items:center;gap:7px;color:#9aa4b2;font-size:.9rem; }
+.master-thinking-dots { display:inline-flex;gap:3px; }
+.master-thinking-dots i { width:4px;height:4px;border-radius:50%;background:currentColor;animation:grammarDot 1.1s infinite ease-in-out; }
+.master-thinking-dots i:nth-child(2){animation-delay:.14s}.master-thinking-dots i:nth-child(3){animation-delay:.28s}
+.master-session-group { margin-top:20px;padding-top:13px;border-top:1px solid rgba(255,255,255,.07); }
+.master-session-title { margin:0 8px 7px;color:#93a0b2;font-size:.69rem;font-weight:800;line-height:1.35; }
+.master-thread-empty { margin:12px 8px;color:#687385;font-size:.76rem;line-height:1.5; }
+.review-page-shell { align-self:start;margin:0 auto;padding:10px 0 55px; }
+.review-page-shell h2 { margin:5px 0 0;font-size:clamp(2rem,5vw,3.4rem); }
+.session-review-meta { margin:10px 0 30px;color:#8e99a8;font-size:.82rem; }
+.session-review-messages { width:min(820px,100%);margin:0 auto;padding:25px;border:1px solid rgba(255,255,255,.09);border-radius:20px;background:rgba(255,255,255,.025); }
+.session-review-messages.session-review-live-snapshot { width:min(980px,100%); }
+.session-review-live-snapshot .message-card { pointer-events:none; }
+.session-review-live-snapshot button { cursor:default; }
+.session-review-row { margin:0 0 24px; }
+.session-review-row:last-child { margin-bottom:0; }
+.session-review-row.user { display:flex;justify-content:flex-end; }
+.session-review-row.user > div { max-width:78%;padding:11px 15px;border-radius:16px 16px 4px 16px;background:#252a31;color:#f8fafc;white-space:pre-wrap; }
+.session-review-row.assistant .session-review-identity { display:flex;align-items:center;gap:9px;margin-bottom:9px;color:#f8fafc;font-size:.86rem;font-weight:800; }
+.session-review-row.assistant .session-review-copy { padding-left:39px;color:#e2e8f0;line-height:1.65;white-space:pre-wrap; }
+.session-review-outcome { width:min(700px,calc(100% - 30px));margin:0 auto;padding:15px 17px;border:1px solid rgba(147,197,253,.2);border-radius:15px;background:rgba(37,99,235,.07); }
+.session-review-outcome.grammar { border-color:rgba(251,191,36,.28);background:rgba(245,158,11,.065); }
+.session-review-outcome strong,.session-review-outcome span { display:block; }
+.session-review-outcome strong { color:#bfdbfe;font-size:.82rem; }
+.session-review-outcome.grammar strong { color:#fde68a; }
+.session-review-outcome span { margin-top:7px;color:#f8fafc;font-weight:700;line-height:1.5; }
+.session-review-outcome p { margin:8px 0 0;color:#b6beca;font-size:.87rem;line-height:1.55; }
+.master-composer { width:min(780px,calc(100% - 32px));max-width:calc(100% - 32px);min-width:0;margin:0 auto 20px;padding:8px;display:flex;align-items:flex-end;gap:8px;overflow:hidden;box-sizing:border-box;border:1px solid rgba(255,255,255,.14);border-radius:20px;background:#20242a;box-shadow:0 16px 45px rgba(0,0,0,.28); }
+.master-composer textarea { width:0;min-width:0;max-height:140px;flex:1 1 0;resize:none;padding:9px;border:0;background:transparent;color:white;font:inherit;outline:none;overflow-wrap:anywhere; }
+.master-composer button { width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border:0;border-radius:50%;background:#2563eb;color:white;cursor:pointer; }
+.master-composer svg { width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round; }
+
+@media (max-width: 820px) {
+  .practice-launch-row,.practice-launch-row.compact-practice-launch,.home-grid { grid-template-columns:1fr; }
+  .home-language-control { align-items:stretch; }
+  .home-language-field { width:100%; }
+  .home-stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .master-page { grid-template-columns:120px minmax(0,1fr); }
+  .master-sidebar { display:block;padding:12px 7px; }
+  .master-sidebar .back-button { width:100%;justify-content:center;font-size:.76rem;padding:8px 5px; }
+  .new-master-chat { font-size:.76rem; }
+  .master-sidebar-label { margin-left:5px;font-size:.6rem; }
+  .summary-metrics { grid-template-columns:1fr; }
+  .summary-metrics div { border-left:0;border-top:1px solid rgba(255,255,255,.09); }
+  .summary-metrics div:first-child { border-top:0; }
+}
+
+@media (max-width: 600px) {
+  .member-home { margin-top:4px; }
+  .member-hero,.member-practice,.history-surface,.stats-surface { padding:16px; }
+  .home-language-field { grid-template-columns:1fr;gap:7px; }
+  .member-avatar { width:50px;height:50px;border-radius:15px; }
+  .ask-master-button small { display:none; }
+  .product-page { padding:20px 16px; }
+  .decision-actions { grid-template-columns:1fr; }
+  .grammar-follow-up-form { width:calc(100% - 20px);max-width:calc(100% - 20px);margin:0 10px 10px; }
+  .grammar-assistant-name { display:none; }
+  .end-chat-button { padding:0 12px;min-height:40px;font-size:.8rem; }
+}
   </style>
 </head>
 
@@ -3358,6 +3989,7 @@ form {
 </div>
 
       <div class="session-controls">
+  <button id="endChatButton" class="end-chat-button hidden" type="button">End chat</button>
   <div class="control-card account-card">
     <button id="authOpenButton" class="auth-open-button" type="button">
       Sign in
@@ -3401,19 +4033,86 @@ form {
     Welcome to LipsMaxxed! Click the microphone to get started.
   </p>
 </main>
+
+<main id="signedInHome" class="member-home hidden" aria-label="Your LipsMaxxed home">
+  <section class="member-hero app-surface">
+    <div class="member-profile">
+      <div id="homeProfileAvatar" class="member-avatar" aria-hidden="true"></div>
+      <div>
+        <div class="member-eyebrow">Welcome back</div>
+        <h2 id="homeProfileName">Your profile</h2>
+      </div>
+    </div>
+    <button id="editAccountButton" class="icon-button" type="button" aria-label="Edit my account" title="Edit my account">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16.7-.7 4 4-.7L18.9 8.4l-3.3-3.3L4 16.7Zm15.9-9.3 1-1a1.5 1.5 0 0 0 0-2.1l-1.2-1.2a1.5 1.5 0 0 0-2.1 0l-1 1 3.3 3.3Z"/></svg>
+    </button>
+  </section>
+
+  <section class="home-language-control app-surface" aria-label="Current practice language">
+    <label class="member-field home-language-field"><span>Language</span><select id="homeLanguageSelect">
+      <option value="English">English</option><option value="Hebrew">Hebrew</option><option value="Spanish">Spanish</option><option value="French">French</option><option value="German">German</option><option value="Arabic">Arabic</option><option value="Russian">Russian</option><option value="Italian">Italian</option><option value="Portuguese">Portuguese</option><option value="Chinese">Chinese</option><option value="Japanese">Japanese</option><option value="Korean">Korean</option>
+    </select></label>
+  </section>
+
+  <section class="member-practice app-surface">
+    <div class="section-heading-row">
+      <div><div class="member-eyebrow">Practice</div><h3>Start a new chat</h3></div>
+    </div>
+    <div class="practice-launch-row compact-practice-launch">
+      <div id="homeModeToggle" class="horizontal-mode-toggle" role="group" aria-label="Input mode">
+        <button class="active" type="button" data-home-mode="writing">Writing</button>
+        <button type="button" data-home-mode="speech">Speech</button>
+      </div>
+      <button id="homeStartChatButton" class="primary-action" type="button">Start chat</button>
+    </div>
+  </section>
+
+  <button id="askLipsMasterButton" class="ask-master-button ask-master-standalone" type="button">
+      <span class="master-mini-mark"><img src="assets/language-logo.png" alt="" /></span>
+      <span><strong>Ask LipsMaster</strong><small>Get help with grammar, wording, or anything you are learning.</small></span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+  </button>
+
+  <section class="home-grid">
+    <div class="app-surface history-surface">
+      <div class="section-heading-row"><h3 id="homeHistoryTitle">My Previous Chats</h3><button id="seeAllChatsButton" class="text-link" type="button">See all</button></div>
+      <div id="recentChatsList" class="session-list"></div>
+    </div>
+    <div class="app-surface stats-surface">
+      <div class="section-heading-row"><h3 id="homeStatsTitle">My Stats</h3></div>
+      <div class="home-stat-grid">
+        <div><strong id="homePointsStat">0</strong><span>Points</span></div><div><strong id="homeSessionsStat">0</strong><span>Sessions</span></div><div><strong id="homeTimeStat">0m</strong><span>Total time</span></div><div><strong id="homeMessagesStat">0</strong><span>Messages</span></div><div><strong id="homeConfirmedStat">0</strong><span>Confirmed words</span></div>
+      </div>
+      <div class="chart-heading"><span>Session time</span><span id="chartPeriodLabel">Recent sessions</span></div>
+      <svg id="sessionTimeChart" class="session-time-chart" viewBox="0 0 640 180" role="img" aria-label="Session time progress"></svg>
+    </div>
+  </section>
+</main>
 <section id="upcomingWordsPanel" class="upcoming-words-panel hidden">
   <div class="upcoming-words-header">
     <div>
       <div class="upcoming-words-kicker">Bonus words</div>
       <h3>Try to use these words in your response</h3>
     </div>
-
-    <button id="refreshUpcomingWordsButton" class="upcoming-refresh-button" type="button">
-      Refresh
-    </button>
   </div>
 
   <div id="upcomingWordsList" class="upcoming-words-list"></div>
+</section>
+
+<section id="grammarDetailModal" class="grammar-detail-modal hidden" role="dialog" aria-modal="true" aria-labelledby="grammarDetailTitle">
+  <div class="grammar-detail-panel">
+    <header class="grammar-detail-header">
+      <div>
+        <h2 id="grammarDetailTitle">Grammar rule</h2>
+      </div>
+      <button id="grammarDetailClose" class="grammar-detail-close" type="button" aria-label="Close grammar explanation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </header>
+    <div id="grammarDetailBody" class="grammar-detail-thread" aria-live="polite"></div>
+    <form id="grammarFollowUpForm" class="grammar-follow-up-form">
+      <textarea id="grammarFollowUpInput" class="grammar-follow-up-input" rows="1" maxlength="700" autocomplete="off" placeholder="Ask a follow-up" aria-label="Ask a grammar follow-up"></textarea>
+      <button id="grammarFollowUpSend" class="grammar-follow-up-send" type="submit" aria-label="Send follow-up"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+    </form>
+  </div>
 </section>
 
     <div id="composerShell" class="composer-shell">
@@ -3428,7 +4127,7 @@ form {
 
 <div id="speechShell" class="speech-shell hidden">
   <button id="speechRecordButton" class="speech-record-button" type="button" title="Record speech">
-    <span class="mic-symbol" aria-hidden="true">&#127908;</span>
+    <span class="mic-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 15.5a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v5.5a4 4 0 0 0 4 4Zm6.5-4a1 1 0 0 0-2 0 4.5 4.5 0 0 1-9 0 1 1 0 0 0-2 0 6.5 6.5 0 0 0 5.5 6.42V20H8.5v2h7v-2H13v-2.08a6.5 6.5 0 0 0 5.5-6.42Z"/></svg></span>
   </button>
 
   <div id="speechStatus" class="speech-status">
@@ -3442,7 +4141,7 @@ form {
 
   <div class="auth-panel">
     <button id="authCloseButton" class="auth-close-button" type="button">
-      &times;
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
 
     <div class="auth-title">My Account</div>
@@ -3467,7 +4166,8 @@ form {
         id="authName"
         class="auth-input"
         type="text"
-        autocomplete="username"
+        autocomplete="off"
+        placeholder=""
       />
     </div>
 
@@ -3580,7 +4280,7 @@ form {
 
     <div id="authGenderGroup" class="auth-field-group">
       <div class="auth-label centered-auth-label">
-  Gender
+  Address me as
 </div>
 
       <div class="gender-options">
@@ -3588,20 +4288,27 @@ form {
           <svg class="gender-icon" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 11.5a4.2 4.2 0 1 0 0-8.4 4.2 4.2 0 0 0 0 8.4Zm0 2c-4.2 0-7.6 2.6-7.6 5.9 0 .9.7 1.5 1.6 1.5h12c.9 0 1.6-.6 1.6-1.5 0-3.3-3.4-5.9-7.6-5.9Z"></path>
           </svg>
-          <span>I am a man</span>
+          <span>Male</span>
         </button>
 
         <button id="genderWomanButton" class="gender-option gender-woman" type="button" data-gender="woman">
           <svg class="gender-icon" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 11.2a4.1 4.1 0 1 0 0-8.2 4.1 4.1 0 0 0 0 8.2Zm-5.9 8.5c-.7 0-1.2-.7-.9-1.4l2-4.1c.7-1.5 2.2-2.4 3.8-2.4h1.8c1.6 0 3.1.9 3.8 2.4l2 4.1c.3.7-.2 1.4-.9 1.4h-2.6v1.1a1 1 0 0 1-2 0v-1.1h-2.2v1.1a1 1 0 0 1-2 0v-1.1H6.1Z"></path>
           </svg>
-          <span>I am a woman</span>
+          <span>Female</span>
         </button>
       </div>
 
       <p class="gender-note">
   Helps the chatbot address you naturally in languages with masculine and feminine forms.
 </p>
+    </div>
+
+    <div id="authNativeLanguageGroup" class="auth-field-group">
+      <label class="auth-label centered-auth-label" for="authNativeLanguage">Native language</label>
+      <div class="select-wrap setup-select-wrap auth-language-select"><select id="authNativeLanguage">
+        <option value="English">English</option><option value="Hebrew">Hebrew</option><option value="Spanish">Spanish</option><option value="French">French</option><option value="German">German</option><option value="Arabic">Arabic</option><option value="Russian">Russian</option><option value="Italian">Italian</option><option value="Portuguese">Portuguese</option><option value="Chinese">Chinese</option><option value="Japanese">Japanese</option><option value="Korean">Korean</option>
+      </select></div>
     </div>
   </div>
 
@@ -3632,7 +4339,7 @@ form {
 <section id="chatSetupModal" class="chat-setup-modal hidden">
   <div class="chat-setup-panel">
     <button id="closeChatSetupButton" class="chat-setup-close" type="button" aria-label="Close practice setup">
-      &times;
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
 
     <div class="chat-setup-heading">
@@ -3651,18 +4358,18 @@ form {
         <div class="setup-language-control">
           <div class="select-wrap setup-select-wrap">
             <select id="chatSetupLanguageSelect">
-              <option value="English" selected>&#127482;&#127480; English</option>
-              <option value="Hebrew">&#127470;&#127473; Hebrew</option>
-              <option value="Spanish">&#127466;&#127480; Spanish</option>
-              <option value="French">&#127467;&#127479; French</option>
-              <option value="German">&#127465;&#127466; German</option>
-              <option value="Arabic">&#127480;&#127462; Arabic</option>
-              <option value="Russian">&#127479;&#127482; Russian</option>
-              <option value="Italian">&#127470;&#127481; Italian</option>
-              <option value="Portuguese">&#127477;&#127481; Portuguese</option>
-              <option value="Chinese">&#127464;&#127475; Chinese</option>
-              <option value="Japanese">&#127471;&#127477; Japanese</option>
-              <option value="Korean">&#127472;&#127479; Korean</option>
+              <option value="English" selected>English</option>
+              <option value="Hebrew">Hebrew</option>
+              <option value="Spanish">Spanish</option>
+              <option value="French">French</option>
+              <option value="German">German</option>
+              <option value="Arabic">Arabic</option>
+              <option value="Russian">Russian</option>
+              <option value="Italian">Italian</option>
+              <option value="Portuguese">Portuguese</option>
+              <option value="Chinese">Chinese</option>
+              <option value="Japanese">Japanese</option>
+              <option value="Korean">Korean</option>
             </select>
           </div>
         </div>
@@ -3670,6 +4377,7 @@ form {
 
       <div class="chat-setup-section">
         <div class="chat-setup-label">Address me as</div>
+        <input id="setupPreferredNameInput" class="setup-name-input" type="text" maxlength="80" autocomplete="name" placeholder="Name" aria-label="Your name" />
         <div class="setup-gender-toggle" role="group" aria-label="Address me as">
           <button id="setupGenderManButton" class="setup-gender-option" type="button" data-gender="man" aria-pressed="false">
             Male
@@ -3716,7 +4424,7 @@ form {
 <section id="profileModal" class="profile-modal hidden">
   <div class="profile-panel">
     <button id="closeProfileButton" class="chat-setup-close" type="button">
-      &times;
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
 
     <div class="chat-setup-kicker">My profile</div>
@@ -3731,24 +4439,37 @@ form {
     </div>
 
     <div class="chat-setup-section">
+      <div class="chat-setup-label">Address me as</div>
+      <div class="setup-gender-toggle" role="group" aria-label="Address me as">
+        <button id="profileGenderManButton" class="setup-gender-option" type="button" data-gender="man">Male</button>
+        <button id="profileGenderWomanButton" class="setup-gender-option" type="button" data-gender="woman">Female</button>
+      </div>
+    </div>
+
+    <div class="chat-setup-section">
+      <label class="chat-setup-label" for="profilePhotoInput">Profile photo URL</label>
+      <input id="profilePhotoInput" class="profile-input profile-photo-input" type="url" inputmode="url" autocomplete="url" placeholder="https://" />
+    </div>
+
+    <div class="chat-setup-section">
       <label class="chat-setup-label" for="profileFluentLanguageSelect">
-        Fluent language
+        Native language
       </label>
 
       <div class="select-wrap setup-select-wrap">
         <select id="profileFluentLanguageSelect">
-          <option value="English" selected>&#127482;&#127480; English</option>
-          <option value="Hebrew">&#127470;&#127473; Hebrew</option>
-          <option value="Spanish">&#127466;&#127480; Spanish</option>
-          <option value="French">&#127467;&#127479; French</option>
-          <option value="German">&#127465;&#127466; German</option>
-          <option value="Arabic">&#127480;&#127462; Arabic</option>
-          <option value="Russian">&#127479;&#127482; Russian</option>
-          <option value="Italian">&#127470;&#127481; Italian</option>
-          <option value="Portuguese">&#127477;&#127481; Portuguese</option>
-          <option value="Chinese">&#127464;&#127475; Chinese</option>
-          <option value="Japanese">&#127471;&#127477; Japanese</option>
-          <option value="Korean">&#127472;&#127479; Korean</option>
+          <option value="English" selected>English</option>
+          <option value="Hebrew">Hebrew</option>
+          <option value="Spanish">Spanish</option>
+          <option value="French">French</option>
+          <option value="German">German</option>
+          <option value="Arabic">Arabic</option>
+          <option value="Russian">Russian</option>
+          <option value="Italian">Italian</option>
+          <option value="Portuguese">Portuguese</option>
+          <option value="Chinese">Chinese</option>
+          <option value="Japanese">Japanese</option>
+          <option value="Korean">Korean</option>
         </select>
       </div>
     </div>
@@ -3759,6 +4480,77 @@ form {
 
     <div id="profileMessage" class="auth-message"></div>
   </div>
+</section>
+
+<section id="sessionSummaryPage" class="product-page hidden" aria-labelledby="sessionSummaryTitle">
+  <div class="product-page-shell summary-shell">
+    <div class="completion-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"/></svg></div>
+    <h2 id="sessionSummaryTitle">Congratulations! You learned <span id="summaryLearnedInline">0</span> words</h2>
+    <div class="summary-metrics">
+      <div><span>Total session time</span><strong id="summarySessionTime">0m</strong></div>
+      <div><span>Words learned</span><strong id="summaryWordsLearned">0</strong></div>
+      <div><span>Points gained</span><strong id="summaryPointsGained">0</strong></div>
+    </div>
+    <section id="summaryGrammarSection" class="summary-grammar-section hidden" aria-labelledby="summaryGrammarTitle">
+      <div class="summary-section-heading">
+        <div><div class="member-eyebrow">From this session</div><h3 id="summaryGrammarTitle">Grammar tips</h3></div>
+      </div>
+      <div id="summaryGrammarTips" class="summary-grammar-tips"></div>
+    </section>
+    <button id="reviewSessionChatButton" class="review-session-button" type="button">Review chat</button>
+    <div id="summaryConfirmCallout" class="confirm-callout">
+      <h3>Before you go, donât forget to confirm the new words you learned</h3>
+      <button id="confirmWordsButton" class="primary-action" type="button">Confirm words</button>
+    </div>
+    <button id="summaryReturnHomeButton" class="quiet-link" type="button">Return to home</button>
+  </div>
+</section>
+
+<section id="unconfirmedExitModal" class="decision-modal hidden" role="dialog" aria-modal="true" aria-labelledby="unconfirmedExitTitle">
+  <div class="decision-panel">
+    <button id="closeUnconfirmedExitButton" class="dialog-close" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <h2 id="unconfirmedExitTitle">Are you sure?</h2>
+    <p>If you do not confirm the new words you learned, they will not save to your profile!</p>
+    <div class="decision-actions"><button id="modalConfirmWordsButton" class="primary-action" type="button">Confirm words</button><button id="exitChatAnywayButton" class="danger-outline" type="button">Exit chat anyway</button></div>
+  </div>
+</section>
+
+<section id="wordConfirmationPage" class="product-page hidden" aria-labelledby="confirmWordHeading">
+  <div class="product-page-shell confirmation-shell">
+    <div class="confirmation-progress"><span id="confirmationProgressText">Word 1 of 1</span><div><i id="confirmationProgressFill"></i></div></div>
+    <div class="member-eyebrow">Confirm what you learned</div>
+    <h2 id="confirmWordHeading" dir="auto"></h2>
+    <p id="confirmationPrompt">Enter the word in the language you are learning.</p>
+    <form id="wordConfirmationForm" class="confirmation-form">
+      <div class="confirmation-input-wrap"><input id="wordConfirmationInput" autocomplete="off" aria-label="Word translation" /><button id="wordConfirmationSpeechButton" type="button" aria-label="Speak translation" title="Speak translation"><svg viewBox="0 0 24 24"><path d="M12 15.5a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v5.5a4 4 0 0 0 4 4Zm6.5-4a1 1 0 0 0-2 0 4.5 4.5 0 0 1-9 0 1 1 0 0 0-2 0 6.5 6.5 0 0 0 5.5 6.42V20H8.5v2h7v-2H13v-2.08a6.5 6.5 0 0 0 5.5-6.42Z"/></svg></button></div>
+      <div id="confirmationFeedback" class="confirmation-feedback" aria-live="polite"></div>
+      <button id="submitWordConfirmationButton" class="primary-action" type="submit">Confirm translation</button>
+      <button id="forgotConfirmationWordButton" class="quiet-link" type="button">I donât remember</button>
+    </form>
+  </div>
+</section>
+
+<section id="sessionReviewPage" class="product-page hidden" aria-labelledby="sessionReviewTitle">
+  <div class="product-page-shell review-page-shell">
+    <button id="sessionReviewBackButton" class="back-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Back to summary</button>
+    <div class="member-eyebrow">Completed session</div>
+    <h2 id="sessionReviewTitle">Review chat</h2>
+    <div id="sessionReviewMeta" class="session-review-meta"></div>
+    <div id="sessionReviewMessages" class="session-review-messages" aria-label="Read-only chat transcript"></div>
+  </div>
+</section>
+
+<section id="confirmationCompletePage" class="product-page hidden" aria-labelledby="confirmationCompleteTitle">
+  <div class="product-page-shell completion-shell"><div class="completion-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"/></svg></div><h2 id="confirmationCompleteTitle"><span id="confirmedWordTotal">0</span> words confirmed</h2><p>Youâre doing amazing!</p></div>
+</section>
+
+<section id="allChatsPage" class="product-page hidden" aria-labelledby="allChatsTitle">
+  <div class="product-page-shell list-page-shell"><button id="allChatsBackButton" class="back-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Back</button><div class="member-eyebrow">Conversation history</div><h2 id="allChatsTitle">My Previous Chats</h2><div id="allChatsList" class="session-list expanded"></div><div class="pagination-row"><button id="previousChatsPageButton" type="button">Previous</button><span id="chatsPageLabel">Page 1</span><button id="nextChatsPageButton" type="button">Next</button></div></div>
+</section>
+
+<section id="lipsMasterPage" class="master-page hidden" aria-labelledby="lipsMasterPageTitle">
+  <aside class="master-sidebar"><button id="lipsMasterBackButton" class="back-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Back</button><button id="newMasterChatButton" class="new-master-chat" type="button">New chat</button><div id="masterThreadList" class="master-thread-list"></div></aside>
+  <div class="master-workspace"><header class="master-page-header"><span class="master-mini-mark"><img src="assets/language-logo.png" alt="" /></span><div><h2 id="lipsMasterPageTitle">LipsMaster</h2><p>Language help, when you need it.</p></div></header><div id="masterChatMessages" class="master-chat-messages" aria-live="polite"></div><form id="masterChatForm" class="master-composer"><textarea id="masterChatInput" rows="1" maxlength="1200" placeholder="Message LipsMaster" aria-label="Message LipsMaster"></textarea><button id="masterChatSendButton" type="submit" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button></form></div>
 </section>
 
 <section id="statsPage" class="stats-page hidden">
@@ -3773,7 +4565,7 @@ form {
       </div>
 
       <button id="closeStatsButton" class="stats-close-button" type="button">
-        &times;
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
       </button>
     </header>
 
@@ -3782,18 +4574,18 @@ form {
 
       <div class="select-wrap stats-select-wrap">
         <select id="statsLanguageSelect">
-          <option value="English">&#127482;&#127480; English</option>
-          <option value="Hebrew">&#127470;&#127473; Hebrew</option>
-          <option value="Spanish">&#127466;&#127480; Spanish</option>
-          <option value="French">&#127467;&#127479; French</option>
-          <option value="German">&#127465;&#127466; German</option>
-          <option value="Arabic">&#127480;&#127462; Arabic</option>
-          <option value="Russian">&#127479;&#127482; Russian</option>
-          <option value="Italian">&#127470;&#127481; Italian</option>
-          <option value="Portuguese">&#127477;&#127481; Portuguese</option>
-          <option value="Chinese">&#127464;&#127475; Chinese</option>
-          <option value="Japanese">&#127471;&#127477; Japanese</option>
-          <option value="Korean">&#127472;&#127479; Korean</option>
+          <option value="English">English</option>
+          <option value="Hebrew">Hebrew</option>
+          <option value="Spanish">Spanish</option>
+          <option value="French">French</option>
+          <option value="German">German</option>
+          <option value="Arabic">Arabic</option>
+          <option value="Russian">Russian</option>
+          <option value="Italian">Italian</option>
+          <option value="Portuguese">Portuguese</option>
+          <option value="Chinese">Chinese</option>
+          <option value="Japanese">Japanese</option>
+          <option value="Korean">Korean</option>
         </select>
       </div>
     </div>
@@ -3853,7 +4645,7 @@ form {
         </div>
 
         <button id="closeStatsDetailButton" class="stats-close-button" type="button">
-          &times;
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
         </button>
       </div>
 
@@ -3876,6 +4668,26 @@ const composerShell = document.getElementById("composerShell");
 const speechShell = document.getElementById("speechShell");
 const speechRecordButton = document.getElementById("speechRecordButton");
 const speechStatus = document.getElementById("speechStatus");
+const endChatButton = document.getElementById("endChatButton");
+const signedInHome = document.getElementById("signedInHome");
+const homeProfileAvatar = document.getElementById("homeProfileAvatar");
+const homeProfileName = document.getElementById("homeProfileName");
+const editAccountButton = document.getElementById("editAccountButton");
+const homeLanguageSelect = document.getElementById("homeLanguageSelect");
+const homeModeToggle = document.getElementById("homeModeToggle");
+const homeStartChatButton = document.getElementById("homeStartChatButton");
+const askLipsMasterButton = document.getElementById("askLipsMasterButton");
+const recentChatsList = document.getElementById("recentChatsList");
+const homeHistoryTitle = document.getElementById("homeHistoryTitle");
+const homeStatsTitle = document.getElementById("homeStatsTitle");
+const seeAllChatsButton = document.getElementById("seeAllChatsButton");
+const homePointsStat = document.getElementById("homePointsStat");
+const homeSessionsStat = document.getElementById("homeSessionsStat");
+const homeTimeStat = document.getElementById("homeTimeStat");
+const homeMessagesStat = document.getElementById("homeMessagesStat");
+const homeConfirmedStat = document.getElementById("homeConfirmedStat");
+const sessionTimeChart = document.getElementById("sessionTimeChart");
+const chartPeriodLabel = document.getElementById("chartPeriodLabel");
 
 const writingModeButton = document.getElementById("writingModeButton");
 const speechModeButton = document.getElementById("speechModeButton");
@@ -3916,6 +4728,8 @@ const authConfirmPasswordGroup = document.getElementById("authConfirmPasswordGro
 const authConfirmPassword = document.getElementById("authConfirmPassword");
 
 const authGenderGroup = document.getElementById("authGenderGroup");
+const authNativeLanguageGroup = document.getElementById("authNativeLanguageGroup");
+const authNativeLanguage = document.getElementById("authNativeLanguage");
 const genderManButton = document.getElementById("genderManButton");
 const genderWomanButton = document.getElementById("genderWomanButton");
 
@@ -3964,6 +4778,7 @@ const setupWritingButton = document.getElementById("setupWritingButton");
 const setupSpeechButton = document.getElementById("setupSpeechButton");
 const setupGenderManButton = document.getElementById("setupGenderManButton");
 const setupGenderWomanButton = document.getElementById("setupGenderWomanButton");
+const setupPreferredNameInput = document.getElementById("setupPreferredNameInput");
 const setupPermissionStatus = document.getElementById("setupPermissionStatus");
 const startChatButton = document.getElementById("startChatButton");
 
@@ -3974,19 +4789,94 @@ const profileUsernameInput = document.getElementById("profileUsernameInput");
 const profileFluentLanguageSelect = document.getElementById("profileFluentLanguageSelect");
 const saveProfileButton = document.getElementById("saveProfileButton");
 const profileMessage = document.getElementById("profileMessage");
+const profileGenderManButton = document.getElementById("profileGenderManButton");
+const profileGenderWomanButton = document.getElementById("profileGenderWomanButton");
+const profilePhotoInput = document.getElementById("profilePhotoInput");
+
+const sessionSummaryPage = document.getElementById("sessionSummaryPage");
+const summaryLearnedInline = document.getElementById("summaryLearnedInline");
+const summarySessionTime = document.getElementById("summarySessionTime");
+const summaryWordsLearned = document.getElementById("summaryWordsLearned");
+const summaryPointsGained = document.getElementById("summaryPointsGained");
+const summaryGrammarSection = document.getElementById("summaryGrammarSection");
+const summaryGrammarTips = document.getElementById("summaryGrammarTips");
+const reviewSessionChatButton = document.getElementById("reviewSessionChatButton");
+const summaryConfirmCallout = document.getElementById("summaryConfirmCallout");
+const confirmWordsButton = document.getElementById("confirmWordsButton");
+const summaryReturnHomeButton = document.getElementById("summaryReturnHomeButton");
+const unconfirmedExitModal = document.getElementById("unconfirmedExitModal");
+const closeUnconfirmedExitButton = document.getElementById("closeUnconfirmedExitButton");
+const modalConfirmWordsButton = document.getElementById("modalConfirmWordsButton");
+const exitChatAnywayButton = document.getElementById("exitChatAnywayButton");
+const wordConfirmationPage = document.getElementById("wordConfirmationPage");
+const confirmationProgressText = document.getElementById("confirmationProgressText");
+const confirmationProgressFill = document.getElementById("confirmationProgressFill");
+const confirmWordHeading = document.getElementById("confirmWordHeading");
+const confirmationPrompt = document.getElementById("confirmationPrompt");
+const wordConfirmationForm = document.getElementById("wordConfirmationForm");
+const wordConfirmationInput = document.getElementById("wordConfirmationInput");
+const wordConfirmationSpeechButton = document.getElementById("wordConfirmationSpeechButton");
+const submitWordConfirmationButton = document.getElementById("submitWordConfirmationButton");
+const forgotConfirmationWordButton = document.getElementById("forgotConfirmationWordButton");
+const confirmationFeedback = document.getElementById("confirmationFeedback");
+const confirmationCompletePage = document.getElementById("confirmationCompletePage");
+const confirmedWordTotal = document.getElementById("confirmedWordTotal");
+const allChatsPage = document.getElementById("allChatsPage");
+const allChatsTitle = document.getElementById("allChatsTitle");
+const allChatsList = document.getElementById("allChatsList");
+const allChatsBackButton = document.getElementById("allChatsBackButton");
+const previousChatsPageButton = document.getElementById("previousChatsPageButton");
+const nextChatsPageButton = document.getElementById("nextChatsPageButton");
+const chatsPageLabel = document.getElementById("chatsPageLabel");
+const sessionReviewPage = document.getElementById("sessionReviewPage");
+const sessionReviewBackButton = document.getElementById("sessionReviewBackButton");
+const sessionReviewTitle = document.getElementById("sessionReviewTitle");
+const sessionReviewMeta = document.getElementById("sessionReviewMeta");
+const sessionReviewMessages = document.getElementById("sessionReviewMessages");
+const lipsMasterPage = document.getElementById("lipsMasterPage");
+const lipsMasterBackButton = document.getElementById("lipsMasterBackButton");
+const newMasterChatButton = document.getElementById("newMasterChatButton");
+const masterThreadList = document.getElementById("masterThreadList");
+const masterChatMessages = document.getElementById("masterChatMessages");
+const masterChatForm = document.getElementById("masterChatForm");
+const masterChatInput = document.getElementById("masterChatInput");
+const masterChatSendButton = document.getElementById("masterChatSendButton");
 
 const upcomingWordsPanel = document.getElementById("upcomingWordsPanel");
 const upcomingWordsList = document.getElementById("upcomingWordsList");
-const refreshUpcomingWordsButton = document.getElementById("refreshUpcomingWordsButton");
+const grammarDetailModal = document.getElementById("grammarDetailModal");
+const grammarDetailTitle = document.getElementById("grammarDetailTitle");
+const grammarDetailClose = document.getElementById("grammarDetailClose");
+const grammarDetailBody = document.getElementById("grammarDetailBody");
+const grammarFollowUpForm = document.getElementById("grammarFollowUpForm");
+const grammarFollowUpInput = document.getElementById("grammarFollowUpInput");
+const grammarFollowUpSend = document.getElementById("grammarFollowUpSend");
 
 let currentLanguagePoints = 0;
 let pointsAnimationFrame = null;
     
 let selectedGender = "";
+let selectedPreferredName = "";
+let chatStartInFlight = false;
+let openingBotInFlight = false;
+const renderedBotTurnIds = new Set();
     
 let authMode = "sign-in";
 let currentSession = null;
 let currentUser = null;
+let homeSelectedMode = "writing";
+let pendingSessionSummary = null;
+let confirmationQueue = [];
+let confirmationIndex = 0;
+let confirmedThisRun = 0;
+let confirmationRecorder = null;
+let confirmationRecordedChunks = [];
+let confirmationRecordingStream = null;
+let allChatsPageIndex = 0;
+let activeMasterThreadId = "";
+let activeMasterDraftThread = null;
+let viewingSavedSession = false;
+let accountMetadataWrite = Promise.resolve();
 
 let inputMode = "writing";
 
@@ -4025,6 +4915,18 @@ let pendingBackgroundBot = null;
 
     let correctionCounter = 0;
 const correctionState = new Map();
+let activeGrammarDetailContext = null;
+let grammarDetailRenderToken = 0;
+const languageFactQueues = new Map();
+const languageFactRequests = new Map();
+const recentLanguageFacts = new Map();
+
+function createClientTurnId() {
+  const turnId = globalThis.crypto?.randomUUID
+    ? globalThis.crypto.randomUUID()
+    : `turn-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  return activeChatSession?.id ? `${activeChatSession.id}:${turnId}` : turnId;
+}
 
     let correctionRetryMode = false;
 let correctionRetrySourceMode = "";
@@ -4054,7 +4956,9 @@ const LOW_USAGE_RATIO = 0.4;
 let activeChatSession = null;
 
 let currentBonusWordKeys = new Set();
-const BONUS_WORD_POINT_TIERS = [0, 5, 10, 20, 50, 100];
+let currentBonusTargets = [];
+let activeAnswerBonusTargets = [];
+const BONUS_WORD_POINT_TIERS = [0, 5, 10];
 let conversationTurn = 0;
 let activeExpectedTarget = null;
 const reviewCooldownTurnByKey = new Map();
@@ -4119,6 +5023,7 @@ function hideBonusWordsWhilePromptLoads() {
   if (!upcomingWordsPanel) return;
   upcomingWordsPanel.classList.add("hidden");
   currentBonusWordKeys = new Set();
+  currentBonusTargets = [];
 }
 
 async function getRankedFrequencyList(language) {
@@ -4214,9 +5119,8 @@ function aggregateStatsByLexeme(statsRows, frequencyWords) {
 
   for (const row of statsRows || []) {
     const rawKey = String(row?.word_key || "").trim();
-    const canonicalKey = rawKey.includes("::")
-      ? rawKey
-      : legacyFormToLexemeKey.get(rawKey) || rawKey;
+    const surfaceKey = rawKey.includes("::") ? rawKey.split("::")[0] : rawKey;
+    const canonicalKey = legacyFormToLexemeKey.get(surfaceKey) || surfaceKey;
     const current = totals.get(canonicalKey) || {
       spoken_count: 0,
       familiar_count: 0,
@@ -4304,13 +5208,18 @@ function beginUserAnswer() {
   conversationTurn += 1;
   saveReviewScheduleState();
 
+  // Freeze the two words shown with the question. The next reply begins
+  // loading immediately and clears/replaces the visible card, but analysis of
+  // this answer must always use the original targets.
+  activeAnswerBonusTargets = currentBonusTargets.map(target => ({ ...target }));
+
   const expectedTarget = activeExpectedTarget;
   activeExpectedTarget = null;
 
   return expectedTarget;
 }
 
-async function getFrequencyFrontierTargets(languageOverride = null, limit = 5) {
+async function getFrequencyFrontierTargets(languageOverride = null, limit = 2) {
   if (!currentUser) return [];
 
   const language = languageOverride || getCurrentChatLanguage();
@@ -4344,9 +5253,9 @@ async function getFrequencyFrontierTargets(languageOverride = null, limit = 5) {
   const reviewRows = Array.isArray(reviewResult.data) ? reviewResult.data : [];
   const canonicalReviewRows = reviewRows.map(row => ({
     ...row,
-    word_key: String(row?.word_key || "").includes("::")
-      ? row.word_key
-      : legacyFormToLexemeKey.get(row.word_key) || row.word_key
+    word_key: legacyFormToLexemeKey.get(
+      String(row?.word_key || "").split("::")[0]
+    ) || String(row?.word_key || "").split("::")[0]
   }));
   const activeReviewKeys = new Set(
     canonicalReviewRows
@@ -4361,7 +5270,8 @@ async function getFrequencyFrontierTargets(languageOverride = null, limit = 5) {
   // The natural frontier is simply the most common corpus words the learner
   // has never produced. A word is no longer removed only after three passes.
   const unspokenWords = frequencyWords.filter(item =>
-    Number(statsByKey.get(item.word_key)?.spoken_count || 0) === 0
+    Number(statsByKey.get(item.word_key)?.spoken_count || 0) === 0 &&
+    getReviewCooldownTurn(item.word_key) <= conversationTurn
   );
   const naturalWindow = unspokenWords.slice(0, Math.max(limit, 5));
   const frontierRank = naturalWindow[0]?.frequency_rank ||
@@ -4457,50 +5367,43 @@ async function getFrequencyFrontierTargets(languageOverride = null, limit = 5) {
   return targets;
 }
     
-async function loadUpcomingWords(languageOverride = null, rowsOverride = null) {
-  if (!currentUser || !upcomingWordsPanel || !upcomingWordsList) {
-    hideBonusWordsWhilePromptLoads();
-    return;
+async function prepareUpcomingWords(language, rows) {
+  if (!currentUser || !Array.isArray(rows) || !rows.length) {
+    return { language, rows: [] };
   }
 
-  const language = languageOverride || getCurrentChatLanguage();
   const fluentLanguage = getCurrentFluentLanguage();
+  const preparedRows = await Promise.all(rows.slice(0, 2).map(async row => {
+    const chatWord = String(row.word_text || row.word || row.word_key || "").trim();
+    if (!chatWord) return null;
 
-  let rows = Array.isArray(rowsOverride) ? rowsOverride : [];
-
-  try {
-    if (!Array.isArray(rowsOverride)) {
-      rows = await getFrequencyFrontierTargets(language, 5);
+    try {
+      const translated = await translateReviewTargetForCue(
+        chatWord,
+        language,
+        fluentLanguage
+      );
+      return { ...row, chatWord, displayWord: String(translated || "").trim() || chatWord };
+    } catch (error) {
+      console.warn("bonus word translation failed", error);
+      return { ...row, chatWord, displayWord: chatWord };
     }
-  } catch (error) {
-    console.warn("bonus words load failed", error);
-    upcomingWordsPanel.classList.add("hidden");
-    return;
-  }
+  }));
 
-  currentBonusWordKeys = new Set(
-  rows
-    .map(row => String(row.word_key || "").trim())
-    .filter(Boolean)
-);
-  activeExpectedTarget = rows[0] || null;
-
-  if (!rows.length) {
-  currentBonusWordKeys = new Set();
-  activeExpectedTarget = null;
-  upcomingWordsPanel.classList.add("hidden");
-  upcomingWordsList.innerHTML = "";
-  return;
+  return { language, rows: preparedRows.filter(Boolean) };
 }
 
-  upcomingWordsPanel.classList.remove("hidden");
+function renderPreparedUpcomingWords(prepared) {
+  if (!upcomingWordsPanel || !upcomingWordsList) return;
+
+  const language = prepared?.language || getCurrentChatLanguage();
+  const rows = Array.isArray(prepared?.rows) ? prepared.rows.slice(0, 2) : [];
   upcomingWordsList.innerHTML = "";
+  currentBonusTargets = rows.map(row => ({ ...row }));
+  currentBonusWordKeys = new Set(rows.map(row => String(row.word_key || "").trim()).filter(Boolean));
+  activeExpectedTarget = rows[0] || null;
 
-  rows.forEach((row, index) => {
-    const chatWord = String(row.word_text || row.word_key || "").trim();
-
-    if (!chatWord) return;
-
+  for (const row of rows) {
     const card = document.createElement("div");
     card.className = "upcoming-word-card";
 
@@ -4509,83 +5412,50 @@ async function loadUpcomingWords(languageOverride = null, rowsOverride = null) {
 
     const main = document.createElement("div");
     main.className = "upcoming-word-main";
-    main.innerHTML = loadingIconHtml();
+    main.textContent = row.displayWord;
 
     const chatLanguageWord = document.createElement("div");
     chatLanguageWord.className = "upcoming-word-chat-language hidden";
-    chatLanguageWord.textContent = chatWord;
-
-    const progressText = document.createElement("div");
-    progressText.className = "upcoming-word-progress";
-    const stage = Math.max(0, Number(row.stage || 0));
-    progressText.textContent = row.reason === "low-frequency-use"
-      ? "Quick retention check"
-      : row.reason === "frequency"
-        ? "Next by frequency"
-        : stage === 0
-          ? "Practice now"
-          : `${REVIEW_RETURN_TURNS[stage] || 100}-turn review`;
+    chatLanguageWord.textContent = row.chatWord;
 
     const actionButton = document.createElement("button");
     actionButton.type = "button";
     actionButton.className = "upcoming-word-action";
-    actionButton.textContent = "?";
+    actionButton.textContent = "Reveal";
     actionButton.title = "Reveal word";
     actionButton.setAttribute("aria-label", "Reveal word");
-
     actionButton.dataset.revealed = "false";
-    actionButton.dataset.chatWord = chatWord;
-    actionButton.dataset.language = language;
 
     actionButton.addEventListener("click", async event => {
       event.preventDefault();
       event.stopPropagation();
 
-      const isRevealed = actionButton.dataset.revealed === "true";
-
-      if (!isRevealed) {
+      if (actionButton.dataset.revealed !== "true") {
         chatLanguageWord.classList.remove("hidden");
-
+        rememberSessionLearnedWord(row, language);
         scheduleWordReview(row, "revealed", language).catch(() => {});
-
         actionButton.dataset.revealed = "true";
         actionButton.classList.add("revealed");
         actionButton.innerHTML = speakerIconSvg();
         actionButton.title = "Hear word";
         actionButton.setAttribute("aria-label", "Hear word");
-
         return;
       }
 
-      await playBonusWordAudio(chatWord, language, actionButton);
+      await playBonusWordAudio(row.chatWord, language, actionButton);
     });
 
     textStack.appendChild(main);
     textStack.appendChild(chatLanguageWord);
-    textStack.appendChild(progressText);
-
     card.appendChild(textStack);
     card.appendChild(actionButton);
-
     upcomingWordsList.appendChild(card);
-
-    translateReviewTargetForCue(chatWord, language, fluentLanguage)
-      .then(translated => {
-        const displayWord = String(translated || "").trim() || chatWord;
-        main.textContent = displayWord;
-      })
-      .catch(error => {
-        console.warn("bonus word translation failed", error);
-        main.textContent = chatWord;
-      });
-  });
-
-  if (!upcomingWordsList.children.length) {
-    upcomingWordsPanel.classList.add("hidden");
   }
+
+  upcomingWordsPanel.classList.toggle("hidden", rows.length === 0);
 }
 
-async function getVocabularyProfileForPrompt(languageOverride = null) {
+async function getVocabularyProfileForPrompt(languageOverride = null, frontierOverride = null) {
   if (!currentUser) {
     return {
       level: "beginner",
@@ -4607,7 +5477,9 @@ async function getVocabularyProfileForPrompt(languageOverride = null) {
   let frontierTargets = [];
 
   try {
-    frontierTargets = await getFrequencyFrontierTargets(language, 5);
+    frontierTargets = Array.isArray(frontierOverride)
+      ? frontierOverride.slice(0, 2)
+      : await getFrequencyFrontierTargets(language, 2);
   } catch (error) {
     console.warn("frequency targets unavailable for prompt", error);
   }
@@ -4741,10 +5613,26 @@ function openChatSetup() {
     chatSetupLanguageSelect.value = selectedChatLanguage;
   }
 
+  if (setupPreferredNameInput) {
+    let storedName = "";
+    try {
+      storedName = localStorage.getItem("lipsmaxxed-preferred-name") || "";
+    } catch {
+      storedName = "";
+    }
+    selectedPreferredName =
+      selectedPreferredName ||
+      storedName ||
+      currentUser?.user_metadata?.username ||
+      "";
+    setupPreferredNameInput.value = selectedPreferredName;
+  }
+
   setupWritingButton?.classList.toggle("active", selectedInputMode === "writing");
   setupSpeechButton?.classList.toggle("active", selectedInputMode === "speech");
 
   chatSetupModal?.classList.remove("hidden");
+  prefetchLanguageFact(selectedChatLanguage).catch(() => {});
   requestSetupSpeechPermission().catch(() => {});
 }
 
@@ -4812,6 +5700,16 @@ async function startConfiguredChat() {
   await unlockAudio().catch(() => {});
 
   selectedChatLanguage = chatSetupLanguageSelect?.value || "English";
+  selectedPreferredName = String(setupPreferredNameInput?.value || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 80);
+  try {
+    localStorage.setItem("lipsmaxxed-preferred-name", selectedPreferredName);
+  } catch {
+    // Name remains available for this session when storage is unavailable.
+  }
+  await ensureLanguageFact(selectedChatLanguage);
 
   if (selectedInputMode === "speech") {
     const permissionGranted = await requestSetupSpeechPermission();
@@ -4827,6 +5725,7 @@ async function startConfiguredChat() {
   messages.length = 0;
   conversationTurn = 0;
   activeExpectedTarget = null;
+  activeAnswerBonusTargets = [];
   activeSpeechCorrection = null;
   correctionRetryMode = false;
   correctionRetrySourceMode = "";
@@ -4844,12 +5743,25 @@ async function startConfiguredChat() {
   messageState.clear();
   userMessageState.clear();
   correctionState.clear();
+  renderedBotTurnIds.clear();
 
   activeChatSession = {
+    id: globalThis.crypto?.randomUUID
+      ? globalThis.crypto.randomUUID()
+      : `session-${Date.now()}-${Math.random().toString(36).slice(2)}`,
     language: selectedChatLanguage,
     inputMode: selectedInputMode,
-    startedAt: Date.now()
+    startedAt: Date.now(),
+    pointsGained: 0,
+    messageCount: 0,
+    learnedWords: new Map(),
+    grammarTips: [],
+    timeline: []
   };
+
+  signedInHome?.classList.add("hidden");
+  messageHistory?.classList.remove("hidden");
+  endChatButton?.classList.toggle("hidden", !currentUser);
 
   loadReviewScheduleState(selectedChatLanguage);
 
@@ -4861,6 +5773,8 @@ async function startConfiguredChat() {
 }
 
 async function sendOpeningBotMessage() {
+  if (openingBotInFlight) return;
+  openingBotInFlight = true;
   hideBonusWordsWhilePromptLoads();
   const progress = addResponseProgress("context");
   const language = getCurrentChatLanguage();
@@ -4868,7 +5782,7 @@ async function sendOpeningBotMessage() {
   try {
     progress.setStage("chat");
 
-    const data = await callChatFunction(
+    const prepared = await generatePreparedChatTurn(
       {
         messages: [{
           role: "user",
@@ -4878,18 +5792,38 @@ async function sendOpeningBotMessage() {
         userGenderInstruction: getUserGenderInstruction(),
         chatRole: "",
         chatTopic: "",
-        isOpeningMessage: true
+        isOpeningMessage: true,
+        userPreferredName: selectedPreferredName
       },
       "Chat"
     );
-    await presentBotReply(data, progress, {
+    await presentBotReply(prepared.data, progress, {
       language,
       autoplay: true,
-      showSignedOutProTip: !currentUser
+      clientTurnId: prepared.clientTurnId,
+      showSignedOutProTip: !currentUser,
+      expectedTarget: prepared.expectedTargetForReply,
+      preparedBonusWordsPromise: prepared.preparedBonusWordsPromise
     });
   } catch (error) {
     progress.remove();
     showSystemMessage(getReadableError(error));
+  } finally {
+    openingBotInFlight = false;
+  }
+}
+
+async function beginConfiguredChat() {
+  if (chatStartInFlight) return;
+  chatStartInFlight = true;
+  if (startChatButton) startChatButton.disabled = true;
+
+  try {
+    await primeAudioForAutoplay();
+    await startConfiguredChat();
+  } finally {
+    chatStartInFlight = false;
+    if (startChatButton) startChatButton.disabled = false;
   }
 }
 
@@ -4981,7 +5915,7 @@ async function getWordSchedulingBand(wordKey, language) {
   const frontierRank = frontier?.frequency_rank || target.frequency_rank;
   const currentQueueMaxRank = Math.max(
     0,
-    ...[...currentBonusWordKeys]
+    ...[...getCurrentAnswerBonusKeys()]
       .map(key => frequencyByKey.get(key)?.frequency_rank || 0)
   );
   const immediateCutoff = Math.max(frontierRank, currentQueueMaxRank);
@@ -5001,7 +5935,91 @@ async function getWordSchedulingBand(wordKey, language) {
   return { band: "far", target, frontierRank };
 }
 
+function normalizedLexemeForms(value) {
+  const source = value && typeof value === "object" ? value : {};
+  const forms = [
+    source.word_key,
+    source.lexemeKey,
+    source.word_text,
+    source.word,
+    source.chatWord,
+    source.surface,
+    source.lemma,
+    ...(Array.isArray(source.forms) ? source.forms : [])
+  ];
+  const normalized = new Set();
+  for (const form of forms) {
+    const raw = String(form || "").trim();
+    if (!raw) continue;
+    normalized.add(raw);
+    normalized.add(normalizeStatsWord(raw.includes("::") ? raw.split("::")[0] : raw));
+  }
+  normalized.delete("");
+  return normalized;
+}
+
+function bonusTargetMatchesProducedLexeme(target, produced) {
+  if (!target || !produced) return false;
+  const targetKey = String(target.word_key || target.lexemeKey || "").trim();
+  const producedKey = String(produced.lexemeKey || produced.word_key || "").trim();
+  if (targetKey && producedKey && targetKey === producedKey) return true;
+
+  const targetSurface = normalizeStatsWord(target.word_text || target.word || target.chatWord || "");
+  const targetLemma = normalizeStatsWord(target.lemma || target.word_text || target.word || "");
+  const producedSurface = normalizeStatsWord(produced.surface || produced.word_text || produced.word || "");
+  const producedLemma = normalizeStatsWord(produced.lemma || produced.surface || produced.word_text || "");
+
+  if (targetSurface && producedSurface && targetSurface === producedSurface) return true;
+  if (targetLemma && producedLemma && targetLemma === producedLemma) {
+    const targetPos = String(target.upos || "X").toUpperCase();
+    const producedPos = String(produced.upos || "X").toUpperCase();
+    return targetPos === "X" || producedPos === "X" || targetPos === producedPos;
+  }
+
+  const targetForms = normalizedLexemeForms(target);
+  return [...normalizedLexemeForms(produced)].some(form => targetForms.has(form));
+}
+
+function matchingCurrentBonusTargets(produced) {
+  const targets = activeAnswerBonusTargets.length
+    ? activeAnswerBonusTargets
+    : currentBonusTargets;
+  return targets.filter(target => bonusTargetMatchesProducedLexeme(target, produced));
+}
+
+function getCurrentAnswerBonusKeys() {
+  const targets = activeAnswerBonusTargets.length
+    ? activeAnswerBonusTargets
+    : currentBonusTargets;
+  return new Set(targets.map(target => String(
+    target.word_key || target.lexemeKey || ""
+  ).trim()).filter(Boolean));
+}
+
+function rememberSessionLearnedWord(word, languageOverride = null) {
+  if (!activeChatSession) return;
+  const normalized = normalizeVocabularyTarget(word);
+  if (!normalized.word_key || !normalized.word_text) return;
+  if (!(activeChatSession.learnedWords instanceof Map)) {
+    activeChatSession.learnedWords = new Map();
+  }
+  activeChatSession.learnedWords.set(normalized.word_key, {
+    word_key: normalized.word_key,
+    word_text: normalized.word_text,
+    lemma: String(word?.lemma || normalized.word_text).normalize("NFC").trim(),
+    upos: String(word?.upos || normalized.upos || "X").toUpperCase(),
+    fluent_prompt: String(
+      word?.fluent_prompt || word?.displayWord || word?.translation || ""
+    ).trim(),
+    language: languageOverride || activeChatSession.language || getCurrentChatLanguage()
+  });
+}
+
 async function scheduleWordReview(word, reason = "correction", languageOverride = null) {
+  const matchingBonus = matchingCurrentBonusTargets(word);
+  if (["correction", "translated", "revealed"].includes(reason) && matchingBonus.length) {
+    matchingBonus.forEach(target => rememberSessionLearnedWord(target, languageOverride));
+  }
   if (!currentUser) return;
 
   const language = languageOverride || languageSelect.value;
@@ -5418,7 +6436,7 @@ async function markReviewWordSpoken(word, languageOverride = null) {
     (existingRows || [])[0] || null;
 
   if (!existing) {
-    if (currentBonusWordKeys.has(wordKey)) {
+    if (getCurrentAnswerBonusKeys().has(wordKey)) {
       const ordinaryInterval = await getOrdinaryReviewIntervalTurns(wordKey, language);
       setReviewCooldown(wordKey, ordinaryInterval);
     }
@@ -5674,10 +6692,16 @@ async function recordUserWordsAndAwardPoints(
 
   if (producedLexemes.length) {
     for (const lexeme of producedLexemes) {
-      const target = normalizeVocabularyTarget({
-        ...lexeme,
-        word_text: lexeme?.lemma || lexeme?.surface
-      }, lexeme?.upos || "X");
+      const surfaceWord = String(lexeme?.surface || lexeme?.lemma || "").trim();
+      const target = {
+        word_key: normalizeStatsWord(surfaceWord),
+        word_text: surfaceWord,
+        word: surfaceWord,
+        surface: surfaceWord,
+        lemma: String(lexeme?.lemma || surfaceWord).normalize("NFC").trim(),
+        upos: String(lexeme?.upos || "X").toUpperCase(),
+        lexemeKey: String(lexeme?.lexemeKey || "").trim()
+      };
       if (!target.word_key || !target.word_text) continue;
       const existing = wordCounts.get(target.word_key);
       const count = Math.max(1, Number(lexeme?.count || 1));
@@ -5709,8 +6733,22 @@ async function recordUserWordsAndAwardPoints(
   let basePoints = 0;
 
   const spokenBonusWordKeys = new Set();
+  const matchedBonusTargetKeys = new Set();
 
   for (const item of wordCounts.values()) {
+    const matchedBonusTargets = matchingCurrentBonusTargets(item);
+    const canonicalBonusTarget = matchedBonusTargets[0] || null;
+    if (canonicalBonusTarget) {
+      const canonicalBonusKey = String(
+        canonicalBonusTarget.word_key || canonicalBonusTarget.lexemeKey || ""
+      ).trim();
+      if (canonicalBonusKey) item.word_key = canonicalBonusKey;
+      item.word_text = String(
+        canonicalBonusTarget.lemma || canonicalBonusTarget.word_text ||
+        canonicalBonusTarget.word || item.word_text
+      ).trim() || item.word_text;
+    }
+
     const { data: existing, error: selectError } = await supabaseClient
       .from("word_stats")
       .select("*")
@@ -5745,8 +6783,15 @@ async function recordUserWordsAndAwardPoints(
     /*
       Bonus words count once per message, even if repeated.
     */
-    if (currentBonusWordKeys.has(item.word_key)) {
-      spokenBonusWordKeys.add(item.word_key);
+    for (const bonusTarget of matchedBonusTargets) {
+      const bonusKey = String(bonusTarget.word_key || bonusTarget.lexemeKey || "").trim() ||
+        normalizeStatsWord(bonusTarget.word_text || bonusTarget.word || "");
+      if (!bonusKey) continue;
+      spokenBonusWordKeys.add(bonusKey);
+      if (matchedBonusTargetKeys.has(bonusKey)) continue;
+      matchedBonusTargetKeys.add(bonusKey);
+      rememberSessionLearnedWord(bonusTarget, language);
+      await markReviewWordSpoken(bonusTarget, language);
     }
 
     const next = existing || {
@@ -5774,20 +6819,27 @@ async function recordUserWordsAndAwardPoints(
       console.warn("points word upsert failed", upsertError);
     }
 
-    if (!expectedTargetKey || item.word_key !== expectedTargetKey) {
+    if (
+      matchedBonusTargets.length === 0 &&
+      (!expectedTargetKey || !bonusTargetMatchesProducedLexeme(expectedTarget, item))
+    ) {
       await markReviewWordSpoken(item, language);
     }
   }
 
   if (expectedTargetKey) {
-    if (reviewResult.targetProduced === true) {
+    if (matchedBonusTargetKeys.has(expectedTargetKey)) {
+      // Deterministic surface/lemma matching already confirmed this target.
+    } else if (reviewResult.targetProduced === true) {
+      spokenBonusWordKeys.add(expectedTargetKey);
+      rememberSessionLearnedWord(expectedTarget, language);
       await markReviewWordSpoken(expectedTarget, language);
     } else if (reviewResult.targetProduced === false) {
       await markReviewWordMissed(expectedTarget, language);
     }
   }
 
-  const bonusWordsSaid = Math.min(5, spokenBonusWordKeys.size);
+  const bonusWordsSaid = Math.min(2, spokenBonusWordKeys.size);
   const bonusPoints = BONUS_WORD_POINT_TIERS[bonusWordsSaid] || 0;
 
   const pointsGained = basePoints + bonusPoints;
@@ -5841,6 +6893,10 @@ async function recordUserWordsAndAwardPoints(
 
   if (pointsUpsertError) {
     console.warn("points total upsert failed", pointsUpsertError);
+  }
+
+  if (activeChatSession) {
+    activeChatSession.pointsGained = Number(activeChatSession.pointsGained || 0) + pointsGained;
   }
 
   return {
@@ -6481,6 +7537,7 @@ function setAuthMode(mode) {
   authNameGroup?.classList.toggle("sign-in-hidden", !isSignUp);
   authConfirmPasswordGroup?.classList.toggle("sign-in-hidden", !isSignUp);
   authGenderGroup?.classList.toggle("sign-in-hidden", !isSignUp);
+  authNativeLanguageGroup?.classList.toggle("sign-in-hidden", !isSignUp);
 
   newPasswordGroup?.classList.toggle("sign-in-hidden", !isRecovery);
 
@@ -6505,6 +7562,11 @@ function setAuthMode(mode) {
   }
 
   setAuthMessage("");
+
+  if (isSignUp && authName) {
+    authName.value = "";
+    authName.setAttribute("autocomplete", "off");
+  }
 }
 
 function setSelectedGender(gender) {
@@ -6516,6 +7578,8 @@ function setSelectedGender(gender) {
   setupGenderWomanButton?.classList.toggle("selected", selectedGender === "woman");
   setupGenderManButton?.setAttribute("aria-pressed", String(selectedGender === "man"));
   setupGenderWomanButton?.setAttribute("aria-pressed", String(selectedGender === "woman"));
+  profileGenderManButton?.classList.toggle("selected", selectedGender === "man");
+  profileGenderWomanButton?.classList.toggle("selected", selectedGender === "woman");
 }
 
 function getUserGenderInstruction() {
@@ -6554,6 +7618,12 @@ function updateAuthUi(session) {
 
   loadLanguagePoints(getCurrentChatLanguage()).catch(() => {});
 
+  if (!activeChatSession) {
+    showSignedInHome();
+  } else {
+    endChatButton?.classList.remove("hidden");
+  }
+
   if (!passwordRecoveryLocked) {
     closeAuthModal();
   }
@@ -6567,6 +7637,14 @@ function updateAuthUi(session) {
 
     if (accountDisplayName) {
       accountDisplayName.textContent = "";
+    }
+
+    signedInHome?.classList.add("hidden");
+    endChatButton?.classList.add("hidden");
+    if (!activeChatSession) {
+      messageHistory?.classList.remove("hidden");
+      composerShell?.classList.add("hidden");
+      speechShell?.classList.remove("hidden");
     }
   }
 }
@@ -6722,7 +7800,8 @@ const { data, error } = await supabaseClient.auth.signUp({
     emailRedirectTo: confirmRedirectUrl,
     data: {
       username,
-      gender: selectedGender
+      gender: selectedGender,
+      fluentLanguage: authNativeLanguage?.value || "English"
     }
   }
 });
@@ -6879,15 +7958,15 @@ function pauseIconSvg() {
 }
 
 function speakerIconSvg() {
-  return "\u{1F50A}";
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="playback-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h3l4-3v12l-4-3H5V9Z"></path><path d="M15 9.5a4 4 0 0 1 0 5M17.5 7a7 7 0 0 1 0 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>`;
 }
 
 function microphoneIconSvg() {
-  return "\u{1F3A4}";
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="playback-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v5.5a4 4 0 0 0 4 4Zm6.5-4a1 1 0 0 0-2 0 4.5 4.5 0 0 1-9 0 1 1 0 0 0-2 0 6.5 6.5 0 0 0 5.5 6.42V20H8.5v2h7v-2H13v-2.08a6.5 6.5 0 0 0 5.5-6.42Z"></path></svg>`;
 }
 
 function stopIconSvg() {
-  return "\u25A0";
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="playback-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1.5"></rect></svg>`;
 }
 
 function loadingIconHtml() {
@@ -7345,6 +8424,7 @@ function addContextResponseReviewCard({
   transcript,
   didYouMeanText,
   parts,
+  responseMode = "speech",
   onRetry,
   onContinue
 }) {
@@ -7385,7 +8465,7 @@ function addContextResponseReviewCard({
   const retryButton = document.createElement("button");
   retryButton.type = "button";
   retryButton.className = "speech-review-button primary";
-  retryButton.textContent = "Re-record";
+  retryButton.textContent = responseMode === "writing" ? "Try again" : "Re-record";
 
   const continueButton = document.createElement("button");
   continueButton.type = "button";
@@ -7393,10 +8473,11 @@ function addContextResponseReviewCard({
   continueButton.textContent = "Continue anyway";
 
   retryButton.addEventListener("click", async () => {
-    if (typeof onRetry === "function") {
-      onRetry();
+    if (responseMode === "writing") {
+      if (typeof onRetry === "function") await onRetry();
+      return;
     }
-
+    if (typeof onRetry === "function") onRetry();
     await startCorrectionRetryRecording();
   });
 
@@ -7452,6 +8533,274 @@ function assignCorrectionScheduleToWords(state) {
   });
 }
 
+function closeGrammarDetailModal() {
+  grammarDetailModal?.classList.add("hidden");
+  activeGrammarDetailContext = null;
+  grammarDetailRenderToken += 1;
+  if (grammarFollowUpInput) grammarFollowUpInput.value = "";
+  if (grammarFollowUpInput) grammarFollowUpInput.disabled = false;
+  if (grammarFollowUpSend) grammarFollowUpSend.disabled = false;
+}
+
+function appendGrammarThreadMessage(role, text = "") {
+  const row = document.createElement("div");
+  row.className = `grammar-thread-message ${role}`;
+  if (role === "assistant") {
+    const identity = document.createElement("div");
+    identity.className = "grammar-assistant-identity";
+    const mark = document.createElement("div");
+    mark.className = "grammar-assistant-mark";
+    mark.setAttribute("aria-hidden", "true");
+    const logo = document.createElement("img");
+    logo.src = "assets/language-logo.png";
+    logo.alt = "";
+    mark.appendChild(logo);
+    const name = document.createElement("span");
+    name.className = "grammar-assistant-name";
+    name.textContent = "LipsMaster";
+    identity.append(mark, name);
+    row.appendChild(identity);
+  }
+  const content = document.createElement("div");
+  content.className = "grammar-message-content";
+  if (text) content.textContent = text;
+  row.appendChild(content);
+  grammarDetailBody.appendChild(row);
+  grammarDetailBody.scrollTop = grammarDetailBody.scrollHeight;
+  return { row, content };
+}
+
+function addGrammarThinking() {
+  const message = appendGrammarThreadMessage("assistant");
+  const thinking = document.createElement("div");
+  thinking.className = "grammar-thinking";
+  const label = document.createElement("span");
+  label.textContent = "Thinking";
+  const dots = document.createElement("span");
+  dots.className = "grammar-thinking-dots";
+  dots.innerHTML = "<i></i><i></i><i></i>";
+  thinking.append(label, dots);
+  message.content.appendChild(thinking);
+  return message;
+}
+
+function grammarPhrases(text) {
+  return String(text || "")
+    .split(/(?<=[.!?ãï¼ï¼])\s+|\n+/u)
+    .map(part => part.trim())
+    .filter(Boolean);
+}
+
+async function revealGrammarText(container, text, renderToken) {
+  const phrases = grammarPhrases(text);
+  if (!phrases.length) return true;
+  const paragraph = document.createElement("p");
+  container.appendChild(paragraph);
+  for (const phrase of phrases) {
+    if (renderToken !== grammarDetailRenderToken) return false;
+    const span = document.createElement("span");
+    span.textContent = `${paragraph.childNodes.length ? " " : ""}${phrase}`;
+    paragraph.appendChild(span);
+    grammarDetailBody.scrollTop = grammarDetailBody.scrollHeight;
+    await new Promise(resolve => window.setTimeout(resolve, 55));
+  }
+  return true;
+}
+
+async function streamGrammarExplanation(message, renderToken) {
+  const { content } = appendGrammarThreadMessage("assistant");
+  if (message?.title) {
+    const title = document.createElement("h3");
+    title.className = "grammar-message-title";
+    title.textContent = String(message.title);
+    content.appendChild(title);
+  }
+  if (!await revealGrammarText(content, message?.introduction, renderToken)) return;
+  for (const paragraph of Array.isArray(message?.paragraphs) ? message.paragraphs : []) {
+    if (!await revealGrammarText(content, paragraph, renderToken)) return;
+  }
+  for (const section of Array.isArray(message?.sections) ? message.sections : []) {
+    if (renderToken !== grammarDetailRenderToken) return;
+    const heading = document.createElement("h3");
+    heading.textContent = String(section?.heading || "");
+    content.appendChild(heading);
+    if (!await revealGrammarText(content, section?.body, renderToken)) return;
+  }
+  const examples = Array.isArray(message?.examples) ? message.examples : [];
+  if (examples.length) {
+    const heading = document.createElement("h3");
+    heading.textContent = "Examples";
+    content.appendChild(heading);
+    const list = document.createElement("div");
+    list.className = "grammar-example-list";
+    content.appendChild(list);
+    for (const example of examples) {
+      if (renderToken !== grammarDetailRenderToken) return;
+      const card = document.createElement("div");
+      card.className = "grammar-example";
+      const target = document.createElement("div");
+      target.className = "grammar-example-target";
+      target.textContent = String(example?.target || "");
+      const translation = document.createElement("div");
+      translation.className = "grammar-example-translation";
+      translation.textContent = String(example?.translation || "");
+      card.append(target, translation);
+      list.appendChild(card);
+      grammarDetailBody.scrollTop = grammarDetailBody.scrollHeight;
+      await new Promise(resolve => window.setTimeout(resolve, 70));
+    }
+  }
+  if (message?.takeaway) {
+    const takeaway = document.createElement("p");
+    takeaway.className = "grammar-takeaway";
+    takeaway.textContent = String(message.takeaway);
+    content.appendChild(takeaway);
+  }
+  grammarDetailBody.scrollTop = grammarDetailBody.scrollHeight;
+}
+
+function grammarMessageToPlainText(message) {
+  return [
+    message?.title,
+    message?.introduction,
+    ...(Array.isArray(message?.paragraphs) ? message.paragraphs : []),
+    ...(Array.isArray(message?.sections)
+      ? message.sections.map(section => `${section?.heading || ""}: ${section?.body || ""}`)
+      : []),
+    ...(Array.isArray(message?.examples)
+      ? message.examples.map(example => `${example?.target || ""} â ${example?.translation || ""}`)
+      : []),
+    message?.takeaway
+  ].map(value => String(value || "").trim()).filter(Boolean).join("\n");
+}
+
+function rememberSessionGrammarTip({
+  correctionId,
+  title,
+  learnerText,
+  correctedText,
+  explanation,
+  threadId
+}) {
+  if (!activeChatSession || !explanation) return;
+  const tips = Array.isArray(activeChatSession.grammarTips)
+    ? activeChatSession.grammarTips
+    : (activeChatSession.grammarTips = []);
+  const identity = `${String(title || "").toLocaleLowerCase()}|${String(correctedText || "").toLocaleLowerCase()}|${String(explanation || "").toLocaleLowerCase()}`;
+  if (tips.some(tip => tip.identity === identity)) return;
+
+  const tip = {
+    id: correctionId,
+    identity,
+    title: title || "Grammar rule",
+    learnerText: String(learnerText || "").trim(),
+    correctedText: String(correctedText || "").trim(),
+    explanation: String(explanation || "").trim(),
+    threadId,
+    createdAt: Date.now()
+  };
+  tips.push(tip);
+
+  if (!currentUser) return;
+  const rows = getMasterThreads();
+  if (!rows.some(row => row.id === threadId)) {
+    rows.unshift({
+      id: threadId,
+      kind: "grammar",
+      language: activeChatSession.language,
+      sessionId: activeChatSession.id,
+      sessionTitle: formatSessionStartedAt(activeChatSession.startedAt),
+      title: tip.title,
+      createdAt: tip.createdAt,
+      updatedAt: tip.createdAt,
+      messages: [{
+        role: "assistant",
+        content: `Corrected form: ${tip.correctedText}\n\n${tip.explanation}`,
+        createdAt: tip.createdAt
+      }]
+    });
+    saveMasterThreads(rows);
+  }
+}
+
+async function requestGrammarDetail(followUpQuestion = "") {
+  if (!activeGrammarDetailContext || !grammarDetailBody) return;
+
+  const context = activeGrammarDetailContext;
+  const isFollowUp = Boolean(followUpQuestion.trim());
+  const renderToken = ++grammarDetailRenderToken;
+  if (isFollowUp) appendGrammarThreadMessage("user", followUpQuestion);
+  const thinkingMessage = addGrammarThinking();
+  if (grammarFollowUpSend) grammarFollowUpSend.disabled = true;
+  if (grammarFollowUpInput) grammarFollowUpInput.disabled = true;
+
+  try {
+    const data = await callChatFunction({
+      action: "grammar-explain",
+      chatLanguage: context.chatLanguage,
+      fluentLanguage: context.fluentLanguage,
+      learnerText: context.learnerText,
+      correctedText: context.correctedText,
+      briefExplanation: context.briefExplanation,
+      precedingMessage: context.precedingMessage,
+      followUpQuestion,
+      priorExplanation: context.detailedExplanation
+        ? JSON.stringify(context.detailedExplanation)
+        : "",
+      conversationHistory: context.grammarConversation || [],
+      inputMode: context.inputMode,
+      threadId: context.lipsMasterThreadId
+    }, "Grammar explanation");
+
+    if (activeGrammarDetailContext !== context) return;
+    if (!data.message || typeof data.message !== "object") {
+      throw new Error("The grammar explanation was empty.");
+    }
+    thinkingMessage.row.remove();
+    context.detailedExplanation = data.message;
+    if (isFollowUp) {
+      context.grammarConversation.push({ role: "user", content: followUpQuestion });
+    }
+    context.grammarConversation.push({
+      role: "assistant",
+      content: grammarMessageToPlainText(data.message)
+    });
+    saveGrammarConversationToMaster(context);
+    await streamGrammarExplanation(data.message, renderToken);
+  } catch (error) {
+    if (activeGrammarDetailContext === context) {
+      thinkingMessage.content.textContent = getReadableError(error);
+    }
+  } finally {
+    if (activeGrammarDetailContext !== context) return;
+    if (grammarFollowUpSend) grammarFollowUpSend.disabled = false;
+    if (grammarFollowUpInput) grammarFollowUpInput.disabled = false;
+    grammarFollowUpInput?.focus();
+  }
+}
+
+function openGrammarDetailModal(context) {
+  activeGrammarDetailContext = {
+    ...context,
+    chatLanguage: getCurrentChatLanguage(),
+    fluentLanguage: getCurrentFluentLanguage(),
+    inputMode,
+    precedingMessage: [...messages]
+      .reverse()
+      .find(message => message?.role === "assistant")?.content || "",
+    detailedExplanation: "",
+    grammarConversation: []
+  };
+  activeGrammarDetailContext.lipsMasterThreadId = context.lipsMasterThreadId ||
+    `grammar-${context.correctionId || Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+  if (grammarDetailBody) grammarDetailBody.textContent = "";
+  if (grammarDetailTitle) {
+    grammarDetailTitle.textContent = context.grammarRuleTitle || "Grammar rule";
+  }
+  grammarDetailModal?.classList.remove("hidden");
+  requestGrammarDetail().catch(() => {});
+}
+
 function addSpeechReviewCard({
   transcript,
   suggestion,
@@ -7462,8 +8811,10 @@ function addSpeechReviewCard({
   reviewMode = "language",
   reviewTitle = "",
   grammarExplanation = "",
+  grammarRuleTitle = "",
   scheduleCorrections = true,
   pointsAward = null,
+  responseMode = "speech",
   onRetry,
   onContinue
 }) {
@@ -7472,6 +8823,7 @@ function addSpeechReviewCard({
       transcript,
       didYouMeanText: didYouMeanText || suggestion || correctedText || transcript,
       parts,
+      responseMode,
       onRetry,
       onContinue
     });
@@ -7482,6 +8834,9 @@ function addSpeechReviewCard({
   removeSpeechReviewCard();
 
   const correctionId = `correction-${++correctionCounter}`;
+  const grammarThreadId = reviewMode === "grammar"
+    ? `grammar-${activeChatSession?.id || "session"}-${correctionId}`
+    : "";
 
   const correctionText = correctedText || suggestion || transcript;
   const pairs = isPerfect
@@ -7578,9 +8933,32 @@ headerRow.appendChild(pointsEarned);
 card.appendChild(layout);
 
   if (reviewMode === "grammar" && grammarExplanation.trim()) {
+    rememberSessionGrammarTip({
+      correctionId,
+      title: grammarRuleTitle || "Grammar rule",
+      learnerText: transcript,
+      correctedText: correctionText,
+      explanation: grammarExplanation.trim(),
+      threadId: grammarThreadId
+    });
     const ruleNote = document.createElement("div");
     ruleNote.className = "grammar-rule-note";
-    ruleNote.textContent = grammarExplanation.trim();
+    ruleNote.appendChild(document.createTextNode(`${grammarExplanation.trim()} `));
+
+    const learnMore = document.createElement("button");
+    learnMore.type = "button";
+    learnMore.className = "grammar-learn-more";
+    learnMore.textContent = "Learn more";
+    learnMore.addEventListener("click", () => {
+      openGrammarDetailModal({
+        learnerText: transcript,
+        correctedText: correctionText,
+        briefExplanation: grammarExplanation.trim(),
+        grammarRuleTitle: grammarRuleTitle || "Grammar rule",
+        lipsMasterThreadId: grammarThreadId
+      });
+    });
+    ruleNote.appendChild(learnMore);
     card.appendChild(ruleNote);
   }
 
@@ -7591,7 +8969,7 @@ card.appendChild(layout);
     const retryButton = document.createElement("button");
     retryButton.type = "button";
     retryButton.className = "speech-review-button primary";
-    retryButton.textContent = "Re-record";
+    retryButton.textContent = responseMode === "writing" ? "Try again" : "Re-record";
 
     const continueButton = document.createElement("button");
     continueButton.type = "button";
@@ -7599,10 +8977,12 @@ card.appendChild(layout);
     continueButton.textContent = "Continue anyway";
 
     retryButton.addEventListener("click", async () => {
-  if (typeof onRetry === "function") {
-    onRetry();
+  if (responseMode === "writing") {
+    if (typeof onRetry === "function") await onRetry();
+    return;
   }
 
+  if (typeof onRetry === "function") onRetry();
   await startCorrectionRetryRecording();
 });
 
@@ -7637,6 +9017,20 @@ card.appendChild(layout);
   }
 
   messageHistory.appendChild(card);
+
+  if (activeChatSession) {
+    activeChatSession.timeline = Array.isArray(activeChatSession.timeline)
+      ? activeChatSession.timeline
+      : [];
+    activeChatSession.timeline.push({
+      id: correctionId,
+      role: "review",
+      reviewMode,
+      title: isPerfect ? "Perfect!" : (reviewTitle || `Try again in ${languageSelect.value}`),
+      content: correctionText,
+      explanation: grammarExplanation || ""
+    });
+  }
 
   correctionState.set(correctionId, {
   id: correctionId,
@@ -8028,6 +9422,107 @@ async function callChatFunction(payload, label = "Chat") {
   return await parseJsonResponse(response, label);
 }
 
+function rememberLanguageFact(language, fact) {
+  const cleanFact = String(fact || "").replace(/\s+/g, " ").trim();
+  if (!cleanFact) return;
+  const seen = getSeenLanguageFacts(language);
+  const queue = getLanguageFactQueue(language);
+  const normalized = cleanFact.toLocaleLowerCase();
+  const alreadyKnown = [...seen, ...queue]
+    .some(item => item.toLocaleLowerCase() === normalized);
+  if (!alreadyKnown) queue.push(cleanFact);
+}
+
+function languageFactStorageKey(language) {
+  return `lipsmaxxed-seen-language-facts:${language}`;
+}
+
+function getSeenLanguageFacts(language) {
+  if (recentLanguageFacts.has(language)) return recentLanguageFacts.get(language);
+  let seen = [];
+  try {
+    const stored = JSON.parse(localStorage.getItem(languageFactStorageKey(language)) || "[]");
+    seen = Array.isArray(stored)
+      ? stored.map(item => String(item || "").trim()).filter(Boolean).slice(-500)
+      : [];
+  } catch {
+    seen = [];
+  }
+  recentLanguageFacts.set(language, seen);
+  return seen;
+}
+
+function getLanguageFactQueue(language) {
+  if (!languageFactQueues.has(language)) languageFactQueues.set(language, []);
+  return languageFactQueues.get(language);
+}
+
+function markLanguageFactSeen(language, fact) {
+  if (!fact) return;
+  const seen = getSeenLanguageFacts(language);
+  const normalized = fact.toLocaleLowerCase();
+  const next = [...seen.filter(item => item.toLocaleLowerCase() !== normalized), fact].slice(-500);
+  recentLanguageFacts.set(language, next);
+  try {
+    localStorage.setItem(languageFactStorageKey(language), JSON.stringify(next));
+  } catch {
+    // A private browsing storage failure should not interrupt practice.
+  }
+}
+
+function maintainLanguageFactBuffer(language = getCurrentChatLanguage(), targetSize = 4) {
+  const safeLanguage = language || "English";
+  if (languageFactRequests.has(safeLanguage)) {
+    return languageFactRequests.get(safeLanguage);
+  }
+  const request = (async () => {
+    const queue = getLanguageFactQueue(safeLanguage);
+    const attemptedFacts = [];
+    let attempts = 0;
+    while (queue.length < targetSize && attempts < targetSize * 3) {
+      attempts += 1;
+      const previousFacts = [
+        ...getSeenLanguageFacts(safeLanguage),
+        ...queue,
+        ...attemptedFacts
+      ].slice(-80);
+      const data = await callChatFunction({
+        action: "language-fun-fact",
+        language: safeLanguage,
+        previousFacts,
+        count: Math.min(4, targetSize - queue.length)
+      }, "Language fact");
+      const facts = Array.isArray(data.facts) ? data.facts : [data.fact];
+      facts.forEach(fact => {
+        const cleanFact = String(fact || "").replace(/\s+/g, " ").trim();
+        if (cleanFact) attemptedFacts.push(cleanFact);
+        rememberLanguageFact(safeLanguage, cleanFact);
+      });
+    }
+    return queue[0] || "";
+  })()
+    .finally(() => languageFactRequests.delete(safeLanguage));
+  languageFactRequests.set(safeLanguage, request);
+  return request;
+}
+
+function prefetchLanguageFact(language = getCurrentChatLanguage()) {
+  return maintainLanguageFactBuffer(language, 4);
+}
+
+async function ensureLanguageFact(language = getCurrentChatLanguage()) {
+  const queue = getLanguageFactQueue(language);
+  return queue[0] || await maintainLanguageFactBuffer(language, 4);
+}
+
+function consumePreparedLanguageFact(language = getCurrentChatLanguage()) {
+  const queue = getLanguageFactQueue(language);
+  const fact = queue.shift() || "";
+  markLanguageFactSeen(language, fact);
+  maintainLanguageFactBuffer(language, 4).catch(() => {});
+  return fact;
+}
+
   function scrollMessagesToBottom() {
   window.scrollTo({
     top: document.documentElement.scrollHeight,
@@ -8196,7 +9691,12 @@ function isSamePlayback(button, type, id) {
   }
 
   function addUserMessage(text) {
+    text = cleanInterfaceText(text);
     removeSignedOutProTip();
+
+    if (activeChatSession) {
+      activeChatSession.messageCount = Number(activeChatSession.messageCount || 0) + 1;
+    }
 
     const id = `user-${++userMessageCounter}`;
 
@@ -8212,6 +9712,12 @@ function isSamePlayback(button, type, id) {
     messageHistory.appendChild(card);
 
     userMessageState.set(id, { id, text, bubble });
+    if (activeChatSession) {
+      activeChatSession.timeline = Array.isArray(activeChatSession.timeline)
+        ? activeChatSession.timeline
+        : [];
+      activeChatSession.timeline.push({ id, role: "user", content: text });
+    }
 
     scrollMessagesToBottom();
 
@@ -8232,6 +9738,8 @@ function isSamePlayback(button, type, id) {
     state.bubble.classList.remove("user-annotated");
     state.bubble.textContent = text;
   }
+  const timelineItem = activeChatSession?.timeline?.find(item => item.id === userMessageId);
+  if (timelineItem) timelineItem.content = text;
 }
 
   const RESPONSE_STAGE_DEFAULTS = {
@@ -8240,14 +9748,6 @@ function isSamePlayback(button, type, id) {
     chat: 2500,
     speech: 2200,
     decode: 180
-  };
-
-  const RESPONSE_STAGE_LABELS = {
-    language: "Checking your language",
-    context: "Preparing context",
-    chat: "Writing your question",
-    speech: "Preparing audio",
-    decode: "Getting playback ready"
   };
 
   function getResponseTimingEstimates() {
@@ -8282,18 +9782,20 @@ function isSamePlayback(button, type, id) {
     card.className = "message-card response-progress-card";
     card.setAttribute("role", "status");
     card.setAttribute("aria-live", "polite");
+    const factLanguage = getCurrentChatLanguage();
+    let fact = consumePreparedLanguageFact(factLanguage);
     card.innerHTML = `
       <div class="response-progress-copy">
-        <span class="response-progress-label"></span>
-        <span class="response-progress-eta"></span>
+        <div class="response-progress-kicker">DID YOU KNOW...</div>
+        <div class="response-progress-fact"></div>
       </div>
       <div class="response-progress-track" aria-hidden="true">
         <div class="response-progress-fill"></div>
       </div>`;
 
-    const label = card.querySelector(".response-progress-label");
-    const eta = card.querySelector(".response-progress-eta");
+    const factEl = card.querySelector(".response-progress-fact");
     const fill = card.querySelector(".response-progress-fill");
+    factEl.textContent = cleanInterfaceText(fact);
     const samples = {};
     let stage = initialStage;
     let stageStartedAt = performance.now();
@@ -8301,6 +9803,18 @@ function isSamePlayback(button, type, id) {
 
     messageHistory.appendChild(card);
     scrollMessagesToBottom();
+
+    if (!fact) {
+      card.classList.add("fact-pending");
+      maintainLanguageFactBuffer(factLanguage, 4).then(() => {
+        if (stopped) return;
+        fact = consumePreparedLanguageFact(factLanguage);
+        if (!fact) return;
+        factEl.textContent = cleanInterfaceText(fact);
+        card.classList.remove("fact-pending");
+        scrollMessagesToBottom();
+      }).catch(() => {});
+    }
 
     function render() {
       if (stopped) return;
@@ -8314,14 +9828,6 @@ function isSamePlayback(button, type, id) {
       const totalEstimatedMs = stages.reduce((sum, name) => sum + estimates[name], 0);
       const representedMs = completedMs + estimates[stage] * predictedStageProgress;
       const percent = Math.min(94, Math.max(2, representedMs / totalEstimatedMs * 100));
-      const remainingMs = Math.max(0, totalEstimatedMs - representedMs);
-
-      label.textContent = stageElapsed > estimates[stage] * 1.35
-        ? `${RESPONSE_STAGE_LABELS[stage]} - taking a little longer`
-        : RESPONSE_STAGE_LABELS[stage];
-      eta.textContent = remainingMs > 9500
-        ? "Under 15 sec"
-        : `~${Math.max(1, Math.ceil(remainingMs / 1000))} sec`;
       fill.style.width = `${percent}%`;
     }
 
@@ -8343,8 +9849,6 @@ function isSamePlayback(button, type, id) {
         stopped = true;
         clearInterval(timer);
         fill.style.width = "100%";
-        label.textContent = "Ready";
-        eta.textContent = "";
         saveResponseTimings(samples);
         card.remove();
       },
@@ -8356,13 +9860,69 @@ function isSamePlayback(button, type, id) {
     };
   }
 
+  async function generatePreparedChatTurn(payload, label = "Chat") {
+    const language = payload.language || getCurrentChatLanguage();
+    const clientTurnId = payload.clientTurnId || createClientTurnId();
+    const targetRowsPromise = getFrequencyFrontierTargets(language, 2)
+      .catch(error => {
+        console.warn("frequency targets unavailable for response", error);
+        return [];
+      });
+    // The prompt and card must use the same two frozen frequency targets.
+    // Waiting for this small profile lookup prevents the model from asking a
+    // generic question unrelated to the words displayed beside it.
+    const vocabularyProfilePromise = targetRowsPromise.then(rows =>
+      getVocabularyProfileForPrompt(language, rows)
+    );
+    const dataPromise = vocabularyProfilePromise.then(vocabularyProfile =>
+      callChatFunction({
+        ...payload,
+        vocabularyProfile,
+        clientTurnId,
+        previousFacts: [
+          ...getSeenLanguageFacts(language),
+          ...getLanguageFactQueue(language)
+        ].slice(-80)
+      }, label)
+    );
+    const preparedBonusWordsPromise = targetRowsPromise.then(rows =>
+      prepareUpcomingWords(language, rows)
+    );
+    const [data, targetRows] = await Promise.all([dataPromise, targetRowsPromise]);
+
+    return {
+      data,
+      clientTurnId,
+      preparedBonusWordsPromise,
+      expectedTargetForReply: targetRows[0] || null
+    };
+  }
+
   async function presentBotReply(data, progress, options = {}) {
     const autoplay = options.autoplay !== false;
     const language = options.language || getCurrentChatLanguage();
     const expectedTarget = options.expectedTarget || null;
+    const preparedBonusWordsPromise = options.preparedBonusWordsPromise ||
+      Promise.resolve({ language, rows: [] });
+    const clientTurnId = options.clientTurnId || data.clientTurnId || "";
+
+    if (clientTurnId && renderedBotTurnIds.has(clientTurnId)) {
+      progress?.remove();
+      return null;
+    }
+    if (clientTurnId) renderedBotTurnIds.add(clientTurnId);
+
+    if (data.nextFunFact) {
+      rememberLanguageFact(language, data.nextFunFact);
+    } else {
+      prefetchLanguageFact(language).catch(() => {});
+    }
 
     progress?.setStage("speech");
-    const fullSpeech = await fetchFullSpeech(data.reply, language);
+    const [fullSpeech, preparedBonusWords] = await Promise.all([
+      fetchFullSpeech(data.reply, language),
+      preparedBonusWordsPromise
+    ]);
 
     progress?.setStage("decode");
     if (!fullSpeech.audioBuffer) {
@@ -8386,6 +9946,8 @@ function isSamePlayback(button, type, id) {
 
     const botCard = document.querySelector(`[data-message-id="${botMessageId}"]`);
     botCard?.classList.add("synchronized-pending");
+    attachBonusWordsPanelToBotMessage(botMessageId);
+    renderPreparedUpcomingWords(preparedBonusWords);
     const state = messageState.get(botMessageId);
     try {
       if (state && autoplay) {
@@ -8402,8 +9964,6 @@ function isSamePlayback(button, type, id) {
     }
 
     progress?.finish();
-    attachBonusWordsPanelToBotMessage(botMessageId);
-    loadUpcomingWords(language).catch(() => {});
 
     return botMessageId;
   }
@@ -8439,20 +9999,16 @@ function isSamePlayback(button, type, id) {
     });
   }
 
-const responsePromise = (async () => {
-  const data = await callChatFunction(
-    {
+const responsePromise = generatePreparedChatTurn(
+  {
       messages,
       language: languageSelect.value,
       userGenderInstruction: getUserGenderInstruction(),
       chatRole: activeChatSession?.topicRole || "",
       chatTopic: activeChatSession?.topicTitle || ""
-    },
-    "Chat"
-  );
-
-  return { data, expectedTargetForReply: null };
-})();
+  },
+  "Chat"
+);
 
   return {
     userText,
@@ -8514,7 +10070,9 @@ const responsePromise = (async () => {
     const result = await prepared.responsePromise;
     await presentBotReply(result.data, progress, {
       autoplay,
-      expectedTarget: result.expectedTargetForReply
+      clientTurnId: result.clientTurnId,
+      expectedTarget: result.expectedTargetForReply,
+      preparedBonusWordsPromise: result.preparedBonusWordsPromise
     });
   } catch (error) {
     progress.remove();
@@ -8528,7 +10086,8 @@ const responsePromise = (async () => {
     correctionRetrySourceMode === "grammar"
       ? {
           correctedText: activeSpeechCorrection?.grammarCorrectedText || "",
-          explanation: activeSpeechCorrection?.grammarExplanation || ""
+          explanation: activeSpeechCorrection?.grammarExplanation || "",
+          title: activeSpeechCorrection?.grammarRuleTitle || "Grammar rule"
         }
       : null;
   removeSpeechReviewCard();
@@ -8550,11 +10109,12 @@ const responsePromise = (async () => {
   }
 }
     
-  async function handleSpeechTranscript(transcript) {
+  async function handleSpeechTranscript(transcript, responseMode = "speech") {
   if (!transcript.trim()) return;
 
   const responseProgress = addResponseProgress("language");
-  const isCorrectionRetry = correctionRetryMode;
+  const isSpeechResponse = responseMode === "speech";
+  const isCorrectionRetry = isSpeechResponse && correctionRetryMode;
 const retrySourceMode = isCorrectionRetry ? correctionRetrySourceMode : "";
 const retryPriorGrammar = isCorrectionRetry
   ? correctionRetryPriorGrammar
@@ -8568,12 +10128,6 @@ const expectedTargetForAnswer = isCorrectionRetry
 
 if (!isCorrectionRetry) {
   activeCorrectionUserMessageId = addUserMessage(transcript);
-
-  /*
-    The bot receives the original message immediately.
-    Re-recording is only for practice.
-  */
-  pendingBackgroundBot = await prepareBotResponseInBackground(transcript, responseProgress);
 } else {
   /*
     Retry should replace the original speech bubble, not create a new one.
@@ -8594,7 +10148,8 @@ if (!isCorrectionRetry) {
       transcript,
       expectedTargetForAnswer,
       {
-        allowPhoneticRescue: true,
+        allowPhoneticRescue: isSpeechResponse,
+        inputMode: responseMode,
         priorGrammarCorrectedText:
           retrySourceMode === "grammar"
             ? retryPriorGrammar?.correctedText || ""
@@ -8602,17 +10157,24 @@ if (!isCorrectionRetry) {
         priorGrammarExplanation:
           retrySourceMode === "grammar"
             ? retryPriorGrammar?.explanation || ""
+            : "",
+        priorGrammarRuleTitle:
+          retrySourceMode === "grammar"
+            ? retryPriorGrammar?.title || ""
             : ""
       }
     );
   } catch {
-    if (pendingBackgroundBot) {
-      pendingBackgroundBot.progress = responseProgress;
-      responseProgress.setStage("chat");
-      await revealPreparedBotResponse(pendingBackgroundBot);
-    } else {
-      responseProgress.remove();
+    if (!pendingBackgroundBot) {
+      pendingBackgroundBot = await prepareBotResponseInBackground(
+        transcript,
+        responseProgress,
+        { replaceLatestUser: isCorrectionRetry }
+      );
     }
+    pendingBackgroundBot.progress = responseProgress;
+    responseProgress.setStage("chat");
+    await revealPreparedBotResponse(pendingBackgroundBot);
     pendingBackgroundBot = null;
     return;
   }
@@ -8651,6 +10213,9 @@ if (!isCorrectionRetry) {
       retryPriorGrammar?.explanation ||
       ""
     : "";
+  const grammarRuleTitle = grammarNeedsReview
+    ? analysis.grammarRuleTitle || "Grammar rule"
+    : "";
   const hasForeignParts = hasForeignLanguageParts(parts);
   const reviewedTranscript = phoneticRescueApplied
     ? acceptedText
@@ -8662,17 +10227,6 @@ if (
   reviewedTranscript !== transcript
 ) {
   updateUserMessageText(activeCorrectionUserMessageId, reviewedTranscript);
-}
-
-if (
-  pendingBackgroundBot?.userText !== reviewedTranscript &&
-  (phoneticRescueApplied || isCorrectionRetry)
-) {
-  pendingBackgroundBot = await prepareBotResponseInBackground(
-    reviewedTranscript,
-    responseProgress,
-    { replaceLatestUser: true }
-  );
 }
 
 const confirmedSpokenText = getConfirmedSpokenTextFromCorrection(
@@ -8703,6 +10257,19 @@ const pointsAward = confirmedSpokenText
       newTotal: currentLanguagePoints,
       language: languageSelect.value
     };
+
+/*
+  Select the next bonus words only after this answer has been evaluated and
+  credited. This guarantees that a word just produced cannot be selected for
+  the immediately following prompt, even while a database update is settling.
+*/
+if (!pendingBackgroundBot || pendingBackgroundBot.userText !== reviewedTranscript) {
+  pendingBackgroundBot = await prepareBotResponseInBackground(
+    reviewedTranscript,
+    responseProgress,
+    { replaceLatestUser: isCorrectionRetry }
+  );
+}
 
   if (
     responseMakesSense &&
@@ -8746,6 +10313,7 @@ const pointsAward = confirmedSpokenText
     correctedText,
     grammarCorrectedText,
     grammarExplanation,
+    grammarRuleTitle,
     grammarNeedsReview,
     reviewMode,
     expectedTarget: expectedTargetForAnswer,
@@ -8753,7 +10321,20 @@ const pointsAward = confirmedSpokenText
   };
 
   const onRetry = () => {
-    setSpeechStatus("Recording");
+    if (isSpeechResponse) {
+      setSpeechStatus("Recording");
+      return;
+    }
+    pendingBackgroundBot?.progress?.remove?.();
+    pendingBackgroundBot = null;
+    activeSpeechCorrection = null;
+    activeCorrectionUserMessageId = null;
+    removeSpeechReviewCard();
+    if (input) {
+      input.value = transcript;
+      input.focus();
+      input.select();
+    }
   };
 
   const onContinue = async () => {
@@ -8781,6 +10362,7 @@ const pointsAward = confirmedSpokenText
       isPerfect: false,
       reviewMode: "language",
       pointsAward,
+      responseMode,
       onRetry,
       onContinue
     });
@@ -8794,6 +10376,7 @@ const pointsAward = confirmedSpokenText
       isPerfect: false,
       reviewMode: "context",
       pointsAward,
+      responseMode,
       onRetry,
       onContinue
     });
@@ -8807,8 +10390,10 @@ const pointsAward = confirmedSpokenText
       reviewMode: "grammar",
       reviewTitle: "Grammar check",
       grammarExplanation,
+      grammarRuleTitle,
       scheduleCorrections: false,
       pointsAward,
+      responseMode,
       onRetry,
       onContinue
     });
@@ -8829,7 +10414,7 @@ const pointsAward = confirmedSpokenText
 
   const correctionId = correctionCard.dataset.correctionId;
 
-  if (correctionId) {
+  if (correctionId && isSpeechResponse) {
     playCorrection(correctionId).catch(() => {});
   }
 }
@@ -8859,10 +10444,13 @@ const pointsAward = confirmedSpokenText
       chatLanguage: languageSelect.value,
       precedingMessage,
       allowPhoneticRescue: options.allowPhoneticRescue === true,
+      inputMode: options.inputMode === "speech" ? "speech" : "writing",
       priorGrammarCorrectedText:
         options.priorGrammarCorrectedText || "",
       priorGrammarExplanation:
         options.priorGrammarExplanation || "",
+      priorGrammarRuleTitle:
+        options.priorGrammarRuleTitle || "",
       userGenderInstruction: getUserGenderInstruction(),
       targetWord:
         expectedTarget?.word_text ||
@@ -8885,6 +10473,7 @@ const pointsAward = confirmedSpokenText
     grammarCorrect: data.grammarCorrect === true,
     grammarCorrectedText: data.grammarCorrectedText || text,
     grammarExplanation: data.grammarExplanation || "",
+    grammarRuleTitle: data.grammarRuleTitle || "",
     priorGrammarRecommendationsSatisfied:
       data.priorGrammarRecommendationsSatisfied === true,
     targetProduced: data.targetProduced === true,
@@ -8943,6 +10532,7 @@ const pointsAward = confirmedSpokenText
   }
 
   function addBotMessage(text, options = {}) {
+    text = cleanInterfaceText(text);
     const id = `bot-${++messageCounter}`;
 
     const card = document.createElement("div");
@@ -9019,6 +10609,12 @@ translateAllButton.addEventListener("click", () => {
 promptStack.appendChild(translateAllButton);
 
 messageHistory.appendChild(card);
+if (activeChatSession) {
+  activeChatSession.timeline = Array.isArray(activeChatSession.timeline)
+    ? activeChatSession.timeline
+    : [];
+  activeChatSession.timeline.push({ id, role: "assistant", content: text });
+}
 
     /*
       Begin the batched per-word recording request as soon as the reply is on
@@ -9077,7 +10673,8 @@ messageHistory.appendChild(card);
   function renderWordsIntoElement(text, container, messageId) {
     container.innerHTML = "";
 
-    const parts = splitTextIntoParts(text);
+    const safeText = cleanInterfaceText(text);
+    const parts = splitTextIntoParts(safeText);
     const speakableTokens = [];
     let tokenIndex = 0;
 
@@ -9106,7 +10703,7 @@ messageHistory.appendChild(card);
         unit.appendChild(translation);
 
         unit.addEventListener("click", () => {
-          handleBotWordClick(unit, part, messageId, text);
+          handleBotWordClick(unit, part, messageId, safeText);
         });
 
         container.appendChild(unit);
@@ -9114,7 +10711,7 @@ messageHistory.appendChild(card);
         speakableTokens.push({
           tokenId,
           word: part,
-          sentence: text
+          sentence: safeText
         });
 
         tokenIndex++;
@@ -9874,8 +11471,13 @@ async function playBonusWordAudio(chatWord, language, button = null) {
 
       unit.classList.remove("translating");
       unit.classList.add("translated");
-      const cachedTarget = translationLexemeCache.get(cacheKey) ||
-        normalizeVocabularyTarget(cleanWord);
+      const cachedTarget = {
+        word_key: normalizeStatsWord(cleanWord),
+        word_text: cleanWord,
+        word: cleanWord,
+        lemma: cleanWord,
+        upos: "X"
+      };
       recordWordStats([cachedTarget], "translated", chatLanguage).catch(() => {});
       scheduleWordReview(cachedTarget, "translated", chatLanguage).catch(() => {});
       return cachedTarget;
@@ -9902,12 +11504,13 @@ async function playBonusWordAudio(chatWord, language, button = null) {
 
       const translated = data.translation || "";
       translationCache.set(cacheKey, translated);
-      const lexemeTarget = normalizeVocabularyTarget({
-        word_text: data.lemma || cleanWord,
-        lemma: data.lemma || cleanWord,
-        upos: data.upos || "X",
-        lexemeKey: data.lexemeKey || ""
-      }, data.upos || "X");
+      const lexemeTarget = {
+        word_key: normalizeStatsWord(cleanWord),
+        word_text: cleanWord,
+        word: cleanWord,
+        lemma: cleanWord,
+        upos: "X"
+      };
       translationLexemeCache.set(cacheKey, lexemeTarget);
 
       if (translationEl) translationEl.textContent = translated;
@@ -9922,68 +11525,6 @@ async function playBonusWordAudio(chatWord, language, button = null) {
 
       unit.classList.remove("translating");
       unit.classList.add("translated");
-      showSystemMessage(getReadableError(error));
-    }
-  }
-
-  async function sendToBot(userText) {
-    hideBonusWordsWhilePromptLoads();
-    const expectedTargetForAnswer = beginUserAnswer();
-
-    messages.push({
-      role: "user",
-      content: userText
-    });
-
-    addUserMessage(userText);
-    getChatLanguageOnlyText(userText, expectedTargetForAnswer)
-  .then(result => {
-    if (result.responseMakesSense && result.chatLanguageText) {
-      return awardPointsForUserMessage(
-        result.chatLanguageText,
-        languageSelect.value,
-        {
-          expectedTarget: expectedTargetForAnswer,
-          targetProduced: result.targetProduced,
-          producedLexemes: result.producedLexemes
-        }
-      );
-    }
-
-    if (expectedTargetForAnswer) {
-      return markReviewWordMissed(
-        expectedTargetForAnswer,
-        languageSelect.value
-      );
-    }
-
-    return null;
-  })
-  .catch(() => {
-    /*
-      If language analysis fails, do not award points.
-      This prevents accidental foreign-language points.
-    */
-  });
-
-    const progress = addResponseProgress("context");
-
-    try {
-      progress.setStage("chat");
-
-      const data = await callChatFunction({
-        messages,
-        language: languageSelect.value,
-        userGenderInstruction: getUserGenderInstruction(),
-        chatRole: activeChatSession?.topicRole || "",
-        chatTopic: activeChatSession?.topicTitle || ""
-      }, "Chat");
-
-      await presentBotReply(data, progress, {
-        autoplay: true
-      });
-    } catch (error) {
-      progress.remove();
       showSystemMessage(getReadableError(error));
     }
   }
@@ -10007,6 +11548,11 @@ async function playBonusWordAudio(chatWord, language, button = null) {
       "English";
   }
 
+  setSelectedGender(currentUser?.user_metadata?.gender || "");
+  if (profilePhotoInput) {
+    profilePhotoInput.value = currentUser?.user_metadata?.avatar_url || "";
+  }
+
   if (profileMessage) {
     profileMessage.textContent = "";
     profileMessage.classList.remove("error", "success");
@@ -10024,6 +11570,7 @@ async function saveProfileSettings() {
 
   const username = profileUsernameInput?.value.trim() || "";
   const fluentLanguage = profileFluentLanguageSelect?.value || "English";
+  const avatarUrl = profilePhotoInput?.value.trim() || "";
 
   if (profileMessage) {
     profileMessage.textContent = "Saving...";
@@ -10035,7 +11582,9 @@ async function saveProfileSettings() {
       data: {
         ...(currentUser.user_metadata || {}),
         username,
-        fluentLanguage
+        fluentLanguage,
+        gender: selectedGender,
+        avatar_url: avatarUrl
       }
     });
 
@@ -10050,6 +11599,8 @@ async function saveProfileSettings() {
     if (fluentLanguageSelect) {
       fluentLanguageSelect.value = fluentLanguage;
     }
+
+    renderMemberIdentity();
 
     if (profileMessage) {
       profileMessage.textContent = "Profile saved.";
@@ -10077,7 +11628,7 @@ async function saveProfileSettings() {
   sendButton.disabled = true;
 
   try {
-    await sendToBot(userText);
+    await handleSpeechTranscript(userText, "writing");
   } catch (error) {
     showSystemMessage(getReadableError(error));
   } finally {
@@ -10122,7 +11673,7 @@ function getAudioFileName(mimeType) {
   return `recording.${getAudioFileExtension(mimeType)}`;
 }
 
-async function transcribeAudioBlob(audioBlob, mimeType) {
+async function transcribeAudioBlob(audioBlob, mimeType, context = {}) {
   if (!audioBlob || audioBlob.size < 1000) {
     throw new Error("The recording was too short or empty.");
   }
@@ -10142,11 +11693,12 @@ async function transcribeAudioBlob(audioBlob, mimeType) {
     .trim()
     .slice(0, 500) || "";
 
-  const answerContext = latestAssistantMessage
-    ? latestAssistantMessage
-    : "";
+  const answerContext = String(
+    context.precedingMessage ?? latestAssistantMessage ?? ""
+  ).trim().slice(0, 500);
 
   const practiceWord = String(
+    context.practiceWord ||
     activeExpectedTarget?.word_text ||
     activeExpectedTarget?.word ||
     activeExpectedTarget?.word_key ||
@@ -10155,8 +11707,8 @@ async function transcribeAudioBlob(audioBlob, mimeType) {
 
   formData.append("action", "transcribe-audio");
   formData.append("audio", audioFile);
-  formData.append("chatLanguage", languageSelect.value);
-  formData.append("fluentLanguage", fluentLanguageSelect.value);
+  formData.append("chatLanguage", context.chatLanguage || languageSelect.value);
+  formData.append("fluentLanguage", context.fluentLanguage || fluentLanguageSelect.value);
   formData.append("precedingMessage", answerContext);
   formData.append("practiceWord", practiceWord);
 
@@ -10443,6 +11995,891 @@ async function handleSpeechRecordButtonClick(event) {
   }
 }
 
+function memberStorageKey(kind) {
+  return `lipsmaxxed-${kind}:${currentUser?.id || "signed-out"}`;
+}
+
+function cleanInterfaceText(value) {
+  return String(value ?? "")
+    .normalize("NFC")
+    .replace(/\uFFFD/g, "")
+    .replace(/\u00E2\u20AC(?:\u2122|\u02DC)/g, "'")
+    .replace(/\u00E2\u20AC(?:\u0153|\u009D)/g, '"')
+    .replace(/\u00E2\u20AC\u00A6/g, "...")
+    .replace(/\p{Extended_Pictographic}|\p{Regional_Indicator}/gu, "")
+    .replace(/[\uFE0E\uFE0F]/g, "")
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
+    .replace(/[\u200B\u200C\u200D\u2060\uFEFF]/g, "")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/^\s*[-*\u2022]\s+/gm, "");
+}
+
+function readMemberJson(kind, fallback) {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(memberStorageKey(kind)) || "null");
+    return parsed ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeMemberJson(kind, value) {
+  try { localStorage.setItem(memberStorageKey(kind), JSON.stringify(value)); } catch {}
+}
+
+function formatDuration(milliseconds) {
+  const totalSeconds = Math.max(0, Math.round(Number(milliseconds || 0) / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  if (hours) return `${hours}h ${minutes}m`;
+  if (minutes) return `${minutes}m ${seconds}s`;
+  return `${seconds}s`;
+}
+
+function renderMemberIdentity() {
+  if (!currentUser) return;
+  const name = getAccountDisplayName(currentUser);
+  if (homeProfileName) homeProfileName.textContent = name;
+  if (!homeProfileAvatar) return;
+  homeProfileAvatar.textContent = "";
+  const avatarUrl = String(currentUser?.user_metadata?.avatar_url || "").trim();
+  if (avatarUrl) {
+    const image = document.createElement("img");
+    image.src = avatarUrl;
+    image.alt = "";
+    image.addEventListener("error", () => {
+      homeProfileAvatar.textContent = name.split(/\s+/).map(part => part[0]).join("").slice(0,2).toUpperCase();
+    }, { once: true });
+    homeProfileAvatar.appendChild(image);
+  } else {
+    homeProfileAvatar.textContent = name.split(/\s+/).map(part => part[0]).join("").slice(0,2).toUpperCase();
+  }
+}
+
+function getSessionHistory() {
+  const localRows = readMemberJson("session-history", []);
+  const accountRows = currentUser?.user_metadata?.lipsmaxxedSessions;
+  // Keep the richer local snapshot when the portable account copy has the
+  // same session id. The portable copy intentionally omits rendered HTML.
+  const merged = [...(Array.isArray(accountRows) ? accountRows : []), ...(Array.isArray(localRows) ? localRows : [])];
+  return [...new Map(
+    merged
+      .filter(row => row && Number(row.messageCount || 0) > 0)
+      .map(row => [row.id, row])
+  ).values()]
+    .sort((a,b) => Number(b.endedAt || 0) - Number(a.endedAt || 0));
+}
+
+function saveSessionSummary(summary) {
+  if (!summary || Number(summary.messageCount || 0) < 1) return;
+  const rows = getSessionHistory().filter(row => row?.id !== summary.id);
+  rows.unshift(summary);
+  writeMemberJson("session-history", rows.slice(0, 500));
+  const portableRows = rows.slice(0,25).map(row => ({
+    id:row.id,language:row.language,inputMode:row.inputMode,startedAt:row.startedAt,endedAt:row.endedAt,
+    durationMs:row.durationMs,pointsGained:row.pointsGained,messageCount:row.messageCount,
+    wordsLearned:row.wordsLearned,learnedWords:Array.isArray(row.learnedWords)?row.learnedWords.slice(0,50):[],
+    confirmed:row.confirmed,confirmedWords:row.confirmedWords,title:row.title,
+    transcript:Array.isArray(row.transcript)?row.transcript.slice(-100).map(message=>({
+      id:message.id,role:message.role,reviewMode:message.reviewMode,title:String(message.title||"").slice(0,160),
+      content:String(message.content||"").slice(0,1600),explanation:String(message.explanation||"").slice(0,1000)
+    })):[],
+    grammarTips:Array.isArray(row.grammarTips)?row.grammarTips.slice(0,30):[]
+  }));
+  queueAccountMetadataUpdate({ lipsmaxxedSessions: portableRows });
+}
+
+function getConfirmedWordRecords() {
+  const localRows = readMemberJson("confirmed-words", []);
+  const accountRows = currentUser?.user_metadata?.lipsmaxxedConfirmedWords;
+  const merged = [...(Array.isArray(localRows) ? localRows : []), ...(Array.isArray(accountRows) ? accountRows : [])];
+  return [...new Map(merged.filter(Boolean).map(row => [`${row.language}|${row.word_key}`,row])).values()];
+}
+
+function saveConfirmedWord(word) {
+  const records = getConfirmedWordRecords();
+  const identity = `${word.language}|${word.word_key}`;
+  const filtered = records.filter(row => `${row.language}|${row.word_key}` !== identity);
+  filtered.unshift({ ...word, confirmedAt: new Date().toISOString() });
+  writeMemberJson("confirmed-words", filtered.slice(0, 20000));
+  queueAccountMetadataUpdate({ lipsmaxxedConfirmedWords: filtered.slice(0,2000) });
+}
+
+function queueAccountMetadataUpdate(patch) {
+  if (!currentUser) return;
+  accountMetadataWrite = accountMetadataWrite.then(async () => {
+    const { data, error } = await supabaseClient.auth.updateUser({
+      data: { ...(currentUser?.user_metadata || {}), ...patch }
+    });
+    if (error) throw error;
+    if (data?.user) currentUser = data.user;
+  }).catch(error => console.warn("account progress sync failed", error));
+}
+
+function formatSessionStartedAt(value) {
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short"
+  }).format(new Date(value || Date.now()));
+}
+
+function createSessionListItem(session) {
+  const row = document.createElement("button");
+  row.type = "button";
+  row.className = "session-list-item";
+  const main = document.createElement("div");
+  const title = document.createElement("div");
+  title.className = "session-list-title";
+  title.textContent = formatSessionStartedAt(session.startedAt || session.endedAt);
+  const date = document.createElement("span");
+  date.className = "session-list-date";
+  date.textContent = session.title || `${session.language || "Language"} practice`;
+  main.append(title,date);
+  const meta = document.createElement("div");
+  meta.className = "session-list-meta";
+  const pointsLine = document.createElement("div");
+  pointsLine.textContent = `${Number(session.pointsGained || 0)} points`;
+  const detailLine = document.createElement("div");
+  detailLine.textContent = `${Number(session.wordsLearned || 0)} words | ${formatDuration(session.durationMs)}`;
+  meta.append(pointsLine, detailLine);
+  row.append(main,meta);
+  row.addEventListener("click", () => openSavedSessionSummary(session));
+  return row;
+}
+
+function renderSessionList(container, rows) {
+  if (!container) return;
+  container.textContent = "";
+  if (!rows.length) {
+    const empty = document.createElement("div");
+    empty.className = "session-list-empty";
+    empty.textContent = "Your completed chats will appear here.";
+    container.appendChild(empty);
+    return;
+  }
+  rows.forEach(row => container.appendChild(createSessionListItem(row)));
+}
+
+function renderSessionTimeChart(rows) {
+  if (!sessionTimeChart) return;
+  sessionTimeChart.textContent = "";
+  const recentRows = rows.slice(0, 10).reverse();
+  const values = recentRows.map(row => Math.max(0, Number(row.durationMs || 0) / 60000));
+  const ns = "http://www.w3.org/2000/svg";
+  const width = 640;
+  const height = 180;
+  const margin = { top: 12, right: 14, bottom: 36, left: 50 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
+  const rawMax = Math.max(1, ...values);
+  const magnitude = 10 ** Math.floor(Math.log10(rawMax));
+  const normalized = rawMax / magnitude;
+  const niceMax = (normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10) * magnitude;
+  const yTicks = [0, niceMax / 2, niceMax];
+
+  yTicks.forEach(value => {
+    const y = margin.top + plotHeight - (value / niceMax) * plotHeight;
+    const line = document.createElementNS(ns,"line");
+    line.setAttribute("x1",String(margin.left)); line.setAttribute("x2",String(width-margin.right));
+    line.setAttribute("y1",String(y)); line.setAttribute("y2",String(y)); line.setAttribute("class","chart-grid");
+    sessionTimeChart.appendChild(line);
+    const label = document.createElementNS(ns,"text");
+    label.setAttribute("x",String(margin.left-9)); label.setAttribute("y",String(y+4));
+    label.setAttribute("text-anchor","end"); label.setAttribute("class","chart-label");
+    label.textContent = `${Math.round(value)}m`;
+    sessionTimeChart.appendChild(label);
+  });
+
+  const yAxis = document.createElementNS(ns,"line");
+  yAxis.setAttribute("x1",String(margin.left)); yAxis.setAttribute("x2",String(margin.left));
+  yAxis.setAttribute("y1",String(margin.top)); yAxis.setAttribute("y2",String(margin.top+plotHeight));
+  yAxis.setAttribute("class","chart-axis"); sessionTimeChart.appendChild(yAxis);
+  const xAxis = document.createElementNS(ns,"line");
+  xAxis.setAttribute("x1",String(margin.left)); xAxis.setAttribute("x2",String(width-margin.right));
+  xAxis.setAttribute("y1",String(margin.top+plotHeight)); xAxis.setAttribute("y2",String(margin.top+plotHeight));
+  xAxis.setAttribute("class","chart-axis"); sessionTimeChart.appendChild(xAxis);
+
+  const yTitle = document.createElementNS(ns,"text");
+  yTitle.setAttribute("x","12"); yTitle.setAttribute("y",String(margin.top + plotHeight/2));
+  yTitle.setAttribute("text-anchor","middle"); yTitle.setAttribute("class","chart-axis-title");
+  yTitle.setAttribute("transform",`rotate(-90 12 ${margin.top + plotHeight/2})`);
+  yTitle.textContent = "Minutes"; sessionTimeChart.appendChild(yTitle);
+  const xTitle = document.createElementNS(ns,"text");
+  xTitle.setAttribute("x",String(margin.left + plotWidth/2)); xTitle.setAttribute("y",String(height-2));
+  xTitle.setAttribute("text-anchor","middle"); xTitle.setAttribute("class","chart-axis-title");
+  xTitle.textContent = "Session date"; sessionTimeChart.appendChild(xTitle);
+
+  if (!values.length) return;
+  const xFor = index => values.length === 1
+    ? margin.left + plotWidth / 2
+    : margin.left + index * plotWidth / (values.length - 1);
+  const points = values.map((value,index) =>
+    `${xFor(index)},${margin.top + plotHeight - value/niceMax*plotHeight}`
+  ).join(" ");
+  const polyline = document.createElementNS(ns,"polyline");
+  polyline.setAttribute("points",points); polyline.setAttribute("fill","none"); polyline.setAttribute("stroke","#60a5fa"); polyline.setAttribute("stroke-width","4"); polyline.setAttribute("stroke-linecap","round"); polyline.setAttribute("stroke-linejoin","round");
+  sessionTimeChart.appendChild(polyline);
+
+  const labelStep = Math.max(1, Math.ceil(values.length / 5));
+  recentRows.forEach((row,index) => {
+    if (index % labelStep !== 0 && index !== recentRows.length - 1) return;
+    const date = new Date(Number(row.startedAt || row.endedAt || 0));
+    const label = document.createElementNS(ns,"text");
+    label.setAttribute("x",String(xFor(index))); label.setAttribute("y",String(margin.top+plotHeight+17));
+    label.setAttribute("text-anchor","middle"); label.setAttribute("class","chart-label");
+    label.textContent = Number.isNaN(date.getTime())
+      ? String(index + 1)
+      : date.toLocaleDateString(undefined,{month:"short",day:"numeric"});
+    sessionTimeChart.appendChild(label);
+  });
+}
+
+async function renderMemberHome() {
+  if (!currentUser) return;
+  renderMemberIdentity();
+  const language = homeLanguageSelect?.value || selectedChatLanguage || "English";
+  const history = getSessionHistory();
+  const languageHistory = history.filter(row => row.language === language);
+  if (homeHistoryTitle) homeHistoryTitle.textContent = `My Previous ${language} Chats`;
+  if (homeStatsTitle) homeStatsTitle.textContent = `My ${language} Stats`;
+  if (chartPeriodLabel) chartPeriodLabel.textContent = `Recent ${language} sessions`;
+  renderSessionList(recentChatsList, languageHistory.slice(0,5));
+  const totalTime = languageHistory.reduce((sum,row) => sum + Number(row.durationMs || 0),0);
+  if (homeSessionsStat) homeSessionsStat.textContent = String(languageHistory.length);
+  if (homeTimeStat) homeTimeStat.textContent = formatDuration(totalTime);
+  if (homeMessagesStat) homeMessagesStat.textContent = String(languageHistory.reduce((sum,row) => sum + Number(row.messageCount || 0),0));
+  if (homeConfirmedStat) homeConfirmedStat.textContent = String(
+    getConfirmedWordRecords().filter(row => row.language === language).length
+  );
+  renderSessionTimeChart(languageHistory);
+  try {
+    const { data } = await supabaseClient
+      .from("user_language_points")
+      .select("total_points")
+      .eq("user_id",currentUser.id)
+      .eq("language",language);
+    if ((homeLanguageSelect?.value || selectedChatLanguage) === language && homePointsStat) {
+      homePointsStat.textContent = String((data || []).reduce((sum,row) => sum + Number(row.total_points || 0),0));
+    }
+  } catch {}
+}
+
+function hideProductPages() {
+  [sessionSummaryPage,wordConfirmationPage,confirmationCompletePage,allChatsPage,lipsMasterPage,sessionReviewPage].forEach(page => page?.classList.add("hidden"));
+  unconfirmedExitModal?.classList.add("hidden");
+}
+
+function showSignedInHome() {
+  if (!currentUser) return;
+  stopAllSpeech();
+  hideProductPages();
+  signedInHome?.classList.remove("hidden");
+  messageHistory?.classList.add("hidden");
+  upcomingWordsPanel?.classList.add("hidden");
+  composerShell?.classList.add("hidden");
+  speechShell?.classList.add("hidden");
+  endChatButton?.classList.add("hidden");
+  if (homeLanguageSelect) homeLanguageSelect.value = selectedChatLanguage || "English";
+  renderMemberHome().catch(() => {});
+}
+
+async function startMemberChat() {
+  if (!currentUser || chatStartInFlight) return;
+  selectedChatLanguage = homeLanguageSelect?.value || "English";
+  selectedInputMode = homeSelectedMode;
+  selectedPreferredName = getAccountDisplayName(currentUser);
+  setSelectedGender(currentUser?.user_metadata?.gender || "");
+  if (chatSetupLanguageSelect) chatSetupLanguageSelect.value = selectedChatLanguage;
+  if (setupPreferredNameInput) setupPreferredNameInput.value = selectedPreferredName;
+  setSetupInputMode(selectedInputMode);
+  chatStartInFlight = true;
+  if (homeStartChatButton) homeStartChatButton.disabled = true;
+  try { await primeAudioForAutoplay(); await startConfiguredChat(); }
+  finally { chatStartInFlight = false; if (homeStartChatButton) homeStartChatButton.disabled = false; }
+}
+
+function buildReadOnlyChatSnapshot() {
+  if (!messageHistory) return "";
+  const clone = messageHistory.cloneNode(true);
+  clone.querySelectorAll(".response-progress-card").forEach(node => node.remove());
+  clone.querySelectorAll("[id]").forEach(node => node.removeAttribute("id"));
+  clone.querySelectorAll("button,input,textarea,select").forEach(control => {
+    control.disabled = true;
+    control.setAttribute("tabindex", "-1");
+  });
+  clone.querySelectorAll("[data-message-id],[data-user-message-id],[data-correction-id]")
+    .forEach(node => {
+      node.removeAttribute("data-message-id");
+      node.removeAttribute("data-user-message-id");
+      node.removeAttribute("data-correction-id");
+    });
+  return clone.innerHTML;
+}
+
+function buildPendingSessionSummary() {
+  if (!activeChatSession) return null;
+  const learnedWords = activeChatSession.learnedWords instanceof Map ? [...activeChatSession.learnedWords.values()] : [];
+  const endedAt = Date.now();
+  return {
+    id: activeChatSession.id,
+    language: activeChatSession.language,
+    inputMode: activeChatSession.inputMode,
+    startedAt: activeChatSession.startedAt,
+    endedAt,
+    durationMs: Math.max(0,endedAt-activeChatSession.startedAt),
+    pointsGained: Number(activeChatSession.pointsGained || 0),
+    messageCount: Number(activeChatSession.messageCount || 0),
+    wordsLearned: learnedWords.length,
+    learnedWords,
+    transcript: Array.isArray(activeChatSession.timeline) && activeChatSession.timeline.length
+      ? activeChatSession.timeline.map(item => ({ ...item }))
+      : messages.map(message => ({ role: message.role, content: message.content })),
+    reviewHtml: buildReadOnlyChatSnapshot(),
+    grammarTips: Array.isArray(activeChatSession.grammarTips)
+      ? activeChatSession.grammarTips.map(tip => ({ ...tip }))
+      : [],
+    confirmed: false,
+    title: `${activeChatSession.language} practice`
+  };
+}
+
+function renderSummaryGrammarTips(summary) {
+  if (!summaryGrammarTips || !summaryGrammarSection) return;
+  const tips = Array.isArray(summary?.grammarTips) ? summary.grammarTips : [];
+  summaryGrammarTips.textContent = "";
+  summaryGrammarSection.classList.toggle("hidden", tips.length === 0);
+  for (const tip of tips) {
+    const card = document.createElement("article");
+    card.className = "summary-grammar-tip";
+    const title = document.createElement("strong");
+    title.textContent = cleanInterfaceText(tip.title || "Grammar rule");
+    const corrected = document.createElement("span");
+    corrected.textContent = cleanInterfaceText(tip.correctedText || "");
+    const explanation = document.createElement("p");
+    explanation.textContent = cleanInterfaceText(tip.explanation || "");
+    card.append(title, corrected, explanation);
+    summaryGrammarTips.appendChild(card);
+  }
+}
+
+function renderSessionSummary(summary, { saved = false } = {}) {
+  if (!summary) return;
+  const count = Number(summary.wordsLearned || 0);
+  if (summaryLearnedInline) summaryLearnedInline.textContent = String(count);
+  if (summaryWordsLearned) summaryWordsLearned.textContent = String(count);
+  if (summarySessionTime) summarySessionTime.textContent = formatDuration(summary.durationMs);
+  if (summaryPointsGained) summaryPointsGained.textContent = String(summary.pointsGained || 0);
+  renderSummaryGrammarTips(summary);
+  if (summaryConfirmCallout) summaryConfirmCallout.classList.toggle("hidden", saved);
+  if (reviewSessionChatButton) reviewSessionChatButton.disabled = !(summary.transcript || []).length;
+  if (confirmWordsButton) {
+    confirmWordsButton.disabled = count === 0;
+    confirmWordsButton.textContent = count ? "Confirm words" : "No new words to confirm";
+  }
+}
+
+function showSessionSummaryPage() {
+  signedInHome?.classList.add("hidden"); messageHistory?.classList.add("hidden"); composerShell?.classList.add("hidden"); speechShell?.classList.add("hidden"); endChatButton?.classList.add("hidden");
+  hideProductPages();
+  sessionSummaryPage?.classList.remove("hidden");
+  renderSessionSummary(pendingSessionSummary, { saved: viewingSavedSession });
+}
+
+function openSessionSummary() {
+  if (!currentUser || !activeChatSession) return;
+  stopAllSpeech();
+  viewingSavedSession = false;
+  pendingSessionSummary = buildPendingSessionSummary();
+  if (Number(pendingSessionSummary?.messageCount || 0) > 0) {
+    saveSessionSummary(pendingSessionSummary);
+  }
+  showSessionSummaryPage();
+}
+
+function openSavedSessionSummary(session) {
+  if (!session) return;
+  stopAllSpeech();
+  viewingSavedSession = true;
+  pendingSessionSummary = { ...session };
+  showSessionSummaryPage();
+}
+
+function exitSessionToHome() {
+  viewingSavedSession = false;
+  activeChatSession = null; pendingSessionSummary = null; confirmationQueue = []; confirmationIndex = 0;
+  messages.length = 0; messageState.clear(); userMessageState.clear(); correctionState.clear();
+  if (messageHistory) messageHistory.innerHTML = "";
+  showSignedInHome();
+}
+
+function renderSessionReview(summary) {
+  if (!sessionReviewMessages || !summary) return;
+  if (sessionReviewTitle) sessionReviewTitle.textContent = `${summary.language || "Language"} chat`;
+  if (sessionReviewMeta) {
+    sessionReviewMeta.textContent = `${formatSessionStartedAt(summary.startedAt)} | ${formatDuration(summary.durationMs)} | ${Number(summary.pointsGained || 0)} points`;
+  }
+  sessionReviewMessages.textContent = "";
+  sessionReviewMessages.classList.remove("session-review-live-snapshot");
+  if (summary.reviewHtml) {
+    sessionReviewMessages.classList.add("session-review-live-snapshot");
+    sessionReviewMessages.innerHTML = summary.reviewHtml;
+    sessionReviewMessages.querySelectorAll("button,input,textarea,select").forEach(control => {
+      control.disabled = true;
+      control.setAttribute("tabindex", "-1");
+    });
+    return;
+  }
+  for (const message of Array.isArray(summary.transcript) ? summary.transcript : []) {
+    const role = message?.role === "user"
+      ? "user"
+      : message?.role === "review"
+        ? "review"
+        : "assistant";
+    const row = document.createElement("div");
+    row.className = `session-review-row ${role}`;
+    if (role === "review") {
+      const review = document.createElement("article");
+      review.className = `session-review-outcome ${message.reviewMode || ""}`;
+      const title = document.createElement("strong");
+      title.textContent = cleanInterfaceText(message.title || "Practice check");
+      const content = document.createElement("span");
+      content.textContent = cleanInterfaceText(message.content || "");
+      review.append(title, content);
+      if (message.explanation) {
+        const explanation = document.createElement("p");
+        explanation.textContent = cleanInterfaceText(message.explanation);
+        review.appendChild(explanation);
+      }
+      row.appendChild(review);
+    } else if (role === "assistant") {
+      const identity = document.createElement("div");
+      identity.className = "session-review-identity";
+      const mark = document.createElement("span");
+      mark.className = "master-mini-mark";
+      mark.innerHTML = '<img src="assets/language-logo.png" alt="" />';
+      const name = document.createElement("span");
+      name.textContent = "LipsMaster";
+      identity.append(mark, name);
+      const copy = document.createElement("div");
+      copy.className = "session-review-copy";
+      copy.textContent = cleanInterfaceText(message.content || "");
+      row.append(identity, copy);
+    } else {
+      const copy = document.createElement("div");
+      copy.textContent = cleanInterfaceText(message.content || "");
+      row.appendChild(copy);
+    }
+    sessionReviewMessages.appendChild(row);
+  }
+}
+
+function openSessionReview() {
+  if (!pendingSessionSummary) return;
+  sessionSummaryPage?.classList.add("hidden");
+  sessionReviewPage?.classList.remove("hidden");
+  renderSessionReview(pendingSessionSummary);
+}
+
+function getSpeechRecognitionLanguage(language) {
+  return ({English:"en-US",Hebrew:"he-IL",Spanish:"es-ES",French:"fr-FR",German:"de-DE",Arabic:"ar-SA",Russian:"ru-RU",Italian:"it-IT",Portuguese:"pt-BR",Chinese:"zh-CN",Japanese:"ja-JP",Korean:"ko-KR"})[language] || "en-US";
+}
+
+function renderConfirmationWord() {
+  const word = confirmationQueue[confirmationIndex];
+  if (!word) { finishWordConfirmation(); return; }
+  if (confirmationProgressText) confirmationProgressText.textContent = `Word ${confirmationIndex+1} of ${confirmationQueue.length}`;
+  if (confirmationProgressFill) confirmationProgressFill.style.width = `${(confirmationIndex/Math.max(1,confirmationQueue.length))*100}%`;
+  if (confirmWordHeading) confirmWordHeading.textContent = word.fluent_prompt || word.word_text;
+  if (confirmationPrompt) confirmationPrompt.textContent = `Enter the ${word.language || "practice-language"} word.`;
+  if (wordConfirmationInput) { wordConfirmationInput.value = ""; wordConfirmationInput.disabled = false; }
+  if (confirmationFeedback) confirmationFeedback.textContent = "";
+  if (submitWordConfirmationButton) submitWordConfirmationButton.disabled = false;
+  if (wordConfirmationSpeechButton) {
+    wordConfirmationSpeechButton.disabled = false;
+    wordConfirmationSpeechButton.classList.remove("recording", "processing");
+    wordConfirmationSpeechButton.innerHTML = microphoneIconSvg();
+  }
+  wordConfirmationInput?.focus();
+}
+
+async function startWordConfirmation() {
+  if (!pendingSessionSummary || viewingSavedSession) return;
+  const sourceWords = [...(pendingSessionSummary.learnedWords || [])];
+  confirmationQueue = await Promise.all(sourceWords.map(async word => {
+    if (word.fluent_prompt) return { ...word };
+    const fluentPrompt = await translateReviewTargetForCue(
+      word.word_text,
+      word.language,
+      getCurrentFluentLanguage()
+    ).catch(() => "");
+    return { ...word, fluent_prompt: fluentPrompt || word.word_text };
+  }));
+  confirmationIndex = 0; confirmedThisRun = 0;
+  const usesSpeech = pendingSessionSummary.inputMode === "speech";
+  wordConfirmationSpeechButton?.classList.toggle("hidden", !usesSpeech);
+  wordConfirmationSpeechButton?.closest(".confirmation-input-wrap")
+    ?.classList.toggle("text-only", !usesSpeech);
+  sessionSummaryPage?.classList.add("hidden"); unconfirmedExitModal?.classList.add("hidden");
+  if (!confirmationQueue.length) { finishWordConfirmation(); return; }
+  wordConfirmationPage?.classList.remove("hidden"); renderConfirmationWord();
+}
+
+async function submitWordConfirmation(answer) {
+  const word = confirmationQueue[confirmationIndex];
+  if (!word || !answer.trim()) return;
+  submitWordConfirmationButton.disabled = true;
+  if (confirmationFeedback) confirmationFeedback.textContent = "Checking...";
+  try {
+    const data = await callChatFunction({
+      action:"confirm-word",
+      word:word.word_text,
+      fluentPrompt:word.fluent_prompt || "",
+      learnerAnswer:answer.trim(),
+      chatLanguage:word.language,
+      fluentLanguage:getCurrentFluentLanguage()
+    },"Word confirmation");
+    if (!data.correct) {
+      if (confirmationFeedback) confirmationFeedback.textContent = "Not quite. Try another translation, or choose âI donât remember.â";
+      return;
+    }
+    saveConfirmedWord(word); confirmedThisRun += 1;
+    await recordWordStats([word],"familiar",word.language);
+    confirmationIndex += 1; renderConfirmationWord();
+  } catch (error) {
+    if (confirmationFeedback) confirmationFeedback.textContent = getReadableError(error);
+  } finally {
+    if (submitWordConfirmationButton) submitWordConfirmationButton.disabled = false;
+  }
+}
+
+async function forgetConfirmationWord() {
+  const word = confirmationQueue[confirmationIndex];
+  if (!word) return;
+  submitWordConfirmationButton.disabled = true; forgotConfirmationWordButton.disabled = true;
+  try {
+    if (confirmationFeedback) confirmationFeedback.textContent = `${word.fluent_prompt || "Answer"} â ${word.word_text}`;
+    await scheduleWordReview(word,"missed",word.language);
+    await new Promise(resolve => setTimeout(resolve,1300));
+    confirmationIndex += 1; renderConfirmationWord();
+  } catch (error) { if (confirmationFeedback) confirmationFeedback.textContent = getReadableError(error); }
+  finally { submitWordConfirmationButton.disabled = false; forgotConfirmationWordButton.disabled = false; }
+}
+
+async function toggleConfirmationRecording() {
+  if (pendingSessionSummary?.inputMode !== "speech") return;
+
+  if (confirmationRecorder?.state === "recording") {
+    confirmationRecorder.stop();
+    return;
+  }
+
+  if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+    if (confirmationFeedback) {
+      confirmationFeedback.textContent = "Audio recording is not supported in this browser.";
+    }
+    return;
+  }
+
+  confirmationRecordingStream = await navigator.mediaDevices.getUserMedia({
+    audio: {
+      echoCancellation: { ideal: true },
+      noiseSuppression: { ideal: true },
+      autoGainControl: { ideal: true },
+      channelCount: { ideal: 1 }
+    }
+  });
+  confirmationRecordedChunks = [];
+  const mimeType = getBestRecordingMimeType();
+  confirmationRecorder = new MediaRecorder(
+    confirmationRecordingStream,
+    mimeType ? { mimeType } : undefined
+  );
+
+  confirmationRecorder.addEventListener("dataavailable", event => {
+    if (event.data?.size) confirmationRecordedChunks.push(event.data);
+  });
+  confirmationRecorder.addEventListener("start", () => {
+    wordConfirmationSpeechButton?.classList.add("recording");
+    if (wordConfirmationSpeechButton) wordConfirmationSpeechButton.innerHTML = stopIconSvg();
+    if (confirmationFeedback) confirmationFeedback.textContent = "Listening...";
+  });
+  confirmationRecorder.addEventListener("stop", async () => {
+    confirmationRecordingStream?.getTracks().forEach(track => track.stop());
+    confirmationRecordingStream = null;
+    wordConfirmationSpeechButton?.classList.remove("recording");
+    wordConfirmationSpeechButton?.classList.add("processing");
+    if (wordConfirmationSpeechButton) {
+      wordConfirmationSpeechButton.disabled = true;
+      wordConfirmationSpeechButton.innerHTML = loadingIconHtml();
+    }
+    if (confirmationFeedback) confirmationFeedback.textContent = "Transcribing...";
+
+    try {
+      const word = confirmationQueue[confirmationIndex];
+      const actualMimeType = confirmationRecorder?.mimeType || mimeType ||
+        confirmationRecordedChunks[0]?.type || "audio/webm";
+      const audioBlob = new Blob(confirmationRecordedChunks, { type: actualMimeType });
+      const transcript = await transcribeAudioBlob(audioBlob, actualMimeType, {
+        chatLanguage: word?.language || pendingSessionSummary?.language || getCurrentChatLanguage(),
+        fluentLanguage: getCurrentFluentLanguage(),
+        precedingMessage: `Translate ${word?.fluent_prompt || "the displayed word"} into ${word?.language || "the practice language"}.`,
+        practiceWord: word?.word_text || word?.word || word?.word_key || ""
+      });
+      if (wordConfirmationInput) wordConfirmationInput.value = transcript;
+      if (confirmationFeedback) confirmationFeedback.textContent = "";
+      wordConfirmationInput?.focus();
+    } catch (error) {
+      if (confirmationFeedback) confirmationFeedback.textContent = getReadableError(error);
+    } finally {
+      if (wordConfirmationSpeechButton) {
+        wordConfirmationSpeechButton.disabled = false;
+        wordConfirmationSpeechButton.classList.remove("processing");
+        wordConfirmationSpeechButton.innerHTML = microphoneIconSvg();
+      }
+    }
+  });
+
+  confirmationRecorder.start();
+}
+
+function finishWordConfirmation() {
+  wordConfirmationPage?.classList.add("hidden"); confirmationCompletePage?.classList.remove("hidden");
+  if (confirmedWordTotal) confirmedWordTotal.textContent = String(confirmedThisRun);
+  if (pendingSessionSummary) { pendingSessionSummary.confirmed = true; pendingSessionSummary.confirmedWords = confirmedThisRun; saveSessionSummary(pendingSessionSummary); }
+  setTimeout(exitSessionToHome,1800);
+}
+
+function openAllChats() { allChatsPageIndex=0; signedInHome?.classList.add("hidden"); allChatsPage?.classList.remove("hidden"); renderAllChats(); }
+function renderAllChats() {
+  const language = homeLanguageSelect?.value || selectedChatLanguage || "English";
+  const rows = getSessionHistory().filter(row => row.language === language);
+  const start=allChatsPageIndex*25;
+  if (allChatsTitle) allChatsTitle.textContent=`My Previous ${language} Chats`;
+  renderSessionList(allChatsList,rows.slice(start,start+25));
+  if(chatsPageLabel)chatsPageLabel.textContent=`Page ${allChatsPageIndex+1}`;
+  if(previousChatsPageButton)previousChatsPageButton.disabled=allChatsPageIndex===0;
+  if(nextChatsPageButton)nextChatsPageButton.disabled=start+25>=rows.length;
+}
+
+function getMasterThreads() {
+  const rows = readMemberJson("master-threads", []);
+  return Array.isArray(rows) ? rows.filter(row => Array.isArray(row?.messages) && row.messages.length > 0) : [];
+}
+function saveMasterThreads(rows) {
+  const populated = (Array.isArray(rows) ? rows : [])
+    .filter(row => Array.isArray(row?.messages) && row.messages.length > 0)
+    .slice(0, 200);
+  writeMemberJson("master-threads", populated);
+}
+function makeMasterDraftThread() {
+  return {
+    id: globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : `master-${Date.now()}`,
+    kind: "general",
+    language: homeLanguageSelect?.value || selectedChatLanguage || "English",
+    title: "New chat",
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    messages: []
+  };
+}
+function getActiveMasterThread() {
+  const language = homeLanguageSelect?.value || selectedChatLanguage || "English";
+  const existing = getMasterThreads().find(row => row.id === activeMasterThreadId);
+  if (existing && (!existing.language || existing.language === language)) return existing;
+  if (activeMasterDraftThread?.language !== language) activeMasterDraftThread = null;
+  if (!activeMasterDraftThread) activeMasterDraftThread = makeMasterDraftThread();
+  activeMasterThreadId = activeMasterDraftThread.id;
+  return activeMasterDraftThread;
+}
+function createMasterThreadButton(thread) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = `master-thread-button${thread.id === activeMasterThreadId ? " active" : ""}`;
+  button.textContent = cleanInterfaceText(thread.title || "LipsMaster chat");
+  button.addEventListener("click", () => {
+    activeMasterThreadId = thread.id;
+    activeMasterDraftThread = null;
+    renderMasterPage();
+  });
+  return button;
+}
+function appendMasterSidebarLabel(text, parent = masterThreadList) {
+  const label = document.createElement("div");
+  label.className = "master-sidebar-label";
+  label.textContent = text;
+  parent.appendChild(label);
+}
+function renderMasterSidebar() {
+  if (!masterThreadList) return;
+  masterThreadList.textContent = "";
+  const language = homeLanguageSelect?.value || selectedChatLanguage || "English";
+  const rows = getMasterThreads().filter(thread => !thread.language || thread.language === language);
+  const general = rows.filter(thread => thread.kind !== "grammar");
+  const grammar = rows.filter(thread => thread.kind === "grammar");
+
+  appendMasterSidebarLabel("Previous chats");
+  if (!general.length) {
+    const empty = document.createElement("div");
+    empty.className = "master-thread-empty";
+    empty.textContent = "Your LipsMaster chats will appear here after you send a message.";
+    masterThreadList.appendChild(empty);
+  } else {
+    general.forEach(thread => masterThreadList.appendChild(createMasterThreadButton(thread)));
+  }
+
+  if (grammar.length) {
+    appendMasterSidebarLabel("Session grammar");
+    const groups = new Map();
+    for (const thread of grammar) {
+      const key = thread.sessionId || "other";
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(thread);
+    }
+    for (const threads of groups.values()) {
+      const group = document.createElement("section");
+      group.className = "master-session-group";
+      const heading = document.createElement("div");
+      heading.className = "master-session-title";
+      heading.textContent = cleanInterfaceText(threads[0]?.sessionTitle || "Previous session");
+      group.appendChild(heading);
+      threads.forEach(thread => group.appendChild(createMasterThreadButton(thread)));
+      masterThreadList.appendChild(group);
+    }
+  }
+}
+function renderMasterContent(container, text) {
+  container.textContent = "";
+  const paragraphs = cleanInterfaceText(text).split(/\n{2,}/).map(value => value.trim()).filter(Boolean);
+  for (const paragraphText of paragraphs.length ? paragraphs : [""]) {
+    const paragraph = document.createElement("p");
+    paragraph.textContent = paragraphText;
+    container.appendChild(paragraph);
+  }
+}
+function appendMasterMessage(role, text = "", { thinking = false } = {}) {
+  if (!masterChatMessages) return null;
+  const row = document.createElement("div");
+  row.className = `master-chat-row ${role}`;
+  if (role === "assistant") {
+    const heading = document.createElement("div");
+    heading.className = "master-assistant-heading";
+    const mark = document.createElement("span");
+    mark.className = "master-mini-mark";
+    mark.innerHTML = '<img src="assets/language-logo.png" alt="" />';
+    const name = document.createElement("span");
+    name.className = "master-assistant-name";
+    name.textContent = "LipsMaster";
+    heading.append(mark, name);
+    row.appendChild(heading);
+  }
+  const content = document.createElement("div");
+  content.className = "master-chat-content";
+  if (thinking) {
+    const indicator = document.createElement("div");
+    indicator.className = "master-thinking";
+    const label = document.createElement("span");
+    label.textContent = "Thinking";
+    const dots = document.createElement("span");
+    dots.className = "master-thinking-dots";
+    dots.innerHTML = "<i></i><i></i><i></i>";
+    indicator.append(label, dots);
+    content.appendChild(indicator);
+  } else {
+    renderMasterContent(content, text);
+  }
+  row.appendChild(content);
+  masterChatMessages.appendChild(row);
+  masterChatMessages.scrollTop = masterChatMessages.scrollHeight;
+  return { row, content };
+}
+function renderMasterPage() {
+  const thread = getActiveMasterThread();
+  if (masterChatMessages) {
+    masterChatMessages.textContent = "";
+    (thread.messages || []).forEach(message => appendMasterMessage(message.role, message.content));
+  }
+  renderMasterSidebar();
+}
+async function loadMasterHistoryFromServer(){
+  if(!currentUser)return;
+  try{
+    const language = homeLanguageSelect?.value || selectedChatLanguage || "English";
+    const data=await callChatFunction({action:"lipsmaster-history",language},"LipsMaster history");
+    const local=getMasterThreads();const byId=new Map(local.map(thread=>[thread.id,thread]));
+    for(const remote of Array.isArray(data.threads)?data.threads:[]){
+      const existing=byId.get(remote.id);
+      remote.language = remote.language || language;
+      remote.kind = remote.kind || (String(remote.id || "").startsWith("grammar-") ? "grammar" : "general");
+      if (remote.kind === "grammar" && !remote.sessionId) {
+        const rawId = String(remote.id || "");
+        const markerIndex = rawId.indexOf("-correction-");
+        remote.sessionId = markerIndex > 8 ? rawId.slice(8, markerIndex) : "";
+        const session = getSessionHistory().find(row => row.id === remote.sessionId);
+        remote.sessionTitle = session
+          ? formatSessionStartedAt(session.startedAt)
+          : "Previous session";
+      }
+      if(!existing){byId.set(remote.id,remote);continue;}
+      const combined=[...(existing.messages||[]),...(remote.messages||[])];
+      const seen=new Set();existing.messages=combined.filter(message=>{const key=`${message.role}|${message.content}`;if(seen.has(key))return false;seen.add(key);return true;});
+      existing.updatedAt=Math.max(new Date(existing.updatedAt||0).getTime(),new Date(remote.updatedAt||0).getTime());
+    }
+    saveMasterThreads([...byId.values()].sort((a,b)=>new Date(b.updatedAt||0).getTime()-new Date(a.updatedAt||0).getTime()));
+    renderMasterPage();
+  }catch(error){console.warn("LipsMaster history load failed",error);}
+}
+function openLipsMaster(){signedInHome?.classList.add("hidden");lipsMasterPage?.classList.remove("hidden");getActiveMasterThread();renderMasterPage();loadMasterHistoryFromServer();masterChatInput?.focus();}
+function persistMasterMessage(threadId,role,content,title=""){
+  const rows=getMasterThreads();
+  let thread=rows.find(row=>row.id===threadId);
+  if(!thread && activeMasterDraftThread?.id===threadId){
+    thread={...activeMasterDraftThread,messages:[]};
+    rows.unshift(thread);
+    activeMasterDraftThread=null;
+  }
+  if(!thread)return null;
+  thread.language=thread.language||homeLanguageSelect?.value||selectedChatLanguage||"English";
+  thread.kind=thread.kind||"general";
+  thread.messages=Array.isArray(thread.messages)?thread.messages:[];
+  thread.messages.push({role,content:cleanInterfaceText(content),createdAt:Date.now()});
+  thread.updatedAt=Date.now();
+  if(title)thread.title=title;
+  else if(thread.title==="New chat"&&role==="user")thread.title=cleanInterfaceText(content).replace(/\s+/g," ").slice(0,48);
+  rows.sort((a,b)=>Number(b.updatedAt||0)-Number(a.updatedAt||0));
+  saveMasterThreads(rows);
+  return thread;
+}
+async function sendMasterMessage(text){
+  const thread=getActiveMasterThread();
+  persistMasterMessage(thread.id,"user",text);
+  appendMasterMessage("user",text);
+  const thinking=appendMasterMessage("assistant","",{thinking:true});
+  masterChatSendButton.disabled=true;
+  try{
+    const fresh=getMasterThreads().find(row=>row.id===thread.id);
+    const data=await callChatFunction({action:"lipsmaster-chat",threadId:thread.id,messages:(fresh?.messages||[]).slice(-40),chatLanguage:homeLanguageSelect?.value||selectedChatLanguage,fluentLanguage:getCurrentFluentLanguage()},"LipsMaster");
+    renderMasterContent(thinking.content,data.reply);
+    persistMasterMessage(thread.id,"assistant",data.reply);
+    renderMasterSidebar();
+  }catch(error){renderMasterContent(thinking.content,getReadableError(error));}
+  finally{masterChatSendButton.disabled=false;masterChatInput?.focus();}
+}
+
+function saveGrammarConversationToMaster(context) {
+  if (!currentUser || !context) return;
+  const id = context.lipsMasterThreadId || `grammar-${context.correctionId || Date.now()}`;
+  context.lipsMasterThreadId = id;
+  const rows=getMasterThreads();let thread=rows.find(row=>row.id===id);
+  if(!thread){thread={id,title:context.grammarRuleTitle||"Grammar correction",createdAt:Date.now(),updatedAt:Date.now(),messages:[]};rows.unshift(thread);}
+  thread.kind="grammar";
+  thread.language=context.chatLanguage||activeChatSession?.language||getCurrentChatLanguage();
+  thread.sessionId=thread.sessionId||activeChatSession?.id||"";
+  thread.sessionTitle=thread.sessionTitle||formatSessionStartedAt(activeChatSession?.startedAt||Date.now());
+  thread.title=context.grammarRuleTitle||thread.title;thread.updatedAt=Date.now();thread.messages=[...(context.grammarConversation||[])];saveMasterThreads(rows);
+}
+
   function attachUiHandlers() {
   if (form) {
     form.addEventListener("submit", event => {
@@ -10706,6 +13143,7 @@ if (chatSetupLanguageSelect) {
     selectedChatLanguage = chatSetupLanguageSelect.value;
 
     loadLanguagePoints(selectedChatLanguage).catch(() => {});
+    prefetchLanguageFact(selectedChatLanguage).catch(() => {});
   });
 }
 
@@ -10743,10 +13181,8 @@ if (startChatButton) {
       This must happen directly inside the click event,
       before startConfiguredChat does async network work.
     */
-    primeAudioForAutoplay().finally(() => {
-      startConfiguredChat().catch(error => {
-        showSystemMessage(getReadableError(error));
-      });
+    beginConfiguredChat().catch(error => {
+      showSystemMessage(getReadableError(error));
     });
   });
 }
@@ -10757,6 +13193,39 @@ if (myProfileButton) {
 
 if (closeProfileButton) {
   closeProfileButton.addEventListener("click", closeProfileModal);
+}
+
+if (grammarDetailClose) {
+  grammarDetailClose.addEventListener("click", closeGrammarDetailModal);
+}
+
+if (grammarDetailModal) {
+  grammarDetailModal.addEventListener("click", event => {
+    if (event.target === grammarDetailModal) closeGrammarDetailModal();
+  });
+}
+
+if (grammarFollowUpForm) {
+  grammarFollowUpForm.addEventListener("submit", event => {
+    event.preventDefault();
+    const question = grammarFollowUpInput?.value.trim() || "";
+    if (!question || !activeGrammarDetailContext) return;
+    grammarFollowUpInput.value = "";
+    requestGrammarDetail(question).catch(() => {});
+  });
+}
+
+if (grammarFollowUpInput) {
+  grammarFollowUpInput.addEventListener("input", () => {
+    grammarFollowUpInput.style.height = "auto";
+    grammarFollowUpInput.style.height = `${Math.min(grammarFollowUpInput.scrollHeight, 120)}px`;
+  });
+  grammarFollowUpInput.addEventListener("keydown", event => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      grammarFollowUpForm?.requestSubmit();
+    }
+  });
 }
 
 if (saveProfileButton) {
@@ -10770,14 +13239,61 @@ if (saveProfileButton) {
   });
 }
 
-if (refreshUpcomingWordsButton) {
-  refreshUpcomingWordsButton.addEventListener("click", () => {
-    loadUpcomingWords(getCurrentChatLanguage()).catch(error => {
-  showSystemMessage(getReadableError(error));
+profileGenderManButton?.addEventListener("click", () => setSelectedGender("man"));
+profileGenderWomanButton?.addEventListener("click", () => setSelectedGender("woman"));
+editAccountButton?.addEventListener("click", openProfileModal);
+endChatButton?.addEventListener("click", openSessionSummary);
+homeStartChatButton?.addEventListener("click", () => startMemberChat().catch(error => showSystemMessage(getReadableError(error))));
+homeModeToggle?.addEventListener("click", event => {
+  const button = event.target.closest("[data-home-mode]");
+  if (!button) return;
+  homeSelectedMode = button.dataset.homeMode === "speech" ? "speech" : "writing";
+  homeModeToggle.querySelectorAll("button").forEach(item => item.classList.toggle("active", item === button));
 });
+homeLanguageSelect?.addEventListener("change", () => {
+  selectedChatLanguage = homeLanguageSelect.value;
+  activeMasterThreadId = "";
+  activeMasterDraftThread = null;
+  renderMemberHome().catch(() => {});
+  prefetchLanguageFact(selectedChatLanguage).catch(() => {});
+});
+askLipsMasterButton?.addEventListener("click", openLipsMaster);
+seeAllChatsButton?.addEventListener("click", openAllChats);
+allChatsBackButton?.addEventListener("click", showSignedInHome);
+previousChatsPageButton?.addEventListener("click", () => { allChatsPageIndex=Math.max(0,allChatsPageIndex-1);renderAllChats(); });
+nextChatsPageButton?.addEventListener("click", () => { allChatsPageIndex+=1;renderAllChats(); });
+summaryReturnHomeButton?.addEventListener("click", () => {
+  if (viewingSavedSession) exitSessionToHome();
+  else if (pendingSessionSummary?.wordsLearned && !pendingSessionSummary?.confirmed) unconfirmedExitModal?.classList.remove("hidden");
+  else exitSessionToHome();
+});
+reviewSessionChatButton?.addEventListener("click", openSessionReview);
+sessionReviewBackButton?.addEventListener("click", () => {
+  sessionReviewPage?.classList.add("hidden");
+  sessionSummaryPage?.classList.remove("hidden");
+});
+confirmWordsButton?.addEventListener("click", startWordConfirmation);
+modalConfirmWordsButton?.addEventListener("click", startWordConfirmation);
+closeUnconfirmedExitButton?.addEventListener("click", () => unconfirmedExitModal?.classList.add("hidden"));
+exitChatAnywayButton?.addEventListener("click", exitSessionToHome);
+wordConfirmationForm?.addEventListener("submit", event => { event.preventDefault(); submitWordConfirmation(wordConfirmationInput?.value || ""); });
+forgotConfirmationWordButton?.addEventListener("click", () => forgetConfirmationWord().catch(() => {}));
+wordConfirmationSpeechButton?.addEventListener("click", () => {
+  toggleConfirmationRecording().catch(error => {
+    if (confirmationFeedback) confirmationFeedback.textContent = getReadableError(error);
   });
-}
-    
+});
+lipsMasterBackButton?.addEventListener("click", showSignedInHome);
+newMasterChatButton?.addEventListener("click", () => {
+  activeMasterDraftThread=makeMasterDraftThread();
+  activeMasterThreadId=activeMasterDraftThread.id;
+  renderMasterPage();
+  masterChatInput?.focus();
+});
+masterChatForm?.addEventListener("submit", event => {event.preventDefault();const text=masterChatInput?.value.trim()||"";if(!text)return;masterChatInput.value="";sendMasterMessage(text);});
+masterChatInput?.addEventListener("input",()=>{masterChatInput.style.height="auto";masterChatInput.style.height=`${Math.min(masterChatInput.scrollHeight,140)}px`;});
+masterChatInput?.addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.shiftKey){event.preventDefault();masterChatForm?.requestSubmit();}});
+
   }
 
   attachUiHandlers();
