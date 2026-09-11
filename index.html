@@ -772,10 +772,11 @@ form {
 .speech-start-over-button {
   position: absolute;
   top: 2px;
-  right: -10px;
+  left: -16px;
+  right: auto;
   z-index: 2;
-  width: 38px;
-  height: 38px;
+  width: 48px;
+  height: 48px;
   display: grid;
   place-items: center;
   padding: 0;
@@ -805,8 +806,8 @@ form {
 }
 
 .speech-start-over-button svg {
-  width: 19px;
-  height: 19px;
+  width: 24px;
+  height: 24px;
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
@@ -9766,7 +9767,13 @@ async function readStreamingChatResponse(response, label, onProgress) {
     buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
     const lines = buffer.split("\n");
     buffer = lines.pop() || "";
-    for (const line of lines) processLine(line);
+    for (const line of lines) {
+      processLine(line);
+      if (result) {
+        await reader.cancel().catch(() => {});
+        return result;
+      }
+    }
     if (done) break;
   }
   if (buffer.trim()) processLine(buffer);
@@ -10032,11 +10039,17 @@ function consumePreparedLanguageFact(language = getCurrentChatLanguage()) {
   const fact = queue.shift() || "";
   saveLanguageFactQueue(language);
   if (fact) markLanguageFactSeen(language, fact);
-  // Refill at a floor, not at empty, so the next card never has to wait.
-  if (queue.length < LANGUAGE_FACT_REFILL_FLOOR) {
-    maintainLanguageFactBuffer(language, LANGUAGE_FACT_BUFFER_TARGET).catch(() => {});
-  }
   return fact;
+}
+
+function scheduleLanguageFactRefill(language = getCurrentChatLanguage()) {
+  const queue = getLanguageFactQueue(language);
+  if (queue.length >= LANGUAGE_FACT_REFILL_FLOOR) return;
+  // Refill only after the visible response has completed. A parallel fun-fact
+  // model request can otherwise contend with the latency-sensitive chat call.
+  window.setTimeout(() => {
+    maintainLanguageFactBuffer(language, LANGUAGE_FACT_BUFFER_TARGET).catch(() => {});
+  }, 900);
 }
 
 // Complete known-fact context for the dedicated fact-refill request.
@@ -10357,12 +10370,9 @@ function isSamePlayback(button, type, id) {
     messageHistory.appendChild(card);
     scrollMessagesToBottom();
 
-    // The text is already on screen. Top the buffer up quietly so the
-    // fallback pool is not needed again, and never swap the visible fact.
-    if (usedFallback) {
-      maintainLanguageFactBuffer(factLanguage, LANGUAGE_FACT_BUFFER_TARGET)
-        .catch(() => {});
-    }
+    // Never launch a fact-generation request while the chat request is active.
+    // The queue is replenished after the response is displayed.
+    void usedFallback;
 
     function render() {
       if (stopped) return;
@@ -10521,9 +10531,7 @@ function isSamePlayback(button, type, id) {
   async function generatePreparedChatTurn(payload, label = "Chat", progress = null) {
     const language = payload.language || getCurrentChatLanguage();
     const clientTurnId = payload.clientTurnId || createClientTurnId();
-    // Prepare the next unseen fact alongside this prompt. The chat endpoint no
-    // longer launches a second duplicate fact request inside its own worker.
-    prefetchLanguageFact(language).catch(() => {});
+    // Fun-fact refills are deliberately kept off the latency-sensitive path.
     const bonusPrerequisite = payload.bonusPrerequisite;
     const requestPayload = { ...payload };
     delete requestPayload.bonusPrerequisite;
@@ -10600,8 +10608,6 @@ function isSamePlayback(button, type, id) {
 
     if (data.nextFunFact) {
       rememberLanguageFact(language, data.nextFunFact);
-    } else {
-      prefetchLanguageFact(language).catch(() => {});
     }
 
     progress?.setBackendTiming(data.serverTiming);
@@ -10664,6 +10670,7 @@ function isSamePlayback(button, type, id) {
     }
 
     progress?.finish();
+    scheduleLanguageFactRefill(language);
 
     // Refresh familiarity only after the synchronized prompt/audio/bonus-word
     // presentation has completed. This avoids a duplicate word_stats query on
