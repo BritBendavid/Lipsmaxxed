@@ -3284,6 +3284,24 @@ form {
   line-height: 1.48;
 }
 
+.response-progress-status {
+  margin-top: 9px;
+  color: #93c5fd;
+  font-size: 0.76rem;
+  font-weight: 760;
+  letter-spacing: 0.01em;
+}
+
+.response-progress-details {
+  min-height: 1.2em;
+  margin-top: 3px;
+  color: #7f8a9a;
+  font-size: 0.69rem;
+  font-weight: 560;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
 .response-progress-track {
   width: 100%;
   max-width: 100%;
@@ -10265,12 +10283,16 @@ function isSamePlayback(button, type, id) {
       <div class="response-progress-copy">
         <div class="response-progress-kicker">DID YOU KNOW...</div>
         <div class="response-progress-fact"></div>
+        <div class="response-progress-status" aria-live="polite"></div>
+        <div class="response-progress-details"></div>
       </div>
       <div class="response-progress-track" aria-hidden="true">
         <div class="response-progress-fill"></div>
       </div>`;
 
     const factEl = card.querySelector(".response-progress-fact");
+    const statusEl = card.querySelector(".response-progress-status");
+    const detailsEl = card.querySelector(".response-progress-details");
     const fill = card.querySelector(".response-progress-fill");
     factEl.textContent = cleanInterfaceText(fact);
     const samples = {};
@@ -10278,6 +10300,10 @@ function isSamePlayback(button, type, id) {
     let stageStartedAt = performance.now();
     let stageStartPercent = 2;
     let displayedPercent = 2;
+    const progressStartedAt = performance.now();
+    const completedStages = [];
+    let backendTiming = null;
+    let parallelStatus = null;
     let stopped = false;
 
     messageHistory.appendChild(card);
@@ -10294,6 +10320,7 @@ function isSamePlayback(button, type, id) {
       if (stopped) return;
 
       const stageElapsed = performance.now() - stageStartedAt;
+      const totalElapsed = performance.now() - progressStartedAt;
       const expectedDuration = Math.max(100, Number(estimates[stage]) || 1000);
       const ceiling = Math.max(
         stageStartPercent + 1,
@@ -10309,6 +10336,35 @@ function isSamePlayback(button, type, id) {
         Math.min(ceiling - 0.25, target)
       );
       fill.style.width = `${displayedPercent.toFixed(1)}%`;
+
+      const stageLabels = {
+        language: "Checking your response (chat request running in parallel)",
+        context: "Preparing conversation context",
+        chat: "Waiting for LipsMaster",
+        speech: "Preparing synchronized audio",
+        decode: "Finalizing playback"
+      };
+      statusEl.textContent = `${stageLabels[stage] || "Working"} - ${(stageElapsed / 1000).toFixed(1)}s (total ${(totalElapsed / 1000).toFixed(1)}s)`;
+
+      const detailParts = [];
+      if (completedStages.length) {
+        detailParts.push(`Completed: ${completedStages
+          .map(item => `${stageLabels[item.stage] || item.stage} ${(item.duration / 1000).toFixed(1)}s`)
+          .join("; ")}`);
+      }
+      if (backendTiming) {
+        const timingParts = [
+          Number.isFinite(Number(backendTiming.authMs)) ? `auth ${backendTiming.authMs}ms` : "",
+          Number.isFinite(Number(backendTiming.historyMs)) ? `history ${backendTiming.historyMs}ms` : "",
+          Number.isFinite(Number(backendTiming.chatMs)) ? `AI ${backendTiming.chatMs}ms` : "",
+          Number.isFinite(Number(backendTiming.totalMs)) ? `server total ${backendTiming.totalMs}ms` : ""
+        ].filter(Boolean);
+        if (timingParts.length) detailParts.push(`Backend: ${timingParts.join("; ")}`);
+      }
+      if (parallelStatus) {
+        detailParts.push(`Audio: ${parallelStatus.audio}; bonus words: ${parallelStatus.bonus}`);
+      }
+      detailsEl.textContent = detailParts.join(" | ");
     }
 
     const timer = window.setInterval(render, 100);
@@ -10319,7 +10375,9 @@ function isSamePlayback(button, type, id) {
       setStage(nextStage) {
         if (stopped || nextStage === stage || !stages.includes(nextStage)) return;
         render();
-        samples[stage] = performance.now() - stageStartedAt;
+        const completedDuration = performance.now() - stageStartedAt;
+        samples[stage] = completedDuration;
+        completedStages.push({ stage, duration: completedDuration });
         displayedPercent = Math.max(
           displayedPercent,
           Math.min(98, Number(RESPONSE_STAGE_CEILINGS[stage]) || displayedPercent)
@@ -10327,6 +10385,14 @@ function isSamePlayback(button, type, id) {
         stageStartPercent = displayedPercent;
         stage = nextStage;
         stageStartedAt = performance.now();
+        render();
+      },
+      setBackendTiming(timing) {
+        backendTiming = timing && typeof timing === "object" ? timing : null;
+        render();
+      },
+      setParallelStatus(nextStatus) {
+        parallelStatus = nextStatus ? { ...nextStatus } : null;
         render();
       },
       finish() {
@@ -10431,10 +10497,23 @@ function isSamePlayback(button, type, id) {
       prefetchLanguageFact(language).catch(() => {});
     }
 
+    progress?.setBackendTiming(data.serverTiming);
     progress?.setStage("speech");
+    const parallelStatus = { audio: "loading", bonus: "loading" };
+    progress?.setParallelStatus(parallelStatus);
+    const fullSpeechPromise = fetchFullSpeech(data.reply, language).then(result => {
+      parallelStatus.audio = "ready";
+      progress?.setParallelStatus(parallelStatus);
+      return result;
+    });
+    const synchronizedBonusPromise = preparedBonusWordsPromise.then(result => {
+      parallelStatus.bonus = "ready";
+      progress?.setParallelStatus(parallelStatus);
+      return result;
+    });
     const [fullSpeech, preparedBonusWords] = await Promise.all([
-      fetchFullSpeech(data.reply, language),
-      preparedBonusWordsPromise
+      fullSpeechPromise,
+      synchronizedBonusPromise
     ]);
 
     progress?.setStage("decode");
