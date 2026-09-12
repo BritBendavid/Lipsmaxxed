@@ -13231,7 +13231,33 @@ async function startMemberChat() {
   setSetupInputMode(selectedInputMode);
   chatStartInFlight = true;
   if (homeStartChatButton) homeStartChatButton.disabled = true;
-  try { await primeAudioForAutoplay(); await startConfiguredChat(); }
+  try {
+    // A new opening must not race the previous session's compaction write.
+    // If the learner reached home before that background request completed,
+    // wait here so the opening request can restore the finished checkpoint.
+    let memoryReady = true;
+    if (sessionCompactionPromise) {
+      memoryReady = await sessionCompactionPromise;
+    }
+    if (
+      !memoryReady &&
+      activeConversationResponseId &&
+      activeConversationResponseId !== lastCompactedResponseId
+    ) {
+      memoryReady = await checkpointActiveConversation();
+    } else if (
+      !sessionCompactionPromise &&
+      activeConversationResponseId &&
+      activeConversationResponseId !== lastCompactedResponseId
+    ) {
+      memoryReady = await checkpointActiveConversation();
+    }
+    if (!memoryReady) {
+      throw new Error("Your previous conversation memory could not be saved. Please try starting the chat again.");
+    }
+    await primeAudioForAutoplay();
+    await startConfiguredChat();
+  }
   finally { chatStartInFlight = false; if (homeStartChatButton) homeStartChatButton.disabled = false; }
 }
 
