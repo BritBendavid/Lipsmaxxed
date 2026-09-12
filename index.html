@@ -924,6 +924,45 @@ form {
   gap: 14px;
 }
 
+.response-failure-card {
+  border-color: rgba(110, 168, 255, 0.3);
+  background:
+    linear-gradient(145deg, rgba(23, 34, 52, 0.96), rgba(15, 20, 30, 0.98));
+}
+
+.response-failure-title {
+  color: #b9d4ff;
+}
+
+.response-failure-summary {
+  margin-top: 14px;
+  color: var(--text-soft);
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
+.response-failure-detail {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.response-failure-detail-label {
+  display: block;
+  margin-bottom: 4px;
+  color: #a9b8cc;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .speech-review-card.perfect-card {
   background: rgba(34, 197, 94, 0.10);
   border: 1px solid rgba(187, 247, 208, 0.34);
@@ -3867,6 +3906,76 @@ form {
 .session-time-chart .chart-label { fill:#8290a3;font-size:11px;font-family:inherit; }
 .session-time-chart .chart-axis-title { fill:#a9b4c2;font-size:11px;font-family:inherit;font-weight:700;letter-spacing:.02em; }
 
+.upcoming-word-card {
+  transition: background-color 260ms ease, border-color 260ms ease, box-shadow 260ms ease, transform 260ms ease;
+}
+.upcoming-word-card.bonus-complete {
+  background: rgba(34,197,94,.14);
+  border-color: rgba(134,239,172,.42);
+  box-shadow: 0 0 0 1px rgba(34,197,94,.08), 0 14px 34px rgba(0,0,0,.18);
+  animation: bonusWordConfirm 560ms cubic-bezier(.22,1,.36,1) both;
+}
+.upcoming-word-card.bonus-complete .upcoming-word-main { color:#dcfce7; }
+.upcoming-word-card.bonus-complete .upcoming-word-action {
+  min-width:42px;
+  padding:0;
+  border-color:rgba(134,239,172,.48);
+  background:#22c55e;
+  color:#052e16;
+  pointer-events:none;
+}
+.upcoming-word-card.bonus-complete .upcoming-word-action svg { width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round; }
+@keyframes bonusWordConfirm {
+  0% { transform:scale(1); }
+  42% { transform:scale(1.025); }
+  100% { transform:scale(1); }
+}
+.bonus-word-flyer {
+  position:fixed;
+  z-index:132;
+  max-width:190px;
+  padding:9px 13px;
+  overflow:hidden;
+  border:1px solid rgba(134,239,172,.46);
+  border-radius:12px;
+  background:rgba(20,83,45,.96);
+  color:#dcfce7;
+  font-size:.82rem;
+  font-weight:850;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  pointer-events:none;
+  box-shadow:0 18px 52px rgba(0,0,0,.42);
+}
+
+.confirmation-result-overlay {
+  position:fixed;
+  inset:0;
+  z-index:2100;
+  display:grid;
+  place-items:center;
+  pointer-events:none;
+  background:rgba(2,6,23,.08);
+}
+.confirmation-result-mark {
+  width:clamp(112px,28vw,172px);
+  aspect-ratio:1;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  color:white;
+  box-shadow:0 26px 90px rgba(0,0,0,.5);
+  animation:confirmationMarkIn 650ms cubic-bezier(.16,1,.3,1) both;
+}
+.confirmation-result-mark.correct { background:#22c55e;box-shadow:0 26px 90px rgba(0,0,0,.5),0 0 52px rgba(34,197,94,.36); }
+.confirmation-result-mark.incorrect { background:#ef4444;box-shadow:0 26px 90px rgba(0,0,0,.5),0 0 52px rgba(239,68,68,.3); }
+.confirmation-result-mark svg { width:52%;height:52%;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round; }
+@keyframes confirmationMarkIn {
+  0% { opacity:0;transform:scale(.48); }
+  58% { opacity:1;transform:scale(1.08); }
+  100% { opacity:1;transform:scale(1); }
+}
+
 /* Grammar composer containment and stable assistant identity */
 .grammar-detail-panel,.grammar-detail-header,.grammar-detail-thread { min-width:0; box-sizing:border-box; }
 .grammar-detail-thread { flex:1 1 auto; min-height:0; overscroll-behavior:contain; }
@@ -4927,6 +5036,7 @@ let selectedGender = "";
 let selectedPreferredName = "";
 let chatStartInFlight = false;
 let openingBotInFlight = false;
+let activeConversationResponseId = "";
 const renderedBotTurnIds = new Set();
     
 let authMode = "sign-in";
@@ -5658,6 +5768,7 @@ function renderPreparedUpcomingWords(prepared) {
   for (const row of rows) {
     const card = document.createElement("div");
     card.className = "upcoming-word-card";
+    card.dataset.wordKey = String(row.word_key || row.lexemeKey || "").trim();
 
     const textStack = document.createElement("div");
     textStack.className = "upcoming-word-text-stack";
@@ -5975,6 +6086,7 @@ async function startConfiguredChat() {
   setInputMode(selectedInputMode);
 
   messages.length = 0;
+  activeConversationResponseId = "";
   conversationTurn = 0;
   activeExpectedTarget = null;
   activeAnswerBonusTargets = [];
@@ -6641,6 +6753,72 @@ function showPointsAward(pointsGained, newTotal, language, sourceEl = null, deta
   animatePointsTotal(oldTotal, newTotal, language);
 }
 
+function playLearningFeedbackSound(kind = "correct") {
+  try {
+    const context = getAudioContext();
+    const start = context.currentTime;
+    const notes = kind === "correct" ? [523.25, 659.25, 783.99] : [220, 164.81];
+    notes.forEach((frequency, index) => {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      const noteStart = start + index * (kind === "correct" ? 0.075 : 0.11);
+      oscillator.type = kind === "correct" ? "sine" : "triangle";
+      oscillator.frequency.setValueAtTime(frequency, noteStart);
+      gain.gain.setValueAtTime(0.0001, noteStart);
+      gain.gain.exponentialRampToValueAtTime(0.11, noteStart + 0.018);
+      gain.gain.exponentialRampToValueAtTime(0.0001, noteStart + 0.16);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start(noteStart);
+      oscillator.stop(noteStart + 0.18);
+    });
+  } catch {
+    // Visual feedback remains complete when a browser blocks synthesized audio.
+  }
+}
+
+function animateBonusWordToPoints(card) {
+  if (!card || !accountPointsBadge) return;
+  const source = card.getBoundingClientRect();
+  const target = accountPointsBadge.getBoundingClientRect();
+  const flyer = document.createElement("div");
+  flyer.className = "bonus-word-flyer";
+  flyer.textContent = card.querySelector(".upcoming-word-main")?.textContent || "";
+  flyer.style.left = `${source.left + source.width / 2}px`;
+  flyer.style.top = `${source.top + source.height / 2}px`;
+  flyer.style.transform = "translate(-50%, -50%) scale(1)";
+  document.body.appendChild(flyer);
+  requestAnimationFrame(() => {
+    const dx = target.left + target.width / 2 - (source.left + source.width / 2);
+    const dy = target.top + target.height / 2 - (source.top + source.height / 2);
+    flyer.style.transition = "transform 820ms cubic-bezier(.22,1,.36,1), opacity 820ms ease";
+    flyer.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(.35)`;
+    flyer.style.opacity = "0";
+  });
+  setTimeout(() => flyer.remove(), 900);
+}
+
+function celebrateSpokenBonusWords(wordKeys = []) {
+  const keys = new Set((Array.isArray(wordKeys) ? wordKeys : []).map(key => String(key || "").trim()).filter(Boolean));
+  if (!keys.size || !upcomingWordsList) return;
+  const completedCards = [...upcomingWordsList.querySelectorAll(".upcoming-word-card")]
+    .filter(card => keys.has(String(card.dataset.wordKey || "").trim()));
+  completedCards.forEach((card, index) => {
+    setTimeout(() => {
+      card.classList.add("bonus-complete");
+      const action = card.querySelector(".upcoming-word-action");
+      if (action) {
+        action.dataset.revealed = "true";
+        action.title = "Bonus word completed";
+        action.setAttribute("aria-label", "Bonus word completed");
+        action.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.2 4.2L19 7"/></svg>';
+      }
+      playLearningFeedbackSound("correct");
+      animateBonusWordToPoints(card);
+    }, index * 180);
+  });
+}
+
 async function getOrdinaryReviewIntervalTurns(wordKey, language) {
   const frequencyWords = await getRankedFrequencyList(language);
   const corpusTotal = frequencyWords.reduce(
@@ -6930,7 +7108,8 @@ async function recordUserWordsAndAwardPoints(
       newTotal: 0,
       basePoints: 0,
       bonusPoints: 0,
-      bonusWordsSaid: 0
+      bonusWordsSaid: 0,
+      spokenBonusWordKeys: []
     };
   }
 
@@ -6948,7 +7127,8 @@ async function recordUserWordsAndAwardPoints(
       newTotal: currentLanguagePoints,
       basePoints: 0,
       bonusPoints: 0,
-      bonusWordsSaid: 0
+      bonusWordsSaid: 0,
+      spokenBonusWordKeys: []
     };
   }
 
@@ -7116,7 +7296,8 @@ async function recordUserWordsAndAwardPoints(
       newTotal: currentLanguagePoints,
       basePoints,
       bonusPoints,
-      bonusWordsSaid
+      bonusWordsSaid,
+      spokenBonusWordKeys: [...spokenBonusWordKeys]
     };
   }
 
@@ -7135,7 +7316,8 @@ async function recordUserWordsAndAwardPoints(
       newTotal: currentLanguagePoints + pointsGained,
       basePoints,
       bonusPoints,
-      bonusWordsSaid
+      bonusWordsSaid,
+      spokenBonusWordKeys: [...spokenBonusWordKeys]
     };
   }
 
@@ -7170,7 +7352,8 @@ async function recordUserWordsAndAwardPoints(
     newTotal,
     basePoints,
     bonusPoints,
-    bonusWordsSaid
+    bonusWordsSaid,
+    spokenBonusWordKeys: [...spokenBonusWordKeys]
   };
 }
 
@@ -8455,7 +8638,7 @@ async function showPerfectCorrectionThenRevealBot({
     Perfect card appears silently.
     Do not call playCorrection(...) here.
   */
-  const perfectCard = addSpeechReviewCard({
+const perfectCard = addSpeechReviewCard({
   transcript,
   suggestion: finalText,
   parts,
@@ -8463,6 +8646,8 @@ async function showPerfectCorrectionThenRevealBot({
   isPerfect: true,
   pointsAward
 });
+
+celebrateSpokenBonusWords(pointsAward?.spokenBonusWordKeys || []);
 
 if (pointsAward?.pointsGained > 0) {
   showPointsAward(
@@ -9692,6 +9877,26 @@ async function callChatFunction(payload, label = "Chat") {
   return await parseJsonResponse(response, label);
 }
 
+async function commitVisibleChatTurn({
+  clientTurnId,
+  language,
+  userText,
+  assistantText,
+  precedingAssistantText,
+  isOpeningMessage
+}) {
+  if (!currentUser || !clientTurnId || !assistantText) return;
+  await callChatFunction({
+    action: "commit-chat-turn",
+    clientTurnId,
+    language,
+    userText,
+    assistantText,
+    precedingAssistantText,
+    isOpeningMessage
+  }, "Chat history");
+}
+
 function rememberLanguageFact(language, fact) {
   const cleanFact = String(fact || "").replace(/\s+/g, " ").trim();
   if (!cleanFact) return;
@@ -10188,6 +10393,10 @@ function isSamePlayback(button, type, id) {
     }
     const dataPromise = callChatFunction({
       ...payload,
+      // The exact long-term record lives server-side. Keep only the immediate
+      // conversational window in the request so latency does not grow forever.
+      messages: Array.isArray(payload.messages) ? payload.messages.slice(-40) : [],
+      previousResponseId: activeConversationResponseId,
       vocabularyProfile: promptVocabularyProfile,
       clientTurnId,
       previousFacts: [
@@ -10215,6 +10424,11 @@ function isSamePlayback(button, type, id) {
     const preparedBonusWordsPromise = options.preparedBonusWordsPromise ||
       Promise.resolve({ language, rows: [] });
     const clientTurnId = options.clientTurnId || data.clientTurnId || "";
+    const precedingAssistantText = [...messages].reverse()
+      .find(message => message?.role === "assistant")?.content || "";
+    const visibleUserText = [...messages].reverse()
+      .find(message => message?.role === "user")?.content || "";
+    const isOpeningMessage = !precedingAssistantText;
 
     if (clientTurnId && renderedBotTurnIds.has(clientTurnId)) {
       progress?.remove();
@@ -10250,7 +10464,23 @@ function isSamePlayback(button, type, id) {
       await unlockAudioContext();
     }
 
+    // Commit the OpenAI chain only when this prepared reply will enter the
+    // visible transcript. Discarded correction/re-record branches must never
+    // become the parent of the learner's next request.
+    if (typeof data?.responseId === "string" && data.responseId) {
+      activeConversationResponseId = data.responseId;
+      if (activeChatSession) activeChatSession.responseId = data.responseId;
+    }
+
     messages.push({ role: "assistant", content: data.reply });
+    commitVisibleChatTurn({
+      clientTurnId,
+      language,
+      userText: isOpeningMessage ? "" : visibleUserText,
+      assistantText: data.reply,
+      precedingAssistantText,
+      isOpeningMessage
+    }).catch(error => console.warn("visible chat turn was not saved", error));
 
     const botMessageId = addBotMessage(data.reply, {
       fullSpeech,
@@ -10428,13 +10658,62 @@ const responsePromise = generatePreparedChatTurn(
   }
 }
     
-function showGuaranteedReviewFallback(transcript, responseMode, expectedTarget = null) {
+function showGuaranteedReviewFallback(
+  transcript,
+  responseMode,
+  expectedTarget = null,
+  error = null,
+  failureStage = "Response checking"
+) {
   document.querySelectorAll(".response-progress-card").forEach(card => card.remove());
-  const onRetry = () => {
-    if (responseMode === "speech") {
-      setSpeechStatus("Recording");
-      return;
-    }
+
+  const readableFailure = cleanInterfaceText(getReadableError(error) || "Unknown error")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 500);
+
+  const card = document.createElement("div");
+  card.className = "speech-review-card response-failure-card";
+  card.setAttribute("role", "alert");
+
+  const title = document.createElement("div");
+  title.className = "speech-review-title response-failure-title";
+  title.textContent = "Response check unavailable";
+
+  const summary = document.createElement("div");
+  summary.className = "response-failure-summary";
+  summary.textContent = `${failureStage} could not be completed. Your response was not classified as incorrect.`;
+
+  const detail = document.createElement("div");
+  detail.className = "response-failure-detail";
+
+  const detailLabel = document.createElement("span");
+  detailLabel.className = "response-failure-detail-label";
+  detailLabel.textContent = "Failure details";
+
+  const detailText = document.createElement("span");
+  detailText.textContent = readableFailure || "The response checker returned no usable result.";
+
+  detail.appendChild(detailLabel);
+  detail.appendChild(detailText);
+  card.appendChild(title);
+  card.appendChild(summary);
+  card.appendChild(detail);
+
+  const actions = document.createElement("div");
+  actions.className = "speech-review-actions correction-actions-row";
+
+  const retryButton = document.createElement("button");
+  retryButton.type = "button";
+  retryButton.className = "speech-review-button primary";
+  retryButton.textContent = responseMode === "speech" ? "Re-record" : "Try again";
+
+  const continueButton = document.createElement("button");
+  continueButton.type = "button";
+  continueButton.className = "speech-review-button secondary";
+  continueButton.textContent = "Continue anyway";
+
+  const retryWritingResponse = () => {
     activeSpeechCorrection = null;
     activeCorrectionUserMessageId = null;
     removeSpeechReviewCard();
@@ -10444,36 +10723,59 @@ function showGuaranteedReviewFallback(transcript, responseMode, expectedTarget =
       input.select();
     }
   };
-  const onContinue = async () => {
-    let prepared = pendingBackgroundBot;
-    if (!prepared) {
-      prepared = await prepareBotResponseInBackground(transcript, null, {
-        replaceLatestUser: false
-      });
+
+  retryButton.addEventListener("click", async () => {
+    if (responseMode === "speech") {
+      setSpeechStatus("Recording");
+      await startCorrectionRetryRecording();
+      return;
     }
-    activeSpeechCorrection = null;
-    pendingBackgroundBot = null;
-    activeCorrectionUserMessageId = null;
-    await revealPreparedBotResponse(prepared);
-  };
+    retryWritingResponse();
+  });
+
+  continueButton.addEventListener("click", async () => {
+    retryButton.disabled = true;
+    continueButton.disabled = true;
+    continueButton.textContent = "Continuing...";
+
+    try {
+      let prepared = pendingBackgroundBot;
+      if (!prepared) {
+        prepared = await prepareBotResponseInBackground(transcript, null, {
+          replaceLatestUser: false
+        });
+      }
+      activeSpeechCorrection = null;
+      pendingBackgroundBot = null;
+      activeCorrectionUserMessageId = null;
+      await revealPreparedBotResponse(prepared);
+      actions.remove();
+    } catch (continueError) {
+      retryButton.disabled = false;
+      continueButton.disabled = false;
+      continueButton.textContent = "Continue anyway";
+      detailText.textContent = cleanInterfaceText(getReadableError(continueError))
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 500) || "The conversation could not continue.";
+    }
+  });
+
+  actions.appendChild(retryButton);
+  actions.appendChild(continueButton);
+  card.appendChild(actions);
+
   activeSpeechCorrection = {
     transcript,
-    reviewMode: "language",
+    reviewMode: "technical",
     expectedTarget,
     prepared: pendingBackgroundBot
   };
-  return addSpeechReviewCard({
-    transcript,
-    suggestion: transcript,
-    parts: [{ text: transcript, isChatLanguage: true }],
-    correctedText: transcript,
-    reviewTitle: `Try again in ${languageSelect.value}`,
-    reviewMode: "language",
-    scheduleCorrections: false,
-    responseMode,
-    onRetry,
-    onContinue
-  });
+
+  messageHistory.appendChild(card);
+  correctionOutcomeSequence += 1;
+  scrollMessagesToBottom();
+  return card;
 }
 
 async function handleSpeechTranscript(transcript, responseMode = "speech") {
@@ -10484,9 +10786,14 @@ async function handleSpeechTranscript(transcript, responseMode = "speech") {
   } catch (error) {
     console.warn("response review did not complete", error);
     if (correctionOutcomeSequence === outcomeAtStart) {
-      showGuaranteedReviewFallback(transcript, responseMode, null);
+      showGuaranteedReviewFallback(
+        transcript,
+        responseMode,
+        null,
+        error,
+        "Response processing"
+      );
     }
-    showSystemMessage(getReadableError(error));
   }
 }
 
@@ -10551,7 +10858,9 @@ if (!isCorrectionRetry) {
     showGuaranteedReviewFallback(
       transcript,
       responseMode,
-      expectedTargetForAnswer
+      expectedTargetForAnswer,
+      error,
+      "Language and correction analysis"
     );
     return;
   }
@@ -12701,8 +13010,25 @@ function renderSessionList(container, rows) {
 function renderSessionTimeChart(rows) {
   if (!sessionTimeChart) return;
   sessionTimeChart.textContent = "";
-  const recentRows = rows.slice(0, 10).reverse();
-  const values = recentRows.map(row => Math.max(0, Number(row.durationMs || 0) / 60000));
+  const dailyMinutes = new Map();
+  for (const row of rows) {
+    const date = new Date(Number(row.startedAt || row.endedAt || 0));
+    if (Number.isNaN(date.getTime())) continue;
+    const dayKey = [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, "0"),
+      String(date.getDate()).padStart(2, "0")
+    ].join("-");
+    dailyMinutes.set(
+      dayKey,
+      (dailyMinutes.get(dayKey) || 0) + Math.max(0, Number(row.durationMs || 0) / 60000)
+    );
+  }
+  const recentDays = [...dailyMinutes.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .slice(-10)
+    .map(([dayKey, minutes]) => ({ dayKey, minutes }));
+  const values = recentDays.map(row => row.minutes);
   const ns = "http://www.w3.org/2000/svg";
   const width = 640;
   const height = 180;
@@ -12745,7 +13071,7 @@ function renderSessionTimeChart(rows) {
   const xTitle = document.createElementNS(ns,"text");
   xTitle.setAttribute("x",String(margin.left + plotWidth/2)); xTitle.setAttribute("y",String(height-2));
   xTitle.setAttribute("text-anchor","middle"); xTitle.setAttribute("class","chart-axis-title");
-  xTitle.textContent = "Session date"; sessionTimeChart.appendChild(xTitle);
+  xTitle.textContent = "Date"; sessionTimeChart.appendChild(xTitle);
 
   if (!values.length) return;
   const xFor = index => values.length === 1
@@ -12759,9 +13085,10 @@ function renderSessionTimeChart(rows) {
   sessionTimeChart.appendChild(polyline);
 
   const labelStep = Math.max(1, Math.ceil(values.length / 5));
-  recentRows.forEach((row,index) => {
-    if (index % labelStep !== 0 && index !== recentRows.length - 1) return;
-    const date = new Date(Number(row.startedAt || row.endedAt || 0));
+  recentDays.forEach((row,index) => {
+    if (index % labelStep !== 0 && index !== recentDays.length - 1) return;
+    const [year, month, day] = row.dayKey.split("-").map(Number);
+    const date = new Date(year, month - 1, day);
     const label = document.createElementNS(ns,"text");
     label.setAttribute("x",String(xFor(index))); label.setAttribute("y",String(margin.top+plotHeight+17));
     label.setAttribute("text-anchor","middle"); label.setAttribute("class","chart-label");
@@ -12780,7 +13107,7 @@ async function renderMemberHome() {
   const languageHistory = history.filter(row => row.language === language);
   if (homeHistoryTitle) homeHistoryTitle.textContent = `My Previous ${language} Chats`;
   if (homeStatsTitle) homeStatsTitle.textContent = `My ${language} Stats`;
-  if (chartPeriodLabel) chartPeriodLabel.textContent = `Recent ${language} sessions`;
+  if (chartPeriodLabel) chartPeriodLabel.textContent = `Daily ${language} minutes`;
   renderSessionList(recentChatsList, languageHistory.slice(0,5));
   const totalTime = languageHistory.reduce((sum,row) => sum + Number(row.durationMs || 0),0);
   if (homeSessionsStat) homeSessionsStat.textContent = String(languageHistory.length);
@@ -13074,6 +13401,29 @@ async function startWordConfirmation() {
   wordConfirmationPage?.classList.remove("hidden"); renderConfirmationWord();
 }
 
+function showConfirmationResult(correct) {
+  document.querySelector(".confirmation-result-overlay")?.remove();
+  const overlay = document.createElement("div");
+  overlay.className = "confirmation-result-overlay";
+  overlay.setAttribute("aria-live", "assertive");
+  const mark = document.createElement("div");
+  mark.className = `confirmation-result-mark ${correct ? "correct" : "incorrect"}`;
+  mark.setAttribute("role", "img");
+  mark.setAttribute("aria-label", correct ? "Correct" : "Incorrect");
+  mark.innerHTML = correct
+    ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.2 4.2L19 7"/></svg>'
+    : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+  overlay.appendChild(mark);
+  document.body.appendChild(overlay);
+  playLearningFeedbackSound(correct ? "correct" : "incorrect");
+  return new Promise(resolve => {
+    setTimeout(() => {
+      overlay.remove();
+      resolve();
+    }, correct ? 720 : 620);
+  });
+}
+
 async function submitWordConfirmation(answer) {
   const word = confirmationQueue[confirmationIndex];
   if (!word || !answer.trim()) return;
@@ -13090,10 +13440,12 @@ async function submitWordConfirmation(answer) {
     },"Word confirmation");
     if (!data.correct) {
       if (confirmationFeedback) confirmationFeedback.textContent = "Not quite. Try another translation, or choose \"I don't remember.\"";
+      await showConfirmationResult(false);
       return;
     }
     saveConfirmedWord(word); confirmedThisRun += 1;
     await recordWordStats([word],"familiar",word.language);
+    await showConfirmationResult(true);
     confirmationIndex += 1; renderConfirmationWord();
   } catch (error) {
     if (confirmationFeedback) confirmationFeedback.textContent = getReadableError(error);
