@@ -9890,32 +9890,33 @@ async function getValidFunctionAccessToken(forceRefresh = false) {
   return authRefreshPromise;
 }
 
-async function getFunctionHeaders(forceRefresh = false, includeContentType = true) {
-  const accessToken = await getValidFunctionAccessToken(forceRefresh);
+function getFunctionHeaders(forceRefresh = false, includeContentType = true) {
+  void forceRefresh;
   const headers = {
     "apikey": SUPABASE_ANON_KEY,
-    // Gateway-auth revision v2: keep Edge gateway admission identical for
-    // signed-in and signed-out users.
+    // Keep gateway admission identical to the working signed-out request.
     // The user JWT is verified inside the function instead of by two layers.
     "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
   };
-  if (currentUser && accessToken !== SUPABASE_ANON_KEY) {
-    headers["x-user-token"] = accessToken;
-  }
   if (includeContentType) headers["Content-Type"] = "application/json";
   return headers;
 }
 
 async function callChatFunction(payload, label = "Chat") {
-  const requestBody = JSON.stringify(payload);
-
   for (let attempt = 0; attempt < 2; attempt += 1) {
     let response;
 
     try {
+      const accessToken = await getValidFunctionAccessToken(attempt === 1);
+      const requestBody = JSON.stringify({
+        ...payload,
+        ...(currentUser && accessToken !== SUPABASE_ANON_KEY
+          ? { userAccessToken: accessToken }
+          : {})
+      });
       response = await fetch(chatFunctionUrl(), {
         method: "POST",
-        headers: await getFunctionHeaders(attempt === 1),
+        headers: getFunctionHeaders(),
         body: requestBody
       });
     } catch (error) {
