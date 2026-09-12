@@ -5037,6 +5037,9 @@ let selectedPreferredName = "";
 let chatStartInFlight = false;
 let openingBotInFlight = false;
 let activeConversationResponseId = "";
+let sessionCompactionPromise = null;
+let sessionCompactionResponseId = "";
+let lastCompactedResponseId = "";
 const renderedBotTurnIds = new Set();
     
 let authMode = "sign-in";
@@ -9897,6 +9900,38 @@ async function commitVisibleChatTurn({
   }, "Chat history");
 }
 
+function checkpointActiveConversation() {
+  const responseId = String(activeConversationResponseId || "").trim();
+  if (!currentUser || !responseId || responseId === lastCompactedResponseId) {
+    return Promise.resolve(false);
+  }
+  if (sessionCompactionPromise && sessionCompactionResponseId === responseId) {
+    return sessionCompactionPromise;
+  }
+
+  sessionCompactionResponseId = responseId;
+  const request = callChatFunction({
+    action: "compact-chat-session",
+    previousResponseId: responseId
+  }, "Conversation checkpoint")
+    .then(() => {
+      lastCompactedResponseId = responseId;
+      return true;
+    })
+    .catch(error => {
+      console.warn("conversation checkpoint was not saved", error);
+      return false;
+    })
+    .finally(() => {
+      if (sessionCompactionResponseId === responseId) {
+        sessionCompactionPromise = null;
+        sessionCompactionResponseId = "";
+      }
+    });
+  sessionCompactionPromise = request;
+  return request;
+}
+
 function rememberLanguageFact(language, fact) {
   const cleanFact = String(fact || "").replace(/\s+/g, " ").trim();
   if (!cleanFact) return;
@@ -13264,6 +13299,9 @@ function openSessionSummary() {
   pendingSessionSummary = buildPendingSessionSummary();
   if (Number(pendingSessionSummary?.messageCount || 0) > 0) {
     saveSessionSummary(pendingSessionSummary);
+    // Create the cross-session OpenAI checkpoint while the learner reviews
+    // the summary. It does not delay the end-of-chat screen.
+    checkpointActiveConversation();
   }
   showSessionSummaryPage();
 }
