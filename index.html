@@ -5292,11 +5292,7 @@ async function getRankedFrequencyList(language) {
 
   const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`
-    },
+    headers: await getFunctionHeaders(),
     body: JSON.stringify({
       action: "frequency-list",
       language,
@@ -7049,11 +7045,7 @@ async function translateReviewTargetForCue(word, languageOverride = null, fluent
 
   const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`
-    },
+    headers: await getFunctionHeaders(),
     body: JSON.stringify({
       action: "translate-word",
       word: cleanWord,
@@ -9852,32 +9844,86 @@ function playCorrectionWordSchedule(state, button = null) {
     return data;
   }
 
-  function chatFunctionUrl() {
+function chatFunctionUrl() {
   return `${SUPABASE_URL.replace(/\/$/, "")}/functions/v1/chat`;
 }
 
-function getFunctionHeaders() {
-  return {
-    "Content-Type": "application/json",
+// One shared refresh prevents parallel Edge Function calls from racing to
+// replace the same signed-in user's expiring Supabase session.
+let authRefreshPromise = null;
+
+async function getValidFunctionAccessToken(forceRefresh = false) {
+  if (!currentUser) return SUPABASE_ANON_KEY;
+
+  if (authRefreshPromise) return authRefreshPromise;
+
+  authRefreshPromise = (async () => {
+    let session = null;
+
+    if (!forceRefresh) {
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (error) throw error;
+      session = data?.session || null;
+    }
+
+    const expiresAtMs = Number(session?.expires_at || 0) * 1000;
+    const expiresSoon = !expiresAtMs || expiresAtMs <= Date.now() + 90_000;
+
+    if (forceRefresh || !session?.access_token || expiresSoon) {
+      const { data, error } = await supabaseClient.auth.refreshSession();
+      if (error) throw error;
+      session = data?.session || null;
+    }
+
+    if (!session?.access_token) {
+      throw new Error("Your sign-in session has expired. Please sign in again.");
+    }
+
+    // Keep the local snapshot synchronized without re-running page navigation.
+    currentSession = session;
+    currentUser = session.user || currentUser;
+    return session.access_token;
+  })().finally(() => {
+    authRefreshPromise = null;
+  });
+
+  return authRefreshPromise;
+}
+
+async function getFunctionHeaders(forceRefresh = false, includeContentType = true) {
+  const accessToken = await getValidFunctionAccessToken(forceRefresh);
+  const headers = {
     "apikey": SUPABASE_ANON_KEY,
-    "Authorization": `Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`
+    "Authorization": `Bearer ${accessToken}`
   };
+  if (includeContentType) headers["Content-Type"] = "application/json";
+  return headers;
 }
 
 async function callChatFunction(payload, label = "Chat") {
-  let response;
+  const requestBody = JSON.stringify(payload);
 
-  try {
-    response = await fetch(chatFunctionUrl(), {
-      method: "POST",
-      headers: getFunctionHeaders(),
-      body: JSON.stringify(payload)
-    });
-  } catch (error) {
-    throw new Error(`${label} request failed: ${getReadableError(error)}`);
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    let response;
+
+    try {
+      response = await fetch(chatFunctionUrl(), {
+        method: "POST",
+        headers: await getFunctionHeaders(attempt === 1),
+        body: requestBody
+      });
+    } catch (error) {
+      throw new Error(`${label} request failed before the server responded: ${getReadableError(error)}`);
+    }
+
+    if (currentUser && attempt === 0 && (response.status === 401 || response.status === 403)) {
+      continue;
+    }
+
+    return await parseJsonResponse(response, label);
   }
 
-  return await parseJsonResponse(response, label);
+  throw new Error(`${label} could not verify your sign-in session. Please sign in again.`);
 }
 
 async function commitVisibleChatTurn({
@@ -10623,11 +10669,7 @@ const responsePromise = generatePreparedChatTurn(
 
       const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "apikey": SUPABASE_ANON_KEY,
-          "Authorization": `Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`
-        },
+        headers: await getFunctionHeaders(),
         body: JSON.stringify({
           action: "translate-word",
           word,
@@ -11161,11 +11203,7 @@ if (!pendingBackgroundBot || pendingBackgroundBot.userText !== reviewedTranscrip
 
   const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`
-    },
+    headers: await getFunctionHeaders(),
     body: JSON.stringify({
       action: "translate-message-parts",
       text,
@@ -11558,11 +11596,7 @@ async function handleMessagePlayButton(messageId, button) {
   async function fetchFullSpeech(text, languageOverride = null, bypassCache = false) {
   const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`
-    },
+    headers: await getFunctionHeaders(),
     body: JSON.stringify({
       action: "speak-full",
       text,
@@ -11582,11 +11616,7 @@ async function handleMessagePlayButton(messageId, button) {
   async function fetchIndividualWordSpeechForTokens(tokens, languageOverride = null) {
   const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`
-    },
+    headers: await getFunctionHeaders(),
     body: JSON.stringify({
       action: "speak-words",
       items: tokens,
@@ -12246,11 +12276,7 @@ async function playBonusWordAudio(chatWord, language, button = null) {
     try {
       const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "apikey": SUPABASE_ANON_KEY,
-          "Authorization": `Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`
-        },
+        headers: await getFunctionHeaders(),
         body: JSON.stringify({
           action: "translate-word",
           word: cleanWord,
@@ -12474,10 +12500,7 @@ async function transcribeAudioBlob(audioBlob, mimeType, context = {}) {
 
   const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
     method: "POST",
-    headers: {
-      "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`
-    },
+    headers: await getFunctionHeaders(false, false),
     body: formData
   });
 
