@@ -6430,7 +6430,29 @@ async function scheduleWordReview(word, reason = "correction", languageOverride 
   if (!wordKey || !wordText) return;
 
   const now = new Date().toISOString();
-  const scheduling = await getWordSchedulingBand(wordKey, language);
+  if (reason === "missed") {
+    const target = matchingBonus[0] || normalizedTarget;
+    const targetKey = String(target.word_key || target.lexemeKey || wordKey).trim();
+    const targetText = String(
+      target.word_text || target.word || target.lemma || wordText
+    ).trim();
+    await timeAccountOperation(
+      "missed target backend write",
+      () => callChatFunction({
+        action: "schedule-missed-word",
+        language,
+        wordKey: targetKey,
+        legacyWordKey,
+        wordText: targetText
+      }, "Missed target save", { timeoutMs: 8000 })
+    );
+    setReviewCooldown(targetKey, 0);
+    return;
+  }
+  const scheduling = await timeAccountOperation(
+    "review scheduling band",
+    () => getWordSchedulingBand(wordKey, language)
+  );
   if (scheduling.target) {
     wordKey = scheduling.target.word_key;
     wordText = scheduling.target.word;
@@ -6788,8 +6810,9 @@ function showPointsAward(pointsGained, newTotal, language, sourceEl = null, deta
   animatePointsTotal(oldTotal, newTotal, language);
 }
 
-function playLearningFeedbackSound(kind = "correct") {
+async function playLearningFeedbackSound(kind = "correct") {
   try {
+    await unlockAudioContext();
     const context = getAudioContext();
     const start = context.currentTime;
     const notes = kind === "correct" ? [523.25, 659.25, 783.99] : [220, 164.81];
@@ -10275,7 +10298,7 @@ async function primeAudioForAutoplay() {
   try {
     const context = getAudioContext();
 
-    if (context.state === "suspended") {
+    if (context.state !== "running" && context.state !== "closed") {
       await context.resume();
     }
 
@@ -10306,8 +10329,11 @@ async function primeAudioForAutoplay() {
 
   async function unlockAudioContext() {
     const context = getAudioContext();
-    if (context.state === "suspended") {
+    if (context.state !== "running" && context.state !== "closed") {
       await context.resume();
+    }
+    if (context.state !== "running") {
+      throw new Error("Audio playback is waiting for another tap.");
     }
   }
 
@@ -10849,6 +10875,7 @@ const responsePromise = generatePreparedChatTurn(
   }
   if (serverTiming?.preAiMs != null) details.push(`server setup ${serverTiming.preAiMs}ms`);
   if (serverTiming?.chatMs != null) details.push(`server AI ${serverTiming.chatMs}ms`);
+  if (result?.data?.contextRecovered) details.push("context key rebuilt");
   progress?.addTiming?.(
     "Conversation request",
     performance.now() - conversationalRequestStartedAt,
@@ -12954,6 +12981,9 @@ async function startRecording() {
   stream.getTracks().forEach(track => track.stop());
   isRecording = false;
   microphoneBusy = false;
+  await unlockAudioContext().catch(error => {
+    console.warn("audio context did not resume after recording", error);
+  });
   speechStartOverButton?.classList.add("hidden");
 
   if (discardCurrentRecording) {
@@ -13027,6 +13057,9 @@ async function startRecording() {
 function stopRecording() {
   if (mediaRecorder && mediaRecorder.state === "recording") {
     mediaRecorder.stop();
+    // Keep the stop-button gesture available to restore output audio after
+    // iOS switches the audio session away from microphone capture.
+    primeAudioForAutoplay().catch(() => {});
   }
 }
 
@@ -13878,6 +13911,7 @@ async function toggleConfirmationRecording() {
 
   if (confirmationRecorder?.state === "recording") {
     confirmationRecorder.stop();
+    primeAudioForAutoplay().catch(() => {});
     return;
   }
 
