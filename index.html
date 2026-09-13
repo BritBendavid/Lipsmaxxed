@@ -9853,18 +9853,17 @@ function chatFunctionUrl() {
 let authRefreshPromise = null;
 
 async function getValidFunctionAccessToken(forceRefresh = false) {
-  if (!currentUser) return SUPABASE_ANON_KEY;
-
   if (authRefreshPromise) return authRefreshPromise;
 
   authRefreshPromise = (async () => {
-    let session = null;
+    const { data: sessionData, error: sessionError } =
+      await supabaseClient.auth.getSession();
+    if (sessionError) throw sessionError;
+    let session = sessionData?.session || null;
 
-    if (!forceRefresh) {
-      const { data, error } = await supabaseClient.auth.getSession();
-      if (error) throw error;
-      session = data?.session || null;
-    }
+    // The auth client's persisted session is authoritative. The UI's
+    // currentUser snapshot can briefly lag auth refresh events.
+    if (!session) return SUPABASE_ANON_KEY;
 
     const expiresAtMs = Number(session?.expires_at || 0) * 1000;
     const expiresSoon = !expiresAtMs || expiresAtMs <= Date.now() + 90_000;
@@ -9910,7 +9909,7 @@ async function callChatFunction(payload, label = "Chat") {
       const accessToken = await getValidFunctionAccessToken(attempt === 1);
       const requestBody = JSON.stringify({
         ...payload,
-        ...(currentUser && accessToken !== SUPABASE_ANON_KEY
+        ...(accessToken !== SUPABASE_ANON_KEY
           ? { userAccessToken: accessToken }
           : {})
       });
