@@ -10870,57 +10870,53 @@ function isSamePlayback(button, type, id) {
     }
     progress?.addTiming?.("Audio decode and completeness check", performance.now() - decodeStartedAt);
 
-    if (autoplay) {
-      await unlockAudioContext();
-    }
-
-    // Commit the OpenAI chain only when this prepared reply will enter the
-    // visible transcript. Discarded correction/re-record branches must never
-    // become the parent of the learner's next request.
+    const expectedTarget = await Promise.resolve(expectedTargetSource);
+    if (autoplay) await unlockAudioContext();
     assertContext();
     if (clientTurnId && renderedBotTurnIds.has(clientTurnId)) return null;
-    if (clientTurnId) renderedBotTurnIds.add(clientTurnId);
-    if (typeof data?.responseId === "string" && data.responseId) {
-      activeConversationResponseId = data.responseId;
-      if (activeChatSession) activeChatSession.responseId = data.responseId;
+    if (autoplay && !ensurePlaybackAllowed()) {
+      throw new Error("Finish recording before starting the prepared reply.");
     }
 
-    messages.push({ role: "assistant", content: data.reply });
-    commitVisibleChatTurn({
-      clientTurnId,
-      language,
-      userText: isOpeningMessage ? "" : visibleUserText,
-      assistantText: data.reply,
-      precedingAssistantText,
-      isOpeningMessage
-    }).catch(error => console.warn("visible chat turn was not saved", error));
-
     const botMessageId = addBotMessage(data.reply, {
+      deferActivation: true,
       fullSpeech,
       fullSpeechPromise: Promise.resolve(fullSpeech),
       showSignedOutProTip: options.showSignedOutProTip === true
     });
 
-    activeExpectedTarget = await Promise.resolve(expectedTargetSource);
-
     const botCard = document.querySelector(`[data-message-id="${botMessageId}"]`);
-    botCard?.classList.add("synchronized-pending");
-    attachBonusWordsPanelToBotMessage(botMessageId);
-    renderPreparedUpcomingWords(preparedBonusWords);
-    const state = messageState.get(botMessageId);
     try {
-      if (state && autoplay) {
+      // All asynchronous preparation is finished. Schedule the decoded audio
+      // directly: the interactive play handler intentionally catches failures.
+      if (autoplay) {
+        stopAllSpeech();
         const button = document.querySelector(`[data-message-play="${botMessageId}"]`);
-        if (button) {
-          await handleMessagePlayButton(botMessageId, button);
-        } else {
-          await playConversationalMessage(state);
+        if (!playFullAudioBuffer(fullSpeech.audioBuffer, button, "message", botMessageId)) {
+          throw new Error("The prepared reply could not start playing.");
         }
       }
-    } finally {
-      // Playback is now scheduled. Reveal the words in the same rendering frame.
-      botCard?.classList.remove("synchronized-pending");
+    } catch (error) {
+      botCard?.remove();
+      messageState.delete(botMessageId);
+      throw error;
     }
+
+    // No await between successful scheduling, chain commit and reveal.
+    if (clientTurnId) renderedBotTurnIds.add(clientTurnId);
+    activeConversationResponseId = data.responseId;
+    if (activeChatSession) activeChatSession.responseId = data.responseId;
+    messages.push({ role: "assistant", content: data.reply });
+    activeExpectedTarget = expectedTarget;
+    attachBonusWordsPanelToBotMessage(botMessageId);
+    renderPreparedUpcomingWords(preparedBonusWords);
+    botCard?.classList.remove("synchronized-pending");
+    activateBotMessage(botMessageId);
+    commitVisibleChatTurn({
+      clientTurnId, language,
+      userText: isOpeningMessage ? "" : visibleUserText,
+      assistantText: data.reply, precedingAssistantText, isOpeningMessage
+    }).catch(error => console.warn("visible chat turn was not saved", error));
 
     progress?.finish();
     window.setTimeout(() => {
@@ -11698,6 +11694,7 @@ try {
 
     const card = document.createElement("div");
     card.className = "message-card bot-card";
+    if (options.deferActivation) card.classList.add("synchronized-pending");
     card.dataset.messageId = id;
 
     const wordsEl = document.createElement("div");
@@ -11725,14 +11722,6 @@ try {
     });
 
     const speakableTokens = renderWordsIntoElement(text, wordsEl, id);
-    recordWordStats(
-  speakableTokens.map(token => ({
-    word_key: normalizeStatsWord(token.word),
-    word_text: token.word
-  })),
-  "familiar",
-  languageSelect.value
-).catch(() => {});
     const state = messageState.get(id);
     if (state) state.speakableTokens = speakableTokens;
 
@@ -11770,6 +11759,22 @@ translateAllButton.addEventListener("click", () => {
 promptStack.appendChild(translateAllButton);
 
 messageHistory.appendChild(card);
+if (!options.deferActivation) activateBotMessage(id);
+
+    scrollMessagesToBottom();
+    return id;
+  }
+
+  function activateBotMessage(id) {
+    const state = messageState.get(id);
+    if (!state || state.activated) return;
+    state.activated = true;
+    const text = state.text;
+    recordWordStats(
+      state.speakableTokens.map(token => ({
+        word_key: normalizeStatsWord(token.word), word_text: token.word
+      })), "familiar", getCurrentChatLanguage()
+    ).catch(error => console.warn("prompt word statistics failed", error));
 if (activeChatSession) {
   activeChatSession.timeline = Array.isArray(activeChatSession.timeline)
     ? activeChatSession.timeline
@@ -11790,8 +11795,6 @@ if (activeChatSession) {
       });
     }
 
-    scrollMessagesToBottom();
-    return id;
   }
 
   async function translateAllMessageWords(messageId, button) {
@@ -12131,16 +12134,24 @@ async function handleMessagePlayButton(messageId, button) {
   if (!ensurePlaybackAllowed()) return false;
 
   const context = getAudioContext();
+  if (context.state !== "running") {
+    throw new Error("Audio playback was interrupted. Tap play to resume.");
+  }
   const playbackToken = currentPlaybackToken;
   const source = context.createBufferSource();
 
   source.buffer = audioBuffer;
   source.connect(context.destination);
 
+  try {
+    source.start(context.currentTime + 0.04);
+  } catch (error) {
+    source.disconnect();
+    if (button) setPlaybackButtonStopped(button);
+    throw error;
+  }
   scheduledSources = [source];
   audioPlaybackBusy = true;
-
-  source.start(context.currentTime + 0.04);
 
   if (button && type && id) {
     setPlaybackButtonPlaying(button, type, id);
@@ -12239,7 +12250,10 @@ async function playBonusWordAudio(chatWord, language, button = null) {
     speech.audioBuffer = await context.decodeAudioData(arrayBuffer);
   }
 
-  playFullAudioBuffer(speech.audioBuffer, button, "message", state.id);
+  if (!playFullAudioBuffer(speech.audioBuffer, button, "message", state.id)) {
+    throw new Error("Finish recording before playing audio.");
+  }
+  return true;
 }
 
   function trimAudioBufferSilence(audioBuffer, threshold = 0.012, paddingSeconds = 0.015) {
