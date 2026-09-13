@@ -5040,6 +5040,7 @@ let activeConversationResponseId = "";
 let sessionCompactionPromise = null;
 let sessionCompactionResponseId = "";
 let lastCompactedResponseId = "";
+let lastCompactionError = "";
 const renderedBotTurnIds = new Set();
     
 let authMode = "sign-in";
@@ -9968,9 +9969,11 @@ function checkpointActiveConversation() {
   }, "Conversation checkpoint")
     .then(() => {
       lastCompactedResponseId = responseId;
+      lastCompactionError = "";
       return true;
     })
     .catch(error => {
+      lastCompactionError = getReadableError(error);
       console.warn("conversation checkpoint was not saved", error);
       return false;
     })
@@ -13273,7 +13276,11 @@ async function startMemberChat() {
       memoryReady = await checkpointActiveConversation();
     }
     if (!memoryReady) {
-      throw new Error("Your previous conversation memory could not be saved. Please try starting the chat again.");
+      throw new Error(
+        lastCompactionError
+          ? `Your previous conversation memory could not be saved: ${lastCompactionError}`
+          : "Your previous conversation memory could not be saved. Please try starting the chat again."
+      );
     }
     await primeAudioForAutoplay();
     await startConfiguredChat();
