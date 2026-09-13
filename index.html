@@ -7749,7 +7749,7 @@ function getWordStatsCategory(row) {
   return "familiar";
 }
 
-async function recordWordStats(words, eventType, languageOverride = null) {
+async function recordWordStats(words, eventType, languageOverride = null, strict = false) {
   if (!currentUser || !Array.isArray(words) || !words.length) return;
 
   const language = languageOverride || languageSelect.value;
@@ -7782,6 +7782,7 @@ async function recordWordStats(words, eventType, languageOverride = null) {
       .maybeSingle();
 
     if (selectError) {
+      if (strict) throw selectError;
       console.warn("stats select failed", selectError);
       continue;
     }
@@ -7825,6 +7826,7 @@ async function recordWordStats(words, eventType, languageOverride = null) {
       });
 
     if (upsertError) {
+      if (strict) throw upsertError;
       console.warn("stats upsert failed", upsertError);
     }
   }
@@ -11056,7 +11058,7 @@ if (!isCorrectionRetry) {
       "Response analysis",
       performance.now() - responseAnalysisStartedAt,
       analysis?.serverTiming?.analysisMs != null
-        ? `server AI ${analysis.serverTiming.analysisMs}ms`
+        ? `server ${analysis.serverTiming.analysisMs}ms, parts ${analysis.serverTiming.languagePartsMs}ms, quality ${analysis.serverTiming.qualityMs}ms`
         : ""
     );
   } catch (error) {
@@ -11396,7 +11398,8 @@ try {
     targetProduced: data.targetProduced === true,
     producedLexemes: Array.isArray(data.producedLexemes)
       ? data.producedLexemes
-      : []
+      : [],
+    serverTiming: data.serverTiming || null
   };
 }
 
@@ -13685,9 +13688,13 @@ function showLatencyDiagnostic(message) {
   window.setTimeout(() => toast.remove(), 20000);
 }
 
+let wordConfirmationInFlight = false;
 async function submitWordConfirmation(answer) {
   const word = confirmationQueue[confirmationIndex];
-  if (!word || !answer.trim()) return;
+  if (wordConfirmationInFlight || !word || !answer.trim()) return;
+  wordConfirmationInFlight = true;
+  if (forgotConfirmationWordButton) forgotConfirmationWordButton.disabled = true;
+  if (wordConfirmationSpeechButton) wordConfirmationSpeechButton.disabled = true;
   submitWordConfirmationButton.disabled = true;
   if (confirmationFeedback) confirmationFeedback.textContent = "Checking...";
   const wordCheckStartedAt = performance.now();
@@ -13724,17 +13731,23 @@ async function submitWordConfirmation(answer) {
       await showConfirmationResult(false);
       return;
     }
-    saveConfirmedWord(word); confirmedThisRun += 1;
     const saveStartedAt = performance.now();
-    await recordWordStats([word],"familiar",word.language);
+    // Show the judgment immediately, but do not advance until persistence succeeds.
+    await Promise.all([
+      showConfirmationResult(true),
+      recordWordStats([word],"familiar",word.language, true)
+    ]);
+    saveConfirmedWord(word); confirmedThisRun += 1;
     diagnosticParts.push(`save result ${((performance.now() - saveStartedAt) / 1000).toFixed(2)}s`);
     diagnosticParts.push(`complete ${((performance.now() - wordCheckStartedAt) / 1000).toFixed(2)}s`);
     showLatencyDiagnostic(`Word confirmation timing: ${diagnosticParts.join(" | ")}`);
-    await showConfirmationResult(true);
     confirmationIndex += 1; renderConfirmationWord();
   } catch (error) {
     if (confirmationFeedback) confirmationFeedback.textContent = getReadableError(error);
   } finally {
+    wordConfirmationInFlight = false;
+    if (forgotConfirmationWordButton) forgotConfirmationWordButton.disabled = false;
+    if (wordConfirmationSpeechButton) wordConfirmationSpeechButton.disabled = false;
     if (submitWordConfirmationButton) submitWordConfirmationButton.disabled = false;
   }
 }
