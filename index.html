@@ -10456,7 +10456,11 @@ function isSamePlayback(button, type, id) {
   async function generatePreparedChatTurn(payload, label = "Chat") {
     const language = payload.language || getCurrentChatLanguage();
     const clientTurnId = payload.clientTurnId || createClientTurnId();
-    const targetRowsPromise = getFrequencyFrontierTargets(language, 2)
+    const bonusQueueReady = payload.bonusQueueReady || Promise.resolve();
+    const backendPayload = { ...payload };
+    delete backendPayload.bonusQueueReady;
+    const targetRowsPromise = Promise.resolve(bonusQueueReady)
+      .then(() => getFrequencyFrontierTargets(language, 2))
       .catch(error => {
         console.warn("frequency targets unavailable for response", error);
         return [];
@@ -10480,7 +10484,7 @@ function isSamePlayback(button, type, id) {
       delete promptVocabularyProfile.primaryTargetStage;
     }
     const dataPromise = callChatFunction({
-      ...payload,
+      ...backendPayload,
       // The exact long-term record lives server-side. Keep only the immediate
       // conversational window in the request so latency does not grow forever.
       messages: Array.isArray(payload.messages) ? payload.messages.slice(-40) : [],
@@ -10642,7 +10646,8 @@ const responsePromise = generatePreparedChatTurn(
       language: languageSelect.value,
       userGenderInstruction: getUserGenderInstruction(),
       chatRole: activeChatSession?.topicRole || "",
-      chatTopic: activeChatSession?.topicTitle || ""
+      chatTopic: activeChatSession?.topicTitle || "",
+      bonusQueueReady: options.bonusQueueReady || null
   },
   "Chat"
 );
@@ -11004,50 +11009,66 @@ const confirmedSpokenText = getConfirmedSpokenTextFromCorrection(
   correctedText
 );
 
-if ((!responseMakesSense || !confirmedSpokenText) && expectedTargetForAnswer) {
-  await markReviewWordMissed(
-    expectedTargetForAnswer,
-    languageSelect.value
+// Start conversational generation as soon as analysis is available. Signed-in
+// vocabulary and points writes continue in parallel, while the bonus queue is
+// deliberately held until those writes have settled.
+let releaseBonusQueue = null;
+const bonusQueueReady = new Promise(resolve => {
+  releaseBonusQueue = resolve;
+});
+
+if (!pendingBackgroundBot || pendingBackgroundBot.userText !== reviewedTranscript) {
+  pendingBackgroundBot = await prepareBotResponseInBackground(
+    reviewedTranscript,
+    responseProgress,
+    {
+      replaceLatestUser: isCorrectionRetry,
+      bonusQueueReady
+    }
   );
 }
 
-const pointsAward = confirmedSpokenText
-  ? await awardPointsForUserMessage(
-      confirmedSpokenText,
-      languageSelect.value,
-      {
-        animate: false,
-        expectedTarget: expectedTargetForAnswer,
-        targetProduced: analysis.targetProduced,
-        producedLexemes: analysis.producedLexemes
-      }
-    )
-  : {
-      pointsGained: 0,
-      newTotal: currentLanguagePoints,
-      language: languageSelect.value
-    };
+let pointsAward;
+try {
+  if ((!responseMakesSense || !confirmedSpokenText) && expectedTargetForAnswer) {
+    await markReviewWordMissed(
+      expectedTargetForAnswer,
+      languageSelect.value
+    );
+  }
 
-evictProducedBonusTargetsFromCache(
-  languageSelect.value,
-  activeAnswerBonusTargets,
-  analysis.producedLexemes,
-  analysis.targetProduced
-);
+  pointsAward = confirmedSpokenText
+    ? await awardPointsForUserMessage(
+        confirmedSpokenText,
+        languageSelect.value,
+        {
+          animate: false,
+          expectedTarget: expectedTargetForAnswer,
+          targetProduced: analysis.targetProduced,
+          producedLexemes: analysis.producedLexemes
+        }
+      )
+    : {
+        pointsGained: 0,
+        newTotal: currentLanguagePoints,
+        language: languageSelect.value
+      };
+
+  evictProducedBonusTargetsFromCache(
+    languageSelect.value,
+    activeAnswerBonusTargets,
+    analysis.producedLexemes,
+    analysis.targetProduced
+  );
+} finally {
+  releaseBonusQueue?.();
+}
 
 /*
   Select the next bonus words only after this answer has been evaluated and
   credited. This guarantees that a word just produced cannot be selected for
   the immediately following prompt, even while a database update is settling.
 */
-if (!pendingBackgroundBot || pendingBackgroundBot.userText !== reviewedTranscript) {
-  pendingBackgroundBot = await prepareBotResponseInBackground(
-    reviewedTranscript,
-    responseProgress,
-    { replaceLatestUser: isCorrectionRetry }
-  );
-}
-
   if (
     responseMakesSense &&
     !hasForeignParts &&
