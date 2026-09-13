@@ -3328,6 +3328,36 @@ form {
   line-height: 1.48;
 }
 
+.response-progress-diagnostics {
+  margin-top: 10px;
+  color: #94a3b8;
+  font-size: .72rem;
+  line-height: 1.55;
+  font-weight: 650;
+  letter-spacing: .01em;
+}
+
+.response-progress-diagnostics:empty { display: none; }
+
+.latency-diagnostic-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  z-index: 10020;
+  width: min(760px, calc(100vw - 28px));
+  transform: translateX(-50%);
+  padding: 11px 14px;
+  border: 1px solid rgba(96, 165, 250, .38);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, .96);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, .34);
+  color: #bfdbfe;
+  font-size: .76rem;
+  font-weight: 650;
+  line-height: 1.5;
+  text-align: center;
+}
+
 .response-progress-track {
   width: 100%;
   max-width: 100%;
@@ -9903,22 +9933,34 @@ function getFunctionHeaders(forceRefresh = false, includeContentType = true) {
 }
 
 async function callChatFunction(payload, label = "Chat") {
+  const totalStartedAt = performance.now();
+  let responseTiming = null;
   for (let attempt = 0; attempt < 2; attempt += 1) {
     let response;
 
     try {
+      const authStartedAt = performance.now();
       const accessToken = await getValidFunctionAccessToken(attempt === 1);
+      const sessionMs = Math.round(performance.now() - authStartedAt);
       const requestBody = JSON.stringify({
         ...payload,
         ...(accessToken !== SUPABASE_ANON_KEY
           ? { userAccessToken: accessToken }
           : {})
       });
+      const networkStartedAt = performance.now();
       response = await fetch(chatFunctionUrl(), {
         method: "POST",
         headers: getFunctionHeaders(),
         body: requestBody
       });
+      responseTiming = {
+        label,
+        attempt: attempt + 1,
+        sessionMs,
+        networkMs: Math.round(performance.now() - networkStartedAt),
+        totalMs: Math.round(performance.now() - totalStartedAt)
+      };
     } catch (error) {
       throw new Error(`${label} request failed before the server responded: ${getReadableError(error)}`);
     }
@@ -9927,7 +9969,11 @@ async function callChatFunction(payload, label = "Chat") {
       continue;
     }
 
-    return await parseJsonResponse(response, label);
+    const data = await parseJsonResponse(response, label);
+    if (data && typeof data === "object") {
+      data.clientTiming = responseTiming;
+    }
+    return data;
   }
 
   throw new Error(`${label} could not verify your sign-in session. Please sign in again.`);
@@ -10383,15 +10429,18 @@ function isSamePlayback(button, type, id) {
       <div class="response-progress-copy">
         <div class="response-progress-kicker">DID YOU KNOW...</div>
         <div class="response-progress-fact"></div>
+        <div class="response-progress-diagnostics"></div>
       </div>
       <div class="response-progress-track" aria-hidden="true">
         <div class="response-progress-fill"></div>
       </div>`;
 
     const factEl = card.querySelector(".response-progress-fact");
+    const diagnosticsEl = card.querySelector(".response-progress-diagnostics");
     const fill = card.querySelector(".response-progress-fill");
     factEl.textContent = cleanInterfaceText(fact);
     const samples = {};
+    const diagnosticLines = [];
     let stage = initialStage;
     let stageStartedAt = performance.now();
     let stageStartPercent = 2;
@@ -10425,6 +10474,11 @@ function isSamePlayback(button, type, id) {
 
     return {
       element: card,
+      addTiming(label, duration, detail = "") {
+        const milliseconds = Math.max(0, Math.round(Number(duration) || 0));
+        diagnosticLines.push(`${label}: ${(milliseconds / 1000).toFixed(2)}s${detail ? ` (${detail})` : ""}`);
+        if (diagnosticsEl) diagnosticsEl.textContent = diagnosticLines.join(" | ");
+      },
       setStage(nextStage) {
         if (stopped || nextStage === stage || !stages.includes(nextStage)) return;
         render();
@@ -10445,7 +10499,10 @@ function isSamePlayback(button, type, id) {
         clearInterval(timer);
         fill.style.width = "100%";
         saveResponseTimings(samples);
-        window.setTimeout(() => card.remove(), 180);
+        if (diagnosticsEl) {
+          diagnosticsEl.textContent = `Completed | ${diagnosticLines.join(" | ")}`;
+        }
+        window.setTimeout(() => card.remove(), 15000);
       },
       remove() {
         stopped = true;
@@ -10535,12 +10592,30 @@ function isSamePlayback(button, type, id) {
     }
 
     progress?.setStage("speech");
+    const speechStartedAt = performance.now();
+    const bonusStartedAt = performance.now();
     let [fullSpeech, preparedBonusWords] = await Promise.all([
-      fetchFullSpeech(data.reply, language),
-      preparedBonusWordsPromise
+      fetchFullSpeech(data.reply, language).then(result => {
+        progress?.addTiming?.(
+          "Prompt speech",
+          performance.now() - speechStartedAt,
+          result?.serverTiming?.speechMs != null
+            ? `server ${result.serverTiming.speechMs}ms`
+            : ""
+        );
+        return result;
+      }),
+      preparedBonusWordsPromise.then(result => {
+        progress?.addTiming?.(
+          "Bonus queue",
+          performance.now() - bonusStartedAt
+        );
+        return result;
+      })
     ]);
 
     progress?.setStage("decode");
+    const decodeStartedAt = performance.now();
     if (!fullSpeech.audioBuffer) {
       const arrayBuffer = base64ToArrayBuffer(fullSpeech.audioBase64);
       fullSpeech.audioBuffer = await getAudioContext().decodeAudioData(arrayBuffer);
@@ -10553,6 +10628,7 @@ function isSamePlayback(button, type, id) {
         throw new Error("The complete prompt recording could not be prepared.");
       }
     }
+    progress?.addTiming?.("Audio decode and completeness check", performance.now() - decodeStartedAt);
 
     if (autoplay) {
       await unlockAudioContext();
@@ -10642,6 +10718,7 @@ function isSamePlayback(button, type, id) {
     });
   }
 
+const conversationalRequestStartedAt = performance.now();
 const responsePromise = generatePreparedChatTurn(
   {
       messages,
@@ -10652,7 +10729,23 @@ const responsePromise = generatePreparedChatTurn(
       bonusQueueReady: options.bonusQueueReady || null
   },
   "Chat"
-);
+).then(result => {
+  const clientTiming = result?.data?.clientTiming;
+  const serverTiming = result?.data?.serverTiming;
+  const details = [];
+  if (clientTiming) {
+    details.push(`session ${clientTiming.sessionMs}ms`);
+    details.push(`network ${clientTiming.networkMs}ms`);
+  }
+  if (serverTiming?.preAiMs != null) details.push(`server setup ${serverTiming.preAiMs}ms`);
+  if (serverTiming?.chatMs != null) details.push(`server AI ${serverTiming.chatMs}ms`);
+  progress?.addTiming?.(
+    "Conversation request",
+    performance.now() - conversationalRequestStartedAt,
+    details.join(", ")
+  );
+  return result;
+});
 
   return {
     userText,
@@ -10892,6 +10985,21 @@ async function handleSpeechTranscriptCore(transcript, responseMode = "speech") {
   if (!transcript.trim()) return;
 
   const responseProgress = addResponseProgress("language");
+  if (lastTranscriptionTiming) {
+    const transcriptionDetails = [];
+    if (lastTranscriptionTiming.networkMs != null) {
+      transcriptionDetails.push(`network ${lastTranscriptionTiming.networkMs}ms`);
+    }
+    if (lastTranscriptionTiming.serverMs != null) {
+      transcriptionDetails.push(`server AI ${lastTranscriptionTiming.serverMs}ms`);
+    }
+    responseProgress.addTiming?.(
+      "Transcription",
+      lastTranscriptionTiming.totalMs,
+      transcriptionDetails.join(", ")
+    );
+    lastTranscriptionTiming = null;
+  }
   const isSpeechResponse = responseMode === "speech";
   const isCorrectionRetry = isSpeechResponse && correctionRetryMode;
 const retrySourceMode = isCorrectionRetry ? correctionRetrySourceMode : "";
@@ -10922,6 +11030,7 @@ if (!isCorrectionRetry) {
 
   let analysis;
 
+  const responseAnalysisStartedAt = performance.now();
   try {
     analysis = await analyzeUserMessageLanguageParts(
       transcript,
@@ -10942,6 +11051,13 @@ if (!isCorrectionRetry) {
             ? retryPriorGrammar?.title || ""
             : ""
       }
+    );
+    responseProgress.addTiming?.(
+      "Response analysis",
+      performance.now() - responseAnalysisStartedAt,
+      analysis?.serverTiming?.analysisMs != null
+        ? `server AI ${analysis.serverTiming.analysisMs}ms`
+        : ""
     );
   } catch (error) {
     console.warn("response analysis failed", error);
@@ -11031,6 +11147,7 @@ if (!pendingBackgroundBot || pendingBackgroundBot.userText !== reviewedTranscrip
 }
 
 let pointsAward;
+const accountUpdatesStartedAt = performance.now();
 try {
   if ((!responseMakesSense || !confirmedSpokenText) && expectedTargetForAnswer) {
     await markReviewWordMissed(
@@ -11063,6 +11180,10 @@ try {
     analysis.targetProduced
   );
 } finally {
+  responseProgress.addTiming?.(
+    "Account and vocabulary updates",
+    performance.now() - accountUpdatesStartedAt
+  );
   releaseBonusQueue?.();
 }
 
@@ -12489,6 +12610,8 @@ function getAudioFileName(mimeType) {
   return `recording.${getAudioFileExtension(mimeType)}`;
 }
 
+let lastTranscriptionTiming = null;
+
 async function transcribeAudioBlob(audioBlob, mimeType, context = {}) {
   if (!audioBlob || audioBlob.size < 1000) {
     throw new Error("The recording was too short or empty.");
@@ -12528,6 +12651,7 @@ async function transcribeAudioBlob(audioBlob, mimeType, context = {}) {
   formData.append("precedingMessage", answerContext);
   formData.append("practiceWord", practiceWord);
 
+  const transcriptionStartedAt = performance.now();
   const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
     method: "POST",
     headers: await getFunctionHeaders(false, false),
@@ -12561,6 +12685,12 @@ async function transcribeAudioBlob(audioBlob, mimeType, context = {}) {
   if (!transcript.trim()) {
     throw new Error("No transcript was returned.");
   }
+
+  lastTranscriptionTiming = {
+    totalMs: Math.round(performance.now() - transcriptionStartedAt),
+    networkMs: Math.round(performance.now() - transcriptionStartedAt),
+    serverMs: data?.serverTiming?.transcriptionMs ?? null
+  };
 
   return transcript.trim();
 }
@@ -13545,11 +13675,24 @@ function showConfirmationResult(correct) {
   });
 }
 
+function showLatencyDiagnostic(message) {
+  document.querySelector(".latency-diagnostic-toast")?.remove();
+  const toast = document.createElement("div");
+  toast.className = "latency-diagnostic-toast";
+  toast.setAttribute("role", "status");
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  window.setTimeout(() => toast.remove(), 20000);
+}
+
 async function submitWordConfirmation(answer) {
   const word = confirmationQueue[confirmationIndex];
   if (!word || !answer.trim()) return;
   submitWordConfirmationButton.disabled = true;
   if (confirmationFeedback) confirmationFeedback.textContent = "Checking...";
+  const wordCheckStartedAt = performance.now();
+  const transcriptionTiming = lastTranscriptionTiming;
+  lastTranscriptionTiming = null;
   try {
     const data = await callChatFunction({
       action:"confirm-word",
@@ -13559,13 +13702,34 @@ async function submitWordConfirmation(answer) {
       chatLanguage:word.language,
       fluentLanguage:getCurrentFluentLanguage()
     },"Word confirmation");
+    const clientTiming = data?.clientTiming || {};
+    const serverTiming = data?.serverTiming || {};
+    const diagnosticParts = [];
+    if (transcriptionTiming) {
+      diagnosticParts.push(
+        `transcription ${(transcriptionTiming.totalMs / 1000).toFixed(2)}s` +
+        (transcriptionTiming.serverMs != null
+          ? ` (server AI ${transcriptionTiming.serverMs}ms)`
+          : "")
+      );
+    }
+    diagnosticParts.push(`word check ${((performance.now() - wordCheckStartedAt) / 1000).toFixed(2)}s`);
+    if (clientTiming.sessionMs != null) diagnosticParts.push(`session ${clientTiming.sessionMs}ms`);
+    if (clientTiming.networkMs != null) diagnosticParts.push(`network ${clientTiming.networkMs}ms`);
+    if (serverTiming.authenticationMs != null) diagnosticParts.push(`server auth ${serverTiming.authenticationMs}ms`);
+    if (serverTiming.evaluationMs != null) diagnosticParts.push(`server AI ${serverTiming.evaluationMs}ms`);
     if (!data.correct) {
+      showLatencyDiagnostic(`Word confirmation timing: ${diagnosticParts.join(" | ")}`);
       if (confirmationFeedback) confirmationFeedback.textContent = "Not quite. Try another translation, or choose \"I don't remember.\"";
       await showConfirmationResult(false);
       return;
     }
     saveConfirmedWord(word); confirmedThisRun += 1;
+    const saveStartedAt = performance.now();
     await recordWordStats([word],"familiar",word.language);
+    diagnosticParts.push(`save result ${((performance.now() - saveStartedAt) / 1000).toFixed(2)}s`);
+    diagnosticParts.push(`complete ${((performance.now() - wordCheckStartedAt) / 1000).toFixed(2)}s`);
+    showLatencyDiagnostic(`Word confirmation timing: ${diagnosticParts.join(" | ")}`);
     await showConfirmationResult(true);
     confirmationIndex += 1; renderConfirmationWord();
   } catch (error) {
