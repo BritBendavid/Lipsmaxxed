@@ -6867,7 +6867,7 @@ async function getOrdinaryReviewIntervalTurns(wordKey, language) {
     : 100;
 }
 
-async function markReviewWordSpoken(word, languageOverride = null) {
+async function markReviewWordSpoken(word, languageOverride = null, prefetched = null) {
   if (!currentUser) return;
 
   const language = languageOverride || languageSelect.value;
@@ -6887,7 +6887,9 @@ async function markReviewWordSpoken(word, languageOverride = null) {
   const now = new Date().toISOString();
 
   const lookupKeys = [...new Set([wordKey, legacyWordKey].filter(Boolean))];
-  const { data: existingRows, error: selectError } = await timeAccountOperation("review target read", () => supabaseClient
+  const { data: existingRows, error: selectError } = prefetched
+    ? { data: prefetched.filter(row => lookupKeys.includes(row.word_key)), error: null }
+    : await timeAccountOperation("review target read", () => supabaseClient
     .from("word_review_targets")
     .select("*")
     .eq("user_id", currentUser.id)
@@ -7363,9 +7365,45 @@ async function recordUserWordsAndAwardPoints(
     );
     if (error) throw error;
   }
-  // Distinct review targets retain ordered updates, avoiding alias races.
-  for (const word of reviewsToMark.values()) {
-    await timeAccountOperation("spoken target scheduling", () => markReviewWordSpoken(word, language));
+  if (reviewsToMark.size) {
+    const frequencyWords = await timeAccountOperation("review frequency lookup", () => getRankedFrequencyList(language));
+    const { frequencyByKey, legacyFormToLexemeKey } = buildFrequencyCompatibilityMaps(frequencyWords);
+    const lookupKeys = new Set();
+    const canonicalReviews = new Map();
+    for (const word of reviewsToMark.values()) {
+      const normalized = normalizeVocabularyTarget(word);
+      const key = frequencyByKey.has(normalized.word_key) ? normalized.word_key
+        : legacyFormToLexemeKey.get(normalized.word_key) || normalized.word_key;
+      lookupKeys.add(key);
+      lookupKeys.add(normalizeStatsWord(normalized.word_text));
+      if (!canonicalReviews.has(key)) canonicalReviews.set(key, word);
+    }
+    lookupKeys.delete("");
+    const { data: reviewRows, error } = await timeAccountOperation(
+      "review targets batch read", () => supabaseClient.from("word_review_targets")
+        .select("*").eq("user_id", statsUserId).eq("language", language)
+        .in("word_key", [...lookupKeys])
+    );
+    if (error) throw error;
+    const visited = new Set();
+    const tasks = [];
+    for (const [key, word] of canonicalReviews) {
+      const legacy = normalizeStatsWord(normalizeVocabularyTarget(word).word_text);
+      const row = (reviewRows || []).find(row => row.word_key === key) ||
+        (reviewRows || []).find(row => row.word_key === legacy);
+      const identity = row?.id || key;
+      if (visited.has(identity)) continue;
+      visited.add(identity);
+      tasks.push(() => markReviewWordSpoken(word, language, reviewRows || []));
+    }
+    // Distinct records only; bounded concurrency, and wait for every write.
+    for (let offset = 0; offset < tasks.length; offset += 4) {
+      await timeAccountOperation("review target updates", async () => {
+        const results = await Promise.allSettled(tasks.slice(offset, offset + 4).map(task => task()));
+        const failed = results.find(result => result.status === "rejected");
+        if (failed) throw failed.reason;
+      });
+    }
   }
 
   const bonusWordsSaid = Math.min(2, spokenBonusWordKeys.size);
