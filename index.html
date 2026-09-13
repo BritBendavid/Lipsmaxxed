@@ -5380,7 +5380,10 @@ function normalizeVocabularyTarget(value, fallbackUpostag = "X") {
   };
 }
 
+const frequencyCompatibilityCache = new WeakMap();
 function buildFrequencyCompatibilityMaps(frequencyWords) {
+  const cached = frequencyWords && frequencyCompatibilityCache.get(frequencyWords);
+  if (cached) return cached;
   const frequencyByKey = new Map();
   const legacyFormToLexemeKey = new Map();
 
@@ -5398,7 +5401,9 @@ function buildFrequencyCompatibilityMaps(frequencyWords) {
     }
   }
 
-  return { frequencyByKey, legacyFormToLexemeKey };
+  const result = { frequencyByKey, legacyFormToLexemeKey };
+  if (frequencyWords) frequencyCompatibilityCache.set(frequencyWords, result);
+  return result;
 }
 
 function aggregateStatsByLexeme(statsRows, frequencyWords) {
@@ -6872,21 +6877,23 @@ async function markReviewWordSpoken(word, languageOverride = null) {
 
   if (!wordKey) return;
 
-  const scheduling = await getWordSchedulingBand(wordKey, language);
-  if (scheduling.target) {
-    wordKey = scheduling.target.word_key;
-  }
+  // Only canonical identity is needed here; no account-wide frontier query.
+  const frequencyWords = await timeAccountOperation("frequency list lookup", () => getRankedFrequencyList(language));
+  const { frequencyByKey, legacyFormToLexemeKey } =
+    buildFrequencyCompatibilityMaps(frequencyWords);
+  wordKey = frequencyByKey.has(wordKey)
+    ? wordKey : legacyFormToLexemeKey.get(wordKey) || wordKey;
 
   const now = new Date().toISOString();
 
   const lookupKeys = [...new Set([wordKey, legacyWordKey].filter(Boolean))];
-  const { data: existingRows, error: selectError } = await supabaseClient
+  const { data: existingRows, error: selectError } = await timeAccountOperation("review target read", () => supabaseClient
     .from("word_review_targets")
     .select("*")
     .eq("user_id", currentUser.id)
     .eq("language", language)
     .in("word_key", lookupKeys)
-    .limit(2);
+    .limit(2));
 
   if (selectError) {
     console.warn("review spoken select failed", selectError);
@@ -6897,18 +6904,18 @@ async function markReviewWordSpoken(word, languageOverride = null) {
 
   if (!existing) {
     if (getCurrentAnswerBonusKeys().has(wordKey)) {
-      const ordinaryInterval = await getOrdinaryReviewIntervalTurns(wordKey, language);
+      const ordinaryInterval = await timeAccountOperation("review interval calculation", () => getOrdinaryReviewIntervalTurns(wordKey, language));
       setReviewCooldown(wordKey, ordinaryInterval);
     }
     return;
   }
 
   if (!isForcedReviewReason(existing.reason)) {
-    await supabaseClient
+    await timeAccountOperation("ordinary review delete", () => supabaseClient
       .from("word_review_targets")
       .delete()
-      .eq("id", existing.id);
-    const ordinaryInterval = await getOrdinaryReviewIntervalTurns(wordKey, language);
+      .eq("id", existing.id));
+    const ordinaryInterval = await timeAccountOperation("review interval calculation", () => getOrdinaryReviewIntervalTurns(wordKey, language));
     setReviewCooldown(wordKey, ordinaryInterval);
     return;
   }
@@ -6917,10 +6924,10 @@ async function markReviewWordSpoken(word, languageOverride = null) {
   const nextStage = Math.min(currentStage + 1, REGULAR_REVIEW_STAGE);
 
   if (nextStage >= REGULAR_REVIEW_STAGE) {
-    const { error: completionError } = await supabaseClient
+    const { error: completionError } = await timeAccountOperation("completed review delete", () => supabaseClient
       .from("word_review_targets")
       .delete()
-      .eq("id", existing.id);
+      .eq("id", existing.id));
 
     if (completionError) {
       console.warn("review sequence completion failed", completionError);
@@ -6929,7 +6936,7 @@ async function markReviewWordSpoken(word, languageOverride = null) {
 
     // The forced 0/5/20/100 sequence is finished. From this point on the
     // corpus-derived low-usage calculation alone decides when it returns.
-    const ordinaryInterval = await getOrdinaryReviewIntervalTurns(wordKey, language);
+    const ordinaryInterval = await timeAccountOperation("review interval calculation", () => getOrdinaryReviewIntervalTurns(wordKey, language));
     setReviewCooldown(wordKey, ordinaryInterval);
     vocabularyProfileCache.delete(`${currentUser.id}|${language}`);
     return;
@@ -6937,7 +6944,7 @@ async function markReviewWordSpoken(word, languageOverride = null) {
 
   setReviewCooldown(wordKey, REVIEW_RETURN_TURNS[nextStage]);
 
-  const { error: updateError } = await supabaseClient
+  const { error: updateError } = await timeAccountOperation("review stage write", () => supabaseClient
     .from("word_review_targets")
     .update({
       last_spoken_at: now,
@@ -6946,7 +6953,7 @@ async function markReviewWordSpoken(word, languageOverride = null) {
       reason: "spoken",
       updated_at: now
     })
-    .eq("id", existing.id);
+    .eq("id", existing.id));
 
   if (updateError) {
     console.warn("review spoken update failed", updateError);
@@ -7123,6 +7130,34 @@ async function getDueReviewTarget(languageOverride = null) {
   return data || null;
 }
     
+// Bounded metadata-only diagnostics, including operations still pending.
+const accountOperationTimings = [];
+window.lipsMaxxedAccountTimings = accountOperationTimings;
+async function timeAccountOperation(label, operation) {
+  const started = performance.now();
+  const entry = { operation: label, status: "pending", elapsedMs: 0 };
+  accountOperationTimings.push(entry);
+  if (accountOperationTimings.length > 100) accountOperationTimings.shift();
+  const pendingNotice = setInterval(() => {
+    entry.elapsedMs = Math.round(performance.now() - started);
+    if (entry.elapsedMs >= 8000) {
+      showLatencyDiagnostic(`Account update pending: ${label} (${(entry.elapsedMs / 1000).toFixed(1)}s)`);
+    }
+  }, 4000);
+  try {
+    const result = await operation();
+    entry.status = result?.error ? "failed" : "completed";
+    return result;
+  } catch (error) {
+    entry.status = "failed";
+    throw error;
+  } finally {
+    clearInterval(pendingNotice);
+    entry.elapsedMs = Math.round(performance.now() - started);
+    console.info("Account operation", { ...entry });
+  }
+}
+
 async function recordUserWordsAndAwardPoints(
   text,
   languageOverride = null,
@@ -7202,38 +7237,46 @@ async function recordUserWordsAndAwardPoints(
     }
   }
 
+  const statsUserId = currentUser.id;
+  // Canonicalize before the batched lookup; several forms can share one key.
+  const canonicalItems = new Map();
+  for (const item of wordCounts.values()) {
+    const matched = matchingCurrentBonusTargets(item);
+    const target = matched[0];
+    const key = String(target?.word_key || target?.lexemeKey || item.word_key);
+    const prior = canonicalItems.get(key);
+    if (prior) {
+      prior.count += item.count;
+      prior.matchedBonusTargets.push(...matched);
+    } else {
+      canonicalItems.set(key, {
+        ...item, word_key: key,
+        word_text: String(target?.lemma || target?.word_text || target?.word || item.word_text),
+        matchedBonusTargets: [...matched]
+      });
+    }
+  }
+  const { data: statsRows, error: statsError } = await timeAccountOperation(
+    "word_stats batch read", () => supabaseClient.from("word_stats").select("*")
+      .eq("user_id", statsUserId).eq("language", language)
+      .in("word_key", [...canonicalItems.keys()])
+  );
+  if (statsError) throw statsError;
+  const statsByKey = new Map((statsRows || []).map(row => [row.word_key, row]));
+  const statsWrites = [];
+  const reviewsToMark = new Map();
+  const queueSpokenReview = word => {
+    const normalized = normalizeVocabularyTarget(word);
+    if (normalized.word_key) reviewsToMark.set(normalized.word_key, word);
+  };
   let basePoints = 0;
 
   const spokenBonusWordKeys = new Set();
   const matchedBonusTargetKeys = new Set();
 
-  for (const item of wordCounts.values()) {
-    const matchedBonusTargets = matchingCurrentBonusTargets(item);
-    const canonicalBonusTarget = matchedBonusTargets[0] || null;
-    if (canonicalBonusTarget) {
-      const canonicalBonusKey = String(
-        canonicalBonusTarget.word_key || canonicalBonusTarget.lexemeKey || ""
-      ).trim();
-      if (canonicalBonusKey) item.word_key = canonicalBonusKey;
-      item.word_text = String(
-        canonicalBonusTarget.lemma || canonicalBonusTarget.word_text ||
-        canonicalBonusTarget.word || item.word_text
-      ).trim() || item.word_text;
-    }
-
-    const { data: existing, error: selectError } = await supabaseClient
-      .from("word_stats")
-      .select("*")
-      .eq("user_id", currentUser.id)
-      .eq("language", language)
-      .eq("word_key", item.word_key)
-      .maybeSingle();
-
-    if (selectError) {
-      console.warn("points word select failed", selectError);
-      continue;
-    }
-
+  for (const item of canonicalItems.values()) {
+    const matchedBonusTargets = item.matchedBonusTargets;
+    const existing = statsByKey.get(item.word_key);
     const previousSpokenCount = Number(existing?.spoken_count || 0);
     const occurrenceCount = Number(item.count || 0);
 
@@ -7263,7 +7306,7 @@ async function recordUserWordsAndAwardPoints(
       if (matchedBonusTargetKeys.has(bonusKey)) continue;
       matchedBonusTargetKeys.add(bonusKey);
       rememberSessionLearnedWord(bonusTarget, language);
-      await markReviewWordSpoken(bonusTarget, language);
+      queueSpokenReview(bonusTarget);
     }
 
     const next = existing || {
@@ -7281,21 +7324,23 @@ async function recordUserWordsAndAwardPoints(
     next.spoken_count = previousSpokenCount + occurrenceCount;
     next.last_encountered_at = now;
 
-    const { error: upsertError } = await supabaseClient
-      .from("word_stats")
-      .upsert(next, {
-        onConflict: "user_id,language,word_key"
-      });
-
-    if (upsertError) {
-      console.warn("points word upsert failed", upsertError);
-    }
+    // Uniform columns for mixed existing/new rows; never send a null primary
+    // key for new rows as a side effect of batching.
+    statsWrites.push({
+      user_id: statsUserId, language, word_key: item.word_key,
+      word_text: next.word_text,
+      familiar_count: Number(next.familiar_count || 0),
+      spoken_count: next.spoken_count,
+      translated_count: Number(next.translated_count || 0),
+      translated_spoken_baseline: next.translated_spoken_baseline ?? null,
+      last_encountered_at: now
+    });
 
     if (
       matchedBonusTargets.length === 0 &&
       (!expectedTargetKey || !bonusTargetMatchesProducedLexeme(expectedTarget, item))
     ) {
-      await markReviewWordSpoken(item, language);
+      queueSpokenReview(item);
     }
   }
 
@@ -7305,10 +7350,22 @@ async function recordUserWordsAndAwardPoints(
     } else if (reviewResult.targetProduced === true) {
       spokenBonusWordKeys.add(expectedTargetKey);
       rememberSessionLearnedWord(expectedTarget, language);
-      await markReviewWordSpoken(expectedTarget, language);
+      queueSpokenReview(expectedTarget);
     } else if (reviewResult.targetProduced === false) {
-      await markReviewWordMissed(expectedTarget, language);
+      await timeAccountOperation("missed target scheduling", () => markReviewWordMissed(expectedTarget, language));
     }
+  }
+
+  if (statsWrites.length) {
+    const { error } = await timeAccountOperation(
+      "word_stats batch write", () => supabaseClient.from("word_stats")
+        .upsert(statsWrites, { onConflict: "user_id,language,word_key" })
+    );
+    if (error) throw error;
+  }
+  // Distinct review targets retain ordered updates, avoiding alias races.
+  for (const word of reviewsToMark.values()) {
+    await timeAccountOperation("spoken target scheduling", () => markReviewWordSpoken(word, language));
   }
 
   const bonusWordsSaid = Math.min(2, spokenBonusWordKeys.size);
@@ -7327,12 +7384,12 @@ async function recordUserWordsAndAwardPoints(
     };
   }
 
-  const { data: existingPoints, error: pointsSelectError } = await supabaseClient
+  const { data: existingPoints, error: pointsSelectError } = await timeAccountOperation("points total read", () => supabaseClient
     .from("user_language_points")
     .select("*")
     .eq("user_id", currentUser.id)
     .eq("language", language)
-    .maybeSingle();
+    .maybeSingle());
 
   if (pointsSelectError) {
     console.warn("points total select failed", pointsSelectError);
@@ -7359,11 +7416,11 @@ async function recordUserWordsAndAwardPoints(
   nextPoints.total_points = newTotal;
   nextPoints.updated_at = now;
 
-  const { error: pointsUpsertError } = await supabaseClient
+  const { error: pointsUpsertError } = await timeAccountOperation("points total write", () => supabaseClient
     .from("user_language_points")
     .upsert(nextPoints, {
       onConflict: "user_id,language"
-    });
+    }));
 
   if (pointsUpsertError) {
     console.warn("points total upsert failed", pointsUpsertError);
@@ -11152,10 +11209,10 @@ let pointsAward;
 const accountUpdatesStartedAt = performance.now();
 try {
   if ((!responseMakesSense || !confirmedSpokenText) && expectedTargetForAnswer) {
-    await markReviewWordMissed(
+    await timeAccountOperation("missed answer scheduling", () => markReviewWordMissed(
       expectedTargetForAnswer,
       languageSelect.value
-    );
+    ));
   }
 
   pointsAward = confirmedSpokenText
