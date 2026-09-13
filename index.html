@@ -7445,23 +7445,23 @@ async function recordUserWordsAndAwardPoints(
   const previousTotal = Number(existingPoints?.total_points || 0);
   const newTotal = previousTotal + pointsGained;
 
-  const nextPoints = existingPoints || {
-    user_id: currentUser.id,
-    language,
-    total_points: 0
-  };
-
-  nextPoints.total_points = newTotal;
-  nextPoints.updated_at = now;
-
-  const { error: pointsUpsertError } = await timeAccountOperation("points total write", () => supabaseClient
-    .from("user_language_points")
-    .upsert(nextPoints, {
-      onConflict: "user_id,language"
-    }));
-
-  if (pointsUpsertError) {
-    console.warn("points total upsert failed", pointsUpsertError);
+  // This browser upsert was the operation observed hanging. The authenticated
+  // backend writes with the verified account ID and bypasses browser RLS state.
+  try {
+    const savedPoints = await timeAccountOperation(
+      "points total backend write",
+      () => callChatFunction({
+        action: "save-language-points",
+        language,
+        totalPoints: newTotal
+      }, "Points save", { timeoutMs: 8000 })
+    );
+    if (savedPoints?.serverTiming) {
+      console.info("Points save server timing", savedPoints.serverTiming);
+    }
+  } catch (error) {
+    console.warn("points total backend write failed", error);
+    showLatencyDiagnostic(`Points save delayed: ${getReadableError(error)}`);
   }
 
   if (activeChatSession) {
@@ -10029,8 +10029,9 @@ function getFunctionHeaders(forceRefresh = false, includeContentType = true) {
   return headers;
 }
 
-async function callChatFunction(payload, label = "Chat") {
+async function callChatFunction(payload, label = "Chat", options = {}) {
   const totalStartedAt = performance.now();
+  const timeoutMs = Math.max(0, Number(options.timeoutMs || 0));
   let responseTiming = null;
   for (let attempt = 0; attempt < 2; attempt += 1) {
     let response;
@@ -10046,11 +10047,20 @@ async function callChatFunction(payload, label = "Chat") {
           : {})
       });
       const networkStartedAt = performance.now();
-      response = await fetch(chatFunctionUrl(), {
-        method: "POST",
-        headers: getFunctionHeaders(),
-        body: requestBody
-      });
+      const controller = timeoutMs ? new AbortController() : null;
+      const timeoutId = controller
+        ? window.setTimeout(() => controller.abort(), timeoutMs)
+        : null;
+      try {
+        response = await fetch(chatFunctionUrl(), {
+          method: "POST",
+          headers: getFunctionHeaders(),
+          body: requestBody,
+          signal: controller?.signal
+        });
+      } finally {
+        if (timeoutId != null) window.clearTimeout(timeoutId);
+      }
       responseTiming = {
         label,
         attempt: attempt + 1,
@@ -10059,6 +10069,9 @@ async function callChatFunction(payload, label = "Chat") {
         totalMs: Math.round(performance.now() - totalStartedAt)
       };
     } catch (error) {
+      if (error?.name === "AbortError") {
+        throw new Error(`${label} timed out after ${Math.round(timeoutMs / 1000)} seconds.`);
+      }
       throw new Error(`${label} request failed before the server responded: ${getReadableError(error)}`);
     }
 
