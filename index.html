@@ -7183,6 +7183,49 @@ async function timeAccountOperation(label, operation) {
   }
 }
 
+async function writeWordStatsBatch(rows, expectedUserId) {
+  const controller = new AbortController();
+  let timer;
+  let stage = "session retrieval";
+  const deadline = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      controller.abort();
+      reject(new Error(`word_stats save timed out during ${stage}; save outcome is unconfirmed. Do not replay the answer to retry saving.`));
+    }, 15000);
+  });
+  const write = async () => {
+    const token = await timeAccountOperation("word_stats session retrieval", () => getValidFunctionAccessToken());
+    if (controller.signal.aborted) throw new Error("Statistics request expired before dispatch.");
+    if (token === SUPABASE_ANON_KEY || currentUser?.id !== expectedUserId) {
+      throw new Error("Statistics save stopped because the signed-in account changed.");
+    }
+    stage = "database response";
+    // Same user JWT and RLS permissions as the SDK. No service-role bypass.
+    const response = await timeAccountOperation("word_stats HTTP response", () => fetch(
+      `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/word_stats?on_conflict=user_id%2Clanguage%2Cword_key`,
+      {
+        method: "POST", signal: controller.signal,
+        headers: {
+          apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Prefer: "resolution=merge-duplicates,return=minimal"
+        },
+        body: JSON.stringify(rows)
+      }
+    ));
+    stage = "response body";
+    const body = await response.text();
+    if (!response.ok) {
+      let error;
+      try { error = JSON.parse(body); } catch { error = {}; }
+      throw new Error(`word_stats HTTP ${response.status}: ${error.code || ""} ${error.message || "Database write failed"}`);
+    }
+    return { error: null };
+  };
+  try { return await Promise.race([write(), deadline]); }
+  finally { clearTimeout(timer); }
+}
+
 async function recordUserWordsAndAwardPoints(
   text,
   languageOverride = null,
@@ -7383,8 +7426,7 @@ async function recordUserWordsAndAwardPoints(
 
   if (statsWrites.length) {
     const { error } = await timeAccountOperation(
-      "word_stats batch write", () => supabaseClient.from("word_stats")
-        .upsert(statsWrites, { onConflict: "user_id,language,word_key" })
+      "word_stats batch write", () => writeWordStatsBatch(statsWrites, statsUserId)
     );
     if (error) throw error;
   }
@@ -7537,6 +7579,7 @@ async function awardPointsForUserMessage(text, languageOverride = null, options 
     };
   } catch (error) {
     console.warn("points award failed", error);
+    showLatencyDiagnostic(`Account update failed: ${getReadableError(error)}`);
 
     return {
       pointsGained: 0,
@@ -10650,6 +10693,11 @@ function isSamePlayback(button, type, id) {
 
   async function generatePreparedChatTurn(payload, label = "Chat") {
     const language = payload.language || getCurrentChatLanguage();
+    const parentResponseId = activeConversationResponseId;
+    const requestSessionId = activeChatSession?.id || "";
+    if (!payload.isOpeningMessage && !/^resp_[a-zA-Z0-9_-]+$/.test(parentResponseId)) {
+      throw new Error("The preceding message has no secured context key. No follow-up was sent.");
+    }
     const clientTurnId = payload.clientTurnId || createClientTurnId();
     const bonusQueueReady = payload.bonusQueueReady || Promise.resolve();
     const backendPayload = { ...payload };
@@ -10683,7 +10731,7 @@ function isSamePlayback(button, type, id) {
       // The exact long-term record lives server-side. Keep only the immediate
       // conversational window in the request so latency does not grow forever.
       messages: Array.isArray(payload.messages) ? payload.messages.slice(-40) : [],
-      previousResponseId: activeConversationResponseId,
+      previousResponseId: parentResponseId,
       vocabularyProfile: promptVocabularyProfile,
       clientTurnId,
       previousFacts: [
@@ -10695,6 +10743,11 @@ function isSamePlayback(button, type, id) {
       prepareUpcomingWords(language, rows)
     );
     const data = await dataPromise;
+    if (!/^resp_[a-zA-Z0-9_-]+$/.test(String(data?.responseId || ""))) {
+      throw new Error("The reply has no valid context key and cannot be displayed.");
+    }
+    data.expectedParentResponseId = parentResponseId;
+    data.requestSessionId = requestSessionId;
 
     return {
       data,
@@ -10705,6 +10758,16 @@ function isSamePlayback(button, type, id) {
   }
 
   async function presentBotReply(data, progress, options = {}) {
+    const assertContext = () => {
+      if (!/^resp_[a-zA-Z0-9_-]+$/.test(String(data?.responseId || ""))) {
+        throw new Error("Reply withheld: missing context key.");
+      }
+      if (data.expectedParentResponseId !== activeConversationResponseId ||
+          data.requestSessionId !== (activeChatSession?.id || "")) {
+        throw new Error("Reply discarded: its conversation parent or chat session changed.");
+      }
+    };
+    assertContext();
     const autoplay = options.autoplay !== false;
     const language = options.language || getCurrentChatLanguage();
     const expectedTargetSource = options.expectedTarget || null;
@@ -10721,7 +10784,6 @@ function isSamePlayback(button, type, id) {
       progress?.remove();
       return null;
     }
-    if (clientTurnId) renderedBotTurnIds.add(clientTurnId);
 
     if (data.nextFunFact) {
       rememberLanguageFact(language, data.nextFunFact);
@@ -10773,6 +10835,9 @@ function isSamePlayback(button, type, id) {
     // Commit the OpenAI chain only when this prepared reply will enter the
     // visible transcript. Discarded correction/re-record branches must never
     // become the parent of the learner's next request.
+    assertContext();
+    if (clientTurnId && renderedBotTurnIds.has(clientTurnId)) return null;
+    if (clientTurnId) renderedBotTurnIds.add(clientTurnId);
     if (typeof data?.responseId === "string" && data.responseId) {
       activeConversationResponseId = data.responseId;
       if (activeChatSession) activeChatSession.responseId = data.responseId;
@@ -10875,7 +10940,6 @@ const responsePromise = generatePreparedChatTurn(
   }
   if (serverTiming?.preAiMs != null) details.push(`server setup ${serverTiming.preAiMs}ms`);
   if (serverTiming?.chatMs != null) details.push(`server AI ${serverTiming.chatMs}ms`);
-  if (result?.data?.contextRecovered) details.push("context key rebuilt");
   progress?.addTiming?.(
     "Conversation request",
     performance.now() - conversationalRequestStartedAt,
