@@ -6171,17 +6171,19 @@ async function startConfiguredChat() {
   await sendOpeningBotMessage();
 }
 
-async function sendOpeningBotMessage() {
+async function sendOpeningBotMessage(preparedRetry = null) {
   if (openingBotInFlight) return;
   openingBotInFlight = true;
   hideBonusWordsWhilePromptLoads();
   const progress = addResponseProgress("context");
   const language = getCurrentChatLanguage();
+  let prepared = preparedRetry;
+  const openingSessionId = activeChatSession?.id;
 
   try {
     progress.setStage("chat");
 
-    const prepared = await generatePreparedChatTurn(
+    prepared = prepared || await generatePreparedChatTurn(
       {
         messages: [{
           role: "user",
@@ -6207,6 +6209,18 @@ async function sendOpeningBotMessage() {
   } catch (error) {
     progress.remove();
     showSystemMessage(getReadableError(error));
+    // A tap can reactivate audio. Reuse the already-secured response instead
+    // of generating a different opening or resetting conversation context.
+    const retry = document.createElement("button");
+    retry.type = "button";
+    retry.textContent = prepared ? "Tap to retry opening playback" : "Retry opening reply";
+    retry.addEventListener("click", () => {
+      retry.remove();
+      if (activeChatSession?.id !== openingSessionId || activeConversationResponseId) return;
+      void primeAudioForAutoplay();
+      void sendOpeningBotMessage(prepared);
+    });
+    messageHistory.appendChild(retry);
   } finally {
     openingBotInFlight = false;
   }
@@ -7200,17 +7214,16 @@ async function writeWordStatsBatch(rows, expectedUserId) {
       throw new Error("Statistics save stopped because the signed-in account changed.");
     }
     stage = "database response";
-    // Same user JWT and RLS permissions as the SDK. No service-role bypass.
+    // The endpoint traces arrival and forwards this user's JWT, preserving RLS.
     const response = await timeAccountOperation("word_stats HTTP response", () => fetch(
-      `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/word_stats?on_conflict=user_id%2Clanguage%2Cword_key`,
+      chatFunctionUrl(),
       {
         method: "POST", signal: controller.signal,
         headers: {
-          apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${token}`,
+          ...getFunctionHeaders(),
           "Content-Type": "application/json",
-          Prefer: "resolution=merge-duplicates,return=minimal"
         },
-        body: JSON.stringify(rows)
+        body: JSON.stringify({ action: "save-word-stats", rows, userAccessToken: token })
       }
     ));
     stage = "response body";
@@ -7218,8 +7231,16 @@ async function writeWordStatsBatch(rows, expectedUserId) {
     if (!response.ok) {
       let error;
       try { error = JSON.parse(body); } catch { error = {}; }
-      throw new Error(`word_stats HTTP ${response.status}: ${error.code || ""} ${error.message || "Database write failed"}`);
+      throw new Error(`word_stats HTTP ${response.status}: ${error.code || ""} ${error.error || error.message || "Database write failed"} (trace ${error.traceId || "unavailable"})`);
     }
+    let receipt;
+    try { receipt = JSON.parse(body); } catch {}
+    if (receipt?.saved !== true || !receipt.traceId) {
+      throw new Error("Statistics save was not acknowledged. Deploy the matching backend before this frontend; do not replay the answer.");
+    }
+    console.info("word_stats save confirmed", {
+      traceId: receipt.traceId, serverTiming: receipt.serverTiming
+    });
     return { error: null };
   };
   try { return await Promise.race([write(), deadline]); }
@@ -10342,7 +10363,7 @@ async function primeAudioForAutoplay() {
     const context = getAudioContext();
 
     if (context.state !== "running" && context.state !== "closed") {
-      await context.resume();
+      await withOperationDeadline(context.resume(), 3000, "Audio activation needs another tap");
     }
 
     /*
@@ -10370,10 +10391,28 @@ async function primeAudioForAutoplay() {
     return audioContext;
   }
 
+  function withOperationDeadline(promise, milliseconds, label) {
+    let timer;
+    return Promise.race([
+      Promise.resolve(promise),
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(label)), milliseconds);
+      })
+    ]).finally(() => clearTimeout(timer));
+  }
+
+  function chatReplyReady() {
+    if (openingBotInFlight || !/^resp_[a-zA-Z0-9_-]+$/.test(activeConversationResponseId)) {
+      showSystemMessage("Wait for the opening reply and its context key before answering.");
+      return false;
+    }
+    return true;
+  }
+
   async function unlockAudioContext() {
     const context = getAudioContext();
     if (context.state !== "running" && context.state !== "closed") {
-      await context.resume();
+      await withOperationDeadline(context.resume(), 3000, "Audio activation needs another tap");
     }
     if (context.state !== "running") {
       throw new Error("Audio playback is waiting for another tap.");
@@ -10803,7 +10842,8 @@ function isSamePlayback(button, type, id) {
         );
         return result;
       }),
-      preparedBonusWordsPromise.then(result => {
+      withOperationDeadline(preparedBonusWordsPromise, 20000,
+        "Bonus queue preparation timed out; the reply has not been committed.").then(result => {
         progress?.addTiming?.(
           "Bonus queue",
           performance.now() - bonusStartedAt
@@ -10816,12 +10856,14 @@ function isSamePlayback(button, type, id) {
     const decodeStartedAt = performance.now();
     if (!fullSpeech.audioBuffer) {
       const arrayBuffer = base64ToArrayBuffer(fullSpeech.audioBase64);
-      fullSpeech.audioBuffer = await getAudioContext().decodeAudioData(arrayBuffer);
+      fullSpeech.audioBuffer = await withOperationDeadline(
+        getAudioContext().decodeAudioData(arrayBuffer), 10000, "Prompt audio decoding timed out");
     }
     if (!isLikelyCompleteSpeech(data.reply, fullSpeech.audioBuffer)) {
       fullSpeech = await fetchFullSpeech(data.reply, language, true);
       const replacementBytes = base64ToArrayBuffer(fullSpeech.audioBase64);
-      fullSpeech.audioBuffer = await getAudioContext().decodeAudioData(replacementBytes);
+      fullSpeech.audioBuffer = await withOperationDeadline(
+        getAudioContext().decodeAudioData(replacementBytes), 10000, "Replacement audio decoding timed out");
       if (!isLikelyCompleteSpeech(data.reply, fullSpeech.audioBuffer)) {
         throw new Error("The complete prompt recording could not be prepared.");
       }
@@ -11947,8 +11989,12 @@ async function handleMessagePlayButton(messageId, button) {
   }
 
   async function fetchFullSpeech(text, languageOverride = null, bypassCache = false) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 20000);
+  try {
   const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
     method: "POST",
+    signal: controller.signal,
     headers: await getFunctionHeaders(),
     body: JSON.stringify({
       action: "speak-full",
@@ -11959,11 +12005,18 @@ async function handleMessagePlayButton(messageId, button) {
   });
 
   const data = await parseJsonResponse(response, "Speech");
+  const bytes = base64ToArrayBuffer(data.audioBase64 || "");
+  if (!bytes.byteLength || (data.audioByteLength != null && bytes.byteLength !== data.audioByteLength)) {
+    throw new Error("Prompt audio transfer is incomplete.");
+  }
 
   return {
     ...data,
     audioBuffer: null
   };
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
   async function fetchIndividualWordSpeechForTokens(tokens, languageOverride = null) {
@@ -12754,6 +12807,7 @@ async function saveProfileSettings() {
 }
       
   async function handleSend() {
+  if (!chatReplyReady()) return;
   if (!userCanSendMessage()) {
   openChatSetup();
   return;
@@ -12967,6 +13021,7 @@ function startSilenceMonitor(stream) {
 }
 
 async function startRecording() {
+  if (!chatReplyReady()) return;
   if (isAudioPlaybackBusy()) {
     setSpeechStatus("Wait for the audio to finish before recording.");
     return;
@@ -13045,7 +13100,7 @@ async function startRecording() {
   stream.getTracks().forEach(track => track.stop());
   isRecording = false;
   microphoneBusy = false;
-  await unlockAudioContext().catch(error => {
+  void unlockAudioContext().catch(error => {
     console.warn("audio context did not resume after recording", error);
   });
   speechStartOverButton?.classList.add("hidden");
