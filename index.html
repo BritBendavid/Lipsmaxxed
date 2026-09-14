@@ -5533,11 +5533,12 @@ async function loadFrequencyFrontierTargets(languageOverride = null, limit = 2) 
 
   if (statsResult.error) {
     console.warn("frequency frontier stats failed", statsResult.error);
+    throw statsResult.error;
   }
 
   if (reviewResult.error) {
     console.warn("frequency frontier reviews failed", reviewResult.error);
-    return [];
+    throw reviewResult.error;
   }
 
   const { frequencyByKey, legacyFormToLexemeKey } =
@@ -5675,10 +5676,12 @@ function refreshFrequencyFrontierTargets(language) {
     })
     .catch(error => {
       console.warn("frequency frontier refresh failed", error);
-      return [];
+      throw error;
     })
     .finally(() => frequencyFrontierRequests.delete(cacheKey));
   frequencyFrontierRequests.set(cacheKey, request);
+  // Background refresh errors must propagate to callers without an unhandled rejection.
+  void request.catch(() => {});
 }
 
 async function getFrequencyFrontierTargets(languageOverride = null, limit = 2) {
@@ -6179,6 +6182,7 @@ async function sendOpeningBotMessage(preparedRetry = null) {
   const openingSessionId = activeChatSession?.id;
 
   try {
+    if (preparedRetry) prepared = { ...preparedRetry, ...prepareReplyBonusQueue(language) };
     progress.setStage("chat");
 
     prepared = prepared || await generatePreparedChatTurn(
@@ -7236,17 +7240,14 @@ async function statsRequest(action, fields, userId) {
     if (currentUser?.id !== userId || token === SUPABASE_ANON_KEY) {
       throw new Error("Statistics sync requires the original signed-in account.");
     }
-    // The SQL function already authenticates and scopes this user's JWT.
-    // Call it directly instead of adding an Edge Function hop to every save.
-    const sync = action === "stats-sync";
+    // Retain atomic SQL events, using the previously working backend transport.
     const response = await fetch(
-      `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/rpc/${sync ? "lm_apply_stats_events" : "lm_stats_snapshot"}`, {
+      chatFunctionUrl(), {
         method: "POST", signal: controller.signal,
         headers: {
-          apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
+          ...getFunctionHeaders()
         },
-        body: JSON.stringify(sync ? { p_events: fields.events } : { p_language: fields.language })
+        body: JSON.stringify({ action, ...fields, userAccessToken: token })
       }
     );
     const raw = await response.text();
@@ -7255,7 +7256,7 @@ async function statsRequest(action, fields, userId) {
     if (!response.ok || !data) {
       const code = String(data?.code || "no_database_code");
       const detail = String(data?.message || data?.error || (data ? "Request rejected" : "Non-JSON or empty response"));
-      const requestId = response.headers.get("sb-request-id") || response.headers.get("x-request-id") || "";
+      const requestId = data?.requestId || response.headers.get("sb-request-id") || response.headers.get("x-request-id") || "";
       const diagnostic = { action, status: response.status, code, detail, requestId };
       window.lipsMaxxedStatsLastError = diagnostic;
       console.warn("Statistics request failed", diagnostic);
@@ -10761,6 +10762,15 @@ function isSamePlayback(button, type, id) {
     };
   }
 
+  function prepareReplyBonusQueue(language, ready = Promise.resolve()) {
+    const targets = Promise.resolve(ready).then(() => getFrequencyFrontierTargets(language, 2));
+    return {
+      preparedBonusWordsPromise: targets.then(rows => prepareUpcomingWords(language, rows))
+        .catch(error => ({ language, rows: [], preparationError: getReadableError(error) })),
+      expectedTargetForReply: targets.then(rows => rows[0] || null, () => null)
+    };
+  }
+
   async function generatePreparedChatTurn(payload, label = "Chat") {
     const language = payload.language || getCurrentChatLanguage();
     const parentResponseId = activeConversationResponseId;
@@ -10772,12 +10782,7 @@ function isSamePlayback(button, type, id) {
     const bonusQueueReady = payload.bonusQueueReady || Promise.resolve();
     const backendPayload = { ...payload };
     delete backendPayload.bonusQueueReady;
-    const targetRowsPromise = Promise.resolve(bonusQueueReady)
-      .then(() => getFrequencyFrontierTargets(language, 2))
-      .catch(error => {
-        console.warn("frequency targets unavailable for response", error);
-        return [];
-      });
+    const bonusPreparation = prepareReplyBonusQueue(language, bonusQueueReady);
 
     // Bonus words are an independent practice queue. Only an already-cached
     // general familiarity profile may constrain question difficulty; target
@@ -10809,9 +10814,6 @@ function isSamePlayback(button, type, id) {
         ...getLanguageFactQueue(language)
       ].slice(-80)
     }, label);
-    const preparedBonusWordsPromise = targetRowsPromise.then(rows =>
-      prepareUpcomingWords(language, rows)
-    );
     const data = await dataPromise;
     if (!/^resp_[a-zA-Z0-9_-]+$/.test(String(data?.responseId || ""))) {
       throw new Error("The reply has no valid context key and cannot be displayed.");
@@ -10822,8 +10824,7 @@ function isSamePlayback(button, type, id) {
     return {
       data,
       clientTurnId,
-      preparedBonusWordsPromise,
-      expectedTargetForReply: targetRowsPromise.then(rows => rows[0] || null)
+      ...bonusPreparation
     };
   }
 
@@ -10883,6 +10884,30 @@ function isSamePlayback(button, type, id) {
       })
     ]);
 
+    if (preparedBonusWords?.preparationError) {
+      if (!isOpeningMessage) {
+        const retry = document.createElement("button");
+        retry.type = "button";
+        retry.textContent = "Retry loading reply and bonus words";
+        retry.addEventListener("click", async () => {
+          retry.remove();
+          void primeAudioForAutoplay();
+          const nextProgress = addResponseProgress("speech");
+          const nextBonus = prepareReplyBonusQueue(language);
+          try {
+            await presentBotReply(data, nextProgress, {
+              ...options, preparedBonusWordsPromise: nextBonus.preparedBonusWordsPromise,
+              expectedTarget: nextBonus.expectedTargetForReply
+            });
+          } catch (error) {
+            nextProgress.remove();
+            showSystemMessage(getReadableError(error));
+          }
+        });
+        messageHistory.appendChild(retry);
+      }
+      throw new Error(`Bonus words could not be prepared: ${preparedBonusWords.preparationError}. The reply has not been displayed or committed.`);
+    }
     progress?.setStage("decode");
     const decodeStartedAt = performance.now();
     if (!fullSpeech.audioBuffer) {
