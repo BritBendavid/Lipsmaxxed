@@ -6645,11 +6645,17 @@ function sortRowsByReviewExpiration(rows) {
   });
 }
 
+let pointsBadgeLanguage = null;
+let pointsLoadGeneration = 0;
+
 function setPointsBadgeValue(points, language = languageSelect.value) {
+  if (pointsAnimationFrame) cancelAnimationFrame(pointsAnimationFrame);
+  pointsAnimationFrame = null;
   currentLanguagePoints = Number(points || 0);
 
   if (accountPointsValue) {
     accountPointsValue.textContent = String(currentLanguagePoints);
+    accountPointsValue.title = "";
   }
 
   const ring = accountPointsBadge?.querySelector(".account-points-ring");
@@ -6672,26 +6678,65 @@ function setPointsBadgeVisible(isVisible) {
 async function loadLanguagePoints(languageOverride = null) {
   const fallbackLanguage = getCurrentChatLanguage();
   const language = languageOverride || fallbackLanguage;
+  const userId = currentUser?.id;
+  const generation = ++pointsLoadGeneration;
+  pointsBadgeLanguage = language;
+  if (pointsAnimationFrame) cancelAnimationFrame(pointsAnimationFrame);
+  pointsAnimationFrame = null;
 
-  if (!currentUser) {
+  if (!userId) {
     setPointsBadgeVisible(false);
     setPointsBadgeValue(0, language);
     return;
   }
 
-  const snapshot = await getWordStatsSnapshot(language);
-  const error = snapshot.error;
-  const data = { total_points: snapshot.total };
-
-  if (error) {
-    console.warn("points load failed", error);
-    setPointsBadgeValue(0, language);
-    setPointsBadgeVisible(true);
-    return;
-  }
-
-  setPointsBadgeValue(Number(data?.total_points || 0), language);
+  const entry = statsSnapshotEntry(userId, language);
   setPointsBadgeVisible(true);
+  if (entry.totalKnown || entry.revision >= 0) {
+    setPointsBadgeValue(entry.total, language);
+  } else {
+    currentLanguagePoints = 0;
+    if (accountPointsValue) {
+      accountPointsValue.textContent = "…";
+      accountPointsValue.title = "Loading points";
+    }
+    accountPointsBadge?.querySelector(".account-points-ring")?.style.setProperty("--points-fill", "0deg");
+  }
+  // A profile total must not download the entire vocabulary or depend on its RPC.
+  // Share concurrent reads, but refresh on later language switches.
+  if (!entry.pointsLoading) {
+    const revisionAtStart = entry.revision;
+    const controller = new AbortController();
+    entry.pointsLoading = Promise.resolve().then(async () => {
+      try {
+        const result = await withOperationDeadline(
+          supabaseClient.from("user_language_points").select("total_points")
+            .eq("user_id", userId).eq("language", language).maybeSingle()
+            .abortSignal(controller.signal),
+          8000, "Points total could not be loaded."
+        );
+        if (result.error) throw result.error;
+        if (currentUser?.id !== userId) throw new Error("Account changed while loading points.");
+        // A completed stats write/snapshot is newer than this in-flight read.
+        if (entry.revision === revisionAtStart) {
+          entry.total = Number(result.data?.total_points ?? 0);
+          entry.totalKnown = true;
+        }
+        return { error: null };
+      } catch (error) { return { error }; }
+      finally { controller.abort(); entry.pointsLoading = null; }
+    });
+  }
+  const { error } = await entry.pointsLoading;
+  if (currentUser?.id !== userId || generation !== pointsLoadGeneration) return;
+  if (entry.totalKnown || entry.revision >= 0) setPointsBadgeValue(entry.total, language);
+  if (error) {
+    console.warn("points total read failed", error);
+    if (accountPointsValue) {
+      if (!entry.totalKnown && entry.revision < 0) accountPointsValue.textContent = "—";
+      accountPointsValue.title = "Points could not be refreshed. Switch language or reopen your profile to retry.";
+    }
+  }
 }
 
 function animatePointsTotal(fromValue, toValue, language) {
@@ -6708,6 +6753,7 @@ function animatePointsTotal(fromValue, toValue, language) {
   const start = performance.now();
 
   function tick(now) {
+    if (pointsBadgeLanguage && language !== pointsBadgeLanguage) return;
     const progress = Math.min(1, (now - start) / duration);
     const eased = 1 - Math.pow(1 - progress, 3);
     const value = Math.round(from + (to - from) * eased);
@@ -7257,7 +7303,8 @@ async function statsRequest(action, fields, userId) {
       const code = String(data?.code || "no_database_code");
       const detail = String(data?.message || data?.error || (data ? "Request rejected" : "Non-JSON or empty response"));
       const requestId = data?.requestId || response.headers.get("sb-request-id") || response.headers.get("x-request-id") || "";
-      const diagnostic = { action, status: response.status, code, detail, requestId };
+      const diagnostic = { action, status: response.status, code, detail, requestId,
+        upstream: data?.diagnostic || null };
       window.lipsMaxxedStatsLastError = diagnostic;
       console.warn("Statistics request failed", diagnostic);
       const error = new Error(`Statistics HTTP ${response.status} [${code}]: ${detail}${requestId ? ` (request ${requestId})` : ""}`);
@@ -7302,6 +7349,7 @@ async function getWordStatsSnapshot(language, force = false) {
       if (revision >= entry.revision) entry.total = Number(result.total || 0);
       entry.revision = Math.max(entry.revision, revision);
       entry.loaded = true;
+      entry.totalKnown = true;
       entry.loadedAt = Date.now();
       return { data: [...rows.values()], error: null, total: entry.total };
     } catch (error) {
@@ -7329,8 +7377,9 @@ function applyStatsSyncResult(userId, result) {
     const entry = statsSnapshotEntry(userId, total.language);
     if (revision >= entry.revision) {
       entry.total = Number(total.total || 0);
+      entry.totalKnown = true;
       entry.revision = revision;
-      if (total.language === getCurrentChatLanguage()) setPointsBadgeValue(entry.total, total.language);
+      if (total.language === (pointsBadgeLanguage || getCurrentChatLanguage())) setPointsBadgeValue(entry.total, total.language);
     }
   }
 }
