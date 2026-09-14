@@ -5523,11 +5523,7 @@ async function loadFrequencyFrontierTargets(languageOverride = null, limit = 2) 
   const language = languageOverride || getCurrentChatLanguage();
   const [frequencyWords, statsResult, reviewResult] = await Promise.all([
     getRankedFrequencyList(language),
-    supabaseClient
-      .from("word_stats")
-      .select("word_key, word_text, spoken_count, familiar_count, translated_count")
-      .eq("user_id", currentUser.id)
-      .eq("language", language),
+    getWordStatsSnapshot(language),
     supabaseClient
       .from("word_review_targets")
       .select("*")
@@ -5903,13 +5899,11 @@ async function getVocabularyProfileForPrompt(languageOverride = null, frontierOv
     return { ...cached.value, ...targetProfile };
   }
 
-  const { data, error } = await supabaseClient
-    .from("word_stats")
-    .select("word_text, familiar_count, spoken_count, translated_count, translated_spoken_baseline, last_encountered_at")
-    .eq("user_id", currentUser.id)
-    .eq("language", language)
-    .order("last_encountered_at", { ascending: false })
-    .limit(3000);
+  const snapshot = await getWordStatsSnapshot(language);
+  const error = snapshot.error;
+  const data = (snapshot.data || []).slice()
+    .sort((a,b) => String(b.last_encountered_at).localeCompare(String(a.last_encountered_at)))
+    .slice(0, 3000);
 
   if (error) {
     console.warn("vocabulary profile load failed", error);
@@ -6166,6 +6160,10 @@ async function startConfiguredChat() {
 
   closeChatSetup();
 
+  // Refresh once at chat start; all word-stat consumers share this request.
+  const statsEntry = currentUser && statsSnapshotEntry(currentUser.id, selectedChatLanguage);
+  if (statsEntry) statsEntry.loaded = false;
+  void flushStatsOutbox();
   loadLanguagePoints(selectedChatLanguage).catch(() => {});
 
   await sendOpeningBotMessage();
@@ -6310,11 +6308,7 @@ async function getWordSchedulingBand(wordKey, language) {
 
   if (!target) return { band: "far", target: null, frontierRank: 0 };
 
-  const { data, error } = await supabaseClient
-    .from("word_stats")
-    .select("word_key, spoken_count")
-    .eq("user_id", currentUser.id)
-    .eq("language", language);
+  const { data, error } = await getWordStatsSnapshot(language);
 
   if (error) {
     console.warn("review scheduling frontier failed", error);
@@ -6681,12 +6675,9 @@ async function loadLanguagePoints(languageOverride = null) {
     return;
   }
 
-  const { data, error } = await supabaseClient
-    .from("user_language_points")
-    .select("total_points")
-    .eq("user_id", currentUser.id)
-    .eq("language", language)
-    .maybeSingle();
+  const snapshot = await getWordStatsSnapshot(language);
+  const error = snapshot.error;
+  const data = { total_points: snapshot.total };
 
   if (error) {
     console.warn("points load failed", error);
@@ -7012,14 +7003,11 @@ async function ensureStaleSpokenWordsAreReviewTargets(languageOverride = null) {
   const language = languageOverride || languageSelect.value;
   const sixDaysAgo = new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString();
 
-  const { data, error } = await supabaseClient
-    .from("word_stats")
-    .select("*")
-    .eq("user_id", currentUser.id)
-    .eq("language", language)
-    .lt("last_encountered_at", sixDaysAgo)
-    .order("last_encountered_at", { ascending: true })
-    .limit(20);
+  const snapshot = await getWordStatsSnapshot(language);
+  const error = snapshot.error;
+  const data = (snapshot.data || []).filter(row => row.last_encountered_at < sixDaysAgo)
+    .sort((a,b) => String(a.last_encountered_at).localeCompare(String(b.last_encountered_at)))
+    .slice(0, 20);
 
   if (error) {
     console.warn("stale word lookup failed", error);
@@ -7197,55 +7185,223 @@ async function timeAccountOperation(label, operation) {
   }
 }
 
-async function writeWordStatsBatch(rows, expectedUserId) {
-  const controller = new AbortController();
-  let timer;
-  let stage = "session retrieval";
-  const deadline = new Promise((_, reject) => {
-    timer = setTimeout(() => {
-      controller.abort();
-      reject(new Error(`word_stats save timed out during ${stage}; save outcome is unconfirmed. Do not replay the answer to retry saving.`));
-    }, 15000);
-  });
-  const write = async () => {
-    const token = await timeAccountOperation("word_stats session retrieval", () => getValidFunctionAccessToken());
-    if (controller.signal.aborted) throw new Error("Statistics request expired before dispatch.");
-    if (token === SUPABASE_ANON_KEY || currentUser?.id !== expectedUserId) {
-      throw new Error("Statistics save stopped because the signed-in account changed.");
-    }
-    stage = "database response";
-    // The endpoint traces arrival and forwards this user's JWT, preserving RLS.
-    const response = await timeAccountOperation("word_stats HTTP response", () => fetch(
-      chatFunctionUrl(),
-      {
-        method: "POST", signal: controller.signal,
-        headers: {
-          ...getFunctionHeaders(),
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ action: "save-word-stats", rows, userAccessToken: token })
-      }
-    ));
-    stage = "response body";
-    const body = await response.text();
-    if (!response.ok) {
-      let error;
-      try { error = JSON.parse(body); } catch { error = {}; }
-      throw new Error(`word_stats HTTP ${response.status}: ${error.code || ""} ${error.error || error.message || "Database write failed"} (trace ${error.traceId || "unavailable"})`);
-    }
-    let receipt;
-    try { receipt = JSON.parse(body); } catch {}
-    if (receipt?.saved !== true || !receipt.traceId) {
-      throw new Error("Statistics save was not acknowledged. Deploy the matching backend before this frontend; do not replay the answer.");
-    }
-    console.info("word_stats save confirmed", {
-      traceId: receipt.traceId, serverTiming: receipt.serverTiming
-    });
-    return { error: null };
-  };
-  try { return await Promise.race([write(), deadline]); }
-  finally { clearTimeout(timer); }
+// Statistics v2: one shared snapshot and a durable, idempotent event outbox.
+const statsSnapshots = new Map();
+const statsOutboxWaiters = new Map();
+let statsFlushPromise = null;
+let statsFlushTimer = null;
+const statsOutboxKey = userId => `lipsmaxxed-stats-v2:${userId}`;
+const statsAckKey = (userId, eventId) => `lipsmaxxed-stats-v2-ack:${userId}:${eventId}`;
+
+function settleStatsWaiters(userId, receipt) {
+  const key = `${userId}|${receipt.eventId}`;
+  for (const waiter of statsOutboxWaiters.get(key) || []) waiter.resolve(receipt);
+  statsOutboxWaiters.delete(key);
 }
+
+function rememberStatsReceipt(userId, receipt) {
+  localStorage.setItem(statsAckKey(userId, receipt.eventId),
+    JSON.stringify({ receipt, savedAt: Date.now() }));
+  // Keep acknowledgements long enough for other tabs, without unbounded storage.
+  const prefix = `lipsmaxxed-stats-v2-ack:${userId}:`;
+  const acks = [];
+  for (let i = 0; i < localStorage.length; i += 1) {
+    const key = localStorage.key(i);
+    if (key?.startsWith(prefix)) acks.push({ key, savedAt: JSON.parse(localStorage.getItem(key)).savedAt });
+  }
+  acks.sort((a,b) => b.savedAt - a.savedAt);
+  for (const ack of acks.slice(200)) localStorage.removeItem(ack.key);
+}
+
+function readStatsOutbox(userId) {
+  const prefix = statsOutboxKey(userId) + ":";
+  const events = [];
+  for (let i = 0; i < localStorage.length; i += 1) {
+    const key = localStorage.key(i);
+    if (!key?.startsWith(prefix)) continue;
+    const raw = localStorage.getItem(key);
+    if (raw) events.push(JSON.parse(raw));
+  }
+  return events.sort((a,b) => a.queuedAt - b.queuedAt || a.eventId.localeCompare(b.eventId));
+}
+
+async function statsRequest(action, fields, userId) {
+  const controller = new AbortController();
+  const task = async () => {
+    const token = await getValidFunctionAccessToken();
+    if (controller.signal.aborted) throw new Error("Statistics request expired before dispatch.");
+    if (currentUser?.id !== userId || token === SUPABASE_ANON_KEY) {
+      throw new Error("Statistics sync requires the original signed-in account.");
+    }
+    const response = await fetch(chatFunctionUrl(), {
+      method: "POST", headers: getFunctionHeaders(), signal: controller.signal,
+      body: JSON.stringify({ action, ...fields, userAccessToken: token })
+    });
+    return await parseJsonResponse(response, "Statistics");
+  };
+  try {
+    return await withOperationDeadline(task(), 12000, "Statistics sync is delayed; the event remains queued.");
+  } finally { controller.abort(); }
+}
+
+function statsSnapshotEntry(userId, language) {
+  const key = `${userId}|${language}`;
+  if (!statsSnapshots.has(key)) {
+    statsSnapshots.set(key, { rows: new Map(), loaded: false, loading: null,
+      revision: -1, patches: new Map(), total: 0, loadedAt: 0 });
+  }
+  return statsSnapshots.get(key);
+}
+
+async function getWordStatsSnapshot(language, force = false) {
+  const userId = currentUser?.id;
+  if (!userId) return { data: [], error: null, total: 0 };
+  const entry = statsSnapshotEntry(userId, language);
+  if (entry.loading) return entry.loading;
+  if (entry.loaded && !force) return { data: [...entry.rows.values()], error: null, total: entry.total };
+  entry.loading = (async () => {
+    try {
+      const result = await statsRequest("stats-snapshot", { language }, userId);
+      if (currentUser?.id !== userId) throw new Error("Account changed while loading statistics.");
+      if (!Array.isArray(result?.rows)) throw new Error("Statistics migration is required.");
+      const revision = Number(result.revision);
+      const rows = new Map(result.rows.map(row => [row.word_key, row]));
+      // A write may finish while this snapshot is in flight. Keep newer patches.
+      for (const [key, patch] of entry.patches) {
+        if (patch.revision > revision) rows.set(key, patch.row);
+      }
+      entry.rows = rows;
+      if (revision >= entry.revision) entry.total = Number(result.total || 0);
+      entry.revision = Math.max(entry.revision, revision);
+      entry.loaded = true;
+      entry.loadedAt = Date.now();
+      return { data: [...rows.values()], error: null, total: entry.total };
+    } catch (error) {
+      // Never cache a failed read as an empty vocabulary.
+      return { data: null, error };
+    } finally { entry.loading = null; }
+  })();
+  return entry.loading;
+}
+
+function applyStatsSyncResult(userId, result) {
+  if (currentUser?.id !== userId) return;
+  const revision = Number(result.revision);
+  for (const row of result.rows || []) {
+    const entry = statsSnapshotEntry(userId, row.language);
+    if (revision < entry.revision) continue;
+    if ((entry.patches.get(row.word_key)?.revision ?? -1) <= revision) {
+      entry.patches.set(row.word_key, { row, revision });
+      entry.rows.set(row.word_key, row);
+    }
+    vocabularyProfileCache.delete(`${userId}|${row.language}`);
+    frequencyFrontierCache.delete(`${userId}|${row.language}`);
+  }
+  for (const total of result.totals || []) {
+    const entry = statsSnapshotEntry(userId, total.language);
+    if (revision >= entry.revision) {
+      entry.total = Number(total.total || 0);
+      entry.revision = revision;
+      if (total.language === getCurrentChatLanguage()) setPointsBadgeValue(entry.total, total.language);
+    }
+  }
+}
+
+function enqueueStatsEvent(event, immediate = false) {
+  const userId = currentUser?.id;
+  if (!userId) return Promise.resolve(null);
+  const queued = { ...event, eventId: event.eventId || crypto.randomUUID() };
+  // Persist before dispatch. A timeout/reload reuses this ID, never re-awards it.
+  const events = readStatsOutbox(userId);
+  const prior = events.find(item => item.eventId === queued.eventId);
+  queued.queuedAt = prior?.queuedAt || Date.now();
+  if (prior && JSON.stringify(prior) !== JSON.stringify(queued)) {
+    throw new Error("Statistics event ID conflict.");
+  }
+  if (!prior) {
+    // One key per immutable event: another tab cannot overwrite this queue.
+    localStorage.setItem(statsOutboxKey(userId) + ":" + queued.eventId, JSON.stringify(queued));
+  }
+  const waiterKey = `${userId}|${queued.eventId}`;
+  const promise = new Promise((resolve, reject) => {
+    const list = statsOutboxWaiters.get(waiterKey) || [];
+    list.push({ resolve, reject });
+    statsOutboxWaiters.set(waiterKey, list);
+  });
+  clearTimeout(statsFlushTimer);
+  if (immediate) void flushStatsOutbox();
+  else statsFlushTimer = setTimeout(() => void flushStatsOutbox(), 150);
+  return promise;
+}
+
+async function flushStatsOutbox() {
+  if (statsFlushPromise) return statsFlushPromise;
+  const userId = currentUser?.id;
+  if (!userId) return;
+  statsFlushPromise = Promise.resolve().then(async () => {
+    try {
+      while (currentUser?.id === userId) {
+        // Another tab may have already saved and removed an event we await.
+        for (const key of statsOutboxWaiters.keys()) {
+          if (!key.startsWith(`${userId}|`)) continue;
+          if (localStorage.getItem(statsOutboxKey(userId) + ":" + key.slice(userId.length + 1))) continue;
+          const ack = localStorage.getItem(statsAckKey(userId, key.slice(userId.length + 1)));
+          if (ack) settleStatsWaiters(userId, JSON.parse(ack).receipt);
+        }
+        const batch = readStatsOutbox(userId).slice(0, 20);
+        if (!batch.length) break;
+        const result = await statsRequest("stats-sync", {
+          events: batch.map(({ queuedAt, ...event }) => event)
+        }, userId);
+        if (result?.saved !== true || !Array.isArray(result.receipts) ||
+            !batch.every(ev => result.receipts.some(rec => rec.eventId === ev.eventId))) {
+          throw new Error("Statistics server did not acknowledge the batch. Deploy the v2 migration and backend.");
+        }
+        applyStatsSyncResult(userId, result);
+        for (const receipt of result.receipts) rememberStatsReceipt(userId, receipt);
+        const ids = new Set(batch.map(ev => ev.eventId));
+        for (const id of ids) localStorage.removeItem(statsOutboxKey(userId) + ":" + id);
+        for (const receipt of result.receipts) {
+          settleStatsWaiters(userId, receipt);
+        }
+      }
+    } catch (error) {
+      for (const [key, waiters] of statsOutboxWaiters) {
+        if (!key.startsWith(`${userId}|`)) continue;
+        for (const waiter of waiters) waiter.reject(error);
+        statsOutboxWaiters.delete(key);
+      }
+      if (currentUser?.id === userId) {
+        showLatencyDiagnostic("Statistics sync pending. Saved locally for the next sync; no need to repeat your answer.");
+      }
+      console.warn("statistics sync pending", error);
+    } finally {
+      statsFlushPromise = null;
+      if (currentUser?.id && currentUser.id !== userId) {
+        statsFlushTimer = setTimeout(() => void flushStatsOutbox(), 0);
+      }
+    }
+  });
+  return statsFlushPromise;
+}
+
+window.addEventListener("online", () => void flushStatsOutbox());
+window.addEventListener("storage", event => {
+  if (event.key?.startsWith("lipsmaxxed-stats-v2-ack:") && event.newValue && currentUser) {
+    const ack = JSON.parse(event.newValue);
+    if (event.key === statsAckKey(currentUser.id, ack.receipt.eventId) &&
+        !localStorage.getItem(statsOutboxKey(currentUser.id) + ":" + ack.receipt.eventId)) {
+      settleStatsWaiters(currentUser.id, ack.receipt);
+    }
+  }
+  if (event.key?.startsWith("lipsmaxxed-stats-v2:") && !event.newValue && currentUser) {
+    const eventId = event.key.slice(statsOutboxKey(currentUser.id).length + 1);
+    const raw = localStorage.getItem(statsAckKey(currentUser.id, eventId));
+    if (raw) settleStatsWaiters(currentUser.id, JSON.parse(raw).receipt);
+  }
+  if (!event.key?.startsWith("lipsmaxxed-stats-v2")) return;
+  for (const entry of statsSnapshots.values()) entry.loaded = false;
+});
 
 async function recordUserWordsAndAwardPoints(
   text,
@@ -7300,7 +7456,7 @@ async function recordUserWordsAndAwardPoints(
       };
       if (!target.word_key || !target.word_text) continue;
       const existing = wordCounts.get(target.word_key);
-      const count = Math.max(1, Number(lexeme?.count || 1));
+      const count = Math.min(1000, Math.max(1, Math.floor(Number(lexeme?.count) || 1)));
       if (existing) {
         existing.count += count;
       } else {
@@ -7345,44 +7501,21 @@ async function recordUserWordsAndAwardPoints(
       });
     }
   }
-  const { data: statsRows, error: statsError } = await timeAccountOperation(
-    "word_stats batch read", () => supabaseClient.from("word_stats").select("*")
-      .eq("user_id", statsUserId).eq("language", language)
-      .in("word_key", [...canonicalItems.keys()])
-  );
-  if (statsError) throw statsError;
-  const statsByKey = new Map((statsRows || []).map(row => [row.word_key, row]));
-  const statsWrites = [];
+  const statsDeltas = [];
   const reviewsToMark = new Map();
   const queueSpokenReview = word => {
     const normalized = normalizeVocabularyTarget(word);
     if (normalized.word_key) reviewsToMark.set(normalized.word_key, word);
   };
-  let basePoints = 0;
 
   const spokenBonusWordKeys = new Set();
   const matchedBonusTargetKeys = new Set();
 
   for (const item of canonicalItems.values()) {
     const matchedBonusTargets = item.matchedBonusTargets;
-    const existing = statsByKey.get(item.word_key);
-    const previousSpokenCount = Number(existing?.spoken_count || 0);
     const occurrenceCount = Number(item.count || 0);
 
     if (occurrenceCount <= 0) continue;
-
-    /*
-      New spoken word = 5 points for the first occurrence.
-      Repeated spoken word = 1 point.
-      If a new word appears multiple times in the same message:
-      first occurrence gets 5, extra repetitions get 1 each.
-    */
-    if (previousSpokenCount === 0) {
-      basePoints += 5;
-      basePoints += Math.max(0, occurrenceCount - 1);
-    } else {
-      basePoints += occurrenceCount;
-    }
 
     /*
       Bonus words count once per message, even if repeated.
@@ -7398,31 +7531,8 @@ async function recordUserWordsAndAwardPoints(
       queueSpokenReview(bonusTarget);
     }
 
-    const next = existing || {
-      user_id: currentUser.id,
-      language,
-      word_key: item.word_key,
-      word_text: item.word_text,
-      familiar_count: 0,
-      spoken_count: 0,
-      translated_count: 0,
-      translated_spoken_baseline: null
-    };
-
-    next.word_text = next.word_text || item.word_text;
-    next.spoken_count = previousSpokenCount + occurrenceCount;
-    next.last_encountered_at = now;
-
-    // Uniform columns for mixed existing/new rows; never send a null primary
-    // key for new rows as a side effect of batching.
-    statsWrites.push({
-      user_id: statsUserId, language, word_key: item.word_key,
-      word_text: next.word_text,
-      familiar_count: Number(next.familiar_count || 0),
-      spoken_count: next.spoken_count,
-      translated_count: Number(next.translated_count || 0),
-      translated_spoken_baseline: next.translated_spoken_baseline ?? null,
-      last_encountered_at: now
+    statsDeltas.push({
+      word_key: item.word_key, word_text: item.word_text, count: occurrenceCount
     });
 
     if (
@@ -7445,12 +7555,12 @@ async function recordUserWordsAndAwardPoints(
     }
   }
 
-  if (statsWrites.length) {
-    const { error } = await timeAccountOperation(
-      "word_stats batch write", () => writeWordStatsBatch(statsWrites, statsUserId)
-    );
-    if (error) throw error;
-  }
+  const bonusWordsSaid = Math.min(2, spokenBonusWordKeys.size);
+  const savedStats = await enqueueStatsEvent({
+    kind: "answer", language, words: statsDeltas, bonusWordsSaid
+  }, true);
+  if (currentUser?.id !== statsUserId) throw new Error("Account changed during statistics sync.");
+  const { pointsGained, newTotal, basePoints, bonusPoints } = savedStats;
   if (reviewsToMark.size) {
     const frequencyWords = await timeAccountOperation("review frequency lookup", () => getRankedFrequencyList(language));
     const { frequencyByKey, legacyFormToLexemeKey } = buildFrequencyCompatibilityMaps(frequencyWords);
@@ -7490,64 +7600,6 @@ async function recordUserWordsAndAwardPoints(
         if (failed) throw failed.reason;
       });
     }
-  }
-
-  const bonusWordsSaid = Math.min(2, spokenBonusWordKeys.size);
-  const bonusPoints = BONUS_WORD_POINT_TIERS[bonusWordsSaid] || 0;
-
-  const pointsGained = basePoints + bonusPoints;
-
-  if (pointsGained <= 0) {
-    return {
-      pointsGained: 0,
-      newTotal: currentLanguagePoints,
-      basePoints,
-      bonusPoints,
-      bonusWordsSaid,
-      spokenBonusWordKeys: [...spokenBonusWordKeys]
-    };
-  }
-
-  const { data: existingPoints, error: pointsSelectError } = await timeAccountOperation("points total read", () => supabaseClient
-    .from("user_language_points")
-    .select("*")
-    .eq("user_id", currentUser.id)
-    .eq("language", language)
-    .maybeSingle());
-
-  if (pointsSelectError) {
-    console.warn("points total select failed", pointsSelectError);
-
-    return {
-      pointsGained,
-      newTotal: currentLanguagePoints + pointsGained,
-      basePoints,
-      bonusPoints,
-      bonusWordsSaid,
-      spokenBonusWordKeys: [...spokenBonusWordKeys]
-    };
-  }
-
-  const previousTotal = Number(existingPoints?.total_points || 0);
-  const newTotal = previousTotal + pointsGained;
-
-  // This browser upsert was the operation observed hanging. The authenticated
-  // backend writes with the verified account ID and bypasses browser RLS state.
-  try {
-    const savedPoints = await timeAccountOperation(
-      "points total backend write",
-      () => callChatFunction({
-        action: "save-language-points",
-        language,
-        totalPoints: newTotal
-      }, "Points save", { timeoutMs: 8000 })
-    );
-    if (savedPoints?.serverTiming) {
-      console.info("Points save server timing", savedPoints.serverTiming);
-    }
-  } catch (error) {
-    console.warn("points total backend write failed", error);
-    showLatencyDiagnostic(`Points save delayed: ${getReadableError(error)}`);
   }
 
   if (activeChatSession) {
@@ -7748,12 +7800,10 @@ async function loadStatsPage() {
   closeStatsDetailPanel();
   clearStatsLists();
 
-  const { data, error } = await supabaseClient
-  .from("word_stats")
-  .select("*")
-  .eq("user_id", currentUser.id)
-  .eq("language", language)
-  .order("last_encountered_at", { ascending: false });
+  const snapshot = await getWordStatsSnapshot(language, true);
+  const error = snapshot.error;
+  const data = (snapshot.data || []).slice()
+    .sort((a,b) => String(b.last_encountered_at).localeCompare(String(a.last_encountered_at)));
 
 const { data: reviewTargets, error: reviewError } = await supabaseClient
   .from("word_review_targets")
@@ -7931,89 +7981,25 @@ function getWordStatsCategory(row) {
   return "familiar";
 }
 
-async function recordWordStats(words, eventType, languageOverride = null, strict = false) {
+async function recordWordStats(words, eventType, languageOverride = null, strict = false, eventId = null) {
   if (!currentUser || !Array.isArray(words) || !words.length) return;
-
-  const language = languageOverride || languageSelect.value;
-  const now = new Date().toISOString();
-
-  const uniqueWords = new Map();
-
+  if (!["familiar", "spoken", "translated"].includes(eventType)) {
+    throw new Error("Unknown statistics event type.");
+  }
+  const unique = new Map();
   for (const item of words) {
-    const wordText = typeof item === "string" ? item : item.word_text;
-    const wordKey =
-      typeof item === "string"
-        ? normalizeStatsWord(item)
-        : item.word_key || normalizeStatsWord(item.word_text);
-
-    if (!wordKey || !wordText) continue;
-
-    uniqueWords.set(wordKey, {
-      word_key: wordKey,
-      word_text: wordText
-    });
+    const text = typeof item === "string" ? item : item.word_text;
+    const key = typeof item === "string" ? normalizeStatsWord(item)
+      : item.word_key || normalizeStatsWord(text);
+    if (key && text) unique.set(key, { word_key: key, word_text: text, count: 1 });
   }
-
-  for (const word of uniqueWords.values()) {
-    const { data: existing, error: selectError } = await supabaseClient
-      .from("word_stats")
-      .select("*")
-      .eq("user_id", currentUser.id)
-      .eq("language", language)
-      .eq("word_key", word.word_key)
-      .maybeSingle();
-
-    if (selectError) {
-      if (strict) throw selectError;
-      console.warn("stats select failed", selectError);
-      continue;
-    }
-
-    const next = existing || {
-      user_id: currentUser.id,
-      language,
-      word_key: word.word_key,
-      word_text: word.word_text,
-      familiar_count: 0,
-      spoken_count: 0,
-      translated_count: 0,
-      translated_spoken_baseline: null
-    };
-
-    next.word_text = next.word_text || word.word_text;
-    next.last_encountered_at = now;
-
-    if (eventType === "familiar") {
-      next.familiar_count = Number(next.familiar_count || 0) + 1;
-    }
-
-    if (eventType === "spoken") {
-      next.spoken_count = Number(next.spoken_count || 0) + 1;
-    }
-
-    if (eventType === "translated") {
-      next.translated_count = Number(next.translated_count || 0) + 1;
-
-      /*
-        Once translated, it stays in translated until the user speaks it
-        five more times beyond this baseline.
-      */
-      next.translated_spoken_baseline = Number(next.spoken_count || 0);
-    }
-
-    const { error: upsertError } = await supabaseClient
-      .from("word_stats")
-      .upsert(next, {
-        onConflict: "user_id,language,word_key"
-      });
-
-    if (upsertError) {
-      if (strict) throw upsertError;
-      console.warn("stats upsert failed", upsertError);
-    }
-  }
+  if (!unique.size) return;
+  return enqueueStatsEvent({
+    kind: eventType, language: languageOverride || getCurrentChatLanguage(),
+    words: [...unique.values()], ...(eventId ? { eventId } : {})
+  }, strict);
 }
-    
+
 function getEmailName(email) {
   return String(email || "")
     .split("@")[0]
@@ -13613,13 +13599,9 @@ async function renderMemberHome() {
   );
   renderSessionTimeChart(languageHistory);
   try {
-    const { data } = await supabaseClient
-      .from("user_language_points")
-      .select("total_points")
-      .eq("user_id",currentUser.id)
-      .eq("language",language);
+    const snapshot = await getWordStatsSnapshot(language);
     if ((homeLanguageSelect?.value || selectedChatLanguage) === language && homePointsStat) {
-      homePointsStat.textContent = String((data || []).reduce((sum,row) => sum + Number(row.total_points || 0),0));
+      if (!snapshot.error) homePointsStat.textContent = String(snapshot.total || 0);
     }
   } catch {}
 }
@@ -14009,7 +13991,8 @@ async function submitWordConfirmation(answer) {
     // Show the judgment immediately, but do not advance until persistence succeeds.
     await Promise.all([
       showConfirmationResult(true),
-      recordWordStats([word],"familiar",word.language, true)
+      recordWordStats([word],"familiar",word.language, true,
+        word.statsEventId || (word.statsEventId = crypto.randomUUID()))
     ]);
     saveConfirmedWord(word); confirmedThisRun += 1;
     diagnosticParts.push(`save result ${((performance.now() - saveStartedAt) / 1000).toFixed(2)}s`);
