@@ -7202,6 +7202,9 @@ function settleStatsWaiters(userId, receipt) {
 function rememberStatsReceipt(userId, receipt) {
   localStorage.setItem(statsAckKey(userId, receipt.eventId),
     JSON.stringify({ receipt, savedAt: Date.now() }));
+}
+
+function pruneStatsReceipts(userId) {
   // Keep acknowledgements long enough for other tabs, without unbounded storage.
   const prefix = `lipsmaxxed-stats-v2-ack:${userId}:`;
   const acks = [];
@@ -7233,11 +7236,35 @@ async function statsRequest(action, fields, userId) {
     if (currentUser?.id !== userId || token === SUPABASE_ANON_KEY) {
       throw new Error("Statistics sync requires the original signed-in account.");
     }
-    const response = await fetch(chatFunctionUrl(), {
-      method: "POST", headers: getFunctionHeaders(), signal: controller.signal,
-      body: JSON.stringify({ action, ...fields, userAccessToken: token })
-    });
-    return await parseJsonResponse(response, "Statistics");
+    // The SQL function already authenticates and scopes this user's JWT.
+    // Call it directly instead of adding an Edge Function hop to every save.
+    const sync = action === "stats-sync";
+    const response = await fetch(
+      `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/rpc/${sync ? "lm_apply_stats_events" : "lm_stats_snapshot"}`, {
+        method: "POST", signal: controller.signal,
+        headers: {
+          apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(sync ? { p_events: fields.events } : { p_language: fields.language })
+      }
+    );
+    const raw = await response.text();
+    let data;
+    try { data = JSON.parse(raw); } catch { data = null; }
+    if (!response.ok || !data) {
+      const code = String(data?.code || "no_database_code");
+      const detail = String(data?.message || data?.error || (data ? "Request rejected" : "Non-JSON or empty response"));
+      const requestId = response.headers.get("sb-request-id") || response.headers.get("x-request-id") || "";
+      const diagnostic = { action, status: response.status, code, detail, requestId };
+      window.lipsMaxxedStatsLastError = diagnostic;
+      console.warn("Statistics request failed", diagnostic);
+      const error = new Error(`Statistics HTTP ${response.status} [${code}]: ${detail}${requestId ? ` (request ${requestId})` : ""}`);
+      error.code = code;
+      error.status = response.status;
+      throw error;
+    }
+    return data;
   };
   try {
     return await withOperationDeadline(task(), 12000, "Statistics sync is delayed; the event remains queued.");
@@ -7310,6 +7337,17 @@ function applyStatsSyncResult(userId, result) {
 function enqueueStatsEvent(event, immediate = false) {
   const userId = currentUser?.id;
   if (!userId) return Promise.resolve(null);
+  // Reject malformed events before persisting them, so they cannot poison the
+  // retry queue. Keep SQL's validation as the authoritative second boundary.
+  if (!["answer", "familiar", "spoken", "translated"].includes(event.kind) ||
+      typeof event.language !== "string" || !event.language || event.language.length > 100 ||
+      !Array.isArray(event.words) || !event.words.length || event.words.length > 500 ||
+      event.words.some(word => typeof word?.word_key !== "string" || !word.word_key ||
+        word.word_key.length > 300 || typeof word.word_text !== "string" || !word.word_text ||
+        word.word_text.length > 500 || !Number.isInteger(word.count) || word.count < 1 || word.count > 1000) ||
+      (event.kind === "answer" && ![0,1,2].includes(event.bonusWordsSaid))) {
+    throw new Error("Statistics event is invalid; it was not added to the save queue.");
+  }
   const queued = { ...event, eventId: event.eventId || crypto.randomUUID() };
   // Persist before dispatch. A timeout/reload reuses this ID, never re-awards it.
   const events = readStatsOutbox(userId);
@@ -7359,6 +7397,7 @@ async function flushStatsOutbox() {
         }
         applyStatsSyncResult(userId, result);
         for (const receipt of result.receipts) rememberStatsReceipt(userId, receipt);
+        pruneStatsReceipts(userId);
         const ids = new Set(batch.map(ev => ev.eventId));
         for (const id of ids) localStorage.removeItem(statsOutboxKey(userId) + ":" + id);
         for (const receipt of result.receipts) {
@@ -7556,6 +7595,12 @@ async function recordUserWordsAndAwardPoints(
   }
 
   const bonusWordsSaid = Math.min(2, spokenBonusWordKeys.size);
+  if (!statsDeltas.length) {
+    return {
+      pointsGained: 0, newTotal: currentLanguagePoints, basePoints: 0,
+      bonusPoints: 0, bonusWordsSaid: 0, spokenBonusWordKeys: []
+    };
+  }
   const savedStats = await enqueueStatsEvent({
     kind: "answer", language, words: statsDeltas, bonusWordsSaid
   }, true);
