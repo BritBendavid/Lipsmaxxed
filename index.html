@@ -5088,6 +5088,7 @@ let allChatsPageIndex = 0;
 let activeMasterThreadId = "";
 let activeMasterDraftThread = null;
 let viewingSavedSession = false;
+const accountProgressStates = new Map();
 let accountMetadataWrite = Promise.resolve();
 
 let inputMode = "writing";
@@ -8636,7 +8637,17 @@ async function initAuth() {
     showSystemMessage(getReadableError(error));
   }
 
-  updateAuthUi(data?.session || null);
+  let initialSession = data?.session || null;
+  if (sessionHasLegacyProgress(initialSession)) {
+    try {
+      await getValidFunctionAccessToken(true);
+      initialSession = currentSession;
+    } catch (error) {
+      showSystemMessage(getReadableError(error));
+      return; // Do not start profile/statistics requests with the oversized token.
+    }
+  }
+  updateAuthUi(initialSession);
 
   if (thisTabIsRecoveryTab) {
     openPasswordRecoveryUi();
@@ -10148,6 +10159,13 @@ function chatFunctionUrl() {
 // replace the same signed-in user's expiring Supabase session.
 let authRefreshPromise = null;
 
+function sessionHasLegacyProgress(session) {
+  const metadata = session?.user?.user_metadata || {};
+  return Object.hasOwn(metadata, "lipsmaxxedSessions") ||
+    Object.hasOwn(metadata, "lipsmaxxedConfirmedWords") ||
+    String(session?.access_token || "").length > 16384;
+}
+
 async function getValidFunctionAccessToken(forceRefresh = false) {
   if (authRefreshPromise) return authRefreshPromise;
 
@@ -10164,7 +10182,7 @@ async function getValidFunctionAccessToken(forceRefresh = false) {
     const expiresAtMs = Number(session?.expires_at || 0) * 1000;
     const expiresSoon = !expiresAtMs || expiresAtMs <= Date.now() + 90_000;
 
-    if (forceRefresh || !session?.access_token || expiresSoon) {
+    if (forceRefresh || !session?.access_token || expiresSoon || sessionHasLegacyProgress(session)) {
       const { data, error } = await supabaseClient.auth.refreshSession();
       if (error) throw error;
       session = data?.session || null;
@@ -10172,6 +10190,9 @@ async function getValidFunctionAccessToken(forceRefresh = false) {
 
     if (!session?.access_token) {
       throw new Error("Your sign-in session has expired. Please sign in again.");
+    }
+    if (sessionHasLegacyProgress(session)) {
+      throw new Error("Your authentication token still contains large profile data. Run auth-progress-migration.sql, then reload. If already migrated, check other oversized authentication metadata.");
     }
 
     // Keep the local snapshot synchronized without re-running page navigation.
@@ -12889,9 +12910,11 @@ async function saveProfileSettings() {
   }
 
   try {
+    if (username.length > 100 || avatarUrl.length > 2048 || (avatarUrl && !/^https?:\/\//i.test(avatarUrl))) {
+      throw new Error("Use a name of at most 100 characters and a short http(s) photo URL, not an embedded image.");
+    }
     const { data, error } = await supabaseClient.auth.updateUser({
       data: {
-        ...(currentUser.user_metadata || {}),
         username,
         fluentLanguage,
         gender: selectedGender,
@@ -13473,6 +13496,23 @@ function saveMemberChatDefaults(language, inputMode) {
   });
 }
 
+// Only these small preferences belong in authentication metadata.
+function queueAccountMetadataUpdate(patch) {
+  const userId = currentUser?.id;
+  if (!userId) return;
+  const data = {
+    lastChatLanguage: String(patch.lastChatLanguage || "English").slice(0, 100),
+    lastChatInputMode: patch.lastChatInputMode === "writing" ? "writing" : "speech"
+  };
+  accountMetadataWrite = accountMetadataWrite.then(async () => {
+    await getValidFunctionAccessToken();
+    if (currentUser?.id !== userId) return;
+    const result = await supabaseClient.auth.updateUser({ data });
+    if (result.error) throw result.error;
+    if (currentUser?.id === userId && result.data?.user?.id === userId) currentUser = result.data.user;
+  }).catch(error => console.warn("Account preference sync failed", { message: getReadableError(error) }));
+}
+
 function formatDuration(milliseconds) {
   const totalSeconds = Math.max(0, Math.round(Number(milliseconds || 0) / 1000));
   const hours = Math.floor(totalSeconds / 3600);
@@ -13505,7 +13545,7 @@ function renderMemberIdentity() {
 
 function getSessionHistory() {
   const localRows = readMemberJson("session-history", []);
-  const accountRows = currentUser?.user_metadata?.lipsmaxxedSessions;
+  const accountRows = currentUser ? [...accountProgressState(currentUser.id).session.values()] : [];
   // Keep the richer local snapshot when the portable account copy has the
   // same session id. The portable copy intentionally omits rendered HTML.
   const merged = [...(Array.isArray(accountRows) ? accountRows : []), ...(Array.isArray(localRows) ? localRows : [])];
@@ -13522,7 +13562,7 @@ function saveSessionSummary(summary) {
   const rows = getSessionHistory().filter(row => row?.id !== summary.id);
   rows.unshift(summary);
   writeMemberJson("session-history", rows.slice(0, 500));
-  const portableRows = rows.slice(0,25).map(row => ({
+  const portableRows = [summary].map(row => ({
     id:row.id,language:row.language,inputMode:row.inputMode,startedAt:row.startedAt,endedAt:row.endedAt,
     durationMs:row.durationMs,pointsGained:row.pointsGained,messageCount:row.messageCount,
     wordsLearned:row.wordsLearned,learnedWords:Array.isArray(row.learnedWords)?row.learnedWords.slice(0,50):[],
@@ -13533,12 +13573,12 @@ function saveSessionSummary(summary) {
     })):[],
     grammarTips:Array.isArray(row.grammarTips)?row.grammarTips.slice(0,30):[]
   }));
-  queueAccountMetadataUpdate({ lipsmaxxedSessions: portableRows });
+  queueAccountProgressRecord("session", summary.id, portableRows[0]);
 }
 
 function getConfirmedWordRecords() {
   const localRows = readMemberJson("confirmed-words", []);
-  const accountRows = currentUser?.user_metadata?.lipsmaxxedConfirmedWords;
+  const accountRows = currentUser ? [...accountProgressState(currentUser.id).confirmed.values()] : [];
   const merged = [...(Array.isArray(localRows) ? localRows : []), ...(Array.isArray(accountRows) ? accountRows : [])];
   return [...new Map(merged.filter(Boolean).map(row => [`${row.language}|${row.word_key}`,row])).values()];
 }
@@ -13549,19 +13589,121 @@ function saveConfirmedWord(word) {
   const filtered = records.filter(row => `${row.language}|${row.word_key}` !== identity);
   filtered.unshift({ ...word, confirmedAt: new Date().toISOString() });
   writeMemberJson("confirmed-words", filtered.slice(0, 20000));
-  queueAccountMetadataUpdate({ lipsmaxxedConfirmedWords: filtered.slice(0,2000) });
+  queueAccountProgressRecord("confirmed", identity, filtered[0]);
 }
 
-function queueAccountMetadataUpdate(patch) {
-  if (!currentUser) return;
-  accountMetadataWrite = accountMetadataWrite.then(async () => {
-    const { data, error } = await supabaseClient.auth.updateUser({
-      data: { ...(currentUser?.user_metadata || {}), ...patch }
-    });
-    if (error) throw error;
-    if (data?.user) currentUser = data.user;
-  }).catch(error => console.warn("account progress sync failed", error));
+function accountProgressState(userId) {
+  if (!accountProgressStates.has(userId)) accountProgressStates.set(userId, {
+    session: new Map(), confirmed: new Map(), loading: null, loaded: false, flushing: null
+  });
+  return accountProgressStates.get(userId);
 }
+
+function progressOutboxPrefix(userId) { return `lipsmaxxed-progress-v1:${userId}:`; }
+
+function queueAccountProgressRecord(kind, recordKey, payload) {
+  const userId = currentUser?.id;
+  if (!userId || !recordKey) return;
+  const row = { user_id: userId, kind, record_key: String(recordKey), payload };
+  accountProgressState(userId)[kind].set(row.record_key, payload);
+  try {
+    localStorage.setItem(progressOutboxPrefix(userId) + JSON.stringify([kind, row.record_key]), JSON.stringify(row));
+  } catch (error) {
+    console.warn("History retry queue could not be persisted", error);
+    showSystemMessage("History is saved locally, but its account-sync retry could not be queued. Check browser storage.");
+    return;
+  }
+  void flushAccountProgress(userId);
+}
+
+function pendingAccountProgress(userId) {
+  const rows = [];
+  const prefix = progressOutboxPrefix(userId);
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key?.startsWith(prefix)) continue;
+    const raw = localStorage.getItem(key);
+    const row = JSON.parse(raw);
+    if (row?.user_id === userId && ["session", "confirmed"].includes(row.kind)) rows.push({ key, raw, row });
+  }
+  return rows;
+}
+
+function flushAccountProgress(userId = currentUser?.id) {
+  if (!userId || currentUser?.id !== userId) return Promise.resolve();
+  const state = accountProgressState(userId);
+  if (state.flushing) return state.flushing;
+  state.flushing = Promise.resolve().then(async () => {
+    try {
+      while (currentUser?.id === userId) {
+        const batch = pendingAccountProgress(userId).slice(0, 20);
+        if (!batch.length) return;
+        await getValidFunctionAccessToken();
+        if (currentUser?.id !== userId) return;
+        const controller = new AbortController();
+        try {
+          const { error } = await withOperationDeadline(
+            supabaseClient.from("lm_member_records").upsert(batch.map(item => item.row),
+              { onConflict: "user_id,kind,record_key" }).abortSignal(controller.signal),
+            10000, "History sync delayed; its records remain queued."
+          );
+          if (error) throw error;
+          for (const item of batch) {
+            // A newer edit to the same record must remain pending.
+            if (localStorage.getItem(item.key) === item.raw) localStorage.removeItem(item.key);
+          }
+        } finally { controller.abort(); }
+      }
+    } catch (error) {
+      console.warn("Account history sync pending", { message: getReadableError(error), code: error?.code });
+      if (currentUser?.id === userId) showSystemMessage("History account sync is pending; local history is retained. Reopen your profile or reconnect to retry.");
+    } finally { state.flushing = null; }
+  });
+  return state.flushing;
+}
+
+function loadAccountProgress(userId = currentUser?.id) {
+  if (!userId || currentUser?.id !== userId) return Promise.resolve();
+  const state = accountProgressState(userId);
+  if (state.loading) return state.loading;
+  if (state.loaded) return Promise.resolve();
+  state.loading = Promise.resolve().then(async () => {
+    await getValidFunctionAccessToken();
+    if (currentUser?.id !== userId) return;
+    const controller = new AbortController();
+    try {
+      const fetchRows = async () => {
+        for (const kind of ["session", "confirmed"]) {
+          let cursor = null;
+          while (!controller.signal.aborted) {
+            let query = supabaseClient.from("lm_member_records").select("record_key,payload")
+              .eq("user_id", userId).eq("kind", kind).order("record_key").limit(250);
+            if (cursor !== null) query = query.gt("record_key", cursor);
+            const { data, error } = await query.abortSignal(controller.signal);
+            if (error) throw error;
+            if (currentUser?.id !== userId) return;
+            for (const row of data || []) {
+              // Preserve local writes made while the account read was in flight.
+              if (!state[kind].has(row.record_key)) state[kind].set(row.record_key, row.payload);
+            }
+            if (!data?.length || data.length < 250) break;
+            cursor = data[data.length - 1].record_key;
+          }
+        }
+      };
+      await withOperationDeadline(fetchRows(), 20000, "Account history could not be loaded.");
+      if (currentUser?.id !== userId) return;
+      for (const item of pendingAccountProgress(userId)) state[item.row.kind].set(item.row.record_key, item.row.payload);
+      state.loaded = true;
+    } finally { controller.abort(); }
+  }).catch(error => {
+    console.warn("Account history read failed", { message: getReadableError(error), code: error?.code });
+    if (currentUser?.id === userId) showSystemMessage("Account history could not be loaded. Local history is still available. Check that auth-progress-migration.sql has been run.");
+  }).finally(() => { state.loading = null; });
+  return state.loading;
+}
+
+window.addEventListener("online", () => { void flushAccountProgress(); });
 
 function formatSessionStartedAt(value) {
   return new Intl.DateTimeFormat(undefined, {
@@ -13701,6 +13843,14 @@ function renderSessionTimeChart(rows) {
 
 async function renderMemberHome() {
   if (!currentUser) return;
+  const homeUserId = currentUser.id;
+  const progressState = accountProgressState(homeUserId);
+  void flushAccountProgress(homeUserId);
+  if (!progressState.loaded && !progressState.loading) {
+    void loadAccountProgress(homeUserId).then(() => {
+      if (currentUser?.id === homeUserId && progressState.loaded) void renderMemberHome();
+    });
+  }
   renderMemberIdentity();
   const language = homeLanguageSelect?.value || selectedChatLanguage || "English";
   const history = getSessionHistory();
@@ -14229,7 +14379,16 @@ function finishWordConfirmation() {
   setTimeout(exitSessionToHome,1800);
 }
 
-function openAllChats() { allChatsPageIndex=0; signedInHome?.classList.add("hidden"); allChatsPage?.classList.remove("hidden"); renderAllChats(); }
+function openAllChats() {
+  allChatsPageIndex = 0;
+  signedInHome?.classList.add("hidden");
+  allChatsPage?.classList.remove("hidden");
+  renderAllChats();
+  const userId = currentUser?.id;
+  void loadAccountProgress(userId).then(() => {
+    if (currentUser?.id === userId && !allChatsPage?.classList.contains("hidden")) renderAllChats();
+  });
+}
 function renderAllChats() {
   const language = homeLanguageSelect?.value || selectedChatLanguage || "English";
   const rows = getSessionHistory().filter(row => row.language === language);
