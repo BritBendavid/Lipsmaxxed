@@ -8345,6 +8345,7 @@ function removeSignedOutProTip() {
 }
 
 function updateAuthUi(session) {
+  if (session?.user) reauthenticationRequired = false;
   currentSession = session || null;
   currentUser = session?.user || null;
 
@@ -8618,10 +8619,11 @@ async function handleSignOut() {
     closeAccountDropdown();
     stopAllSpeech();
 
-    const { error } = await supabaseClient.auth.signOut();
+    const { error } = await supabaseClient.auth.signOut({ scope: "local" });
 
     if (error) throw error;
 
+    reauthenticationRequired = false;
     updateAuthUi(null);
   } catch (error) {
     showSystemMessage(getReadableError(error));
@@ -8630,24 +8632,21 @@ async function handleSignOut() {
 
 async function initAuth() {
   thisTabIsRecoveryTab = urlLooksLikePasswordRecovery();
-
-  const { data, error } = await supabaseClient.auth.getSession();
-
-  if (error) {
-    showSystemMessage(getReadableError(error));
-  }
-
-  let initialSession = data?.session || null;
-  if (sessionHasLegacyProgress(initialSession)) {
-    try {
+  try {
+    const { data, error } = await supabaseClient.auth.getSession();
+    let initialSession = data?.session || null;
+    if (error) {
+      if (!isInvalidRefreshTokenError(error)) throw error;
+      initialSession = await recoverInvalidRefreshToken(error);
+    }
+    if (sessionHasLegacyProgress(initialSession)) {
       await getValidFunctionAccessToken(true);
       initialSession = currentSession;
-    } catch (error) {
-      showSystemMessage(getReadableError(error));
-      return; // Do not start profile/statistics requests with the oversized token.
     }
+    updateAuthUi(initialSession);
+  } catch (error) {
+    showSystemMessage(getReadableError(error));
   }
-  updateAuthUi(initialSession);
 
   if (thisTabIsRecoveryTab) {
     openPasswordRecoveryUi();
@@ -9940,14 +9939,14 @@ async function getCorrectionFullSpeech(state) {
     return state.fullSpeech;
   }
 
-  if (state.fullSpeechPromise) {
+  if (!state.fullSpeechPromise) state.fullSpeechPromise = fetchFullSpeech(state.correctionText);
+  try {
     state.fullSpeech = await state.fullSpeechPromise;
     return state.fullSpeech;
+  } catch (error) {
+    state.fullSpeechPromise = null;
+    throw error;
   }
-
-  state.fullSpeechPromise = fetchFullSpeech(state.correctionText);
-  state.fullSpeech = await state.fullSpeechPromise;
-  return state.fullSpeech;
 }
 
 async function getCorrectionWordClips(state) {
@@ -10158,6 +10157,41 @@ function chatFunctionUrl() {
 // One shared refresh prevents parallel Edge Function calls from racing to
 // replace the same signed-in user's expiring Supabase session.
 let authRefreshPromise = null;
+let reauthenticationRequired = false;
+let authRecoveryPromise = null;
+
+function isInvalidRefreshTokenError(error) {
+  return ["refresh_token_not_found", "refresh_token_already_used", "session_not_found"].includes(error?.code) ||
+    /invalid refresh token|refresh token.*(?:not found|already used|revoked)/i.test(String(error?.message || ""));
+}
+
+async function recoverInvalidRefreshToken(error, failedRefreshToken = "") {
+  if (!isInvalidRefreshTokenError(error)) throw error;
+  if (authRecoveryPromise) return authRecoveryPromise;
+  authRecoveryPromise = Promise.resolve().then(async () => {
+    // Another tab may already have rotated the session. Re-read SDK storage
+    // once before clearing anything; never replay the rejected refresh token.
+    const latest = await supabaseClient.auth.getSession();
+    const session = latest?.data?.session;
+    if (!latest.error && session?.access_token &&
+        (!failedRefreshToken || session.refresh_token !== failedRefreshToken) &&
+        Number(session.expires_at) * 1000 > Date.now() && !sessionHasLegacyProgress(session)) {
+      return session;
+    }
+    if (latest.error && !isInvalidRefreshTokenError(latest.error)) throw latest.error;
+    reauthenticationRequired = true;
+    // Keep history, queued statistics and the active response chain intact.
+    const result = await supabaseClient.auth.signOut({ scope: "local" });
+    if (result.error && !isInvalidRefreshTokenError(result.error) &&
+        ![401, 403, 404].includes(result.error.status)) throw result.error;
+    updateAuthUi(null);
+    openAuthModal("sign-in");
+    setAuthMessage("Your saved sign-in session is no longer valid. Please sign in again; your progress is preserved.", "error");
+    console.warn("Sign-in required", { code: error?.code || "invalid_refresh_token", status: error?.status || 0 });
+    return null;
+  }).finally(() => { authRecoveryPromise = null; });
+  return authRecoveryPromise;
+}
 
 function sessionHasLegacyProgress(session) {
   const metadata = session?.user?.user_metadata || {};
@@ -10172,20 +10206,22 @@ async function getValidFunctionAccessToken(forceRefresh = false) {
   authRefreshPromise = (async () => {
     const { data: sessionData, error: sessionError } =
       await supabaseClient.auth.getSession();
-    if (sessionError) throw sessionError;
     let session = sessionData?.session || null;
+    if (sessionError) session = await recoverInvalidRefreshToken(sessionError);
 
     // The auth client's persisted session is authoritative. The UI's
     // currentUser snapshot can briefly lag auth refresh events.
-    if (!session) return SUPABASE_ANON_KEY;
+    if (!session) {
+      if (reauthenticationRequired || currentUser) throw new Error("Please sign in again to continue this account's chat.");
+      return SUPABASE_ANON_KEY;
+    }
 
     const expiresAtMs = Number(session?.expires_at || 0) * 1000;
     const expiresSoon = !expiresAtMs || expiresAtMs <= Date.now() + 90_000;
 
     if (forceRefresh || !session?.access_token || expiresSoon || sessionHasLegacyProgress(session)) {
       const { data, error } = await supabaseClient.auth.refreshSession();
-      if (error) throw error;
-      session = data?.session || null;
+      session = error ? await recoverInvalidRefreshToken(error, session.refresh_token || "") : data?.session || null;
     }
 
     if (!session?.access_token) {
@@ -10487,8 +10523,16 @@ async function primeAudioForAutoplay() {
 }
 
   function getAudioContext() {
-    if (!audioContext) {
+    if (!audioContext || audioContext.state === "closed") {
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      audioContext.addEventListener("statechange", () => {
+        if (audioContext.state !== "running" && audioPlaybackBusy && scheduledSources.length) {
+          // iOS can interrupt output after scheduling. Retain the decoded clip
+          // on its message, and expose a user-gesture replay instead of silence.
+          stopAllSpeech();
+          showSystemMessage("Audio playback was interrupted. Tap the message's speaker to replay its recording.");
+        }
+      });
     }
     return audioContext;
   }
@@ -10504,6 +10548,15 @@ async function primeAudioForAutoplay() {
   }
 
   function chatReplyReady() {
+    if (reauthenticationRequired) {
+      openAuthModal("sign-in");
+      return false;
+    }
+    if (pendingBotReply && pendingBotReply.requestSessionId !== (activeChatSession?.id || "")) pendingBotReply = null;
+    if (pendingBotReply) {
+      showSystemMessage("Your next reply is waiting for audio. Tap its retry button before answering.");
+      return false;
+    }
     if (openingBotInFlight || !/^resp_[a-zA-Z0-9_-]+$/.test(activeConversationResponseId)) {
       showSystemMessage("Wait for the opening reply and its context key before answering.");
       return false;
@@ -10898,7 +10951,50 @@ function isSamePlayback(button, type, id) {
     };
   }
 
+  let pendingBotReply = null;
+
   async function presentBotReply(data, progress, options = {}) {
+    pendingBotReply = data;
+    try {
+      const result = await presentBotReplyOnce(data, progress, options);
+      if (pendingBotReply === data) pendingBotReply = null;
+      document.querySelectorAll("[data-reply-audio-retry]").forEach(button => button.remove());
+      return result;
+    } catch (error) {
+      const stillCurrent = data.expectedParentResponseId === activeConversationResponseId &&
+        data.requestSessionId === (activeChatSession?.id || "");
+      if (!stillCurrent) {
+        if (pendingBotReply === data) pendingBotReply = null;
+        throw error;
+      }
+      // Openings already provide the same-response retry in their caller.
+      if (messages.some(message => message?.role === "assistant")) {
+        document.querySelectorAll("[data-reply-audio-retry]").forEach(button => button.remove());
+        const retry = document.createElement("button");
+        retry.type = "button";
+        retry.dataset.replyAudioRetry = "true";
+        retry.textContent = "Tap to load and play your reply";
+        retry.addEventListener("click", async () => {
+          retry.disabled = true;
+          void primeAudioForAutoplay();
+          const nextProgress = addResponseProgress("speech");
+          const bonus = prepareReplyBonusQueue(options.language || getCurrentChatLanguage());
+          try {
+            await presentBotReply(data, nextProgress, { ...options, retryAudio: true,
+              expectedTarget: bonus.expectedTargetForReply,
+              preparedBonusWordsPromise: bonus.preparedBonusWordsPromise });
+          } catch (retryError) {
+            nextProgress.remove();
+            showSystemMessage(getReadableError(retryError));
+          } finally { retry.disabled = false; }
+        });
+        messageHistory.appendChild(retry);
+      }
+      throw error;
+    }
+  }
+
+  async function presentBotReplyOnce(data, progress, options = {}) {
     const assertContext = () => {
       if (!/^resp_[a-zA-Z0-9_-]+$/.test(String(data?.responseId || ""))) {
         throw new Error("Reply withheld: missing context key.");
@@ -10934,7 +11030,8 @@ function isSamePlayback(button, type, id) {
     const speechStartedAt = performance.now();
     const bonusStartedAt = performance.now();
     let [fullSpeech, preparedBonusWords] = await Promise.all([
-      fetchFullSpeech(data.reply, language).then(result => {
+      (data.preparedSpeech ? Promise.resolve(data.preparedSpeech) :
+        fetchFullSpeech(data.reply, language, options.retryAudio === true)).then(result => {
         progress?.addTiming?.(
           "Prompt speech",
           performance.now() - speechStartedAt,
@@ -10955,27 +11052,6 @@ function isSamePlayback(button, type, id) {
     ]);
 
     if (preparedBonusWords?.preparationError) {
-      if (!isOpeningMessage) {
-        const retry = document.createElement("button");
-        retry.type = "button";
-        retry.textContent = "Retry loading reply and bonus words";
-        retry.addEventListener("click", async () => {
-          retry.remove();
-          void primeAudioForAutoplay();
-          const nextProgress = addResponseProgress("speech");
-          const nextBonus = prepareReplyBonusQueue(language);
-          try {
-            await presentBotReply(data, nextProgress, {
-              ...options, preparedBonusWordsPromise: nextBonus.preparedBonusWordsPromise,
-              expectedTarget: nextBonus.expectedTargetForReply
-            });
-          } catch (error) {
-            nextProgress.remove();
-            showSystemMessage(getReadableError(error));
-          }
-        });
-        messageHistory.appendChild(retry);
-      }
       throw new Error(`Bonus words could not be prepared: ${preparedBonusWords.preparationError}. The reply has not been displayed or committed.`);
     }
     progress?.setStage("decode");
@@ -10995,6 +11071,7 @@ function isSamePlayback(button, type, id) {
       }
     }
     progress?.addTiming?.("Audio decode and completeness check", performance.now() - decodeStartedAt);
+    data.preparedSpeech = fullSpeech;
 
     const expectedTarget = await Promise.resolve(expectedTargetSource);
     if (autoplay) await unlockAudioContext();
@@ -12114,10 +12191,27 @@ async function handleMessagePlayButton(messageId, button) {
     if (!audioBuffer || !Number.isFinite(audioBuffer.duration)) return false;
     const wordCount = (String(text || "").match(/[\p{L}\p{M}\p{N}]+/gu) || []).length;
     const minimumDuration = Math.max(0.55, wordCount * 0.18);
-    return audioBuffer.duration >= minimumDuration;
+    if (audioBuffer.duration < minimumDuration) return false;
+    // A decodable, correctly sized all-silence file is still not speech.
+    for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+      const samples = audioBuffer.getChannelData(channel);
+      for (let i = 0; i < samples.length; i += 32) {
+        if (Number.isFinite(samples[i]) && Math.abs(samples[i]) > 0.0001) return true;
+      }
+    }
+    return false;
   }
 
   async function fetchFullSpeech(text, languageOverride = null, bypassCache = false) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try { return await fetchFullSpeechOnce(text, languageOverride, bypassCache || attempt > 0); }
+      catch (error) {
+        if (attempt || (error.status >= 400 && error.status < 500 && error.status !== 429)) throw error;
+      }
+    }
+  }
+
+  async function fetchFullSpeechOnce(text, languageOverride = null, bypassCache = false) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 20000);
   try {
@@ -12133,7 +12227,9 @@ async function handleMessagePlayButton(messageId, button) {
     })
   });
 
-  const data = await parseJsonResponse(response, "Speech");
+  let data;
+  try { data = await parseJsonResponse(response, "Speech"); }
+  catch (error) { error.status = response.status; throw error; }
   const bytes = base64ToArrayBuffer(data.audioBase64 || "");
   if (!bytes.byteLength || (data.audioByteLength != null && bytes.byteLength !== data.audioByteLength)) {
     throw new Error("Prompt audio transfer is incomplete.");
@@ -12166,14 +12262,14 @@ async function handleMessagePlayButton(messageId, button) {
   async function getFullSpeechForMessage(state) {
     if (state.fullSpeech) return state.fullSpeech;
 
-    if (state.fullSpeechPromise) {
+    if (!state.fullSpeechPromise) state.fullSpeechPromise = fetchFullSpeech(state.text);
+    try {
       state.fullSpeech = await state.fullSpeechPromise;
       return state.fullSpeech;
+    } catch (error) {
+      state.fullSpeechPromise = null; // A later tap must issue a fresh request.
+      throw error;
     }
-
-    state.fullSpeechPromise = fetchFullSpeech(state.text);
-    state.fullSpeech = await state.fullSpeechPromise;
-    return state.fullSpeech;
   }
 
   async function prepareWordClipsForState(state, clips) {
@@ -12270,7 +12366,7 @@ async function handleMessagePlayButton(messageId, button) {
   source.connect(context.destination);
 
   try {
-    source.start(context.currentTime + 0.04);
+    source.start(context.currentTime);
   } catch (error) {
     source.disconnect();
     if (button) setPlaybackButtonStopped(button);
