@@ -6094,6 +6094,9 @@ async function requestSetupSpeechPermission() {
 
 async function startConfiguredChat() {
   await unlockAudio().catch(() => {});
+  // Every entry point must finish a pending checkpoint before resetting its
+  // response key, including after a reload or an alternate start-chat button.
+  await ensureConversationCheckpoint();
 
   selectedChatLanguage = chatSetupLanguageSelect?.value || "English";
   selectedPreferredName = String(setupPreferredNameInput?.value || "")
@@ -6143,6 +6146,7 @@ async function startConfiguredChat() {
   renderedBotTurnIds.clear();
 
   activeChatSession = {
+    userId: currentUser?.id || "",
     id: globalThis.crypto?.randomUUID
       ? globalThis.crypto.randomUUID()
       : `session-${Date.now()}-${Math.random().toString(36).slice(2)}`,
@@ -10334,14 +10338,56 @@ async function commitVisibleChatTurn({
   }, "Chat history");
 }
 
+const pendingConversationHeads = new Map();
+function conversationHeadKey(userId) { return `lipsmaxxed-pending-context:${userId}`; }
+
+function pendingConversationHead(userId) {
+  try {
+    const record = JSON.parse(localStorage.getItem(conversationHeadKey(userId)) || "null");
+    return record?.userId === userId && /^resp_[a-zA-Z0-9_-]+$/.test(record.responseId) ? record : null;
+  } catch { return pendingConversationHeads.get(userId) || null; }
+}
+
+function rememberConversationHead(responseId) {
+  const userId = currentUser?.id;
+  if (!userId || !/^resp_[a-zA-Z0-9_-]+$/.test(responseId)) return;
+  const record = { userId, responseId };
+  pendingConversationHeads.set(userId, record);
+  try { localStorage.setItem(conversationHeadKey(userId), JSON.stringify(record)); }
+  catch {
+    showSystemMessage("Conversation memory could not be queued in browser storage. End this chat before closing the page so its checkpoint can be saved.");
+  }
+}
+
+async function ensureConversationCheckpoint() {
+  const userId = currentUser?.id;
+  if (!userId) return;
+  if (sessionCompactionPromise) await sessionCompactionPromise;
+  if (currentUser?.id !== userId) throw new Error("Account changed while preparing conversation memory.");
+  if (!pendingConversationHead(userId) && activeChatSession?.userId === userId &&
+      activeConversationResponseId && activeConversationResponseId !== lastCompactedResponseId) {
+    rememberConversationHead(activeConversationResponseId);
+  }
+  if (pendingConversationHead(userId)) {
+    const saved = await checkpointActiveConversation();
+    if (currentUser?.id !== userId) throw new Error("Account changed while preparing conversation memory.");
+    if (!saved || pendingConversationHead(userId)) {
+      throw new Error(`Previous conversation memory is not saved yet. ${lastCompactionError || "Please retry starting the chat."}`);
+    }
+  }
+}
+
 function checkpointActiveConversation() {
-  const responseId = String(activeConversationResponseId || "").trim();
-  if (!currentUser || !responseId || responseId === lastCompactedResponseId) {
+  const userId = currentUser?.id;
+  const responseId = userId ? pendingConversationHead(userId)?.responseId ||
+    (activeChatSession?.userId === userId ? activeConversationResponseId : "") : "";
+  if (!userId || !responseId) {
     return Promise.resolve(false);
   }
   if (sessionCompactionPromise && sessionCompactionResponseId === responseId) {
     return sessionCompactionPromise;
   }
+  if (sessionCompactionPromise) return sessionCompactionPromise.then(() => checkpointActiveConversation());
 
   sessionCompactionResponseId = responseId;
   const request = callChatFunction({
@@ -10349,8 +10395,15 @@ function checkpointActiveConversation() {
     previousResponseId: responseId
   }, "Conversation checkpoint")
     .then(() => {
-      lastCompactedResponseId = responseId;
-      lastCompactionError = "";
+      if (currentUser?.id === userId) {
+        lastCompactedResponseId = responseId;
+        lastCompactionError = "";
+      }
+      // Do not erase a newer turn queued while this checkpoint was saving.
+      if (pendingConversationHead(userId)?.responseId === responseId) {
+        pendingConversationHeads.delete(userId);
+        try { localStorage.removeItem(conversationHeadKey(userId)); } catch {}
+      }
       return true;
     })
     .catch(error => {
@@ -10898,6 +10951,7 @@ function isSamePlayback(button, type, id) {
     const language = payload.language || getCurrentChatLanguage();
     const parentResponseId = activeConversationResponseId;
     const requestSessionId = activeChatSession?.id || "";
+    const requestUserId = currentUser?.id || "";
     if (!payload.isOpeningMessage && !/^resp_[a-zA-Z0-9_-]+$/.test(parentResponseId)) {
       throw new Error("The preceding message has no secured context key. No follow-up was sent.");
     }
@@ -10938,11 +10992,17 @@ function isSamePlayback(button, type, id) {
       ].slice(-80)
     }, label);
     const data = await dataPromise;
+    if (requestUserId !== (currentUser?.id || "")) throw new Error("Account changed while generating the reply.");
+    if (data.contextTrace && (data.contextTrace.parentResponseId || "") !== parentResponseId) {
+      throw new Error("The generation used a different conversation parent; the reply was not displayed.");
+    }
+    window.lipsMaxxedLastContextTrace = data.contextTrace || null;
     if (!/^resp_[a-zA-Z0-9_-]+$/.test(String(data?.responseId || ""))) {
       throw new Error("The reply has no valid context key and cannot be displayed.");
     }
     data.expectedParentResponseId = parentResponseId;
     data.requestSessionId = requestSessionId;
+    data.requestUserId = requestUserId;
 
     return {
       data,
@@ -11000,7 +11060,8 @@ function isSamePlayback(button, type, id) {
         throw new Error("Reply withheld: missing context key.");
       }
       if (data.expectedParentResponseId !== activeConversationResponseId ||
-          data.requestSessionId !== (activeChatSession?.id || "")) {
+          data.requestSessionId !== (activeChatSession?.id || "") ||
+          data.requestUserId !== (currentUser?.id || "")) {
         throw new Error("Reply discarded: its conversation parent or chat session changed.");
       }
     };
@@ -11115,6 +11176,7 @@ function isSamePlayback(button, type, id) {
     renderPreparedUpcomingWords(preparedBonusWords);
     botCard?.classList.remove("synchronized-pending");
     activateBotMessage(botMessageId);
+    rememberConversationHead(data.responseId);
     commitVisibleChatTurn({
       clientTurnId, language,
       userText: isOpeningMessage ? "" : visibleUserText,
@@ -14009,33 +14071,7 @@ async function startMemberChat() {
   chatStartInFlight = true;
   if (homeStartChatButton) homeStartChatButton.disabled = true;
   try {
-    // A new opening must not race the previous session's compaction write.
-    // If the learner reached home before that background request completed,
-    // wait here so the opening request can restore the finished checkpoint.
-    let memoryReady = true;
-    if (sessionCompactionPromise) {
-      memoryReady = await sessionCompactionPromise;
-    }
-    if (
-      !memoryReady &&
-      activeConversationResponseId &&
-      activeConversationResponseId !== lastCompactedResponseId
-    ) {
-      memoryReady = await checkpointActiveConversation();
-    } else if (
-      !sessionCompactionPromise &&
-      activeConversationResponseId &&
-      activeConversationResponseId !== lastCompactedResponseId
-    ) {
-      memoryReady = await checkpointActiveConversation();
-    }
-    if (!memoryReady) {
-      throw new Error(
-        lastCompactionError
-          ? `Your previous conversation memory could not be saved: ${lastCompactionError}`
-          : "Your previous conversation memory could not be saved. Please try starting the chat again."
-      );
-    }
+    // startConfiguredChat owns the common checkpoint gate for every entry point.
     await primeAudioForAutoplay();
     await startConfiguredChat();
   }
