@@ -4316,14 +4316,6 @@ button:disabled {
   min-width: 0;
 }
 
-.brand-logo {
-  width: clamp(46px, 5.4vw, 62px);
-  border-radius: 14px;
-  overflow: hidden;
-  flex: 0 0 auto;
-  box-shadow: var(--shadow-1);
-}
-
 .brand-title {
   font-size: clamp(1.16rem, 2.6vw, 1.5rem);
   letter-spacing: -0.035em;
@@ -6181,11 +6173,6 @@ button.is-busy .button-spinner {
   line-height: 1.55;
 }
 
-.bot-words {
-  font-size: 1.04rem;
-  line-height: 2.1;
-}
-
 .translate-all-button {
   border-radius: var(--r-pill);
   border-color: var(--line-2);
@@ -6305,219 +6292,9 @@ body.correction-lock .upcoming-words-panel {
   display: none !important;
 }
 
-/* ======================================================== correction cards */
-
-.speech-review-card {
-  position: relative;
-  width: min(880px, 100%);
-  margin: 18px auto;
-  padding: 20px 22px 20px 24px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  background: var(--s1);
-  box-shadow: var(--shadow-2);
-  overflow: hidden;
-}
-
-/* A single coloured rail carries the outcome, so the copy can stay calm. */
-.speech-review-card::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  background: var(--accent);
-}
-
-.speech-review-card.perfect-card {
-  border-color: var(--line);
-  background: linear-gradient(90deg, rgba(34, 197, 94, 0.07), transparent 42%), var(--s1);
-}
-
-.speech-review-card.perfect-card::before {
-  background: var(--good);
-}
-
-.speech-review-card.grammar-check-card {
-  border-color: var(--line);
-  background: linear-gradient(90deg, rgba(245, 158, 11, 0.07), transparent 42%), var(--s1);
-}
-
-.speech-review-card.grammar-check-card::before {
-  background: var(--translated);
-}
-
-.speech-review-card.response-failure-card::before {
-  background: var(--ink-3);
-}
-
-.speech-review-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 14px;
-}
-
-.speech-review-title {
-  margin: 0;
-  color: var(--ink-2);
-  font-size: 0.86rem;
-  font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-.speech-review-card.perfect-card .speech-review-title {
-  color: #86efac;
-}
-
-.speech-review-card.grammar-check-card .speech-review-title {
-  color: #fde68a;
-}
-
-.correction-points-earned {
-  padding: 4px 11px;
-  border: 1px solid var(--good-line);
-  border-radius: var(--r-pill);
-  background: var(--good-soft);
-  color: #86efac;
-  font-size: 0.82rem;
-  font-weight: 700;
-}
-
-.correction-layout {
-  gap: 16px;
-  align-items: flex-start;
-}
-
-.correction-side-controls {
-  gap: 7px;
-}
-
-.correction-text-zone {
-  min-width: 0;
-}
-
-.correction-line {
-  font-size: 1.1rem;
-  line-height: 2.05;
-}
-
-.context-review-stack {
-  gap: 0;
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  background: var(--s2);
-  overflow: hidden;
-}
-
-.context-review-section {
-  padding: 15px 17px;
-  border: 0;
-  background: transparent;
-}
-
-.context-review-section + .context-review-section {
-  border-top: 1px solid var(--line);
-}
-
-.context-review-label {
-  margin-bottom: 8px;
-  color: var(--ink-3);
-  font-size: 0.79rem;
-  font-weight: 550;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-.context-review-section.suggested-answer .context-review-label {
-  color: #93c5fd;
-}
-
-.speech-review-actions {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 10px;
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
-}
-
-.speech-review-button {
-  min-height: 46px;
-  padding: 0 16px;
-  border-radius: var(--r-sm);
-  font: inherit;
-  font-size: 0.93rem;
-  font-weight: 650;
-  cursor: pointer;
-  transition: background var(--press), border-color var(--press), color var(--press),
-    transform var(--press);
-}
-
-.speech-review-button.primary {
-  border: 0;
-  background: var(--accent-deep);
-  color: #fff;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset, var(--shadow-1);
-}
-
-.speech-review-button.primary:hover:not(:disabled) {
-  background: var(--accent-strong);
-}
-
-.speech-review-button.secondary {
-  border: 1px solid var(--line-2);
-  background: transparent;
-  color: var(--ink-2);
-}
-
-.speech-review-button.secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: var(--line-3);
-  color: var(--ink);
-}
-
-.speech-review-button:disabled {
-  opacity: 0.55;
-  cursor: wait;
-}
-
-.grammar-rule-note {
-  margin-top: 15px;
-  padding: 14px 16px;
-  border: 1px solid var(--amber-line);
-  border-radius: var(--r-md);
-  background: var(--amber-soft);
-  color: #f4e3b5;
-  font-size: 0.91rem;
-  line-height: 1.6;
-}
-
-.grammar-learn-more {
-  margin-left: 4px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--translated);
-  font: inherit;
-  font-weight: 650;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  cursor: pointer;
-}
-
-.grammar-learn-more:hover,
-.grammar-learn-more:focus-visible {
-  color: #fde68a;
-}
-
-.response-failure-title {
-  color: var(--ink-2);
-}
-
+/* The technical failure card keeps its plain wording and shows no internals. */
 .response-failure-summary {
-  color: var(--ink-2);
+  color: #e7d5d5;
   font-size: 0.95rem;
   line-height: 1.55;
 }
@@ -7139,25 +6916,6 @@ body.correction-lock .upcoming-words-panel {
     justify-content: center;
   }
 
-  .speech-review-card {
-    margin: 14px auto;
-    padding: 17px 16px 17px 18px;
-    border-radius: var(--r-md);
-  }
-
-  .speech-review-actions {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .correction-line {
-    font-size: 1.04rem;
-  }
-
-  .bot-words {
-    font-size: 1rem;
-    line-height: 2;
-  }
-
   .start-welcome {
     margin-top: 16vh;
     font-size: 1rem;
@@ -7231,6 +6989,527 @@ body.correction-lock .upcoming-words-panel {
 .master-composer button {
   color: #fff;
 }
+
+/* ------------------------------------------------- home top row and profile */
+
+.home-top-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.home-top-side {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 14px;
+  min-width: 0;
+}
+
+.member-home .member-hero {
+  margin: 0;
+  align-items: center;
+}
+
+.member-home .home-language-control,
+.member-home .member-practice {
+  margin: 0;
+}
+
+.member-practice {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .home-top-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.pf-photo-controls {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.pf-photo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+}
+
+.pf-photo-actions .ghost-button {
+  min-height: 42px;
+  padding: 0 15px;
+  font-size: 0.89rem;
+}
+
+.pf-photo-link summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-3);
+  font-size: 0.85rem;
+  font-weight: 550;
+  cursor: pointer;
+  list-style: none;
+}
+
+.pf-photo-link summary::-webkit-details-marker {
+  display: none;
+}
+
+.pf-photo-link summary::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border: 0 solid currentColor;
+  border-right-width: 1.6px;
+  border-bottom-width: 1.6px;
+  transform: rotate(-45deg);
+  transition: transform var(--press);
+}
+
+.pf-photo-link[open] summary::before {
+  transform: rotate(45deg);
+}
+
+.pf-photo-link summary:hover {
+  color: var(--ink);
+}
+
+.pf-photo-link .pf-label {
+  margin-top: 12px;
+}
+
+.pf-check {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 13px;
+  padding: 15px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-md);
+  background: var(--s2);
+  cursor: pointer;
+  transition: border-color var(--press), background var(--press);
+}
+
+.pf-check:hover {
+  border-color: var(--line-3);
+  background: var(--s3);
+}
+
+.pf-check input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.pf-check-box {
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--line-3);
+  border-radius: 7px;
+  background: transparent;
+  transition: background var(--press), border-color var(--press);
+}
+
+.pf-check-box::after {
+  content: "";
+  width: 11px;
+  height: 6px;
+  border: 0 solid #fff;
+  border-left-width: 2px;
+  border-bottom-width: 2px;
+  transform: rotate(-45deg) translateY(-1px) scale(0.6);
+  opacity: 0;
+  transition: opacity var(--press), transform var(--press);
+}
+
+.pf-check input:checked + .pf-check-box {
+  border-color: var(--accent-deep);
+  background: var(--accent-deep);
+}
+
+.pf-check input:checked + .pf-check-box::after {
+  opacity: 1;
+  transform: rotate(-45deg) translateY(-1px) scale(1);
+}
+
+.pf-check input:focus-visible + .pf-check-box {
+  box-shadow: var(--focus-ring);
+}
+
+.pf-check input:disabled + .pf-check-box {
+  opacity: 0.45;
+}
+
+.pf-check-copy strong,
+.pf-check-copy small {
+  display: block;
+}
+
+.pf-check-copy strong {
+  font-size: 0.93rem;
+  font-weight: 620;
+}
+
+.pf-check-copy small {
+  margin-top: 5px;
+  color: var(--ink-3);
+  font-size: 0.83rem;
+  line-height: 1.45;
+}
+
+.pf-check.is-blocked {
+  border-color: var(--danger-line);
+}
+
+.pf-check.is-blocked .pf-check-copy small {
+  color: #fca5a5;
+}
+
+.setup-enable-mic {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid var(--accent-line);
+  border-radius: var(--r-sm);
+  background: var(--accent-soft);
+  color: #bfdbfe;
+  font: inherit;
+  font-weight: 620;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.setup-enable-mic:hover {
+  background: rgba(37, 99, 235, 0.2);
+  color: #dbeafe;
+}
+
+.setup-enable-mic svg {
+  width: 17px;
+  height: 17px;
+  fill: currentColor;
+}
+
+/* =================================================== completion and review */
+
+.celebration-page {
+  background:
+    radial-gradient(70% 45% at 50% 0%, rgba(37, 99, 235, 0.16), transparent 62%),
+    radial-gradient(50% 40% at 50% 100%, rgba(74, 222, 128, 0.07), transparent 60%),
+    #07090d;
+}
+
+.celebrate-shell {
+  width: min(660px, 100%);
+  text-align: center;
+}
+
+.celebrate-mark {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 22px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.14);
+  border: 1px solid rgba(74, 222, 128, 0.32);
+  color: #86efac;
+}
+
+.celebrate-mark svg {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: celebrateTick 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.celebrate-ring {
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  border: 1px solid rgba(74, 222, 128, 0.5);
+  animation: celebratePulse 2.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.celebrate-ring-late {
+  animation-delay: 0.85s;
+}
+
+@keyframes celebratePulse {
+  0% { transform: scale(1); opacity: 0.6; }
+  60% { transform: scale(1.7); opacity: 0; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+
+@keyframes celebrateTick {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.celebrate-eyebrow {
+  margin: 0 0 8px;
+  color: #86efac;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.celebrate-shell h2 {
+  font-size: clamp(2.1rem, 6vw, 3.2rem);
+  letter-spacing: -0.05em;
+}
+
+.celebrate-lead {
+  max-width: 44ch;
+  margin: 14px auto 0;
+  color: var(--ink-2);
+  font-size: 1.02rem;
+  line-height: 1.55;
+}
+
+.celebrate-lead strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.celebration-page .summary-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 30px 0 24px;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+}
+
+.metric-tile {
+  padding: 20px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--s1);
+  box-shadow: var(--shadow-1);
+}
+
+.celebration-page .summary-metrics .metric-tile {
+  border-left: 1px solid var(--line);
+}
+
+.metric-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin: 0 auto 12px;
+  border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.metric-icon svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.metric-time .metric-icon { color: #93c5fd; background: rgba(96, 165, 250, 0.12); }
+.metric-words .metric-icon { color: #86efac; background: rgba(74, 222, 128, 0.12); }
+.metric-points .metric-icon { color: #fde68a; background: rgba(250, 204, 21, 0.12); }
+
+.metric-tile strong {
+  display: block;
+  font-size: 1.85rem;
+  font-weight: 750;
+  letter-spacing: -0.04em;
+}
+
+.metric-label {
+  display: block;
+  margin-top: 6px;
+  color: var(--ink-3);
+  font-size: 0.79rem;
+  font-weight: 500;
+}
+
+.celebration-page .confirm-callout {
+  padding: 24px;
+  text-align: center;
+}
+
+.celebration-page .confirm-callout h3 {
+  max-width: none;
+  margin: 0;
+  font-size: 1.24rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.celebration-page .confirm-callout p {
+  max-width: 42ch;
+  margin: 9px auto 18px;
+  color: var(--ink-2);
+  font-size: 0.93rem;
+  line-height: 1.55;
+}
+
+.celebration-page .confirm-callout .primary-action {
+  min-width: min(280px, 100%);
+  min-height: 52px;
+  font-size: 1rem;
+}
+
+.celebrate-secondary {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  margin-top: 22px;
+}
+
+.celebrate-secondary .review-session-button {
+  width: min(280px, 100%);
+  margin: 0;
+}
+
+.celebration-page .completion-shell h2 {
+  margin-top: 0;
+}
+
+/* -------------------------------------------------------- word review step */
+
+.confirmation-shell .confirmation-progress {
+  display: grid;
+  gap: 10px;
+  width: min(560px, 100%);
+  margin: 0 auto 30px;
+  text-align: center;
+}
+
+.confirmation-shell .confirmation-progress > div {
+  height: 6px;
+  margin: 0;
+}
+
+.confirmation-shell .confirmation-progress > span {
+  color: var(--ink-3);
+  font-size: 0.8rem;
+  font-weight: 550;
+}
+
+.review-prompt-card {
+  width: min(560px, 100%);
+  margin: 0 auto 26px;
+  padding: 30px 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--s1);
+  box-shadow: var(--shadow-2);
+}
+
+.review-prompt-kicker {
+  margin: 0 0 14px;
+  color: var(--ink-3);
+  font-size: 0.85rem;
+  font-weight: 550;
+}
+
+.review-prompt-card h2 {
+  margin: 0;
+  font-size: clamp(1.9rem, 5vw, 2.9rem);
+  font-weight: 750;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+}
+
+.confirmation-shell > p,
+.review-prompt-card > #confirmationPrompt {
+  margin: 16px 0 0;
+  color: var(--ink-3);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.confirmation-input-wrap input {
+  height: 58px;
+  font-size: 1.05rem;
+}
+
+.confirmation-form .primary-action {
+  min-height: 52px;
+  font-size: 0.98rem;
+}
+
+.confirmation-feedback {
+  min-height: 24px;
+  color: #93c5fd;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .celebration-page .summary-metrics {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .metric-tile {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    text-align: left;
+  }
+
+  .metric-icon {
+    margin: 0;
+  }
+
+  .metric-tile strong {
+    order: 3;
+    font-size: 1.4rem;
+  }
+
+  .metric-label {
+    margin: 0;
+    font-size: 0.86rem;
+  }
+}
   </style>
 </head>
 
@@ -7283,10 +7562,6 @@ body.correction-lock .upcoming-words-panel {
       <div id="accountDropdown" class="account-dropdown hidden">
         <div id="accountDisplayName" class="account-display-name"></div>
 
-        <button id="myStatsButton" class="account-menu-item" type="button">
-          My stats
-        </button>
-
         <button id="myProfileButton" class="account-menu-item" type="button">
           My profile
         </button>
@@ -7307,6 +7582,7 @@ body.correction-lock .upcoming-words-panel {
 </main>
 
 <main id="signedInHome" class="member-home hidden" aria-label="Your LipsMaxxed home">
+  <div class="home-top-grid">
   <section class="member-hero app-surface">
     <div class="member-profile">
       <div id="homeProfileAvatar" class="member-avatar" aria-hidden="true"></div>
@@ -7320,6 +7596,7 @@ body.correction-lock .upcoming-words-panel {
     </button>
   </section>
 
+  <div class="home-top-side">
   <section class="home-language-control app-surface" aria-label="Current practice language">
     <label class="member-field home-language-field"><span>Language</span><select id="homeLanguageSelect">
       <option value="English">&#127482;&#127480; English</option><option value="Hebrew">&#127470;&#127473; Hebrew</option><option value="Spanish">&#127466;&#127480; Spanish</option><option value="French">&#127467;&#127479; French</option><option value="German">&#127465;&#127466; German</option><option value="Arabic">&#127480;&#127462; Arabic</option><option value="Russian">&#127479;&#127482; Russian</option><option value="Italian">&#127470;&#127481; Italian</option><option value="Portuguese">&#127477;&#127481; Portuguese</option><option value="Chinese">&#127464;&#127475; Chinese</option><option value="Japanese">&#127471;&#127477; Japanese</option><option value="Korean">&#127472;&#127479; Korean</option>
@@ -7338,6 +7615,8 @@ body.correction-lock .upcoming-words-panel {
       <button id="homeStartChatButton" class="primary-action" type="button">Start chat</button>
     </div>
   </section>
+  </div>
+  </div>
 
   <button id="askLipsMasterButton" class="ask-master-button ask-master-standalone" type="button">
       <span class="master-mini-mark"><img src="assets/language-logo.png" alt="" /></span>
@@ -7725,6 +8004,10 @@ body.correction-lock .upcoming-words-panel {
           </button>
         </div>
         <div id="setupPermissionStatus" class="setup-permission-status" aria-live="polite"></div>
+        <button id="setupEnableMicButton" class="setup-enable-mic hidden" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v5.5a4 4 0 0 0 4 4Zm6.5-4a1 1 0 0 0-2 0 4.5 4.5 0 0 1-9 0 1 1 0 0 0-2 0 6.5 6.5 0 0 0 5.5 6.42V20H8.5a1 1 0 1 0 0 2h7a1 1 0 1 0 0-2H13v-2.08a6.5 6.5 0 0 0 5.5-6.42Z"></path></svg>
+          Turn on the microphone
+        </button>
       </div>
 
       <button id="startChatButton" class="start-chat-button" type="button">
@@ -7808,17 +8091,47 @@ body.correction-lock .upcoming-words-panel {
       <section class="pf-card pf-card-wide">
         <div class="pf-card-head">
           <h2>Profile photo</h2>
-          <p>Paste a link to an image and it appears across the app.</p>
+          <p>Use a photo from your device, or paste a link. It appears across the app.</p>
         </div>
 
         <div class="pf-photo-row">
           <div id="profilePhotoPreview" class="pf-photo-preview" aria-hidden="true"></div>
-          <div class="pf-field">
-            <label class="pf-label" for="profilePhotoInput">Image link</label>
-            <input id="profilePhotoInput" class="pf-input" type="url" inputmode="url" autocomplete="url" placeholder="https://" spellcheck="false" />
-            <p class="pf-hint">Leave empty to use your initials instead.</p>
+
+          <div class="pf-photo-controls">
+            <div class="pf-photo-actions">
+              <button id="profilePhotoUploadButton" class="ghost-button" type="button">Upload a photo</button>
+              <button id="profilePhotoCameraButton" class="ghost-button" type="button">Take a photo</button>
+              <button id="profilePhotoRemoveButton" class="text-link" type="button">Remove</button>
+            </div>
+
+            <input id="profilePhotoFileInput" class="visually-hidden" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
+            <input id="profilePhotoCameraInput" class="visually-hidden" type="file" accept="image/*" capture="user" />
+
+            <details class="pf-photo-link">
+              <summary>Or paste a link</summary>
+              <label class="pf-label" for="profilePhotoInput">Image link</label>
+              <input id="profilePhotoInput" class="pf-input" type="url" inputmode="url" autocomplete="url" placeholder="https://" spellcheck="false" />
+            </details>
+
+            <p class="pf-hint" id="profilePhotoHint">Photos are resized on your device before they are saved. Leave this empty to use your initials.</p>
           </div>
         </div>
+      </section>
+
+      <section class="pf-card">
+        <div class="pf-card-head">
+          <h2>Speaking</h2>
+          <p>Turn this on once and speech practice starts without asking again.</p>
+        </div>
+
+        <label class="pf-check" for="profileMicToggle">
+          <input id="profileMicToggle" type="checkbox" />
+          <span class="pf-check-box" aria-hidden="true"></span>
+          <span class="pf-check-copy">
+            <strong>Use my microphone for speech practice</strong>
+            <small id="profileMicStatus">Checking...</small>
+          </span>
+        </label>
       </section>
     </div>
 
@@ -7835,27 +8148,53 @@ body.correction-lock .upcoming-words-panel {
   </div>
 </section>
 
-<section id="sessionSummaryPage" class="product-page hidden" aria-labelledby="sessionSummaryTitle">
-  <div class="product-page-shell summary-shell">
-    <div class="completion-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"/></svg></div>
-    <h2 id="sessionSummaryTitle">Congratulations! You learned <span id="summaryLearnedInline">0</span> words</h2>
-    <div class="summary-metrics">
-      <div><span>Total session time</span><strong id="summarySessionTime">0m</strong></div>
-      <div><span>Words learned</span><strong id="summaryWordsLearned">0</strong></div>
-      <div><span>Points gained</span><strong id="summaryPointsGained">0</strong></div>
+<section id="sessionSummaryPage" class="product-page celebration-page hidden" aria-labelledby="sessionSummaryTitle">
+  <div class="product-page-shell celebrate-shell">
+    <div class="celebrate-mark" aria-hidden="true">
+      <span class="celebrate-ring"></span>
+      <span class="celebrate-ring celebrate-ring-late"></span>
+      <svg viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"/></svg>
     </div>
+
+    <p class="celebrate-eyebrow">Chat complete</p>
+    <h2 id="sessionSummaryTitle">Nice work</h2>
+    <p class="celebrate-lead">You picked up <strong id="summaryLearnedInline">0</strong> new words this session.</p>
+
+    <div class="summary-metrics">
+      <div class="metric-tile metric-time">
+        <span class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></svg></span>
+        <strong id="summarySessionTime">0m</strong>
+        <span class="metric-label">Time practising</span>
+      </div>
+      <div class="metric-tile metric-words">
+        <span class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5.5h6a2.5 2.5 0 0 1 2 1 2.5 2.5 0 0 1 2-1h6v13h-6a2.5 2.5 0 0 0-2 1 2.5 2.5 0 0 0-2-1H4Z"/><path d="M12 6.5v12"/></svg></span>
+        <strong id="summaryWordsLearned">0</strong>
+        <span class="metric-label">New words</span>
+      </div>
+      <div class="metric-tile metric-points">
+        <span class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 4 2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4-3.9-3.8 5.4-.8Z"/></svg></span>
+        <strong id="summaryPointsGained">0</strong>
+        <span class="metric-label">Points earned</span>
+      </div>
+    </div>
+
     <section id="summaryGrammarSection" class="summary-grammar-section hidden" aria-labelledby="summaryGrammarTitle">
       <div class="summary-section-heading">
         <div><div class="member-eyebrow">From this session</div><h3 id="summaryGrammarTitle">Grammar tips</h3></div>
       </div>
       <div id="summaryGrammarTips" class="summary-grammar-tips"></div>
     </section>
-    <button id="reviewSessionChatButton" class="review-session-button" type="button">Review chat</button>
+
     <div id="summaryConfirmCallout" class="confirm-callout">
-      <h3>Before you go, don't forget to confirm the new words you learned</h3>
+      <h3>Lock in what you learned</h3>
+      <p>Confirm each new word and it saves to your vocabulary for review later.</p>
       <button id="confirmWordsButton" class="primary-action" type="button">Confirm words</button>
     </div>
-    <button id="summaryReturnHomeButton" class="quiet-link" type="button">Return to home</button>
+
+    <div class="celebrate-secondary">
+      <button id="reviewSessionChatButton" class="review-session-button" type="button">Review chat</button>
+      <button id="summaryReturnHomeButton" class="quiet-link" type="button">Return to home</button>
+    </div>
   </div>
 </section>
 
@@ -7870,10 +8209,17 @@ body.correction-lock .upcoming-words-panel {
 
 <section id="wordConfirmationPage" class="product-page hidden" aria-labelledby="confirmWordHeading">
   <div class="product-page-shell confirmation-shell">
-    <div class="confirmation-progress"><span id="confirmationProgressText">Word 1 of 1</span><div><i id="confirmationProgressFill"></i></div></div>
-    <div class="member-eyebrow">Confirm what you learned</div>
-    <h2 id="confirmWordHeading" dir="auto"></h2>
-    <p id="confirmationPrompt">Enter the word in the language you are learning.</p>
+    <div class="confirmation-progress">
+      <div><i id="confirmationProgressFill"></i></div>
+      <span id="confirmationProgressText">Word 1 of 1</span>
+    </div>
+
+    <div class="review-prompt-card">
+      <p class="review-prompt-kicker">How do you say this?</p>
+      <h2 id="confirmWordHeading" dir="auto"></h2>
+      <p id="confirmationPrompt">Enter the word in the language you are learning.</p>
+    </div>
+
     <form id="wordConfirmationForm" class="confirmation-form">
       <div id="confirmationWritingControl" class="confirmation-input-wrap text-only"><input id="wordConfirmationInput" autocomplete="off" aria-label="Word translation" /></div>
       <div id="confirmationSpeechControl" class="confirmation-speech-control hidden">
@@ -7897,8 +8243,17 @@ body.correction-lock .upcoming-words-panel {
   </div>
 </section>
 
-<section id="confirmationCompletePage" class="product-page hidden" aria-labelledby="confirmationCompleteTitle">
-  <div class="product-page-shell completion-shell"><div class="completion-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"/></svg></div><h2 id="confirmationCompleteTitle"><span id="confirmedWordTotal">0</span> words confirmed</h2><p>You're doing amazing!</p></div>
+<section id="confirmationCompletePage" class="product-page celebration-page hidden" aria-labelledby="confirmationCompleteTitle">
+  <div class="product-page-shell celebrate-shell completion-shell">
+    <div class="celebrate-mark" aria-hidden="true">
+      <span class="celebrate-ring"></span>
+      <span class="celebrate-ring celebrate-ring-late"></span>
+      <svg viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"/></svg>
+    </div>
+    <p class="celebrate-eyebrow">Saved to your vocabulary</p>
+    <h2 id="confirmationCompleteTitle"><span id="confirmedWordTotal">0</span> words confirmed</h2>
+    <p class="celebrate-lead">They will come back for review when it is time to practise them again.</p>
+  </div>
 </section>
 
 <section id="allChatsPage" class="product-page hidden" aria-labelledby="allChatsTitle">
@@ -8055,20 +8410,6 @@ body.correction-lock .upcoming-words-panel {
   </div>
 </section>
 
-<section id="endChatDialog" class="decision-modal hidden" role="dialog" aria-modal="true" aria-labelledby="endChatDialogTitle">
-  <div class="decision-panel">
-    <button id="endChatDialogClose" class="dialog-close" type="button" aria-label="Close">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
-    </button>
-    <h2 id="endChatDialogTitle">End this chat?</h2>
-    <p>You will see your summary and can confirm the new words you picked up.</p>
-    <div class="decision-actions">
-      <button id="confirmEndChatButton" class="primary-action" type="button">End chat</button>
-      <button id="keepChattingButton" class="ghost-button" type="button">Keep practising</button>
-    </div>
-  </div>
-</section>
-
 <div id="appToastHost" class="toast-host" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -8163,7 +8504,6 @@ const confirmNewPasswordInput = document.getElementById("confirmNewPasswordInput
 const toggleNewPasswordButton = document.getElementById("toggleNewPasswordButton");
 const toggleConfirmNewPasswordButton = document.getElementById("toggleConfirmNewPasswordButton");
 
-const myStatsButton = document.getElementById("myStatsButton");
 const statsPage = document.getElementById("statsPage");
 const closeStatsButton = document.getElementById("closeStatsButton");
 const statsLanguageSelect = document.getElementById("statsLanguageSelect");
@@ -8277,10 +8617,6 @@ const grammarFollowUpSend = document.getElementById("grammarFollowUpSend");
 
 const sessionBar = document.getElementById("sessionBar");
 const sessionTimer = document.getElementById("sessionTimer");
-const endChatDialog = document.getElementById("endChatDialog");
-const endChatDialogClose = document.getElementById("endChatDialogClose");
-const confirmEndChatButton = document.getElementById("confirmEndChatButton");
-const keepChattingButton = document.getElementById("keepChattingButton");
 const appToastHost = document.getElementById("appToastHost");
 
 const authHeading = document.getElementById("authHeading");
@@ -8297,6 +8633,16 @@ const profilePhotoPreview = document.getElementById("profilePhotoPreview");
 const profileResetButton = document.getElementById("profileResetButton");
 const profileSignOutButton = document.getElementById("profileSignOutButton");
 
+const profilePhotoUploadButton = document.getElementById("profilePhotoUploadButton");
+const profilePhotoCameraButton = document.getElementById("profilePhotoCameraButton");
+const profilePhotoRemoveButton = document.getElementById("profilePhotoRemoveButton");
+const profilePhotoFileInput = document.getElementById("profilePhotoFileInput");
+const profilePhotoCameraInput = document.getElementById("profilePhotoCameraInput");
+const profilePhotoHint = document.getElementById("profilePhotoHint");
+const profileMicToggle = document.getElementById("profileMicToggle");
+const profileMicStatus = document.getElementById("profileMicStatus");
+const setupEnableMicButton = document.getElementById("setupEnableMicButton");
+
 const masterSearchInput = document.getElementById("masterSearchInput");
 const masterCatalogueToggle = document.getElementById("masterCatalogueToggle");
 const masterCatalogueClose = document.getElementById("masterCatalogueClose");
@@ -8306,6 +8652,7 @@ let sharedMicStream = null;
 let sessionTimerHandle = null;
 let masterSearchTerm = "";
 let profileBaseline = null;
+let profilePhotoValue = "";
 
 let currentLanguagePoints = 0;
 let pointsAnimationFrame = null;
@@ -8385,6 +8732,99 @@ let correctionOutcomeSequence = 0;
 const languageFactQueues = new Map();
 const languageFactRequests = new Map();
 const recentLanguageFacts = new Map();
+
+/* =========================================================================
+   Asked-question ledger
+
+   The model is not asked to remember what it has already asked. Every
+   question it produces is recorded here, per learner and language, and the
+   recent list is sent with each request so the server can forbid repeats
+   outright instead of hoping the history was reviewed.
+   ========================================================================= */
+
+const ASKED_QUESTION_LIMIT = 200;
+const ASKED_QUESTION_MAX_AGE_MS = 120 * 24 * 60 * 60 * 1000;
+
+function chatQuestionOnly(reply) {
+  return String(reply || "")
+    .split(/[.!。！]/u)
+    .filter(part => part.trim())
+    .pop()
+    ?.trim()
+    .slice(0, 200) || "";
+}
+
+function askedQuestionsStorageKey(language) {
+  return `lipsmaxxed-asked-questions:${currentUser?.id || "signed-out"}:${language}`;
+}
+
+function loadAskedQuestions(language) {
+  try {
+    const rows = JSON.parse(localStorage.getItem(askedQuestionsStorageKey(language)) || "[]");
+    if (!Array.isArray(rows)) return [];
+    const cutoff = Date.now() - ASKED_QUESTION_MAX_AGE_MS;
+    return rows.filter(row => row && typeof row.q === "string" && Number(row.at || 0) >= cutoff);
+  } catch {
+    return [];
+  }
+}
+
+function saveAskedQuestions(language, rows) {
+  try {
+    localStorage.setItem(
+      askedQuestionsStorageKey(language),
+      JSON.stringify(rows.slice(-ASKED_QUESTION_LIMIT))
+    );
+  } catch {
+    // The in-memory conversation still carries this session's questions.
+  }
+}
+
+function rememberAskedQuestion(reply, language = getCurrentChatLanguage()) {
+  const question = chatQuestionOnly(reply);
+  if (!question || !/[?؟？]/u.test(question)) return;
+
+  const rows = loadAskedQuestions(language);
+  const normalized = question.toLocaleLowerCase();
+  if (rows.some(row => String(row.q || "").toLocaleLowerCase() === normalized)) return;
+
+  rows.push({ q: question, at: Date.now() });
+  saveAskedQuestions(language, rows);
+}
+
+/*
+  Past chats on this device are a second source, so a fresh visit still knows
+  what was asked before the ledger existed or after storage was cleared.
+*/
+function hydrateAskedQuestionsFromHistory(language) {
+  const rows = loadAskedQuestions(language);
+  if (rows.length) return;
+
+  const seen = new Set();
+  const recovered = [];
+
+  for (const session of getSessionHistory()) {
+    if (session?.language !== language) continue;
+    for (const item of Array.isArray(session.transcript) ? session.transcript : []) {
+      if (item?.role !== "assistant") continue;
+      const question = chatQuestionOnly(item.content);
+      if (!question || !/[?؟？]/u.test(question)) continue;
+      const key = question.toLocaleLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      recovered.push({ q: question, at: Number(session.endedAt || session.startedAt || Date.now()) });
+    }
+  }
+
+  if (recovered.length) saveAskedQuestions(language, recovered);
+}
+
+function recentAskedQuestions(language = getCurrentChatLanguage(), limit = 70) {
+  return loadAskedQuestions(language)
+    .slice(-limit)
+    .map(row => row.q)
+    .filter(Boolean);
+}
 
 function createClientTurnId() {
   const turnId = globalThis.crypto?.randomUUID
@@ -9277,7 +9717,7 @@ function openChatSetup() {
 
   chatSetupModal?.classList.remove("hidden");
   prefetchLanguageFact(selectedChatLanguage).catch(() => {});
-  requestSetupSpeechPermission().catch(() => {});
+  void refreshSetupMicrophoneState();
 }
 
 function closeChatSetup() {
@@ -9294,6 +9734,8 @@ function setSetupInputMode(mode) {
     setupPermissionStatus.textContent = "";
     setupPermissionStatus.classList.remove("success", "error");
   }
+
+  void refreshSetupMicrophoneState();
 }
 
 function setSetupPermissionMessage(text, tone = "") {
@@ -9416,6 +9858,7 @@ async function startConfiguredChat() {
   goTo("/chat");
 
   loadReviewScheduleState(selectedChatLanguage);
+  hydrateAskedQuestionsFromHistory(selectedChatLanguage);
 
   closeChatSetup();
 
@@ -10110,6 +10553,10 @@ function animatePointsFlyer(pointsGained, sourceEl = null) {
 }
 
 function showPointsAward(pointsGained, newTotal, language, sourceEl = null, details = {}) {
+  // A bonus word already plays its own, brighter cue.
+  if (Number(pointsGained) > 0 && !Number(details.bonusWordsSaid)) {
+    void playInterfaceCue("points");
+  }
   if (!pointsGained || pointsGained <= 0) return;
 
   setPointsBadgeVisible(true);
@@ -10121,29 +10568,139 @@ function showPointsAward(pointsGained, newTotal, language, sourceEl = null, deta
   animatePointsTotal(oldTotal, newTotal, language);
 }
 
-async function playLearningFeedbackSound(kind = "correct") {
+/* =========================================================================
+   Interface sounds
+
+   Short tuned cues rather than beeps: each one is a small chord played
+   through a shared bus with a gentle low-pass and a short delay, so the
+   result sounds like an instrument in a room instead of an oscillator.
+   ========================================================================= */
+
+const SOUND_CUES = {
+  // Two-note lift, used whenever points land.
+  points: {
+    type: "triangle",
+    gain: 0.075,
+    decay: 0.36,
+    sparkle: 0.28,
+    notes: [[783.99, 0], [1174.66, 0.075]]
+  },
+  // Brighter major triad for a bonus word said correctly.
+  bonus: {
+    type: "triangle",
+    gain: 0.08,
+    decay: 0.44,
+    sparkle: 0.34,
+    notes: [[659.25, 0], [987.77, 0.06], [1318.51, 0.13]]
+  },
+  correct: {
+    type: "sine",
+    gain: 0.085,
+    decay: 0.4,
+    sparkle: 0.22,
+    notes: [[523.25, 0], [659.25, 0.065], [783.99, 0.13]]
+  },
+  // Gentle, never punitive: a soft falling second.
+  incorrect: {
+    type: "triangle",
+    gain: 0.06,
+    decay: 0.42,
+    notes: [[329.63, 0], [261.63, 0.11]]
+  },
+  // End of a chat: a rising pentatonic run over a sustained fifth.
+  complete: {
+    type: "triangle",
+    gain: 0.085,
+    decay: 0.7,
+    sparkle: 0.3,
+    pad: true,
+    notes: [[523.25, 0], [659.25, 0.1], [783.99, 0.2], [1046.5, 0.31], [1318.51, 0.44]]
+  }
+};
+
+let interfaceSoundBus = null;
+
+function getInterfaceSoundBus(context) {
+  if (interfaceSoundBus && interfaceSoundBus.context === context) return interfaceSoundBus;
+
+  const master = context.createGain();
+  master.gain.value = 0.9;
+
+  const tone = context.createBiquadFilter();
+  tone.type = "lowpass";
+  tone.frequency.value = 7600;
+  tone.Q.value = 0.4;
+
+  // A short feedback delay gives the cues a little air without a reverb file.
+  const delay = context.createDelay(1);
+  delay.delayTime.value = 0.125;
+
+  const feedback = context.createGain();
+  feedback.gain.value = 0.2;
+
+  const wet = context.createGain();
+  wet.gain.value = 0.18;
+
+  master.connect(tone);
+  tone.connect(context.destination);
+  tone.connect(delay);
+  delay.connect(feedback);
+  feedback.connect(delay);
+  delay.connect(wet);
+  wet.connect(context.destination);
+
+  interfaceSoundBus = { context, master };
+  return interfaceSoundBus;
+}
+
+function playCueTone(context, destination, frequency, at, duration, type, gain) {
+  const oscillator = context.createOscillator();
+  const amplitude = context.createGain();
+
+  oscillator.type = type;
+  oscillator.frequency.setValueAtTime(frequency, at);
+
+  amplitude.gain.setValueAtTime(0.0001, at);
+  amplitude.gain.exponentialRampToValueAtTime(Math.max(0.0002, gain), at + 0.014);
+  amplitude.gain.exponentialRampToValueAtTime(0.0001, at + duration);
+
+  oscillator.connect(amplitude);
+  amplitude.connect(destination);
+  oscillator.start(at);
+  oscillator.stop(at + duration + 0.06);
+}
+
+async function playInterfaceCue(name) {
+  const cue = SOUND_CUES[name];
+  if (!cue) return;
+
   try {
     await unlockAudioContext();
     const context = getAudioContext();
-    const start = context.currentTime;
-    const notes = kind === "correct" ? [523.25, 659.25, 783.99] : [220, 164.81];
-    notes.forEach((frequency, index) => {
-      const oscillator = context.createOscillator();
-      const gain = context.createGain();
-      const noteStart = start + index * (kind === "correct" ? 0.075 : 0.11);
-      oscillator.type = kind === "correct" ? "sine" : "triangle";
-      oscillator.frequency.setValueAtTime(frequency, noteStart);
-      gain.gain.setValueAtTime(0.0001, noteStart);
-      gain.gain.exponentialRampToValueAtTime(0.11, noteStart + 0.018);
-      gain.gain.exponentialRampToValueAtTime(0.0001, noteStart + 0.16);
-      oscillator.connect(gain);
-      gain.connect(context.destination);
-      oscillator.start(noteStart);
-      oscillator.stop(noteStart + 0.18);
+    if (!context) return;
+
+    const bus = getInterfaceSoundBus(context);
+    const start = context.currentTime + 0.012;
+
+    cue.notes.forEach(([frequency, offset]) => {
+      playCueTone(context, bus.master, frequency, start + offset, cue.decay, cue.type, cue.gain);
+      if (cue.sparkle) {
+        playCueTone(context, bus.master, frequency * 2, start + offset, cue.decay * 0.55, "sine", cue.gain * cue.sparkle);
+      }
     });
+
+    if (cue.pad) {
+      const root = cue.notes[0][0] / 2;
+      playCueTone(context, bus.master, root, start, cue.decay + 0.9, "sine", cue.gain * 0.42);
+      playCueTone(context, bus.master, root * 1.5, start + 0.05, cue.decay + 0.8, "sine", cue.gain * 0.26);
+    }
   } catch {
     // Visual feedback remains complete when a browser blocks synthesized audio.
   }
+}
+
+async function playLearningFeedbackSound(kind = "correct") {
+  await playInterfaceCue(kind === "correct" ? "correct" : "incorrect");
 }
 
 function animateBonusWordToPoints(card) {
@@ -10182,7 +10739,7 @@ function celebrateSpokenBonusWords(wordKeys = []) {
         action.setAttribute("aria-label", "Bonus word completed");
         action.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.2 4.2L19 7"/></svg>';
       }
-      playLearningFeedbackSound("correct");
+      void playInterfaceCue("bonus");
       animateBonusWordToPoints(card);
     }, index * 180);
   });
@@ -14457,14 +15014,14 @@ function isSamePlayback(button, type, id) {
       previousFacts: [
         ...getSeenLanguageFacts(language),
         ...getLanguageFactQueue(language)
-      ].slice(-80)
+      ].slice(-80),
+      askedQuestions: recentAskedQuestions(language)
     }, label);
     const data = await dataPromise;
     if (requestUserId !== (currentUser?.id || "")) throw new Error("Account changed while generating the reply.");
     if (data.contextTrace && (data.contextTrace.parentResponseId || "") !== parentResponseId) {
       throw new Error("The generation used a different conversation parent; the reply was not displayed.");
     }
-    window.lipsMaxxedLastContextTrace = data.contextTrace || null;
     if (!/^resp_[a-zA-Z0-9_-]+$/.test(String(data?.responseId || ""))) {
       throw new Error("The reply has no valid context key and cannot be displayed.");
     }
@@ -15410,6 +15967,7 @@ try {
 
   function addBotMessage(text, options = {}) {
     text = cleanInterfaceText(text);
+    rememberAskedQuestion(text, options.language || getCurrentChatLanguage());
     const id = `bot-${++messageCounter}`;
 
     const card = document.createElement("div");
@@ -16519,8 +17077,191 @@ function paintAvatar(target, url, name) {
   target.appendChild(image);
 }
 
+/* ---------------------------------------------------------- profile photo -- */
+
+const AVATAR_EDGE = 256;
+const AVATAR_MAX_CHARS = 90000;
+const MICROPHONE_OPT_IN_KEY = "lipsmaxxed-microphone-opt-in";
+
+function loadImageSource(file) {
+  if (window.createImageBitmap) {
+    return createImageBitmap(file, { imageOrientation: "from-image" })
+      .catch(() => createImageBitmap(file));
+  }
+
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => { URL.revokeObjectURL(objectUrl); resolve(image); };
+    image.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error("That image could not be read.")); };
+    image.src = objectUrl;
+  });
+}
+
+/*
+  Photos are cropped square and compressed here, on the device, so an ordinary
+  phone picture becomes a few kilobytes instead of several megabytes.
+*/
+async function fileToAvatarImage(file) {
+  if (!file) return "";
+  if (!/^image\//i.test(file.type || "")) {
+    throw new Error("Choose an image file.");
+  }
+  if (file.size > 25 * 1024 * 1024) {
+    throw new Error("That image is too large. Choose one under 25 MB.");
+  }
+
+  const source = await loadImageSource(file);
+  const width = source.width || source.naturalWidth;
+  const height = source.height || source.naturalHeight;
+  if (!width || !height) throw new Error("That image could not be read.");
+
+  const edge = Math.min(width, height);
+  const size = Math.min(AVATAR_EDGE, edge);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+
+  const context = canvas.getContext("2d");
+  context.imageSmoothingEnabled = true;
+  context.imageSmoothingQuality = "high";
+  context.drawImage(
+    source,
+    (width - edge) / 2, (height - edge) / 2, edge, edge,
+    0, 0, size, size
+  );
+  source.close?.();
+
+  for (const quality of [0.82, 0.7, 0.58, 0.45]) {
+    const encoded = canvas.toDataURL("image/jpeg", quality);
+    if (encoded.length <= AVATAR_MAX_CHARS) return encoded;
+  }
+
+  throw new Error("That photo could not be made small enough. Try a different one.");
+}
+
+function isStoredPhoto(value) {
+  return /^data:image\/(png|jpeg|jpg|webp);base64,/i.test(String(value || ""));
+}
+
+function setProfilePhotoValue(value, { fromDevice = false } = {}) {
+  profilePhotoValue = String(value || "").trim();
+
+  if (profilePhotoInput && !fromDevice) {
+    // Keep the link box for links only; device photos are not readable text.
+  }
+  if (profilePhotoInput && fromDevice) profilePhotoInput.value = "";
+
+  if (profilePhotoHint) {
+    profilePhotoHint.textContent = isStoredPhoto(profilePhotoValue)
+      ? "Saved from your device. Choose another photo or remove it to go back to your initials."
+      : "Photos are resized on your device before they are saved. Leave this empty to use your initials.";
+  }
+
+  renderProfilePhotoPreview();
+  syncProfileActionState();
+}
+
+async function useProfilePhotoFile(file, input) {
+  if (!file) return;
+
+  try {
+    if (profileMessage) {
+      profileMessage.textContent = "";
+      profileMessage.classList.remove("error", "success");
+    }
+    setProfilePhotoValue(await fileToAvatarImage(file), { fromDevice: true });
+  } catch (error) {
+    if (profileMessage) {
+      profileMessage.textContent = getReadableError(error);
+      profileMessage.classList.add("error");
+    }
+  } finally {
+    if (input) input.value = "";
+  }
+}
+
+/* ------------------------------------------------- microphone preference -- */
+
+function microphoneOptInStored() {
+  try {
+    return localStorage.getItem(MICROPHONE_OPT_IN_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function setMicrophoneOptIn(value) {
+  try {
+    if (value) localStorage.setItem(MICROPHONE_OPT_IN_KEY, "1");
+    else localStorage.removeItem(MICROPHONE_OPT_IN_KEY);
+  } catch {
+    // The in-memory grant still covers this visit.
+  }
+}
+
+async function renderMicrophonePreference() {
+  if (!profileMicToggle) return;
+
+  const state = await microphonePermissionState();
+  const granted =
+    state === "granted" ||
+    microphoneStreamIsLive() ||
+    (state === "unknown" && setupSpeechPermissionGranted && microphoneOptInStored());
+
+  profileMicToggle.checked = granted;
+  profileMicToggle.disabled = state === "denied";
+  profileMicToggle.closest(".pf-check")?.classList.toggle("is-blocked", state === "denied");
+
+  if (!profileMicStatus) return;
+
+  profileMicStatus.textContent =
+    state === "denied"
+      ? "Your browser is blocking the microphone for this site. Allow it in site settings to turn this on."
+      : granted
+        ? "On. Speech practice starts straight away, with nothing to confirm."
+        : "Off. Tick this once and your browser asks for permission a single time.";
+}
+
+async function enableMicrophoneFromPreference() {
+  try {
+    await acquireMicrophone();
+    parkMicrophone();
+    setMicrophoneOptIn(true);
+    return true;
+  } catch {
+    setMicrophoneOptIn(false);
+    return false;
+  }
+}
+
+/* --------------------------------------------------- practice setup state -- */
+
+async function refreshSetupMicrophoneState() {
+  if (!setupEnableMicButton) return;
+
+  const speechMode = selectedInputMode === "speech";
+  const state = await microphonePermissionState();
+  const ready = state === "granted" || microphoneStreamIsLive();
+
+  setupEnableMicButton.classList.toggle("hidden", ready || !speechMode || state === "denied");
+
+  if (!speechMode || ready) {
+    setSetupPermissionMessage("");
+    return;
+  }
+
+  if (state === "denied") {
+    setSetupPermissionMessage("Microphone access is blocked for this site. Allow it in your browser settings, or use Writing mode.", "error");
+    return;
+  }
+
+  setSetupPermissionMessage("");
+}
+
 function renderProfilePhotoPreview() {
-  const url = String(profilePhotoInput?.value || "").trim();
+  const url = profilePhotoValue;
   if (!profilePhotoPreview) return;
 
   if (!url) {
@@ -16537,7 +17278,7 @@ function readProfileForm() {
     username: String(profileUsernameInput?.value || "").trim(),
     fluentLanguage: profileFluentLanguageSelect?.value || "English",
     gender: selectedGender || "",
-    avatarUrl: String(profilePhotoInput?.value || "").trim()
+    avatarUrl: profilePhotoValue
   };
 }
 
@@ -16567,8 +17308,14 @@ function fillProfileForm() {
 
   setSelectedGender(currentUser?.user_metadata?.gender || "");
 
-  if (profilePhotoInput) {
-    profilePhotoInput.value = currentUser?.user_metadata?.avatar_url || "";
+  const storedPhoto = String(currentUser?.user_metadata?.avatar_url || "").trim();
+  profilePhotoValue = storedPhoto;
+  if (profilePhotoInput) profilePhotoInput.value = isStoredPhoto(storedPhoto) ? "" : storedPhoto;
+
+  if (profilePhotoHint) {
+    profilePhotoHint.textContent = isStoredPhoto(storedPhoto)
+      ? "Saved from your device. Choose another photo or remove it to go back to your initials."
+      : "Photos are resized on your device before they are saved. Leave this empty to use your initials.";
   }
 
   renderProfilePhotoPreview();
@@ -16609,6 +17356,7 @@ function enterProfileScreen() {
   }
 
   fillProfileForm();
+  void renderMicrophonePreference();
 }
 
 async function saveProfileSettings() {
@@ -16630,11 +17378,15 @@ async function saveProfileSettings() {
     if (username.length > 100) {
       throw new Error("Keep your display name to 100 characters or fewer.");
     }
-    if (avatarUrl && !/^https?:\/\//i.test(avatarUrl)) {
-      throw new Error("The photo link needs to start with https://");
+    const devicePhoto = isStoredPhoto(avatarUrl);
+    if (avatarUrl && !devicePhoto && !/^https?:\/\//i.test(avatarUrl)) {
+      throw new Error("Use a photo from your device, or a link that starts with https://");
     }
-    if (avatarUrl.length > 2048) {
+    if (!devicePhoto && avatarUrl.length > 2048) {
       throw new Error("That photo link is too long. Use a direct link to the image file.");
+    }
+    if (devicePhoto && avatarUrl.length > 120000) {
+      throw new Error("That photo is too large to save. Try a different one.");
     }
     const { data, error } = await supabaseClient.auth.updateUser({
       data: {
@@ -17224,16 +17976,6 @@ function stopSessionTimer() {
   sessionTimerHandle = null;
 }
 
-function openEndChatDialog() {
-  if (!activeChatSession) return;
-  endChatDialog?.classList.remove("hidden");
-  confirmEndChatButton?.focus();
-}
-
-function closeEndChatDialog() {
-  endChatDialog?.classList.add("hidden");
-}
-
 function memberStorageKey(kind) {
   return `lipsmaxxed-${kind}:${currentUser?.id || "signed-out"}`;
 }
@@ -17722,7 +18464,6 @@ async function renderMemberHome() {
 function hideProductPages() {
   [sessionSummaryPage,wordConfirmationPage,confirmationCompletePage,allChatsPage,lipsMasterPage,sessionReviewPage].forEach(page => page?.classList.add("hidden"));
   unconfirmedExitModal?.classList.add("hidden");
-  closeEndChatDialog();
 }
 
 function enterHomeScreen() {
@@ -17852,6 +18593,7 @@ function showSessionSummaryPage() {
 function enterSummaryScreen() {
   setSessionControlsVisible(false);
   renderSessionSummary(pendingSessionSummary, { saved: viewingSavedSession });
+  if (!viewingSavedSession) void playInterfaceCue("complete");
 }
 
 function enterTranscriptScreen() {
@@ -18175,6 +18917,7 @@ async function toggleConfirmationRecording() {
 
 function finishWordConfirmation() {
   goTo("/summary/done");
+  if (confirmedThisRun > 0) void playInterfaceCue("complete");
   if (confirmedWordTotal) confirmedWordTotal.textContent = String(confirmedThisRun);
   if (pendingSessionSummary) { pendingSessionSummary.confirmed = true; pendingSessionSummary.confirmedWords = confirmedThisRun; saveSessionSummary(pendingSessionSummary); }
   setTimeout(exitSessionToHome,1800);
@@ -18937,14 +19680,6 @@ if (confirmNewPasswordInput) {
   });
 }
 
-if (myStatsButton) {
-  myStatsButton.addEventListener("click", event => {
-    event.preventDefault();
-    event.stopPropagation();
-    openStatsPage();
-  });
-}
-
 if (closeStatsButton) {
   closeStatsButton.addEventListener("click", closeStatsPage);
 }
@@ -19007,11 +19742,24 @@ if (setupWritingButton) {
 }
 
 if (setupSpeechButton) {
-  setupSpeechButton.addEventListener("click", async () => {
+  setupSpeechButton.addEventListener("click", () => {
     setSetupInputMode("speech");
-    await requestSetupSpeechPermission();
   });
 }
+
+setupEnableMicButton?.addEventListener("click", async () => {
+  setupEnableMicButton.disabled = true;
+  const granted = await enableMicrophoneFromPreference();
+  setupEnableMicButton.disabled = false;
+
+  if (!granted) {
+    setSetupPermissionMessage("Microphone access was not granted. You can switch to Writing mode instead.", "error");
+    return;
+  }
+
+  await refreshSetupMicrophoneState();
+  showToast("Microphone ready", "good");
+});
 
 if (setupGenderManButton) {
   setupGenderManButton.addEventListener("click", () => {
@@ -19102,23 +19850,37 @@ profileResetButton?.addEventListener("click", () => {
   }
 });
 profileSignOutButton?.addEventListener("click", handleSignOut);
+
+profilePhotoUploadButton?.addEventListener("click", () => profilePhotoFileInput?.click());
+profilePhotoCameraButton?.addEventListener("click", () => profilePhotoCameraInput?.click());
+profilePhotoRemoveButton?.addEventListener("click", () => setProfilePhotoValue(""));
+
+profilePhotoFileInput?.addEventListener("change", event => {
+  void useProfilePhotoFile(event.target.files?.[0], profilePhotoFileInput);
+});
+profilePhotoCameraInput?.addEventListener("change", event => {
+  void useProfilePhotoFile(event.target.files?.[0], profilePhotoCameraInput);
+});
+
+profileMicToggle?.addEventListener("change", async () => {
+  if (profileMicToggle.checked) {
+    const granted = await enableMicrophoneFromPreference();
+    if (granted) showToast("Microphone enabled", "good");
+  } else {
+    releaseMicrophone();
+    rememberMicrophoneGrant(false);
+    setMicrophoneOptIn(false);
+  }
+
+  await renderMicrophonePreference();
+});
 profileUsernameInput?.addEventListener("input", syncProfileActionState);
 profileFluentLanguageSelect?.addEventListener("change", syncProfileActionState);
 profilePhotoInput?.addEventListener("input", () => {
-  renderProfilePhotoPreview();
-  syncProfileActionState();
+  setProfilePhotoValue(profilePhotoInput.value);
 });
 editAccountButton?.addEventListener("click", openProfileModal);
-endChatButton?.addEventListener("click", openEndChatDialog);
-endChatDialogClose?.addEventListener("click", closeEndChatDialog);
-keepChattingButton?.addEventListener("click", closeEndChatDialog);
-confirmEndChatButton?.addEventListener("click", () => {
-  closeEndChatDialog();
-  openSessionSummary();
-});
-endChatDialog?.addEventListener("click", event => {
-  if (event.target === endChatDialog) closeEndChatDialog();
-});
+endChatButton?.addEventListener("click", openSessionSummary);
 homeStartChatButton?.addEventListener("click", () => startMemberChat().catch(error => showSystemMessage(getReadableError(error))));
 homeModeToggle?.addEventListener("click", event => {
   const button = event.target.closest("[data-home-mode]");
@@ -19189,10 +19951,6 @@ syncMasterSendState();
 document.addEventListener("keydown", event => {
   if (event.key !== "Escape") return;
 
-  if (endChatDialog && !endChatDialog.classList.contains("hidden")) {
-    closeEndChatDialog();
-    return;
-  }
   if (lipsMasterPage?.classList.contains("catalogue-open")) {
     closeMasterCatalogue();
     return;
@@ -19231,6 +19989,7 @@ if (headerBar) {
 
   attachUiHandlers();
   restoreMicrophoneGrant();
+  if (microphoneOptInStored()) setupSpeechPermissionGranted = true;
   setInputMode("speech");
   initAuth();
 </script>
