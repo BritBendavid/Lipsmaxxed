@@ -3328,36 +3328,6 @@ form {
   line-height: 1.48;
 }
 
-.response-progress-diagnostics {
-  margin-top: 10px;
-  color: #94a3b8;
-  font-size: .72rem;
-  line-height: 1.55;
-  font-weight: 650;
-  letter-spacing: .01em;
-}
-
-.response-progress-diagnostics:empty { display: none; }
-
-.latency-diagnostic-toast {
-  position: fixed;
-  left: 50%;
-  bottom: 22px;
-  z-index: 10020;
-  width: min(760px, calc(100vw - 28px));
-  transform: translateX(-50%);
-  padding: 11px 14px;
-  border: 1px solid rgba(96, 165, 250, .38);
-  border-radius: 12px;
-  background: rgba(15, 23, 42, .96);
-  box-shadow: 0 14px 36px rgba(0, 0, 0, .34);
-  color: #bfdbfe;
-  font-size: .76rem;
-  font-weight: 650;
-  line-height: 1.5;
-  text-align: center;
-}
-
 .response-progress-track {
   width: 100%;
   max-width: 100%;
@@ -4159,7 +4129,102 @@ form {
   .grammar-assistant-name { display:none; }
   .end-chat-button { padding:0 12px;min-height:40px;font-size:.8rem; }
 }
-  </style>
+  /* Screen refinements are deliberately scoped; the practice/home layout is unchanged. */
+body[data-screen="account"] .app, body[data-screen="profile"] .app,
+body[data-screen="stats"] .app, body[data-screen="lipsmaster"] .app,
+body[data-screen="summary"] .app, body[data-screen="chats"] .app,
+body[data-screen="review"] .app, body[data-screen="confirmation"] .app,
+body[data-screen="complete"] .app { visibility:hidden; }
+#authModal, #profileModal { position:fixed;inset:0;z-index:110;background:#07090d;overflow-y:auto;align-items:flex-start;padding:56px 20px; }
+#authModal .auth-backdrop { display:none; }
+#authModal .auth-panel,#profileModal .profile-panel { width:min(480px,100%);height:auto;max-height:none;overflow:visible;margin:auto;padding:38px;border-radius:24px;border:1px solid rgba(255,255,255,.1);background:#111827;box-shadow:0 16px 48px rgba(0,0,0,.2); }
+#authModal .auth-title { margin:6px 36px 8px 0;font-size:1.8rem;line-height:1.2;font-weight:750; }
+#authModal .auth-subtitle,.screen-intro { color:#9ca3af;line-height:1.6;font-size:.95rem; }
+#authModal .auth-tabs { width:100%;border-radius:12px;margin-top:24px;background:rgba(255,255,255,.04);padding:4px; }
+#authModal .auth-tab { flex:1;border-radius:9px;min-height:44px;font-weight:650; }
+#authModal .auth-scroll-area { overflow:visible; }
+#authModal .auth-form { margin-top:24px; }
+#authModal .auth-label { text-align:left;font-weight:600;font-size:.88rem; }
+#authModal .auth-input,#profileModal .profile-input,#profileModal select { border-radius:12px;min-height:48px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.15);box-shadow:none; }
+#authModal .auth-field-group { margin-bottom:18px; }
+#authModal .auth-submit-button,#authModal .google-auth-button,#profileModal .start-chat-button { min-height:48px;border-radius:12px;box-shadow:none; }
+#authModal .auth-close-button,#profileModal .chat-setup-close { width:44px;height:44px;top:12px;right:12px;background:transparent;border-radius:12px; }
+#authModal button:focus-visible,#profileModal button:focus-visible,#lipsMasterPage button:focus-visible,#sessionSummaryPage button:focus-visible { outline:2px solid #60a5fa;outline-offset:4px; }
+#authModal button:disabled,#profileModal button:disabled { opacity:.55;cursor:wait; }
+#authModal .auth-message,#profileModal .auth-message { font-size:.9rem;line-height:1.5;min-height:24px; }
+#profileModal .profile-panel { width:min(600px,100%); }
+#profileModal h2 { font-size:1.8rem;margin-bottom:6px; }
+#profileModal .chat-setup-section { margin-top:24px; }
+#profileModal .chat-setup-label { text-align:left;font-size:.88rem;font-weight:650;margin-bottom:10px; }
+.profile-identity { display:flex;gap:16px;align-items:center;padding:22px 0;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:8px; }
+#profileInitial { display:grid;place-items:center;width:56px;height:56px;flex-shrink:0;border-radius:18px;background:rgba(96,165,250,.12);color:#93c5fd;font-size:1.4rem;font-weight:700; }
+.profile-identity strong,.profile-identity span { display:block; }
+#profileIdentityEmail { color:#9ca3af;font-size:.85rem;margin-top:5px;overflow-wrap:anywhere; }
+#profileModal .start-chat-button { margin-top:28px;width:100%; }
+#endChatButton { background:rgba(239,68,68,.08);color:#fca5a5;border:1px solid rgba(239,68,68,.25);border-radius:12px;box-shadow:none;min-height:44px;font-weight:650; }
+#endChatButton:hover { background:rgba(239,68,68,.16);border-color:rgba(239,68,68,.5); }
+#sessionSummaryPage .summary-shell { width:min(760px,100%);padding:48px 28px;text-align:center; }
+#sessionSummaryPage h2 { font-size:clamp(1.65rem,4vw,2.35rem);line-height:1.2;margin:12px 0; }
+#sessionSummaryPage .completion-mark { width:56px;height:56px;margin:0 auto 24px;box-shadow:none; }
+#sessionSummaryPage .summary-metrics { gap:1px;border:1px solid rgba(255,255,255,.1);border-radius:18px;overflow:hidden;background:rgba(255,255,255,.1);margin:32px 0; }
+#sessionSummaryPage .summary-metrics>div { border:0;border-radius:0;box-shadow:none;background:#111827;padding:24px 12px; }
+#sessionSummaryPage .summary-metrics strong { font-size:1.8rem; }
+#sessionSummaryPage .summary-metrics span { font-size:.8rem;color:#9ca3af; }
+#sessionSummaryPage .confirm-callout { padding:28px;border-radius:18px;box-shadow:none;background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.18); }
+#sessionSummaryPage .confirm-callout h3 { font-size:1.1rem;font-weight:650;margin-bottom:18px; }
+#sessionSummaryPage .summary-grammar-tip { box-shadow:none;border-radius:14px;text-align:left; }
+#sessionSummaryPage .primary-action,#sessionSummaryPage .review-session-button { border-radius:12px;min-height:46px;box-shadow:none; }
+#unconfirmedExitModal .decision-panel { border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.3); }
+#lipsMasterPage { grid-template-columns:280px minmax(0,1fr); }
+#lipsMasterPage .master-sidebar { padding:24px 16px;background:#0d121b;border-right:1px solid rgba(255,255,255,.08); }
+#lipsMasterPage .new-master-chat { border-radius:12px;min-height:46px;box-shadow:none;margin:24px 0; }
+.master-search-label { display:block;color:#9ca3af;font-size:.78rem;margin-bottom:10px; }
+.master-search { width:100%;min-height:42px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px 12px;color:#f3f4f6;box-sizing:border-box;margin-bottom:14px; }
+#lipsMasterPage .master-thread-button { min-height:48px;border:1px solid transparent;border-radius:10px;padding:12px;line-height:1.4;font-weight:500;text-align:start;box-shadow:none; }
+#lipsMasterPage .master-thread-button.active { background:rgba(96,165,250,.1);border-color:rgba(96,165,250,.2); }
+#lipsMasterPage .master-thread-button:hover { background:rgba(255,255,255,.06); }
+#lipsMasterPage .master-sidebar-label { letter-spacing:.06em;font-size:.7rem;margin-top:20px; }
+#lipsMasterPage .master-page-header { padding:20px 28px;border-bottom:1px solid rgba(255,255,255,.08);background:#07090d; }
+#lipsMasterPage .master-chat-messages { width:min(840px,100%);margin:0 auto;padding:28px;box-sizing:border-box; }
+#lipsMasterPage .master-composer { width:min(800px,calc(100% - 48px));margin:16px auto 24px;border-radius:18px;box-shadow:none;border:1px solid rgba(255,255,255,.14); }
+#lipsMasterPage .master-chat-row { box-shadow:none; }
+.master-catalogue-toggle,.master-catalogue-close { display:none; }
+body.correction-decision-pending #speechShell,body.correction-decision-pending #composerShell { display:none!important; }
+@media(max-width:700px) {
+ #authModal,#profileModal { padding:20px 12px;padding-bottom:calc(24px + env(safe-area-inset-bottom)); }
+ #authModal .auth-panel,#profileModal .profile-panel { padding:32px 22px;border-radius:20px; }
+ #lipsMasterPage { grid-template-columns:minmax(0,1fr); }
+ #lipsMasterPage .master-sidebar { display:none; }
+ #lipsMasterPage.catalogue-open .master-sidebar { display:flex;flex-direction:column;position:absolute;inset:0;z-index:4;width:auto;max-width:none;padding:24px;background:#0d121b; }
+ #lipsMasterPage.catalogue-open .master-workspace { visibility:hidden; }
+ .master-catalogue-toggle,.master-catalogue-close { display:inline-flex;min-height:44px; }
+ #lipsMasterPage .master-page-header { padding:12px 16px;gap:12px; }
+ #lipsMasterPage .master-page-header p { font-size:.8rem; }
+ #lipsMasterPage .master-chat-messages { padding:20px 16px; }
+ #lipsMasterPage .master-composer { width:calc(100% - 24px);margin-bottom:calc(12px + env(safe-area-inset-bottom)); }
+ #sessionSummaryPage .summary-shell { padding:32px 18px; }
+ #sessionSummaryPage .summary-metrics { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+
+
+#authModal h1[tabindex="-1"],#profileModal h2[tabindex="-1"],.product-page h2[tabindex="-1"],#lipsMasterPage h2[tabindex="-1"] { outline:none; }
+#authModal .auth-label,#profileModal .chat-setup-label { text-transform:none;letter-spacing:0;font-weight:600; }
+#profileModal .profile-input,#profileModal .select-wrap { width:100%;max-width:none; }
+#profileModal .select-wrap { background:transparent;border:0;padding:0;box-shadow:none; }
+#profileModal .select-wrap select { width:100%;max-width:none;padding:0 40px 0 14px; }
+#profileModal h2 { letter-spacing:-.025em;line-height:1.2; }
+#authModal .gender-options { display:grid;grid-template-columns:1fr 1fr; }
+#authModal .gender-option { min-height:48px;padding:12px;flex-direction:row;gap:8px; }
+#authModal .gender-icon { width:20px;height:20px; }
+#lipsMasterPage .master-thread-button span,#lipsMasterPage .master-thread-button small { display:block; }
+#lipsMasterPage .master-thread-button small { margin-top:5px;font-size:.72rem;color:#9ca3af;font-weight:400; }
+.master-welcome { width:min(460px,100%);margin:clamp(36px,10vh,100px) auto 24px;text-align:left; }
+.master-welcome h3 { font-size:1.5rem;line-height:1.3;font-weight:650;margin-bottom:12px; }
+.master-welcome p { color:#9ca3af;font-size:.95rem;line-height:1.6;margin-bottom:24px; }
+.master-welcome button { display:block;width:100%;text-align:left;padding:14px 16px;margin-top:10px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.025);color:#d1d5db;font-size:.88rem;font-weight:500;cursor:pointer; }
+.master-welcome button:hover { border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.06); }
+#lipsMasterPage .master-mini-mark { display:grid;place-items:center;color:#93c5fd;background:rgba(96,165,250,.1);font-weight:700; }
+</style>
 </head>
 
 <body>
@@ -4335,15 +4400,15 @@ form {
 </div>
   </div>
 
-  <div id="authModal" class="auth-modal hidden">
+  <div id="authModal" class="auth-modal hidden" role="region" aria-labelledby="accountScreenTitle">
   <div class="auth-backdrop" id="authBackdrop"></div>
 
   <div class="auth-panel">
-    <button id="authCloseButton" class="auth-close-button" type="button">
+    <button id="authCloseButton" class="auth-close-button" type="button" aria-label="Back to practice">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
 
-    <div class="auth-title">My Account</div>
+    <h1 id="accountScreenTitle" class="auth-title">Welcome back</h1>
     <div class="auth-subtitle">
       Sign in to keep your language practice connected to your account.
     </div>
@@ -4531,7 +4596,7 @@ form {
   </button>
 </form>
 
-    <div id="authMessage" class="auth-message"></div>
+    <div id="authMessage" class="auth-message" role="status" aria-live="polite"></div>
   </div>
 </div>
   
@@ -4627,7 +4692,9 @@ form {
     </button>
 
     <div class="chat-setup-kicker">My profile</div>
-    <h2>Profile settings</h2>
+    <h2 id="profileScreenTitle">Your profile</h2>
+    <p class="screen-intro">A few details to make your practice feel like you.</p>
+    <div class="profile-identity"><span id="profileInitial" aria-hidden="true"></span><div><strong id="profileIdentityName"></strong><span id="profileIdentityEmail"></span></div></div>
 
     <div class="chat-setup-section">
       <label class="chat-setup-label" for="profileUsernameInput">
@@ -4674,17 +4741,17 @@ form {
     </div>
 
     <button id="saveProfileButton" class="start-chat-button" type="button">
-      Save profile
+      Save changes
     </button>
 
-    <div id="profileMessage" class="auth-message"></div>
+    <div id="profileMessage" class="auth-message" role="status" aria-live="polite"></div>
   </div>
 </section>
 
 <section id="sessionSummaryPage" class="product-page hidden" aria-labelledby="sessionSummaryTitle">
   <div class="product-page-shell summary-shell">
     <div class="completion-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"/></svg></div>
-    <h2 id="sessionSummaryTitle">Congratulations! You learned <span id="summaryLearnedInline">0</span> words</h2>
+    <div class="member-eyebrow">Practice complete</div><h2 id="sessionSummaryTitle">Nice work today.</h2><p class="screen-intro">You worked on <span id="summaryLearnedInline">0</span> new words this session.</p>
     <div class="summary-metrics">
       <div><span>Total session time</span><strong id="summarySessionTime">0m</strong></div>
       <div><span>Words learned</span><strong id="summaryWordsLearned">0</strong></div>
@@ -4698,7 +4765,7 @@ form {
     </section>
     <button id="reviewSessionChatButton" class="review-session-button" type="button">Review chat</button>
     <div id="summaryConfirmCallout" class="confirm-callout">
-      <h3>Before you go, don't forget to confirm the new words you learned</h3>
+      <h3>Make these words yours</h3>
       <button id="confirmWordsButton" class="primary-action" type="button">Confirm words</button>
     </div>
     <button id="summaryReturnHomeButton" class="quiet-link" type="button">Return to home</button>
@@ -4708,8 +4775,8 @@ form {
 <section id="unconfirmedExitModal" class="decision-modal hidden" role="dialog" aria-modal="true" aria-labelledby="unconfirmedExitTitle">
   <div class="decision-panel">
     <button id="closeUnconfirmedExitButton" class="dialog-close" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
-    <h2 id="unconfirmedExitTitle">Are you sure?</h2>
-    <p>If you do not confirm the new words you learned, they will not save to your profile!</p>
+    <h2 id="unconfirmedExitTitle">Finish without confirming?</h2>
+    <p>Leaving skips confirmation for these new words. Your chat history and any progress already saved are kept.</p>
     <div class="decision-actions"><button id="modalConfirmWordsButton" class="primary-action" type="button">Confirm words</button><button id="exitChatAnywayButton" class="danger-outline" type="button">Exit chat anyway</button></div>
   </div>
 </section>
@@ -4752,8 +4819,8 @@ form {
 </section>
 
 <section id="lipsMasterPage" class="master-page hidden" aria-labelledby="lipsMasterPageTitle">
-  <aside class="master-sidebar"><button id="lipsMasterBackButton" class="back-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Back</button><button id="newMasterChatButton" class="new-master-chat" type="button">New chat</button><div id="masterThreadList" class="master-thread-list"></div></aside>
-  <div class="master-workspace"><header class="master-page-header"><span class="master-mini-mark"><img src="assets/language-logo.png" alt="" /></span><div><h2 id="lipsMasterPageTitle">LipsMaster</h2><p>Language help, when you need it.</p></div></header><div id="masterChatMessages" class="master-chat-messages" aria-live="polite"></div><form id="masterChatForm" class="master-composer"><textarea id="masterChatInput" rows="1" maxlength="1200" placeholder="Message LipsMaster" aria-label="Message LipsMaster"></textarea><button id="masterChatSendButton" type="submit" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button></form></div>
+  <aside id="masterCatalogue" class="master-sidebar" aria-label="LipsMaster conversations"><button id="masterCatalogueClose" class="back-button master-catalogue-close" type="button">Back to conversation</button><button id="lipsMasterBackButton" class="back-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Back</button><button id="newMasterChatButton" class="new-master-chat" type="button">New chat</button><label class="master-search-label" for="masterSearch">Your conversations</label><input id="masterSearch" class="master-search" type="search" placeholder="Search chats" autocomplete="off" /><div id="masterThreadList" class="master-thread-list"></div></aside>
+  <div class="master-workspace"><header class="master-page-header"><button id="masterCatalogueToggle" type="button" class="back-button master-catalogue-toggle" aria-expanded="false" aria-controls="masterCatalogue">Chats</button><span class="master-mini-mark"><img src="assets/language-logo.png" alt="" /></span><div><h2 id="lipsMasterPageTitle">LipsMaster</h2><p>Language help, when you need it.</p></div></header><div id="masterChatMessages" class="master-chat-messages" aria-live="polite"></div><form id="masterChatForm" class="master-composer"><textarea id="masterChatInput" rows="1" maxlength="1200" placeholder="Message LipsMaster" aria-label="Message LipsMaster"></textarea><button id="masterChatSendButton" type="submit" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button></form></div>
 </section>
 
 <section id="statsPage" class="stats-page hidden">
@@ -5455,7 +5522,7 @@ function saveReviewScheduleState(language = getCurrentChatLanguage()) {
       cooldowns: Object.fromEntries(reviewCooldownTurnByKey)
     }));
   } catch (error) {
-    console.warn("review schedule save failed", error);
+    void 0;
   }
 }
 
@@ -5473,7 +5540,7 @@ function loadReviewScheduleState(language = getCurrentChatLanguage()) {
     }
   } catch (error) {
     conversationTurn = 0;
-    console.warn("review schedule load failed", error);
+    void 0;
   }
 }
 
@@ -5533,12 +5600,12 @@ async function loadFrequencyFrontierTargets(languageOverride = null, limit = 2) 
   ]);
 
   if (statsResult.error) {
-    console.warn("frequency frontier stats failed", statsResult.error);
+    void 0;
     throw statsResult.error;
   }
 
   if (reviewResult.error) {
-    console.warn("frequency frontier reviews failed", reviewResult.error);
+    void 0;
     throw reviewResult.error;
   }
 
@@ -5676,7 +5743,7 @@ function refreshFrequencyFrontierTargets(language) {
       return rows;
     })
     .catch(error => {
-      console.warn("frequency frontier refresh failed", error);
+      void 0;
       throw error;
     })
     .finally(() => frequencyFrontierRequests.delete(cacheKey));
@@ -5782,7 +5849,7 @@ async function prepareUpcomingWords(language, rows) {
       );
       return { ...row, chatWord, displayWord: String(translated || "").trim() || chatWord };
     } catch (error) {
-      console.warn("bonus word translation failed", error);
+      void 0;
       return { ...row, chatWord, displayWord: chatWord };
     }
   }));
@@ -5879,7 +5946,7 @@ async function getVocabularyProfileForPrompt(languageOverride = null, frontierOv
       ? frontierOverride.slice(0, 2)
       : await getFrequencyFrontierTargets(language, 2);
   } catch (error) {
-    console.warn("frequency targets unavailable for prompt", error);
+    void 0;
   }
 
   const primaryTarget = frontierTargets[0] || null;
@@ -5910,7 +5977,7 @@ async function getVocabularyProfileForPrompt(languageOverride = null, frontierOv
     .slice(0, 3000);
 
   if (error) {
-    console.warn("vocabulary profile load failed", error);
+    void 0;
 
     return {
       level: "beginner",
@@ -6029,7 +6096,7 @@ function openChatSetup() {
 
   chatSetupModal?.classList.remove("hidden");
   prefetchLanguageFact(selectedChatLanguage).catch(() => {});
-  requestSetupSpeechPermission().catch(() => {});
+
 }
 
 function closeChatSetup() {
@@ -6049,7 +6116,7 @@ function setSetupInputMode(mode) {
 }
 
 async function requestSetupSpeechPermission() {
-  if (setupSpeechPermissionGranted) {
+  if (setupSpeechPermissionGranted && sharedMicrophone?.getAudioTracks().some(track => track.readyState === "live")) {
     if (setupPermissionStatus) {
       setupPermissionStatus.textContent = "Microphone ready.";
       setupPermissionStatus.classList.add("success");
@@ -6072,8 +6139,8 @@ async function requestSetupSpeechPermission() {
   }
 
   try {
-    const permissionStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    permissionStream.getTracks().forEach(track => track.stop());
+    const permissionStream = await acquireMicrophone();
+    parkMicrophone(permissionStream);
     setupSpeechPermissionGranted = true;
 
     if (setupPermissionStatus) {
@@ -6145,6 +6212,8 @@ async function startConfiguredChat() {
   correctionState.clear();
   renderedBotTurnIds.clear();
 
+  recordScreen("chat");
+  setCorrectionDecision(false);
   activeChatSession = {
     userId: currentUser?.id || "",
     id: globalThis.crypto?.randomUUID
@@ -6320,7 +6389,7 @@ async function getWordSchedulingBand(wordKey, language) {
   const { data, error } = await getWordStatsSnapshot(language);
 
   if (error) {
-    console.warn("review scheduling frontier failed", error);
+    void 0;
     return { band: "far", target, frontierRank: 0 };
   }
 
@@ -6485,7 +6554,7 @@ async function scheduleWordReview(word, reason = "correction", languageOverride 
     .limit(2);
 
   if (selectError) {
-    console.warn("review target select failed", selectError);
+    void 0;
     return;
   }
   const existing = (existingRows || []).find(row => row.word_key === wordKey) ||
@@ -6537,7 +6606,7 @@ async function scheduleWordReview(word, reason = "correction", languageOverride 
       });
 
   if (upsertError) {
-    console.warn("review target upsert failed", upsertError);
+    void 0;
   }
 }
     
@@ -6736,7 +6805,7 @@ async function loadLanguagePoints(languageOverride = null) {
   if (currentUser?.id !== userId || generation !== pointsLoadGeneration) return;
   if (entry.totalKnown || entry.revision >= 0) setPointsBadgeValue(entry.total, language);
   if (error) {
-    console.warn("points total read failed", error);
+    void 0;
     if (accountPointsValue) {
       if (!entry.totalKnown && entry.revision < 0) accountPointsValue.textContent = "—";
       accountPointsValue.title = "Points could not be refreshed. Switch language or reopen your profile to retry.";
@@ -6981,7 +7050,7 @@ async function markReviewWordSpoken(word, languageOverride = null, prefetched = 
     .limit(2));
 
   if (selectError) {
-    console.warn("review spoken select failed", selectError);
+    void 0;
     return;
   }
   const existing = (existingRows || []).find(row => row.word_key === wordKey) ||
@@ -7015,7 +7084,7 @@ async function markReviewWordSpoken(word, languageOverride = null, prefetched = 
       .eq("id", existing.id));
 
     if (completionError) {
-      console.warn("review sequence completion failed", completionError);
+      void 0;
       return;
     }
 
@@ -7041,7 +7110,7 @@ async function markReviewWordSpoken(word, languageOverride = null, prefetched = 
     .eq("id", existing.id));
 
   if (updateError) {
-    console.warn("review spoken update failed", updateError);
+    void 0;
   }
 }
 
@@ -7065,7 +7134,7 @@ async function ensureStaleSpokenWordsAreReviewTargets(languageOverride = null) {
     .slice(0, 20);
 
   if (error) {
-    console.warn("stale word lookup failed", error);
+    void 0;
     return;
   }
 
@@ -7101,7 +7170,7 @@ async function showReviewCueToast(reviewTarget, languageOverride = null) {
     "";
 
   if (!targetWord) {
-    console.warn("review cue skipped: no target word", reviewTarget);
+    void 0;
     return;
   }
 
@@ -7116,7 +7185,7 @@ async function showReviewCueToast(reviewTarget, languageOverride = null) {
       fluentLanguageSelect.value
     );
   } catch (error) {
-    console.warn("review cue translation failed", error);
+    void 0;
     translated = "";
   }
 
@@ -7205,39 +7274,15 @@ async function getDueReviewTarget(languageOverride = null) {
     .maybeSingle();
 
   if (error) {
-    console.warn("due review target failed", error);
+    void 0;
     return null;
   }
 
   return data || null;
 }
     
-// Bounded metadata-only diagnostics, including operations still pending.
-const accountOperationTimings = [];
-window.lipsMaxxedAccountTimings = accountOperationTimings;
 async function timeAccountOperation(label, operation) {
-  const started = performance.now();
-  const entry = { operation: label, status: "pending", elapsedMs: 0 };
-  accountOperationTimings.push(entry);
-  if (accountOperationTimings.length > 100) accountOperationTimings.shift();
-  const pendingNotice = setInterval(() => {
-    entry.elapsedMs = Math.round(performance.now() - started);
-    if (entry.elapsedMs >= 8000) {
-      showLatencyDiagnostic(`Account update pending: ${label} (${(entry.elapsedMs / 1000).toFixed(1)}s)`);
-    }
-  }, 4000);
-  try {
-    const result = await operation();
-    entry.status = result?.error ? "failed" : "completed";
-    return result;
-  } catch (error) {
-    entry.status = "failed";
-    throw error;
-  } finally {
-    clearInterval(pendingNotice);
-    entry.elapsedMs = Math.round(performance.now() - started);
-    console.info("Account operation", { ...entry });
-  }
+  return await operation();
 }
 
 // Statistics v2: one shared snapshot and a durable, idempotent event outbox.
@@ -7308,10 +7353,9 @@ async function statsRequest(action, fields, userId) {
       const code = String(data?.code || "no_database_code");
       const detail = String(data?.message || data?.error || (data ? "Request rejected" : "Non-JSON or empty response"));
       const requestId = data?.requestId || response.headers.get("sb-request-id") || response.headers.get("x-request-id") || "";
-      const diagnostic = { action, status: response.status, code, detail, requestId,
-        upstream: data?.diagnostic || null };
-      window.lipsMaxxedStatsLastError = diagnostic;
-      console.warn("Statistics request failed", diagnostic);
+
+
+      void 0;
       const error = new Error(`Statistics HTTP ${response.status} [${code}]: ${detail}${requestId ? ` (request ${requestId})` : ""}`);
       error.code = code;
       error.status = response.status;
@@ -7466,9 +7510,9 @@ async function flushStatsOutbox() {
         statsOutboxWaiters.delete(key);
       }
       if (currentUser?.id === userId) {
-        showLatencyDiagnostic("Statistics sync pending. Saved locally for the next sync; no need to repeat your answer.");
+        notifyProgressSync("Statistics sync pending. Saved locally for the next sync; no need to repeat your answer.");
       }
-      console.warn("statistics sync pending", error);
+      void 0;
     } finally {
       statsFlushPromise = null;
       if (currentUser?.id && currentUser.id !== userId) {
@@ -7751,8 +7795,8 @@ async function awardPointsForUserMessage(text, languageOverride = null, options 
       language
     };
   } catch (error) {
-    console.warn("points award failed", error);
-    showLatencyDiagnostic(`Account update failed: ${getReadableError(error)}`);
+    void 0;
+    notifyProgressSync(`Account update failed: ${getReadableError(error)}`);
 
     return {
       pointsGained: 0,
@@ -7919,7 +7963,7 @@ const { data: reviewTargets, error: reviewError } = await supabaseClient
   }
 
   if (reviewError) {
-  console.warn("review target stats load failed", reviewError);
+  void 0;
   currentReviewTargetMap = new Map();
 } else {
   currentReviewTargetMap = new Map(
@@ -7972,6 +8016,7 @@ function openStatsPage() {
   }
 
   statsPage?.classList.remove("hidden");
+  recordScreen("stats");
 
   loadStatsPage().catch(error => {
     statsLoading?.classList.add("hidden");
@@ -7982,6 +8027,7 @@ function openStatsPage() {
 function closeStatsPage() {
   statsPage?.classList.add("hidden");
   closeStatsDetailPanel();
+  restoreUnderlyingScreen();
 }
 
 function openStatsDetailPanel(type) {
@@ -8188,7 +8234,7 @@ function toggleAccountDropdown() {
     function setAuthMessage(text, type = "") {
   if (!authMessage) return;
 
-  authMessage.textContent = text || "";
+  authMessage.textContent = text ? learnerError(text) : "";
   authMessage.classList.remove("error", "success");
 
   if (type) {
@@ -8198,6 +8244,7 @@ function toggleAccountDropdown() {
 
 function openAuthModal(mode = "sign-in") {
   setAuthMode(mode);
+  recordScreen("account");
 
   if (authModal) {
     authModal.classList.remove("hidden");
@@ -8218,6 +8265,7 @@ function closeAuthModal() {
 
   if (authModal) {
     authModal.classList.add("hidden");
+    if (document.body.dataset.screen === "account") restoreUnderlyingScreen();
   }
 
   if (authPassword) {
@@ -8273,6 +8321,11 @@ function setAuthMode(mode) {
     "sign-in";
 
   const isSignUp = authMode === "sign-up";
+  document.querySelector(".auth-subtitle").textContent = mode === "recovery" ? "Choose a new password to get back to your practice." : isSignUp ? "Save your progress and pick up where you left off." : "Sign in to pick up where you left off.";
+  document.querySelector(".auth-title").textContent = mode === "recovery" ? "Reset your password" : isSignUp ? "Create your account" : "Welcome back";
+  authPassword?.setAttribute("autocomplete", isSignUp ? "new-password" : "current-password");
+  authSignInTab?.setAttribute("aria-pressed", String(!isSignUp));
+  authSignUpTab?.setAttribute("aria-pressed", String(isSignUp));
   const isRecovery = authMode === "recovery";
   const isSignIn = authMode === "sign-in";
 
@@ -8364,9 +8417,9 @@ function updateAuthUi(session) {
 
   loadLanguagePoints(getCurrentChatLanguage()).catch(() => {});
 
-  if (!activeChatSession) {
+  if (!activeChatSession && (!screenRoutingReady || ["home", "account"].includes(screenName()))) {
     showSignedInHome();
-  } else {
+  } else if (activeChatSession && ["home", "chat"].includes(screenName())) {
     endChatButton?.classList.remove("hidden");
   }
 
@@ -8387,6 +8440,9 @@ function updateAuthUi(session) {
 
     signedInHome?.classList.add("hidden");
     endChatButton?.classList.add("hidden");
+    if (screenRoutingReady && !passwordRecoveryLocked && !["account", "home", "chat"].includes(screenName())) {
+      recordScreen("account"); authModal?.classList.remove("hidden"); setAuthMode("sign-in");
+    }
     if (!activeChatSession) {
       messageHistory?.classList.remove("hidden");
       composerShell?.classList.add("hidden");
@@ -8432,6 +8488,10 @@ function setConfirmNewPasswordVisibility(isVisible) {
 }
 
 async function handleAuthSubmit() {
+  if (authSubmitButton?.disabled) return;
+  if (authMode !== "recovery" && authEmail && !authEmail.checkValidity()) {
+    setAuthMessage("Enter a valid email address.", "error"); authEmail.focus(); return;
+  }
   /*
     Recovery mode must come first.
     Otherwise the regular sign-in validation will complain:
@@ -8452,6 +8512,7 @@ async function handleAuthSubmit() {
     }
 
     authSubmitButton.disabled = true;
+    setAccountControlsBusy(true);
     setAuthMessage("Updating password...");
 
     try {
@@ -8494,6 +8555,7 @@ async function handleAuthSubmit() {
       setAuthMessage(getReadableError(error), "error");
     } finally {
       authSubmitButton.disabled = false;
+    setAccountControlsBusy(false);
     }
 
     return;
@@ -8509,7 +8571,7 @@ async function handleAuthSubmit() {
     return;
   }
 
-  if (password.length < 6) {
+  if (authMode === "sign-up" && password.length < 6) {
     setAuthMessage("Password should be at least 6 characters.", "error");
     return;
   }
@@ -8520,6 +8582,7 @@ async function handleAuthSubmit() {
   }
 
   authSubmitButton.disabled = true;
+    setAccountControlsBusy(true);
   setAuthMessage(authMode === "sign-in" ? "Signing in..." : "Creating account...");
 
   try {
@@ -8558,24 +8621,23 @@ const { data, error } = await supabaseClient.auth.signUp({
       updateAuthUi(data.session);
       closeAuthModal();
     } else {
-      setAuthMessage(
-        "Account created. Check your email to confirm your account, then sign in.",
-        "success"
-      );
       setAuthMode("sign-in");
+      setAuthMessage("Check your email to confirm your account, then come back to sign in.", "success");
     }
   } catch (error) {
     setAuthMessage(getReadableError(error), "error");
   } finally {
     authSubmitButton.disabled = false;
+    setAccountControlsBusy(false);
   }
 }
 
 async function handleForgotPassword() {
+  if (forgotPasswordButton.disabled || authSubmitButton.disabled) return;
   const email = authEmail?.value.trim();
 
-  if (!email) {
-    setAuthMessage("Enter your email first, then press Forgot password.", "error");
+  if (!email || !authEmail.checkValidity()) {
+    setAuthMessage("Enter your email address and we’ll send you a reset link.", "error");
     authEmail?.focus();
     return;
   }
@@ -8602,23 +8664,27 @@ async function handleForgotPassword() {
 }
 
 async function handleGoogleAuth() {
+  if (googleAuthButton.disabled || authSubmitButton.disabled) return;
+  googleAuthButton.disabled = true;
   try {
     setAuthMessage("Opening Google...");
 
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.href
+        redirectTo: window.location.origin + window.location.pathname
       }
     });
 
     if (error) throw error;
   } catch (error) {
+    googleAuthButton.disabled = false;
     setAuthMessage(getReadableError(error), "error");
   }
 }
 
 async function handleSignOut() {
+  releaseMicrophone();
   try {
     closeAccountDropdown();
     stopAllSpeech();
@@ -8629,6 +8695,21 @@ async function handleSignOut() {
 
     reauthenticationRequired = false;
     updateAuthUi(null);
+    activeChatSession = null;
+    pendingSessionSummary = null;
+    pendingBotReply = null;
+    pendingBackgroundBot = null;
+    activeConversationResponseId = "";
+    activeSpeechCorrection = null;
+    activeExpectedTarget = null;
+    activeAnswerBonusTargets = [];
+    activeMasterThreadId = "";
+    activeMasterDraftThread = null;
+    messages.length = 0;
+    messageHistory.textContent = "";
+    upcomingWordsPanel?.classList.add("hidden");
+    setCorrectionDecision(false);
+    restoreUnderlyingScreen();
   } catch (error) {
     showSystemMessage(getReadableError(error));
   }
@@ -8782,6 +8863,7 @@ function hasForeignLanguageParts(parts) {
 }
 
 function removeSpeechReviewCard(options = {}) {
+  setCorrectionDecision(false);
   const includePerfect = options.includePerfect === true;
 
   const cards = [...document.querySelectorAll(".speech-review-card")];
@@ -9217,6 +9299,7 @@ function addContextResponseReviewCard({
 
   const actions = document.createElement("div");
   actions.className = "speech-review-actions correction-actions-row";
+  bindCorrectionDecision(actions);
 
   const retryButton = document.createElement("button");
   retryButton.type = "button";
@@ -9248,6 +9331,7 @@ function addContextResponseReviewCard({
 
       actions.remove();
     } catch (error) {
+      setCorrectionDecision(true);
       continueButton.disabled = false;
       continueButton.textContent = "Continue anyway";
       showSystemMessage(getReadableError(error));
@@ -9526,7 +9610,7 @@ async function requestGrammarDetail(followUpQuestion = "") {
     await streamGrammarExplanation(data.message, renderToken);
   } catch (error) {
     if (activeGrammarDetailContext === context) {
-      thinkingMessage.content.textContent = getReadableError(error);
+      thinkingMessage.content.textContent = learnerError(error);
     }
   } finally {
     if (activeGrammarDetailContext !== context) return;
@@ -9722,6 +9806,7 @@ card.appendChild(layout);
   if (!isPerfect) {
     const actions = document.createElement("div");
     actions.className = "speech-review-actions correction-actions-row";
+  bindCorrectionDecision(actions);
 
     const retryButton = document.createElement("button");
     retryButton.type = "button";
@@ -9762,7 +9847,8 @@ card.appendChild(layout);
       actions.remove();
     }
   } catch (error) {
-    continueButton.disabled = false;
+    setCorrectionDecision(true);
+      continueButton.disabled = false;
     continueButton.textContent = "Continue anyway";
     showSystemMessage(getReadableError(error));
   }
@@ -9912,7 +9998,7 @@ function resetSpeechButton() {
 
     const div = document.createElement("div");
     div.className = "system-message";
-    div.textContent = getReadableError(text);
+    div.textContent = learnerError(text);
     document.body.appendChild(div);
 
     setTimeout(() => div.remove(), 5200);
@@ -10191,7 +10277,7 @@ async function recoverInvalidRefreshToken(error, failedRefreshToken = "") {
     updateAuthUi(null);
     openAuthModal("sign-in");
     setAuthMessage("Your saved sign-in session is no longer valid. Please sign in again; your progress is preserved.", "error");
-    console.warn("Sign-in required", { code: error?.code || "invalid_refresh_token", status: error?.status || 0 });
+    void 0;
     return null;
   }).finally(() => { authRecoveryPromise = null; });
   return authRecoveryPromise;
@@ -10408,7 +10494,7 @@ function checkpointActiveConversation() {
     })
     .catch(error => {
       lastCompactionError = getReadableError(error);
-      console.warn("conversation checkpoint was not saved", error);
+      void 0;
       return false;
     })
     .finally(() => {
@@ -10570,7 +10656,7 @@ async function primeAudioForAutoplay() {
 
     audioPrimedForSession = true;
   } catch (error) {
-    console.warn("audio prime failed", error);
+    void 0;
     audioPrimedForSession = false;
   }
 }
@@ -10611,7 +10697,7 @@ async function primeAudioForAutoplay() {
       return false;
     }
     if (openingBotInFlight || !/^resp_[a-zA-Z0-9_-]+$/.test(activeConversationResponseId)) {
-      showSystemMessage("Wait for the opening reply and its context key before answering.");
+      showSystemMessage("Wait for the opening reply before answering.");
       return false;
     }
     return true;
@@ -10855,18 +10941,18 @@ function isSamePlayback(button, type, id) {
       <div class="response-progress-copy">
         <div class="response-progress-kicker">DID YOU KNOW...</div>
         <div class="response-progress-fact"></div>
-        <div class="response-progress-diagnostics"></div>
+
       </div>
       <div class="response-progress-track" aria-hidden="true">
         <div class="response-progress-fill"></div>
       </div>`;
 
     const factEl = card.querySelector(".response-progress-fact");
-    const diagnosticsEl = card.querySelector(".response-progress-diagnostics");
+
     const fill = card.querySelector(".response-progress-fill");
     factEl.textContent = cleanInterfaceText(fact);
     const samples = {};
-    const diagnosticLines = [];
+
     let stage = initialStage;
     let stageStartedAt = performance.now();
     let stageStartPercent = 2;
@@ -10900,11 +10986,7 @@ function isSamePlayback(button, type, id) {
 
     return {
       element: card,
-      addTiming(label, duration, detail = "") {
-        const milliseconds = Math.max(0, Math.round(Number(duration) || 0));
-        diagnosticLines.push(`${label}: ${(milliseconds / 1000).toFixed(2)}s${detail ? ` (${detail})` : ""}`);
-        if (diagnosticsEl) diagnosticsEl.textContent = diagnosticLines.join(" | ");
-      },
+      addTiming() {},
       setStage(nextStage) {
         if (stopped || nextStage === stage || !stages.includes(nextStage)) return;
         render();
@@ -10925,9 +11007,7 @@ function isSamePlayback(button, type, id) {
         clearInterval(timer);
         fill.style.width = "100%";
         saveResponseTimings(samples);
-        if (diagnosticsEl) {
-          diagnosticsEl.textContent = `Completed | ${diagnosticLines.join(" | ")}`;
-        }
+
         window.setTimeout(() => card.remove(), 15000);
       },
       remove() {
@@ -10996,7 +11076,7 @@ function isSamePlayback(button, type, id) {
     if (data.contextTrace && (data.contextTrace.parentResponseId || "") !== parentResponseId) {
       throw new Error("The generation used a different conversation parent; the reply was not displayed.");
     }
-    window.lipsMaxxedLastContextTrace = data.contextTrace || null;
+
     if (!/^resp_[a-zA-Z0-9_-]+$/.test(String(data?.responseId || ""))) {
       throw new Error("The reply has no valid context key and cannot be displayed.");
     }
@@ -11181,7 +11261,7 @@ function isSamePlayback(button, type, id) {
       clientTurnId, language,
       userText: isOpeningMessage ? "" : visibleUserText,
       assistantText: data.reply, precedingAssistantText, isOpeningMessage
-    }).catch(error => console.warn("visible chat turn was not saved", error));
+    }).catch(error => void 0);
 
     progress?.finish();
     window.setTimeout(() => {
@@ -11386,10 +11466,11 @@ function showGuaranteedReviewFallback(
   detail.appendChild(detailText);
   card.appendChild(title);
   card.appendChild(summary);
-  card.appendChild(detail);
+  // Technical response details stay out of the learner experience.
 
   const actions = document.createElement("div");
   actions.className = "speech-review-actions correction-actions-row";
+  bindCorrectionDecision(actions);
 
   const retryButton = document.createElement("button");
   retryButton.type = "button";
@@ -11440,6 +11521,7 @@ function showGuaranteedReviewFallback(
       actions.remove();
     } catch (continueError) {
       retryButton.disabled = false;
+      setCorrectionDecision(true);
       continueButton.disabled = false;
       continueButton.textContent = "Continue anyway";
       detailText.textContent = cleanInterfaceText(getReadableError(continueError))
@@ -11472,7 +11554,7 @@ async function handleSpeechTranscript(transcript, responseMode = "speech") {
   try {
     await handleSpeechTranscriptCore(transcript, responseMode);
   } catch (error) {
-    console.warn("response review did not complete", error);
+    void 0;
     if (correctionOutcomeSequence === outcomeAtStart) {
       showGuaranteedReviewFallback(
         transcript,
@@ -11564,7 +11646,7 @@ if (!isCorrectionRetry) {
         : ""
     );
   } catch (error) {
-    console.warn("response analysis failed", error);
+    void 0;
     responseProgress.remove();
     showGuaranteedReviewFallback(
       transcript,
@@ -12039,7 +12121,7 @@ if (!options.deferActivation) activateBotMessage(id);
       state.speakableTokens.map(token => ({
         word_key: normalizeStatsWord(token.word), word_text: token.word
       })), "familiar", getCurrentChatLanguage()
-    ).catch(error => console.warn("prompt word statistics failed", error));
+    ).catch(error => void 0);
 if (activeChatSession) {
   activeChatSession.timeline = Array.isArray(activeChatSession.timeline)
     ? activeChatSession.timeline
@@ -12056,7 +12138,7 @@ if (activeChatSession) {
       preloadSlowSpeech(state).catch(error => {
         // A click can retry the batch. Do not interrupt the conversation merely
         // because speculative background preparation failed.
-        console.warn("word audio preload failed", error);
+        void 0;
       });
     }
 
@@ -13049,14 +13131,22 @@ async function playBonusWordAudio(chatWord, language, button = null) {
   }
 
   profileModal?.classList.remove("hidden");
+  updateProfileIdentity();
+  recordScreen("profile");
 }
 
 function closeProfileModal() {
+  if (saveProfileButton?.disabled) return;
+  setSelectedGender(currentUser?.user_metadata?.gender || "");
   profileModal?.classList.add("hidden");
+  restoreUnderlyingScreen();
 }
 
 async function saveProfileSettings() {
-  if (!currentUser) return;
+  if (!currentUser || saveProfileButton.disabled) return;
+  const savingUserId = currentUser.id;
+  saveProfileButton.disabled = true;
+  saveProfileButton.textContent = "Saving…";
 
   const username = profileUsernameInput?.value.trim() || "";
   const fluentLanguage = profileFluentLanguageSelect?.value || "English";
@@ -13082,6 +13172,7 @@ async function saveProfileSettings() {
 
     if (error) throw error;
 
+    if (currentUser?.id !== savingUserId) return;
     currentUser = data.user;
 
     if (accountDisplayName) {
@@ -13100,14 +13191,18 @@ async function saveProfileSettings() {
     }
   } catch (error) {
     if (profileMessage) {
-      profileMessage.textContent = getReadableError(error);
+      profileMessage.textContent = learnerError(error);
       profileMessage.classList.add("error");
     }
+  } finally {
+    saveProfileButton.disabled = false;
+    saveProfileButton.textContent = "Save changes";
+    updateProfileIdentity();
   }
 }
       
   async function handleSend() {
-  if (!chatReplyReady()) return;
+  if (correctionDecisionPending || !chatReplyReady()) return;
   if (!userCanSendMessage()) {
   openChatSetup();
   return;
@@ -13321,7 +13416,7 @@ function startSilenceMonitor(stream) {
 }
 
 async function startRecording() {
-  if (!chatReplyReady()) return;
+  if (correctionDecisionPending || !chatReplyReady()) return;
   if (isAudioPlaybackBusy()) {
     setSpeechStatus("Wait for the audio to finish before recording.");
     return;
@@ -13345,20 +13440,14 @@ async function startRecording() {
   let stream;
 
   try {
-    stream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        echoCancellation: { ideal: true },
-        noiseSuppression: { ideal: true },
-        autoGainControl: { ideal: true },
-        channelCount: { ideal: 1 }
-      }
-    });
+    stream = await acquireMicrophone();
     setupSpeechPermissionGranted = true;
   } catch (error) {
     microphoneBusy = false;
     throw error;
   }
 
+  const recordingGeneration = microphoneGeneration;
   recordedChunks = [];
 
   const mimeType = getBestRecordingMimeType();
@@ -13370,7 +13459,7 @@ async function startRecording() {
     try {
       mediaRecorder = new MediaRecorder(stream);
     } catch (error) {
-      stream.getTracks().forEach(track => track.stop());
+      parkMicrophone(stream);
       microphoneBusy = false;
       throw error;
     }
@@ -13396,12 +13485,13 @@ async function startRecording() {
   });
 
   mediaRecorder.addEventListener("stop", async () => {
+  if (recordingGeneration !== microphoneGeneration) { parkMicrophone(stream); return; }
   stopSilenceMonitor();
-  stream.getTracks().forEach(track => track.stop());
+  parkMicrophone(stream);
   isRecording = false;
   microphoneBusy = false;
   void unlockAudioContext().catch(error => {
-    console.warn("audio context did not resume after recording", error);
+    void 0;
   });
   speechStartOverButton?.classList.add("hidden");
 
@@ -13467,7 +13557,7 @@ async function startRecording() {
     mediaRecorder.start();
   } catch (error) {
     stopSilenceMonitor();
-    stream.getTracks().forEach(track => track.stop());
+    parkMicrophone(stream);
     microphoneBusy = false;
     throw error;
   }
@@ -13668,7 +13758,7 @@ function queueAccountMetadataUpdate(patch) {
     const result = await supabaseClient.auth.updateUser({ data });
     if (result.error) throw result.error;
     if (currentUser?.id === userId && result.data?.user?.id === userId) currentUser = result.data.user;
-  }).catch(error => console.warn("Account preference sync failed", { message: getReadableError(error) }));
+  }).catch(error => void 0);
 }
 
 function formatDuration(milliseconds) {
@@ -13767,7 +13857,7 @@ function queueAccountProgressRecord(kind, recordKey, payload) {
   try {
     localStorage.setItem(progressOutboxPrefix(userId) + JSON.stringify([kind, row.record_key]), JSON.stringify(row));
   } catch (error) {
-    console.warn("History retry queue could not be persisted", error);
+    void 0;
     showSystemMessage("History is saved locally, but its account-sync retry could not be queued. Check browser storage.");
     return;
   }
@@ -13813,7 +13903,7 @@ function flushAccountProgress(userId = currentUser?.id) {
         } finally { controller.abort(); }
       }
     } catch (error) {
-      console.warn("Account history sync pending", { message: getReadableError(error), code: error?.code });
+      void 0;
       if (currentUser?.id === userId) showSystemMessage("History account sync is pending; local history is retained. Reopen your profile or reconnect to retry.");
     } finally { state.flushing = null; }
   });
@@ -13855,7 +13945,7 @@ function loadAccountProgress(userId = currentUser?.id) {
       state.loaded = true;
     } finally { controller.abort(); }
   }).catch(error => {
-    console.warn("Account history read failed", { message: getReadableError(error), code: error?.code });
+    void 0;
     if (currentUser?.id === userId) showSystemMessage("Account history could not be loaded. Local history is still available. Check that auth-progress-migration.sql has been run.");
   }).finally(() => { state.loading = null; });
   return state.loading;
@@ -14040,6 +14130,7 @@ function hideProductPages() {
 
 function showSignedInHome() {
   if (!currentUser) return;
+  recordScreen("home");
   const defaults = getMemberChatDefaults();
   selectedChatLanguage = defaults.language;
   selectedInputMode = defaults.inputMode;
@@ -14081,7 +14172,7 @@ async function startMemberChat() {
 function buildReadOnlyChatSnapshot() {
   if (!messageHistory) return "";
   const clone = messageHistory.cloneNode(true);
-  clone.querySelectorAll(".response-progress-card").forEach(node => node.remove());
+  clone.querySelectorAll(".response-progress-card,.response-failure-detail,.latency-diagnostic-toast").forEach(node => node.remove());
   clone.querySelectorAll("[id]").forEach(node => node.removeAttribute("id"));
   clone.querySelectorAll("button,input,textarea,select").forEach(control => {
     control.disabled = true;
@@ -14162,11 +14253,13 @@ function showSessionSummaryPage() {
   signedInHome?.classList.add("hidden"); messageHistory?.classList.add("hidden"); composerShell?.classList.add("hidden"); speechShell?.classList.add("hidden"); endChatButton?.classList.add("hidden");
   hideProductPages();
   sessionSummaryPage?.classList.remove("hidden");
+  recordScreen("summary", pendingSessionSummary?.id || "");
   renderSessionSummary(pendingSessionSummary, { saved: viewingSavedSession });
 }
 
 function openSessionSummary() {
   if (!currentUser || !activeChatSession) return;
+  if (chatStartInFlight || isRecording || microphoneBusy || pendingBotReply || sendButton?.disabled || speechRecordButton?.disabled) { showSystemMessage("Finish the current response before ending your chat."); return; }
   stopAllSpeech();
   viewingSavedSession = false;
   pendingSessionSummary = buildPendingSessionSummary();
@@ -14206,6 +14299,7 @@ function renderSessionReview(summary) {
   if (summary.reviewHtml) {
     sessionReviewMessages.classList.add("session-review-live-snapshot");
     sessionReviewMessages.innerHTML = summary.reviewHtml;
+    sessionReviewMessages.querySelectorAll(".response-progress-card,.response-progress-diagnostics,.response-failure-detail,.latency-diagnostic-toast").forEach(node => node.remove());
     sessionReviewMessages.querySelectorAll("button,input,textarea,select").forEach(control => {
       control.disabled = true;
       control.setAttribute("tabindex", "-1");
@@ -14259,7 +14353,7 @@ function renderSessionReview(summary) {
 function openSessionReview() {
   if (!pendingSessionSummary) return;
   sessionSummaryPage?.classList.add("hidden");
-  sessionReviewPage?.classList.remove("hidden");
+  sessionReviewPage?.classList.remove("hidden"); recordScreen("review", pendingSessionSummary?.id || "");
   renderSessionReview(pendingSessionSummary);
 }
 
@@ -14309,7 +14403,7 @@ async function startWordConfirmation() {
   submitWordConfirmationButton?.classList.toggle("hidden", usesSpeech);
   sessionSummaryPage?.classList.add("hidden"); unconfirmedExitModal?.classList.add("hidden");
   if (!confirmationQueue.length) { finishWordConfirmation(); return; }
-  wordConfirmationPage?.classList.remove("hidden"); renderConfirmationWord();
+  wordConfirmationPage?.classList.remove("hidden"); recordScreen("confirmation"); renderConfirmationWord();
 }
 
 function showConfirmationResult(correct) {
@@ -14335,14 +14429,11 @@ function showConfirmationResult(correct) {
   });
 }
 
-function showLatencyDiagnostic(message) {
-  document.querySelector(".latency-diagnostic-toast")?.remove();
-  const toast = document.createElement("div");
-  toast.className = "latency-diagnostic-toast";
-  toast.setAttribute("role", "status");
-  toast.textContent = message;
-  document.body.appendChild(toast);
-  window.setTimeout(() => toast.remove(), 20000);
+function notifyProgressSync(message) {
+  // Timing and database internals are never shown to learners.
+  if (/failed|unconfirmed/i.test(String(message))) {
+    showSystemMessage("Progress hasn’t synced yet. Keep this page open while it retries; you don’t need to repeat your answer.");
+  }
 }
 
 let wordConfirmationInFlight = false;
@@ -14354,7 +14445,7 @@ async function submitWordConfirmation(answer) {
   if (wordConfirmationSpeechButton) wordConfirmationSpeechButton.disabled = true;
   submitWordConfirmationButton.disabled = true;
   if (confirmationFeedback) confirmationFeedback.textContent = "Checking...";
-  const wordCheckStartedAt = performance.now();
+
   const transcriptionTiming = lastTranscriptionTiming;
   lastTranscriptionTiming = null;
   try {
@@ -14366,29 +14457,13 @@ async function submitWordConfirmation(answer) {
       chatLanguage:word.language,
       fluentLanguage:getCurrentFluentLanguage()
     },"Word confirmation");
-    const clientTiming = data?.clientTiming || {};
-    const serverTiming = data?.serverTiming || {};
-    const diagnosticParts = [];
-    if (transcriptionTiming) {
-      diagnosticParts.push(
-        `transcription ${(transcriptionTiming.totalMs / 1000).toFixed(2)}s` +
-        (transcriptionTiming.serverMs != null
-          ? ` (server AI ${transcriptionTiming.serverMs}ms)`
-          : "")
-      );
-    }
-    diagnosticParts.push(`word check ${((performance.now() - wordCheckStartedAt) / 1000).toFixed(2)}s`);
-    if (clientTiming.sessionMs != null) diagnosticParts.push(`session ${clientTiming.sessionMs}ms`);
-    if (clientTiming.networkMs != null) diagnosticParts.push(`network ${clientTiming.networkMs}ms`);
-    if (serverTiming.authenticationMs != null) diagnosticParts.push(`server auth ${serverTiming.authenticationMs}ms`);
-    if (serverTiming.evaluationMs != null) diagnosticParts.push(`server AI ${serverTiming.evaluationMs}ms`);
     if (!data.correct) {
-      showLatencyDiagnostic(`Word confirmation timing: ${diagnosticParts.join(" | ")}`);
+
       if (confirmationFeedback) confirmationFeedback.textContent = "Not quite. Try another translation, or choose \"I don't remember.\"";
       await showConfirmationResult(false);
       return;
     }
-    const saveStartedAt = performance.now();
+
     // Show the judgment immediately, but do not advance until persistence succeeds.
     await Promise.all([
       showConfirmationResult(true),
@@ -14396,12 +14471,12 @@ async function submitWordConfirmation(answer) {
         word.statsEventId || (word.statsEventId = crypto.randomUUID()))
     ]);
     saveConfirmedWord(word); confirmedThisRun += 1;
-    diagnosticParts.push(`save result ${((performance.now() - saveStartedAt) / 1000).toFixed(2)}s`);
-    diagnosticParts.push(`complete ${((performance.now() - wordCheckStartedAt) / 1000).toFixed(2)}s`);
-    showLatencyDiagnostic(`Word confirmation timing: ${diagnosticParts.join(" | ")}`);
+
+
+
     confirmationIndex += 1; renderConfirmationWord();
   } catch (error) {
-    if (confirmationFeedback) confirmationFeedback.textContent = getReadableError(error);
+    if (confirmationFeedback) confirmationFeedback.textContent = learnerError(error);
   } finally {
     wordConfirmationInFlight = false;
     if (forgotConfirmationWordButton) forgotConfirmationWordButton.disabled = false;
@@ -14419,7 +14494,7 @@ async function forgetConfirmationWord() {
     await scheduleWordReview(word,"missed",word.language);
     await new Promise(resolve => setTimeout(resolve,1300));
     confirmationIndex += 1; renderConfirmationWord();
-  } catch (error) { if (confirmationFeedback) confirmationFeedback.textContent = getReadableError(error); }
+  } catch (error) { if (confirmationFeedback) confirmationFeedback.textContent = learnerError(error); }
   finally { submitWordConfirmationButton.disabled = false; forgotConfirmationWordButton.disabled = false; }
 }
 
@@ -14439,14 +14514,8 @@ async function toggleConfirmationRecording() {
     return;
   }
 
-  confirmationRecordingStream = await navigator.mediaDevices.getUserMedia({
-    audio: {
-      echoCancellation: { ideal: true },
-      noiseSuppression: { ideal: true },
-      autoGainControl: { ideal: true },
-      channelCount: { ideal: 1 }
-    }
-  });
+  confirmationRecordingStream = await acquireMicrophone();
+  const recordingGeneration = microphoneGeneration;
   confirmationRecordedChunks = [];
   const mimeType = getBestRecordingMimeType();
   confirmationRecorder = new MediaRecorder(
@@ -14466,7 +14535,8 @@ async function toggleConfirmationRecording() {
     if (confirmationFeedback) confirmationFeedback.textContent = "";
   });
   confirmationRecorder.addEventListener("stop", async () => {
-    confirmationRecordingStream?.getTracks().forEach(track => track.stop());
+    if (recordingGeneration !== microphoneGeneration) return;
+    parkMicrophone(confirmationRecordingStream);
     confirmationRecordingStream = null;
     wordConfirmationSpeechButton?.classList.remove("recording");
     wordConfirmationSpeechButton?.classList.add("processing");
@@ -14490,7 +14560,7 @@ async function toggleConfirmationRecording() {
       if (confirmationSpeechStatus) confirmationSpeechStatus.textContent = "Checking";
       await submitWordConfirmation(transcript);
     } catch (error) {
-      if (confirmationFeedback) confirmationFeedback.textContent = getReadableError(error);
+      if (confirmationFeedback) confirmationFeedback.textContent = learnerError(error);
     } finally {
       if (wordConfirmationSpeechButton) {
         wordConfirmationSpeechButton.disabled = false;
@@ -14505,7 +14575,7 @@ async function toggleConfirmationRecording() {
 }
 
 function finishWordConfirmation() {
-  wordConfirmationPage?.classList.add("hidden"); confirmationCompletePage?.classList.remove("hidden");
+  wordConfirmationPage?.classList.add("hidden"); confirmationCompletePage?.classList.remove("hidden"); recordScreen("complete");
   if (confirmedWordTotal) confirmedWordTotal.textContent = String(confirmedThisRun);
   if (pendingSessionSummary) { pendingSessionSummary.confirmed = true; pendingSessionSummary.confirmedWords = confirmedThisRun; saveSessionSummary(pendingSessionSummary); }
   setTimeout(exitSessionToHome,1800);
@@ -14514,7 +14584,7 @@ function finishWordConfirmation() {
 function openAllChats() {
   allChatsPageIndex = 0;
   signedInHome?.classList.add("hidden");
-  allChatsPage?.classList.remove("hidden");
+  allChatsPage?.classList.remove("hidden"); recordScreen("chats");
   renderAllChats();
   const userId = currentUser?.id;
   void loadAccountProgress(userId).then(() => {
@@ -14566,12 +14636,20 @@ function createMasterThreadButton(thread) {
   const button = document.createElement("button");
   button.type = "button";
   button.className = `master-thread-button${thread.id === activeMasterThreadId ? " active" : ""}`;
-  button.textContent = cleanInterfaceText(thread.title || "LipsMaster chat");
+  const title = document.createElement("span"); title.textContent = cleanInterfaceText(thread.title || "LipsMaster chat");
+  button.appendChild(title);
+  const date = new Date(thread.updatedAt || thread.createdAt || 0);
+  if (Number.isFinite(date.getTime()) && date.getTime() > 0) {
+    const meta = document.createElement("small"); meta.textContent = date.toLocaleDateString(undefined, {month:"short", day:"numeric"}); button.appendChild(meta);
+  }
   button.addEventListener("click", () => {
     activeMasterThreadId = thread.id;
     activeMasterDraftThread = null;
     renderMasterPage();
+    recordScreen("lipsmaster", thread.id);
+    setMasterCatalogue(false);
   });
+  button.setAttribute("aria-current", thread.id === activeMasterThreadId ? "page" : "false");
   return button;
 }
 function appendMasterSidebarLabel(text, parent = masterThreadList) {
@@ -14584,7 +14662,8 @@ function renderMasterSidebar() {
   if (!masterThreadList) return;
   masterThreadList.textContent = "";
   const language = homeLanguageSelect?.value || selectedChatLanguage || "English";
-  const rows = getMasterThreads().filter(thread => !thread.language || thread.language === language);
+  const query = document.getElementById("masterSearch")?.value.trim().toLocaleLowerCase() || "";
+  const rows = getMasterThreads().filter(thread => (!thread.language || thread.language === language) && (!query || String(thread.title || "").toLocaleLowerCase().includes(query)));
   const general = rows.filter(thread => thread.kind !== "grammar");
   const grammar = rows.filter(thread => thread.kind === "grammar");
 
@@ -14592,7 +14671,7 @@ function renderMasterSidebar() {
   if (!general.length) {
     const empty = document.createElement("div");
     empty.className = "master-thread-empty";
-    empty.textContent = "Your LipsMaster chats will appear here after you send a message.";
+    empty.textContent = query ? "No chats match your search." : "Your conversations will appear here after your first message.";
     masterThreadList.appendChild(empty);
   } else {
     general.forEach(thread => masterThreadList.appendChild(createMasterThreadButton(thread)));
@@ -14629,6 +14708,7 @@ function renderMasterContent(container, text) {
 }
 function appendMasterMessage(role, text = "", { thinking = false } = {}) {
   if (!masterChatMessages) return null;
+  masterChatMessages.querySelector(".master-welcome")?.remove();
   const row = document.createElement("div");
   row.className = `master-chat-row ${role}`;
   if (role === "assistant") {
@@ -14664,18 +14744,36 @@ function appendMasterMessage(role, text = "", { thinking = false } = {}) {
   return { row, content };
 }
 function renderMasterPage() {
+  document.querySelectorAll(".master-mini-mark img").forEach(img => {
+    if (img.complete && !img.naturalWidth) img.parentElement.textContent = "L";
+  });
   const thread = getActiveMasterThread();
   if (masterChatMessages) {
     masterChatMessages.textContent = "";
     (thread.messages || []).forEach(message => appendMasterMessage(message.role, message.content));
+    if (!(thread.messages || []).length) {
+      const welcome = document.createElement("section");
+      welcome.className = "master-welcome";
+      const title = document.createElement("h3"); title.textContent = "What would you like to understand?";
+      const description = document.createElement("p"); description.textContent = "Explore a grammar rule, a useful expression, or a question from your practice.";
+      welcome.append(title, description);
+      for (const text of ["Explain a grammar rule", "Help me say something naturally", "Compare two similar words"]) {
+        const suggestion = document.createElement("button"); suggestion.type = "button"; suggestion.textContent = text;
+        suggestion.addEventListener("click", () => { masterChatInput.value = text + ": "; masterChatInput.focus(); });
+        welcome.appendChild(suggestion);
+      }
+      masterChatMessages.appendChild(welcome);
+    }
   }
   renderMasterSidebar();
 }
 async function loadMasterHistoryFromServer(){
   if(!currentUser)return;
+  const historyOwner = currentUser.id;
   try{
     const language = homeLanguageSelect?.value || selectedChatLanguage || "English";
     const data=await callChatFunction({action:"lipsmaster-history",language},"LipsMaster history");
+    if (currentUser?.id !== historyOwner || language !== (homeLanguageSelect?.value || selectedChatLanguage || "English")) return;
     const local=getMasterThreads();const byId=new Map(local.map(thread=>[thread.id,thread]));
     for(const remote of Array.isArray(data.threads)?data.threads:[]){
       const existing=byId.get(remote.id);
@@ -14697,9 +14795,9 @@ async function loadMasterHistoryFromServer(){
     }
     saveMasterThreads([...byId.values()].sort((a,b)=>new Date(b.updatedAt||0).getTime()-new Date(a.updatedAt||0).getTime()));
     renderMasterPage();
-  }catch(error){console.warn("LipsMaster history load failed",error);}
+  }catch(error){void 0;}
 }
-function openLipsMaster(){signedInHome?.classList.add("hidden");lipsMasterPage?.classList.remove("hidden");getActiveMasterThread();renderMasterPage();loadMasterHistoryFromServer();masterChatInput?.focus();}
+function openLipsMaster(){signedInHome?.classList.add("hidden");lipsMasterPage?.classList.remove("hidden"); recordScreen("lipsmaster");getActiveMasterThread();renderMasterPage();loadMasterHistoryFromServer();masterChatInput?.focus();}
 function persistMasterMessage(threadId,role,content,title=""){
   const rows=getMasterThreads();
   let thread=rows.find(row=>row.id===threadId);
@@ -14721,6 +14819,8 @@ function persistMasterMessage(threadId,role,content,title=""){
   return thread;
 }
 async function sendMasterMessage(text){
+  if (masterChatSendButton.disabled || !currentUser) return;
+  const sendingOwner = currentUser.id;
   const thread=getActiveMasterThread();
   persistMasterMessage(thread.id,"user",text);
   appendMasterMessage("user",text);
@@ -14729,11 +14829,12 @@ async function sendMasterMessage(text){
   try{
     const fresh=getMasterThreads().find(row=>row.id===thread.id);
     const data=await callChatFunction({action:"lipsmaster-chat",threadId:thread.id,messages:(fresh?.messages||[]).slice(-40),chatLanguage:homeLanguageSelect?.value||selectedChatLanguage,fluentLanguage:getCurrentFluentLanguage()},"LipsMaster");
-    renderMasterContent(thinking.content,data.reply);
+    if (currentUser?.id !== sendingOwner) return;
+    if (activeMasterThreadId === thread.id) renderMasterContent(thinking.content,data.reply);
     persistMasterMessage(thread.id,"assistant",data.reply);
     renderMasterSidebar();
-  }catch(error){renderMasterContent(thinking.content,getReadableError(error));}
-  finally{masterChatSendButton.disabled=false;masterChatInput?.focus();}
+  }catch(error){if (currentUser?.id === sendingOwner && activeMasterThreadId === thread.id) renderMasterContent(thinking.content,learnerError(error));}
+  finally{masterChatSendButton.disabled=false;if (screenName() === "lipsmaster") masterChatInput?.focus();}
 }
 
 function saveGrammarConversationToMaster(context) {
@@ -15105,7 +15206,7 @@ if (saveProfileButton) {
   saveProfileButton.addEventListener("click", () => {
     saveProfileSettings().catch(error => {
       if (profileMessage) {
-        profileMessage.textContent = getReadableError(error);
+        profileMessage.textContent = learnerError(error);
         profileMessage.classList.add("error");
       }
     });
@@ -15155,7 +15256,7 @@ wordConfirmationForm?.addEventListener("submit", event => { event.preventDefault
 forgotConfirmationWordButton?.addEventListener("click", () => forgetConfirmationWord().catch(() => {}));
 wordConfirmationSpeechButton?.addEventListener("click", () => {
   toggleConfirmationRecording().catch(error => {
-    if (confirmationFeedback) confirmationFeedback.textContent = getReadableError(error);
+    if (confirmationFeedback) confirmationFeedback.textContent = learnerError(error);
   });
 });
 lipsMasterBackButton?.addEventListener("click", showSignedInHome);
@@ -15165,7 +15266,7 @@ newMasterChatButton?.addEventListener("click", () => {
   renderMasterPage();
   masterChatInput?.focus();
 });
-masterChatForm?.addEventListener("submit", event => {event.preventDefault();const text=masterChatInput?.value.trim()||"";if(!text)return;masterChatInput.value="";sendMasterMessage(text);});
+masterChatForm?.addEventListener("submit", event => {event.preventDefault();const text=masterChatInput?.value.trim()||"";if(!text || masterChatSendButton.disabled)return;masterChatInput.value="";sendMasterMessage(text);});
 masterChatInput?.addEventListener("input",()=>{masterChatInput.style.height="auto";masterChatInput.style.height=`${Math.min(masterChatInput.scrollHeight,140)}px`;});
 masterChatInput?.addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.shiftKey){event.preventDefault();masterChatForm?.requestSubmit();}});
 
@@ -15178,9 +15279,210 @@ masterChatInput?.addEventListener("keydown",event=>{if(event.key==="Enter"&&!eve
     characterData: true
   });
 
+  // Screen navigation and shared capture lifecycle.
+  let sharedMicrophone = null;
+  let microphoneRequest = null;
+  let microphoneGeneration = 0;
+  async function acquireMicrophone() {
+    if (!sharedMicrophone?.getAudioTracks().some(track => track.readyState === "live")) {
+      if (!microphoneRequest) {
+        const generation = microphoneGeneration;
+        const request = navigator.mediaDevices.getUserMedia({ audio: {
+          echoCancellation: { ideal: true }, noiseSuppression: { ideal: true },
+          autoGainControl: { ideal: true }, channelCount: { ideal: 1 }
+        }}).then(stream => {
+          if (generation !== microphoneGeneration) {
+            stream.getTracks().forEach(track => track.stop());
+            throw new Error("Microphone request cancelled.");
+          }
+          sharedMicrophone = stream;
+          return stream;
+        }).finally(() => { if (microphoneRequest === request) microphoneRequest = null; });
+        microphoneRequest = request;
+      }
+      await microphoneRequest;
+    }
+    sharedMicrophone.getAudioTracks().forEach(track => { track.enabled = true; });
+    return sharedMicrophone;
+  }
+  function parkMicrophone(stream) {
+    stream?.getAudioTracks().forEach(track => { track.enabled = false; });
+  }
+  function releaseMicrophone() {
+    microphoneGeneration += 1;
+    discardCurrentRecording = true;
+    restartRecordingAfterDiscard = false;
+    if (mediaRecorder?.state === "recording") mediaRecorder.stop();
+    if (confirmationRecorder?.state === "recording") confirmationRecorder.stop();
+    stopSilenceMonitor();
+    isRecording = false; microphoneBusy = false;
+    resetSpeechButton();
+    wordConfirmationSpeechButton?.classList.remove("recording", "processing");
+    if (wordConfirmationSpeechButton) { wordConfirmationSpeechButton.disabled = false; wordConfirmationSpeechButton.innerHTML = `<span class="mic-symbol" aria-hidden="true">${microphoneIconSvg()}</span>`; }
+    if (confirmationSpeechStatus) confirmationSpeechStatus.textContent = "Tap to speak";
+    sharedMicrophone?.getTracks().forEach(track => track.stop());
+    sharedMicrophone = null;
+    microphoneRequest = null;
+    setupSpeechPermissionGranted = false;
+  }
+  let correctionDecisionPending = false;
+  function setCorrectionDecision(pending) {
+    correctionDecisionPending = Boolean(pending);
+    document.body.classList.toggle("correction-decision-pending", correctionDecisionPending);
+  }
+  function bindCorrectionDecision(actions) {
+    setCorrectionDecision(true);
+    actions.addEventListener("click", event => {
+      const button = event.target.closest("button");
+      if (!button || button.disabled) return;
+      // Runs before the retry handler, so recording/typing can begin only after a decision.
+      setCorrectionDecision(false);
+    }, true);
+  }
+  function learnerError(value) {
+    const text = getReadableError(value);
+    if (/Account update|stats_|word_stats|RPC|upstream|database|batch (read|write)|HTTP \d|non-JSON/i.test(text))
+      return "Progress could not be synced yet. Your answer does not need to be repeated. Please try again shortly.";
+    if (/context key|context trace|previous_response|preAiStartedAt|compliant short reply|Conversation context/i.test(text))
+      return "The next reply could not be prepared. Please try again.";
+    if (/Internal Server Error|refresh token|session validation/i.test(text))
+      return "Your session could not be restored. Please sign in again.";
+    return text;
+  }
+  function setAccountControlsBusy(busy) {
+    for (const control of [authSignInTab, authSignUpTab, googleAuthButton, forgotPasswordButton]) {
+      if (control) control.disabled = busy || (passwordRecoveryLocked && [authSignInTab, authSignUpTab].includes(control));
+    }
+    document.getElementById("authForm")?.setAttribute("aria-busy", String(busy));
+  }
+  function updateProfileIdentity() {
+    const name = currentUser ? getAccountDisplayName(currentUser) : "";
+    document.getElementById("profileIdentityName").textContent = name;
+    document.getElementById("profileIdentityEmail").textContent = currentUser?.email || "";
+    document.getElementById("profileInitial").textContent = [...name.trim()][0]?.toLocaleUpperCase() || "L";
+  }
+  const screenElements = {
+    account:"authModal", profile:"profileModal", stats:"statsPage", summary:"sessionSummaryPage",
+    chats:"allChatsPage", review:"sessionReviewPage", confirmation:"wordConfirmationPage",
+    complete:"confirmationCompletePage", lipsmaster:"lipsMasterPage"
+  };
+  let screenRoutingReady = false;
+  let applyingScreenRoute = false;
+  function screenName() {
+    return location.hash.startsWith("#/") ? location.hash.slice(2).split("/")[0] || "home" : "home";
+  }
+  function recordScreen(name, detail = "") {
+    if (!screenRoutingReady) return;
+    const route = "#/" + name + (detail ? "/" + encodeURIComponent(detail) : "");
+    if (!applyingScreenRoute && location.hash !== route) history.pushState(null, "", route);
+    if (document.body.dataset.screen === "profile" && name !== "profile") setSelectedGender(currentUser?.user_metadata?.gender || "");
+    document.body.dataset.screen = name;
+    for (const [screen, id] of Object.entries(screenElements)) {
+      if (screen !== name) document.getElementById(id)?.classList.add("hidden");
+    }
+    document.title = ({account:"Your account",profile:"Your profile",summary:"Practice complete",lipsmaster:"Ask LipsMaster",stats:"Word progress",chats:"Your chats",review:"Review chat",confirmation:"Confirm words"}[name] || "Language practice") + " · LipsMaxxed";
+    if (name !== "lipsmaster") setMasterCatalogue(false);
+    const heading = document.querySelector(`#${screenElements[name]} h1, #${screenElements[name]} h2`);
+    if (heading) { heading.tabIndex = -1; heading.focus({preventScroll:true}); }
+  }
+  function restoreUnderlyingScreen() {
+    if (!screenRoutingReady) return;
+    if (activeChatSession) showActiveChatScreen();
+    else if (currentUser) showSignedInHome();
+    else { recordScreen("home"); messageHistory?.classList.remove("hidden"); setInputMode(inputMode); }
+  }
+  function showActiveChatScreen() {
+    recordScreen("chat");
+    signedInHome?.classList.add("hidden");
+    messageHistory?.classList.remove("hidden");
+    endChatButton?.classList.toggle("hidden", !currentUser);
+    setInputMode(inputMode);
+  }
+  function applyScreenRoute() {
+    if (!screenRoutingReady) return;
+    const requested = passwordRecoveryLocked ? "account" : screenName();
+    if (isRecording || confirmationRecorder?.state === "recording") {
+      history.replaceState(null, "", "#/" + (document.body.dataset.screen || "chat"));
+      showSystemMessage("Finish recording before leaving this screen.");
+      return;
+    }
+    applyingScreenRoute = true;
+    try {
+      if (requested === "account") openAuthModal(passwordRecoveryLocked ? "recovery" : "sign-in");
+      else if (requested === "chat" && activeChatSession) showActiveChatScreen();
+      else if (!currentUser) {
+        if (requested !== "home" && requested !== "chat") openAuthModal("sign-in");
+        else restoreUnderlyingScreen();
+      }
+      else if (requested === "profile") openProfileModal();
+      else if (requested === "stats") openStatsPage();
+      else if (requested === "lipsmaster") {
+        let id = "";
+        try { id = decodeURIComponent(location.hash.split("/")[2] || ""); } catch {}
+        if (id && getMasterThreads().some(thread => thread.id === id)) activeMasterThreadId = id;
+        openLipsMaster();
+      }
+      else if (requested === "chats") openAllChats();
+      else if (["summary", "review"].includes(requested)) {
+        let id = "";
+        try { id = decodeURIComponent(location.hash.split("/")[2] || ""); } catch {}
+        const saved = id && getSessionHistory().find(row => row.id === id);
+        if (saved && pendingSessionSummary?.id !== id) { pendingSessionSummary = { ...saved }; viewingSavedSession = true; }
+        if (pendingSessionSummary && (!id || pendingSessionSummary.id === id)) {
+          if (requested === "review") openSessionReview(); else showSessionSummaryPage();
+        } else openAllChats();
+      }
+      else if (requested === "confirmation" && pendingSessionSummary && confirmationQueue.length) {
+        recordScreen("confirmation"); wordConfirmationPage?.classList.remove("hidden");
+      }
+      else if (activeChatSession && requested === "home") showActiveChatScreen();
+      else showSignedInHome();
+    } finally {
+      applyingScreenRoute = false;
+      // Expired in-memory chat/confirmation URLs land safely; never generate a new reply on refresh.
+      const actual = document.body.dataset.screen || "home";
+      if (actual !== requested || !location.hash.startsWith("#/")) history.replaceState(null,"","#/" + actual);
+    }
+  }
+  function setMasterCatalogue(open) {
+    lipsMasterPage?.classList.toggle("catalogue-open", open);
+    document.getElementById("masterCatalogueToggle")?.setAttribute("aria-expanded", String(open));
+    if (open) document.getElementById("masterSearch")?.focus();
+    else document.getElementById("masterCatalogueToggle")?.focus();
+  }
+  function initializePolishedScreens() {
+    window.addEventListener("hashchange", applyScreenRoute);
+    // Missing optional branding assets must not leave broken-image icons in a help thread.
+    document.addEventListener("error", event => {
+      if (event.target instanceof HTMLImageElement && event.target.closest(".master-mini-mark")) {
+        event.target.parentElement.textContent = "L";
+      }
+    }, true);
+    window.addEventListener("pagehide", releaseMicrophone);
+    document.getElementById("masterSearch")?.addEventListener("input", renderMasterSidebar);
+    document.getElementById("masterCatalogueToggle")?.addEventListener("click", () => setMasterCatalogue(true));
+    document.getElementById("masterCatalogueClose")?.addEventListener("click", () => setMasterCatalogue(false));
+    newMasterChatButton?.addEventListener("click", () => { recordScreen("lipsmaster"); setMasterCatalogue(false); masterChatInput?.focus(); });
+    sessionReviewBackButton?.addEventListener("click", () => recordScreen("summary", pendingSessionSummary?.id || ""));
+    profileUsernameInput?.setAttribute("maxlength", "100");
+    profilePhotoInput?.setAttribute("maxlength", "2048");
+    authEmail?.setAttribute("required", "");
+    authEmail?.setAttribute("autocapitalize", "none");
+    authEmail?.setAttribute("spellcheck", "false");
+    document.getElementById("closeProfileButton")?.setAttribute("aria-label", "Back to practice");
+    document.getElementById("closeStatsButton")?.setAttribute("aria-label", "Back to practice");
+    document.addEventListener("keydown", event => {
+      if (event.key !== "Escape") return;
+      if (lipsMasterPage?.classList.contains("catalogue-open")) setMasterCatalogue(false);
+      else if (screenName() === "account" && !passwordRecoveryLocked) closeAuthModal();
+      else if (screenName() === "profile" && !saveProfileButton.disabled) closeProfileModal();
+    });
+  }
+
   attachUiHandlers();
+  initializePolishedScreens();
   setInputMode("speech");
-  initAuth();
+  initAuth().finally(() => { screenRoutingReady = true; applyScreenRoute(); });
 </script>
 </body>
 </html>
