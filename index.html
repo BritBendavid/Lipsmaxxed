@@ -8979,6 +8979,7 @@ let sessionTimerHandle = null;
 let masterSearchTerm = "";
 let profileBaseline = null;
 let profilePhotoValue = "";
+let accountRepairFailed = false;
 
 let currentLanguagePoints = 0;
 let pointsAnimationFrame = null;
@@ -9782,6 +9783,44 @@ function rankForWord(language, word) {
 function recordPlacementForWord(language, word, correct) {
   recordPlacementOutcome(language, rankForWord(language, word), correct);
 }
+
+/*
+  A deliberate escape hatch. If the automatic repair cannot run, this clears
+  the offending keys directly and reports what it found.
+*/
+window.lipsMaxxedRepairAccount = async function lipsMaxxedRepairAccount() {
+  const { data } = await supabaseClient.auth.getSession();
+  const session = data?.session || null;
+
+  if (!session?.user) return "Not signed in.";
+
+  const metadata = session.user.user_metadata || {};
+  const sizes = Object.fromEntries(
+    Object.entries(metadata).map(([key, value]) => {
+      let size = 0;
+      try {
+        size = JSON.stringify(value)?.length || 0;
+      } catch {
+        size = -1;
+      }
+      return [key, size];
+    })
+  );
+
+  const before = {
+    tokenLength: String(session.access_token || "").length,
+    metadataSizes: sizes,
+    offenders: oversizedMetadataKeys(metadata)
+  };
+
+  const repaired = await repairOversizedAuthMetadata(session);
+
+  return {
+    before,
+    afterTokenLength: String(repaired?.access_token || "").length,
+    cleared: !sessionHasLegacyProgress(repaired)
+  };
+};
 
 function createClientTurnId() {
   const turnId = globalThis.crypto?.randomUUID
@@ -13274,7 +13313,6 @@ function updateAuthUi(session) {
   loadLanguagePoints(getCurrentChatLanguage()).catch(() => {});
 
   renderAccountAvatar();
-  void repairOversizedAvatarMetadata();
   void applyInterfaceLanguage(preferredInterfaceLanguage());
 
   const route = readRoute();
@@ -13624,11 +13662,30 @@ async function initAuth() {
       if (!isInvalidRefreshTokenError(error)) throw error;
       initialSession = await recoverInvalidRefreshToken(error);
     }
+    // Repair first: the token check below cannot pass until the account
+    // stops carrying oversized metadata, and a throw here used to abort
+    // sign-in before the repair ever had a chance to run.
+    initialSession = await repairOversizedAuthMetadata(initialSession);
+
     if (sessionHasLegacyProgress(initialSession)) {
-      await getValidFunctionAccessToken(true);
-      initialSession = currentSession;
+      try {
+        await getValidFunctionAccessToken(true);
+        initialSession = currentSession;
+      } catch (tokenError) {
+        console.warn("token still oversized after repair", tokenError);
+        accountRepairFailed = true;
+      }
     }
+
     updateAuthUi(initialSession);
+
+    if (accountRepairFailed) {
+      showSystemMessage(
+        "Your account is still carrying oversized sign-in data, so chat requests will be refused. " +
+        "Sign out and sign back in. If that does not clear it, the stored profile data has to be " +
+        "removed on the server before this account can chat again."
+      );
+    }
   } catch (error) {
     showSystemMessage(getReadableError(error));
   }
@@ -15202,10 +15259,17 @@ async function recoverInvalidRefreshToken(error, failedRefreshToken = "") {
   return authRecoveryPromise;
 }
 
+function metadataCarries(metadata, key) {
+  // Clearing a key writes null rather than removing it on some auth versions.
+  return Object.hasOwn(metadata, key) &&
+    metadata[key] !== null &&
+    metadata[key] !== undefined;
+}
+
 function sessionHasLegacyProgress(session) {
   const metadata = session?.user?.user_metadata || {};
-  return Object.hasOwn(metadata, "lipsmaxxedSessions") ||
-    Object.hasOwn(metadata, "lipsmaxxedConfirmedWords") ||
+  return metadataCarries(metadata, "lipsmaxxedSessions") ||
+    metadataCarries(metadata, "lipsmaxxedConfirmedWords") ||
     String(session?.access_token || "").length > 16384;
 }
 
@@ -18166,11 +18230,11 @@ function isStoredPhoto(value) {
 */
 const AVATAR_BUCKET = "avatars";
 
-async function uploadAvatarToStorage(dataUrl) {
-  if (!currentUser?.id) throw new Error("Sign in before saving a photo.");
+async function uploadAvatarToStorage(dataUrl, ownerId = currentUser?.id) {
+  if (!ownerId) throw new Error("Sign in before saving a photo.");
 
   const blob = await (await fetch(dataUrl)).blob();
-  const path = `${currentUser.id}/avatar-${Date.now()}.jpg`;
+  const path = `${ownerId}/avatar-${Date.now()}.jpg`;
 
   const { error } = await supabaseClient.storage
     .from(AVATAR_BUCKET)
@@ -18190,35 +18254,96 @@ async function uploadAvatarToStorage(dataUrl) {
   which leaves them unable to chat at all. Move it out on sign-in, and if that
   is not possible, clear it so the account works again.
 */
-async function repairOversizedAvatarMetadata() {
-  const stored = String(currentUser?.user_metadata?.avatar_url || "");
-  if (!isStoredPhoto(stored)) return;
+/*
+  Anything the account genuinely needs. Everything else is either app data
+  that belongs in a table, or a leftover that has no business riding along
+  inside every request's Authorization header.
+*/
+const ESSENTIAL_METADATA_KEYS = new Set([
+  "username", "fluentLanguage", "gender", "avatar_url", "languageNames",
+  "email", "email_verified", "phone_verified", "full_name", "name",
+  "picture", "sub", "provider_id", "iss"
+]);
 
-  let replacement = "";
-  try {
-    replacement = await uploadAvatarToStorage(stored);
-  } catch {
-    replacement = "";
-  }
+const METADATA_KEY_SIZE_LIMIT = 512;
 
-  try {
-    const { data, error } = await supabaseClient.auth.updateUser({
-      data: { avatar_url: replacement }
-    });
-    if (error) throw error;
-    if (data?.user) currentUser = data.user;
+function oversizedMetadataKeys(metadata) {
+  const keys = [];
 
-    // The old token still holds the image until the session is reissued.
-    const refreshed = await supabaseClient.auth.refreshSession();
-    if (refreshed?.data?.session) {
-      currentSession = refreshed.data.session;
-      currentUser = refreshed.data.session.user || currentUser;
+  for (const [key, value] of Object.entries(metadata || {})) {
+    if (value === null || value === undefined) continue;
+
+    let size = 0;
+    try {
+      size = JSON.stringify(value)?.length || 0;
+    } catch {
+      size = METADATA_KEY_SIZE_LIMIT + 1;
     }
 
-    renderMemberIdentity();
-  } catch (error) {
-    console.warn("avatar metadata repair failed", error);
+    const knownOffender =
+      key === "lipsmaxxedSessions" ||
+      key === "lipsmaxxedConfirmedWords" ||
+      (key === "avatar_url" && isStoredPhoto(value));
+
+    if (knownOffender || (size > METADATA_KEY_SIZE_LIMIT && !ESSENTIAL_METADATA_KEYS.has(key))) {
+      keys.push(key);
+    }
   }
+
+  return keys;
+}
+
+/*
+  This has to run before anything asks for a usable token, because the check
+  that rejects an oversized token would otherwise abort sign-in and leave the
+  repair unreachable. It works from the session it is handed, not from
+  currentUser, which is not set yet at that point.
+*/
+async function repairOversizedAuthMetadata(session) {
+  const user = session?.user;
+  if (!user) return session;
+
+  const metadata = user.user_metadata || {};
+  const offenders = oversizedMetadataKeys(metadata);
+  if (!offenders.length) return session;
+
+  const patch = {};
+
+  for (const key of offenders) {
+    if (key === "avatar_url") {
+      // Keep the photo if storage will take it; otherwise fall back to initials.
+      let movedUrl = "";
+      try {
+        movedUrl = await uploadAvatarToStorage(String(metadata[key] || ""), user.id);
+      } catch (error) {
+        console.warn("avatar could not be moved to storage", error);
+        movedUrl = "";
+      }
+      patch[key] = movedUrl || null;
+    } else {
+      patch[key] = null;
+    }
+  }
+
+  try {
+    const { error } = await supabaseClient.auth.updateUser({ data: patch });
+    if (error) throw error;
+
+    // The old token still carries the old metadata until it is reissued.
+    const refreshed = await supabaseClient.auth.refreshSession();
+    const nextSession = refreshed?.data?.session || null;
+
+    if (nextSession) {
+      currentSession = nextSession;
+      currentUser = nextSession.user || currentUser;
+      return nextSession;
+    }
+  } catch (error) {
+    console.warn("account metadata repair failed", error);
+    accountRepairFailed = true;
+  }
+
+  return session;
 }
 
 function setProfilePhotoValue(value, { fromDevice = false } = {}) {
