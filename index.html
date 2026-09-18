@@ -7688,6 +7688,107 @@ html[dir="rtl"] .pf-shell,
 html[dir="rtl"] .celebrate-shell {
   direction: rtl;
 }
+
+/* ------------------------------------------------------ names per language */
+
+.language-name-rows {
+  display: grid;
+  gap: 9px;
+  margin-bottom: 10px;
+}
+
+.language-name-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 150px) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.language-name-row .pf-input,
+.language-name-row .select-wrap {
+  min-width: 0;
+}
+
+.language-name-row .select-wrap {
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--s2);
+}
+
+.language-name-row .select-wrap select {
+  width: 100%;
+  min-height: var(--control-h);
+  padding: 0 34px 0 13px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.92rem;
+  appearance: none;
+  cursor: pointer;
+}
+
+.language-name-remove {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+}
+
+.language-name-remove:hover {
+  border-color: var(--danger-line);
+  color: #fca5a5;
+  background: var(--danger-soft);
+}
+
+.language-name-remove svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.language-name-add {
+  min-height: 42px;
+  font-size: 0.88rem;
+}
+
+@media (max-width: 560px) {
+  .language-name-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .language-name-row .select-wrap {
+    grid-column: 1 / 2;
+  }
+}
+
+/* ------------------------------------------------------ sharing from home */
+
+.home-share-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 14px 0 4px;
+}
+
+.share-button-linkedin {
+  border-color: rgba(96, 165, 250, 0.4);
+  background: var(--accent-soft);
+  color: #bfdbfe;
+}
+
+.share-button-linkedin:hover {
+  background: rgba(37, 99, 235, 0.22);
+  color: #dbeafe;
+}
   </style>
 </head>
 
@@ -7812,6 +7913,17 @@ html[dir="rtl"] .celebrate-shell {
       <div class="home-stat-grid">
         <div><span>Points</span><strong id="homePointsStat">0</strong></div><div><span>Sessions</span><strong id="homeSessionsStat">0</strong></div><div><span>Total time</span><strong id="homeTimeStat">0m</strong></div><div><span>Messages</span><strong id="homeMessagesStat">0</strong></div><div><span>Confirmed</span><strong id="homeConfirmedStat">0</strong></div>
       </div>
+      <div class="home-share-row">
+          <button id="profileLinkedInButton" class="share-button share-button-linkedin" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9h3v10.5h-3Zm1.5-4.6a1.75 1.75 0 1 1 0 3.5 1.75 1.75 0 0 1 0-3.5ZM10 9h2.9v1.5a3.2 3.2 0 0 1 2.9-1.6c2.5 0 3.7 1.6 3.7 4.4v6.2h-3v-5.6c0-1.4-.5-2.3-1.8-2.3-1 0-1.6.7-1.8 1.4v6.5H10Z" fill="currentColor" stroke="none"/></svg>
+            Share on LinkedIn
+          </button>
+          <button id="profileShareImageButton" class="share-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="m4.5 17 4.6-4.3 3.4 3 2.6-2.2 4.4 3.9"/></svg>
+            Save card
+          </button>
+        </div>
+
       <div class="chart-heading"><span>Session time</span><span id="chartPeriodLabel">Recent sessions</span></div>
       <svg id="sessionTimeChart" class="session-time-chart" viewBox="0 0 640 180" role="img" aria-label="Session time progress"></svg>
     </div>
@@ -8230,6 +8342,15 @@ html[dir="rtl"] .celebrate-shell {
         </div>
 
         <div class="pf-field">
+          <span class="pf-label">Names in other languages <span class="optional-label">Optional</span></span>
+          <div id="languageNameRows" class="language-name-rows"></div>
+          <button id="addLanguageNameButton" class="ghost-button language-name-add" type="button">
+            Add a name for a language
+          </button>
+          <p class="pf-hint">One name per language. The tutor uses it while you practice that language.</p>
+        </div>
+
+        <div class="pf-field">
           <span class="pf-label">Address me as</span>
           <div class="setup-gender-toggle" role="group" aria-label="Address me as">
             <button id="profileGenderManButton" class="setup-gender-option" type="button" data-gender="man" aria-pressed="false">Male</button>
@@ -8310,23 +8431,6 @@ html[dir="rtl"] .celebrate-shell {
         </label>
       </section>
     </div>
-
-    <section class="pf-card pf-card-wide">
-      <div class="pf-card-head">
-        <h2>Show your progress</h2>
-        <p>Post where you have reached in the language you are practicing.</p>
-      </div>
-      <div class="share-actions">
-        <button id="profileLinkedInButton" class="share-button" type="button">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9h3v10.5h-3Zm1.5-4.6a1.75 1.75 0 1 1 0 3.5 1.75 1.75 0 0 1 0-3.5ZM10 9h2.9v1.5a3.2 3.2 0 0 1 2.9-1.6c2.5 0 3.7 1.6 3.7 4.4v6.2h-3v-5.6c0-1.4-.5-2.3-1.8-2.3-1 0-1.6.7-1.8 1.4v6.5H10Z" fill="currentColor" stroke="none"/></svg>
-          Add my score to LinkedIn
-        </button>
-        <button id="profileShareImageButton" class="share-button" type="button">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="m4.5 17 4.6-4.3 3.4 3 2.6-2.2 4.4 3.9"/></svg>
-          Save score image
-        </button>
-      </div>
-    </section>
 
     <div class="pf-actionbar">
       <div id="profileMessage" class="auth-message" role="status" aria-live="polite"></div>
@@ -8856,6 +8960,8 @@ const profilePhotoHint = document.getElementById("profilePhotoHint");
 const profileMicToggle = document.getElementById("profileMicToggle");
 const profileMicStatus = document.getElementById("profileMicStatus");
 const setupEnableMicButton = document.getElementById("setupEnableMicButton");
+const languageNameRows = document.getElementById("languageNameRows");
+const addLanguageNameButton = document.getElementById("addLanguageNameButton");
 const shareNativeButton = document.getElementById("shareNativeButton");
 const shareXButton = document.getElementById("shareXButton");
 const shareLinkedInButton = document.getElementById("shareLinkedInButton");
@@ -9279,44 +9385,131 @@ function setCachedWordValue(kind, key, value) {
    Sharing
    ========================================================================= */
 
+function siteInviteUrl() {
+  return `${window.location.origin}${window.location.pathname}`.replace(/\/index\.html$/i, "/");
+}
+
 function shareSummaryText() {
   const language = pendingSessionSummary?.language || getCurrentChatLanguage();
   const words = Number(pendingSessionSummary?.wordsLearned || 0);
   const points = Number(pendingSessionSummary?.pointsGained || 0);
 
-  return `I practiced ${language} on LipsMaxxed and picked up ${words} new ${words === 1 ? "word" : "words"} for ${points} points.`;
+  return [
+    `Just finished a ${language} conversation on LipsMaxxed: ${words} new ${words === 1 ? "word" : "words"}, ${points} points.`,
+    "",
+    `You learn by actually talking, and every word is tappable for audio and meaning. Come practice with me: ${siteInviteUrl()}`
+  ].join("\n");
 }
 
-async function buildScoreCardImage(headline, lines) {
-  const scale = 2;
+function shareProfileText(language, points) {
+  return [
+    `I am learning ${language} on LipsMaxxed and have reached ${points} points.`,
+    "",
+    `It is a conversation tutor you speak to out loud, not a flashcard app. Try it: ${siteInviteUrl()}`
+  ].join("\n");
+}
+
+function roundedRect(context, x, y, width, height, radius) {
+  context.beginPath();
+  context.moveTo(x + radius, y);
+  context.arcTo(x + width, y, x + width, y + height, radius);
+  context.arcTo(x + width, y + height, x, y + height, radius);
+  context.arcTo(x, y + height, x, y, radius);
+  context.arcTo(x, y, x + width, y, radius);
+  context.closePath();
+}
+
+/*
+  This ends up on someone's LinkedIn, so it is laid out like a piece of
+  collateral: landscape at the ratio every network previews at, a restrained
+  palette, a real type hierarchy, and stats in columns rather than a list.
+*/
+async function buildScoreCardImage(headline, stats, subtitle = "") {
+  const width = 1200;
+  const height = 630;
+
   const canvas = document.createElement("canvas");
-  canvas.width = 1080;
-  canvas.height = 1080;
+  canvas.width = width;
+  canvas.height = height;
 
   const context = canvas.getContext("2d");
-  context.fillStyle = "#050608";
-  context.fillRect(0, 0, 1080, 1080);
 
-  const glow = context.createRadialGradient(540, 250, 40, 540, 250, 700);
-  glow.addColorStop(0, "rgba(37, 99, 235, 0.42)");
-  glow.addColorStop(1, "rgba(5, 6, 8, 0)");
+  context.fillStyle = "#07090d";
+  context.fillRect(0, 0, width, height);
+
+  const glow = context.createRadialGradient(240, 80, 30, 240, 80, 820);
+  glow.addColorStop(0, "rgba(37, 99, 235, 0.34)");
+  glow.addColorStop(1, "rgba(7, 9, 13, 0)");
   context.fillStyle = glow;
-  context.fillRect(0, 0, 1080, 1080);
+  context.fillRect(0, 0, width, height);
 
-  context.textAlign = "center";
-  context.fillStyle = "#f5f7fa";
-  context.font = "800 74px Inter, system-ui, sans-serif";
-  context.fillText(headline, 540, 430);
+  context.strokeStyle = "rgba(255, 255, 255, 0.09)";
+  context.lineWidth = 2;
+  roundedRect(context, 40, 40, width - 80, height - 80, 28);
+  context.stroke();
 
-  context.font = "500 40px Inter, system-ui, sans-serif";
-  context.fillStyle = "#b4bdca";
-  lines.forEach((line, index) => context.fillText(line, 540, 530 + index * 62));
+  context.textAlign = "left";
 
-  context.font = "700 34px Inter, system-ui, sans-serif";
+  // Brand lockup
   context.fillStyle = "#60a5fa";
-  context.fillText("LipsMaxxed", 540, 940);
+  roundedRect(context, 84, 82, 14, 14, 4);
+  context.fill();
 
-  void scale;
+  context.fillStyle = "#f5f7fa";
+  context.font = "800 27px Inter, system-ui, sans-serif";
+  context.fillText("LipsMaxxed", 112, 95);
+
+  // Headline
+  context.fillStyle = "#f5f7fa";
+  context.font = "800 80px Inter, system-ui, sans-serif";
+  context.fillText(headline, 84, 250);
+
+  if (subtitle) {
+    context.fillStyle = "#b4bdca";
+    context.font = "500 30px Inter, system-ui, sans-serif";
+    context.fillText(subtitle, 84, 302);
+  }
+
+  // Stat columns
+  const columnWidth = (width - 168) / Math.max(1, stats.length);
+  stats.forEach((stat, index) => {
+    const x = 84 + index * columnWidth;
+
+    if (index > 0) {
+      context.strokeStyle = "rgba(255, 255, 255, 0.09)";
+      context.lineWidth = 1;
+      context.beginPath();
+      context.moveTo(x - 24, 380);
+      context.lineTo(x - 24, 486);
+      context.stroke();
+    }
+
+    context.fillStyle = "#7e8897";
+    context.font = "600 22px Inter, system-ui, sans-serif";
+    context.fillText(String(stat.label || "").toUpperCase(), x, 404);
+
+    context.fillStyle = "#f5f7fa";
+    context.font = "700 54px Inter, system-ui, sans-serif";
+    context.fillText(String(stat.value ?? ""), x, 470);
+  });
+
+  // Footer
+  context.strokeStyle = "rgba(255, 255, 255, 0.09)";
+  context.lineWidth = 1;
+  context.beginPath();
+  context.moveTo(84, 528);
+  context.lineTo(width - 84, 528);
+  context.stroke();
+
+  context.fillStyle = "#7e8897";
+  context.font = "500 25px Inter, system-ui, sans-serif";
+  context.fillText("Learn a language by actually talking", 84, 570);
+
+  context.fillStyle = "#60a5fa";
+  context.font = "600 25px Inter, system-ui, sans-serif";
+  context.textAlign = "right";
+  context.fillText(String(window.location.host || "lipsmaxxed.com"), width - 84, 570);
+
   return new Promise(resolve => canvas.toBlob(resolve, "image/png"));
 }
 
@@ -9334,6 +9527,260 @@ function downloadBlob(blob, filename) {
 
 function openShareWindow(url) {
   window.open(url, "_blank", "noopener,noreferrer,width=600,height=640");
+}
+
+
+/* =========================================================================
+   Names per language
+   ========================================================================= */
+
+const NAME_LANGUAGE_OPTIONS = [
+  "English", "Hebrew", "Spanish", "French", "German", "Arabic",
+  "Russian", "Italian", "Portuguese", "Chinese", "Japanese", "Korean"
+];
+
+function storedLanguageNames() {
+  const rows = currentUser?.user_metadata?.languageNames;
+  if (!Array.isArray(rows)) return [];
+
+  return rows
+    .filter(row => row && typeof row.language === "string" && typeof row.name === "string")
+    .map(row => ({ language: row.language, name: row.name.trim() }))
+    .filter(row => row.name && NAME_LANGUAGE_OPTIONS.includes(row.language));
+}
+
+function buildLanguageNameRow(entry = { language: "", name: "" }) {
+  const row = document.createElement("div");
+  row.className = "language-name-row";
+
+  const nameInput = document.createElement("input");
+  nameInput.type = "text";
+  nameInput.className = "pf-input";
+  nameInput.maxLength = 60;
+  nameInput.placeholder = "Name in that language";
+  nameInput.value = entry.name || "";
+  nameInput.addEventListener("input", syncProfileActionState);
+
+  const selectWrap = document.createElement("div");
+  selectWrap.className = "select-wrap";
+
+  const select = document.createElement("select");
+  NAME_LANGUAGE_OPTIONS.forEach(language => {
+    const option = document.createElement("option");
+    option.value = language;
+    option.textContent = language;
+    select.appendChild(option);
+  });
+  select.value = entry.language || NAME_LANGUAGE_OPTIONS[0];
+  select.addEventListener("change", () => {
+    refreshLanguageNameChoices();
+    syncProfileActionState();
+  });
+
+  selectWrap.appendChild(select);
+
+  const remove = document.createElement("button");
+  remove.type = "button";
+  remove.className = "language-name-remove";
+  remove.setAttribute("aria-label", "Remove this name");
+  remove.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+  remove.addEventListener("click", () => {
+    row.remove();
+    refreshLanguageNameChoices();
+    syncProfileActionState();
+  });
+
+  row.append(nameInput, selectWrap, remove);
+  return row;
+}
+
+/* A language can only carry one name, so taken languages are disabled. */
+function refreshLanguageNameChoices() {
+  if (!languageNameRows) return;
+
+  const selects = [...languageNameRows.querySelectorAll("select")];
+  const taken = new Set(selects.map(select => select.value));
+
+  selects.forEach(select => {
+    [...select.options].forEach(option => {
+      option.disabled = option.value !== select.value && taken.has(option.value);
+    });
+  });
+
+  if (addLanguageNameButton) {
+    addLanguageNameButton.disabled = selects.length >= NAME_LANGUAGE_OPTIONS.length;
+  }
+}
+
+function renderLanguageNameRows(rows = storedLanguageNames()) {
+  if (!languageNameRows) return;
+  languageNameRows.textContent = "";
+  rows.forEach(entry => languageNameRows.appendChild(buildLanguageNameRow(entry)));
+  refreshLanguageNameChoices();
+}
+
+function readLanguageNameRows() {
+  if (!languageNameRows) return [];
+
+  const seen = new Set();
+  const rows = [];
+
+  languageNameRows.querySelectorAll(".language-name-row").forEach(row => {
+    const name = String(row.querySelector("input")?.value || "").trim().slice(0, 60);
+    const language = row.querySelector("select")?.value || "";
+    if (!name || !language || seen.has(language)) return;
+    seen.add(language);
+    rows.push({ language, name });
+  });
+
+  return rows;
+}
+
+function nameForLanguage(language) {
+  const match = storedLanguageNames().find(row => row.language === language);
+  return match?.name || "";
+}
+
+/* =========================================================================
+   Adaptive placement
+
+   A learner does not start at word one and walk the list. They climb bands
+   of the frequency list while they are clean, and the moment they miss, a
+   binary search narrows the gap between the last band they passed and the
+   one they failed until their level is found.
+   ========================================================================= */
+
+const PLACEMENT_BANDS = [5, 50, 200, 500, 1000, 2000, 5000, 10000, 20000];
+const PLACEMENT_SETTLE_RATIO = 1.3;
+
+function placementStorageKey(language) {
+  return `lipsmaxxed-placement:${currentUser?.id || "signed-out"}:${language}`;
+}
+
+function loadPlacement(language) {
+  try {
+    const stored = JSON.parse(localStorage.getItem(placementStorageKey(language)) || "null");
+    if (stored && typeof stored === "object") return stored;
+  } catch {
+    // Fall through to a fresh placement.
+  }
+
+  return { lowerRank: 0, upperRank: null, level: PLACEMENT_BANDS[0], settled: false, streak: 0 };
+}
+
+function savePlacement(language, state) {
+  try {
+    localStorage.setItem(placementStorageKey(language), JSON.stringify(state));
+  } catch {
+    // Placement simply restarts next visit.
+  }
+}
+
+function nextBandAbove(rank) {
+  return PLACEMENT_BANDS.find(band => band > rank) || PLACEMENT_BANDS[PLACEMENT_BANDS.length - 1];
+}
+
+/* The rank the next bonus words should be drawn from. */
+function placementTargetRank(language) {
+  const state = loadPlacement(language);
+
+  if (state.settled) return Math.max(1, Math.round(state.level));
+
+  if (state.upperRank === null) {
+    // Climbing: the top of the band currently being tested.
+    return nextBandAbove(state.lowerRank);
+  }
+
+  // Binary search, geometric because frequency is roughly log-distributed.
+  const low = Math.max(1, state.lowerRank || 1);
+  const high = Math.max(low + 1, state.upperRank);
+  return Math.max(1, Math.round(Math.sqrt(low * high)));
+}
+
+function placementRankWindow(targetRank) {
+  const spread = Math.max(10, Math.round(targetRank * 0.35));
+  return { min: Math.max(1, targetRank - spread), max: targetRank + spread };
+}
+
+function placementSummary(language) {
+  const state = loadPlacement(language);
+  return {
+    level: Math.max(1, Math.round(state.settled ? state.level : placementTargetRank(language))),
+    settled: !!state.settled
+  };
+}
+
+/*
+  Any evidence counts: a bonus word said in conversation, a confirmation
+  answered, or a word translated correctly.
+*/
+function recordPlacementOutcome(language, rank, correct) {
+  const wordRank = Number(rank || 0);
+  if (!language || !Number.isFinite(wordRank) || wordRank <= 0) return;
+
+  const state = loadPlacement(language);
+
+  if (state.settled) {
+    // Light drift tracking once a level is known.
+    state.streak = correct ? Math.max(0, state.streak) + 1 : Math.min(0, state.streak) - 1;
+    if (state.streak >= 4) {
+      state.level = Math.round(state.level * 1.25);
+      state.streak = 0;
+    } else if (state.streak <= -3) {
+      state.level = Math.max(PLACEMENT_BANDS[0], Math.round(state.level * 0.8));
+      state.streak = 0;
+    }
+    savePlacement(language, state);
+    return;
+  }
+
+  if (state.upperRank === null) {
+    if (correct) {
+      state.lowerRank = Math.max(state.lowerRank, wordRank);
+      const climbed = nextBandAbove(state.lowerRank);
+      if (climbed === state.lowerRank) {
+        state.settled = true;
+        state.level = state.lowerRank;
+      }
+    } else {
+      // First miss closes the upper bound and starts the search.
+      state.upperRank = Math.max(wordRank, state.lowerRank + 1);
+    }
+  } else if (correct) {
+    state.lowerRank = Math.max(state.lowerRank, Math.min(wordRank, state.upperRank - 1));
+  } else {
+    state.upperRank = Math.max(state.lowerRank + 1, Math.min(state.upperRank, wordRank));
+  }
+
+  if (state.upperRank !== null) {
+    const low = Math.max(1, state.lowerRank || 1);
+    if (state.upperRank / low <= PLACEMENT_SETTLE_RATIO || state.upperRank - low <= 20) {
+      state.settled = true;
+      state.level = Math.round(Math.sqrt(low * state.upperRank));
+    }
+  }
+
+  savePlacement(language, state);
+}
+
+function rankForWord(language, word) {
+  const rows = frequencyListCache.get(language);
+  if (!Array.isArray(rows) || !rows.length) return 0;
+
+  const needle = String(word || "").normalize("NFC").toLocaleLowerCase().trim();
+  if (!needle) return 0;
+
+  const match = rows.find(row => {
+    const text = String(row?.word_text || "").normalize("NFC").toLocaleLowerCase().trim();
+    const key = String(row?.word_key || "").split("::")[0].normalize("NFC").toLocaleLowerCase().trim();
+    return text === needle || key === needle;
+  });
+
+  return Number(match?.frequency_rank || 0);
+}
+
+function recordPlacementForWord(language, word, correct) {
+  recordPlacementOutcome(language, rankForWord(language, word), correct);
 }
 
 function createClientTurnId() {
@@ -9767,7 +10214,20 @@ async function loadFrequencyFrontierTargets(languageOverride = null, limit = 2) 
     Number(statsByKey.get(item.word_key)?.spoken_count || 0) === 0 &&
     getReviewCooldownTurn(item.word_key) <= conversationTurn
   );
-  const naturalWindow = unspokenWords.slice(0, Math.max(limit, 5));
+  /*
+    Bonus words are drawn from the band the learner is currently being placed
+    in, not from the head of the list, so a strong beginner is not asked the
+    five most common words for weeks. If that band has nothing left unspoken,
+    the natural frontier is used as before.
+  */
+  const placementTarget = placementTargetRank(language);
+  const placementWindow = placementRankWindow(placementTarget);
+  const wordsInBand = unspokenWords.filter(item => {
+    const rank = Number(item.frequency_rank || 0);
+    return rank >= placementWindow.min && rank <= placementWindow.max;
+  });
+  const naturalWindow = (wordsInBand.length ? wordsInBand : unspokenWords)
+    .slice(0, Math.max(limit, 5));
   const frontierRank = naturalWindow[0]?.frequency_rank ||
     frequencyWords[frequencyWords.length - 1]?.frequency_rank || 1;
   const naturalWindowMaxRank = naturalWindow[naturalWindow.length - 1]?.frequency_rank || frontierRank;
@@ -11249,6 +11709,7 @@ function celebrateSpokenBonusWords(wordKeys = []) {
         action.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.2 4.2L19 7"/></svg>';
       }
       void playInterfaceCue("bonus");
+      recordPlacementForWord(getCurrentChatLanguage(), String(card.dataset.wordKey || "").split("::")[0], true);
       animateBonusWordToPoints(card);
     }, index * 180);
   });
@@ -12813,6 +13274,7 @@ function updateAuthUi(session) {
   loadLanguagePoints(getCurrentChatLanguage()).catch(() => {});
 
   renderAccountAvatar();
+  void repairOversizedAvatarMetadata();
   void applyInterfaceLanguage(preferredInterfaceLanguage());
 
   const route = readRoute();
@@ -14976,6 +15438,7 @@ function rememberLanguageFact(language, fact) {
 }
 
 function languageFactStorageKey(language) {
+  // Included below so a change of native language does not reuse old facts.
   return `lipsmaxxed-seen-language-facts:${language}`;
 }
 
@@ -15014,8 +15477,30 @@ const FALLBACK_LANGUAGE_FACTS = {
   Korean: "King Sejong introduced Hangul in the fifteenth century."
 };
 
+/*
+  The fallback used to be a single constant per language, so whenever the
+  prepared queue ran dry the learner saw the same sentence again and again.
+  Unseen entries are preferred, and the queue is refilled straight away.
+*/
+const EXTRA_FALLBACK_FACTS = [
+  "Learners remember a word far better after saying it out loud than after reading it.",
+  "Short daily practice beats long weekly sessions for keeping new vocabulary.",
+  "Most everyday conversation runs on a few thousand words, not tens of thousands.",
+  "Hearing a word in a sentence fixes its meaning better than a definition alone.",
+  "Making mistakes out loud is the fastest route to sounding natural."
+];
+
 function getFallbackLanguageFact(language) {
-  return FALLBACK_LANGUAGE_FACTS[language] || FALLBACK_LANGUAGE_FACTS.English;
+  const seen = new Set(
+    getSeenLanguageFacts(language).map(item => item.toLocaleLowerCase())
+  );
+
+  const candidates = [
+    FALLBACK_LANGUAGE_FACTS[language] || FALLBACK_LANGUAGE_FACTS.English,
+    ...EXTRA_FALLBACK_FACTS
+  ];
+
+  return candidates.find(fact => !seen.has(fact.toLocaleLowerCase())) || candidates[0];
 }
 
 function markLanguageFactSeen(language, fact) {
@@ -15050,6 +15535,7 @@ function maintainLanguageFactBuffer(language = getCurrentChatLanguage(), targetS
       const data = await callChatFunction({
         action: "language-fun-fact",
         language: safeLanguage,
+        fluentLanguage: currentUser?.user_metadata?.fluentLanguage || interfaceLanguage || "English",
         previousFacts,
         count: Math.min(4, targetSize - queue.length)
       }, "Language fact");
@@ -15080,6 +15566,10 @@ function consumePreparedLanguageFact(language = getCurrentChatLanguage()) {
   const queue = getLanguageFactQueue(language);
   const fact = queue.shift() || "";
   markLanguageFactSeen(language, fact);
+
+  // Refill immediately so the next turn is never served from the fallback.
+  if (queue.length < 2) prefetchLanguageFact(language).catch(() => {});
+
   return fact;
 }
 
@@ -16135,9 +16625,15 @@ if (!isCorrectionRetry) {
     ? acceptedText
     : transcript;
 
+/*
+  A phonetic repair rewrites the learner's own bubble. Doing that while also
+  flagging the turn for language made it look as though their words had been
+  changed for no reason, so the original stays on screen in that case.
+*/
 if (
   activeCorrectionUserMessageId &&
   phoneticRescueApplied &&
+  !hasForeignParts &&
   reviewedTranscript !== transcript
 ) {
   updateUserMessageText(activeCorrectionUserMessageId, reviewedTranscript);
@@ -16300,11 +16796,21 @@ try {
   // Display only the highest-priority applicable review:
   // language mismatch, then literal contextual mismatch, then grammar.
   if (reviewMode === "language") {
+    /*
+      The problem here is the language, not the grammar, so the backend
+      returns no correction and correctedText equals what was said. Diffing
+      those two produced a card where every word read as correct and the
+      foreign word was never replaced. Substituting each foreign part with
+      its target-language translation is what the learner needs to see.
+    */
+    const languageSuggestion =
+      buildChatLanguageSuggestion(parts) || suggestion || correctedText;
+
     correctionCard = addSpeechReviewCard({
       transcript: reviewedTranscript,
-      suggestion,
+      suggestion: languageSuggestion,
       parts,
-      correctedText,
+      correctedText: languageSuggestion,
       isPerfect: false,
       reviewMode: "language",
       pointsAward,
@@ -17653,6 +18159,68 @@ function isStoredPhoto(value) {
   return /^data:image\/(png|jpeg|jpg|webp);base64,/i.test(String(value || ""));
 }
 
+/*
+  Supabase puts user_metadata inside the JWT, so a photo kept there inflates
+  every request's Authorization header until the token is rejected outright.
+  The image goes to storage and only its short public URL is stored.
+*/
+const AVATAR_BUCKET = "avatars";
+
+async function uploadAvatarToStorage(dataUrl) {
+  if (!currentUser?.id) throw new Error("Sign in before saving a photo.");
+
+  const blob = await (await fetch(dataUrl)).blob();
+  const path = `${currentUser.id}/avatar-${Date.now()}.jpg`;
+
+  const { error } = await supabaseClient.storage
+    .from(AVATAR_BUCKET)
+    .upload(path, blob, { contentType: "image/jpeg", upsert: true, cacheControl: "3600" });
+
+  if (error) throw error;
+
+  const { data } = supabaseClient.storage.from(AVATAR_BUCKET).getPublicUrl(path);
+  const publicUrl = String(data?.publicUrl || "").trim();
+  if (!publicUrl) throw new Error("The photo was saved but has no public address.");
+
+  return publicUrl;
+}
+
+/*
+  Accounts saved by an earlier build still carry the image in their metadata,
+  which leaves them unable to chat at all. Move it out on sign-in, and if that
+  is not possible, clear it so the account works again.
+*/
+async function repairOversizedAvatarMetadata() {
+  const stored = String(currentUser?.user_metadata?.avatar_url || "");
+  if (!isStoredPhoto(stored)) return;
+
+  let replacement = "";
+  try {
+    replacement = await uploadAvatarToStorage(stored);
+  } catch {
+    replacement = "";
+  }
+
+  try {
+    const { data, error } = await supabaseClient.auth.updateUser({
+      data: { avatar_url: replacement }
+    });
+    if (error) throw error;
+    if (data?.user) currentUser = data.user;
+
+    // The old token still holds the image until the session is reissued.
+    const refreshed = await supabaseClient.auth.refreshSession();
+    if (refreshed?.data?.session) {
+      currentSession = refreshed.data.session;
+      currentUser = refreshed.data.session.user || currentUser;
+    }
+
+    renderMemberIdentity();
+  } catch (error) {
+    console.warn("avatar metadata repair failed", error);
+  }
+}
+
 function setProfilePhotoValue(value, { fromDevice = false } = {}) {
   profilePhotoValue = String(value || "").trim();
 
@@ -17786,7 +18354,8 @@ function readProfileForm() {
     username: String(profileUsernameInput?.value || "").trim(),
     fluentLanguage: profileFluentLanguageSelect?.value || "English",
     gender: selectedGender || "",
-    avatarUrl: profilePhotoValue
+    avatarUrl: profilePhotoValue,
+    languageNames: JSON.stringify(readLanguageNameRows())
   };
 }
 
@@ -17826,6 +18395,7 @@ function fillProfileForm() {
       : "Photos are resized on your device before they are saved. Leave this empty to use your initials.";
   }
 
+  renderLanguageNameRows();
   renderProfilePhotoPreview();
   profileBaseline = readProfileForm();
   syncProfileActionState();
@@ -17895,15 +18465,17 @@ async function saveProfileSettings() {
     if (!devicePhoto && avatarUrl.length > 2048) {
       throw new Error("That photo link is too long. Use a direct link to the image file.");
     }
-    if (devicePhoto && avatarUrl.length > 120000) {
-      throw new Error("That photo is too large to save. Try a different one.");
-    }
+
+    // Only a short URL is ever written to the account.
+    const storedAvatarUrl = devicePhoto ? await uploadAvatarToStorage(avatarUrl) : avatarUrl;
+
     const { data, error } = await supabaseClient.auth.updateUser({
       data: {
         username,
         fluentLanguage,
         gender: selectedGender,
-        avatar_url: avatarUrl
+        avatar_url: storedAvatarUrl,
+        languageNames: readLanguageNameRows()
       }
     });
 
@@ -17919,9 +18491,11 @@ async function saveProfileSettings() {
       fluentLanguageSelect.value = fluentLanguage;
     }
 
+    profilePhotoValue = String(currentUser?.user_metadata?.avatar_url || "");
+
     renderMemberIdentity();
     void applyInterfaceLanguage(fluentLanguage);
-    paintAvatar(profileAvatarPreview, avatarUrl, getAccountDisplayName(currentUser));
+    paintAvatar(profileAvatarPreview, profilePhotoValue, getAccountDisplayName(currentUser));
     profileBaseline = readProfileForm();
     syncProfileActionState();
 
@@ -19318,6 +19892,7 @@ async function submitWordConfirmation(answer) {
     },"Word confirmation");
     if (!data.correct) {
       if (confirmationFeedback) confirmationFeedback.textContent = "Not quite. Try another translation, or choose \"I don't remember.\"";
+      recordPlacementForWord(word.language || getCurrentChatLanguage(), word.word_text || "", false);
       await showConfirmationResult(false);
       return;
     }
@@ -19328,6 +19903,7 @@ async function submitWordConfirmation(answer) {
         word.statsEventId || (word.statsEventId = crypto.randomUUID()))
     ]);
     saveConfirmedWord(word); confirmedThisRun += 1;
+    recordPlacementForWord(word.language || getCurrentChatLanguage(), word.word_text || "", true);
     confirmationIndex += 1; renderConfirmationWord();
   } catch (error) {
     if (confirmationFeedback) confirmationFeedback.textContent = getReadableError(error);
@@ -20364,6 +20940,12 @@ profileResetButton?.addEventListener("click", () => {
 });
 profileSignOutButton?.addEventListener("click", handleSignOut);
 
+addLanguageNameButton?.addEventListener("click", () => {
+  languageNameRows?.appendChild(buildLanguageNameRow());
+  refreshLanguageNameChoices();
+  syncProfileActionState();
+});
+
 if (shareNativeButton && navigator.share) shareNativeButton.classList.remove("hidden");
 
 shareNativeButton?.addEventListener("click", async () => {
@@ -20384,29 +20966,36 @@ shareLinkedInButton?.addEventListener("click", () => {
 
 shareImageButton?.addEventListener("click", async () => {
   const language = pendingSessionSummary?.language || getCurrentChatLanguage();
-  const blob = await buildScoreCardImage(`${pendingSessionSummary?.wordsLearned || 0} new words`, [
-    `${language} practice`,
-    `${pendingSessionSummary?.pointsGained || 0} points this session`
-  ]);
+  const minutes = Math.max(1, Math.round(Number(pendingSessionSummary?.durationMs || 0) / 60000));
+
+  const blob = await buildScoreCardImage(`${language} practice`, [
+    { label: "New words", value: pendingSessionSummary?.wordsLearned || 0 },
+    { label: "Points", value: pendingSessionSummary?.pointsGained || 0 },
+    { label: "Minutes", value: minutes }
+  ], "One conversation, out loud");
+
   downloadBlob(blob, `lipsmaxxed-${String(language).toLowerCase()}-session.png`);
-  showToast("Image saved", "good");
+  showToast("Card saved", "good");
 });
 
 profileLinkedInButton?.addEventListener("click", () => {
   const language = getCurrentChatLanguage();
-  const points = Number(currentLanguagePoints || 0);
-  const text = `I am learning ${language} on LipsMaxxed and have earned ${points} points so far.`;
+  const text = shareProfileText(language, Number(currentLanguagePoints || 0));
   openShareWindow(`https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`);
 });
 
 profileShareImageButton?.addEventListener("click", async () => {
   const language = getCurrentChatLanguage();
-  const blob = await buildScoreCardImage(`${Number(currentLanguagePoints || 0)} points`, [
-    `${language} on LipsMaxxed`,
-    `${getConfirmedWordRecords().length} words confirmed`
-  ]);
-  downloadBlob(blob, `lipsmaxxed-${String(language).toLowerCase()}-score.png`);
-  showToast("Image saved", "good");
+  const placement = placementSummary(language);
+
+  const blob = await buildScoreCardImage(`Learning ${language}`, [
+    { label: "Points", value: Number(currentLanguagePoints || 0) },
+    { label: "Words confirmed", value: getConfirmedWordRecords().length },
+    { label: "Vocabulary level", value: placement.settled ? `Top ${placement.level}` : "Placing" }
+  ], "Progress on LipsMaxxed");
+
+  downloadBlob(blob, `lipsmaxxed-${String(language).toLowerCase()}-progress.png`);
+  showToast("Card saved", "good");
 });
 
 profilePhotoUploadButton?.addEventListener("click", () => profilePhotoFileInput?.click());
