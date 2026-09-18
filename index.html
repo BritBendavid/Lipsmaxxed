@@ -8159,6 +8159,74 @@ html[dir="rtl"] .celebrate-shell {
     grid-column: 1 / -1;
   }
 }
+
+/* ------------------------------------- words to learn, in the left column */
+
+.home-grid > .words-to-learn {
+  padding: 20px;
+  min-width: 0;
+}
+
+.words-to-learn .unknown-words-list {
+  gap: 8px;
+}
+
+.words-to-learn .unknown-word-head {
+  padding: 12px 13px;
+  gap: 10px;
+}
+
+.words-to-learn .unknown-word-target {
+  font-size: 0.98rem;
+}
+
+.words-to-learn .unknown-word-help {
+  min-height: 34px;
+  padding: 0 11px;
+  font-size: 0.78rem;
+}
+
+.unknown-word-answer-form.is-speech {
+  display: flex;
+  justify-content: center;
+  padding: 4px 13px 16px;
+}
+
+/* The same control as the chat and the confirmed-words screen, scaled down. */
+.word-mic {
+  width: 62px;
+  height: 62px;
+  font-size: 1.35rem;
+  display: grid;
+  place-items: center;
+}
+
+.word-mic .mic-symbol {
+  display: grid;
+  place-items: center;
+  line-height: 1;
+}
+
+.word-mic .mic-symbol svg {
+  width: 22px;
+  height: 22px;
+}
+
+.word-mic.recording {
+  border-color: rgba(248, 113, 113, 0.5);
+  background: rgba(239, 68, 68, 0.14);
+}
+
+.word-mic.processing {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+
+@media (max-width: 1000px) {
+  .home-grid > .words-to-learn {
+    padding: 16px;
+  }
+}
   </style>
 </head>
 
@@ -8274,9 +8342,22 @@ html[dir="rtl"] .celebrate-shell {
   </button>
 
   <section class="home-grid">
-    <div class="app-surface history-surface">
-      <div class="section-heading-row"><h3 id="homeHistoryTitle">My Previous Chats</h3><button id="seeAllChatsButton" class="text-link" type="button">See all</button></div>
-      <div id="recentChatsList" class="session-list"></div>
+    <div class="app-surface words-to-learn" aria-labelledby="wordsToLearnTitle">
+      <div class="section-heading-row">
+        <div>
+          <h3 id="wordsToLearnTitle">Words to learn</h3>
+          <p class="words-to-learn-lead" id="wordsToLearnLead">Say each one in the language you are practicing.</p>
+        </div>
+      </div>
+
+      <div id="unknownWordsList" class="unknown-words-list"></div>
+
+      <div class="unknown-words-pager">
+        <button id="unknownWordsPrev" class="ghost-button" type="button">Previous</button>
+        <span id="unknownWordsPage" class="pf-hint"></span>
+        <span id="unknownWordsCount" class="pf-hint"></span>
+        <button id="unknownWordsNext" class="ghost-button" type="button">Next</button>
+      </div>
     </div>
     <div class="app-surface stats-surface">
       <div class="section-heading-row"><h3 id="homeStatsTitle">My Stats</h3></div>
@@ -8299,25 +8380,9 @@ html[dir="rtl"] .celebrate-shell {
     </div>
   </section>
 
-  <section class="app-surface words-to-learn" aria-labelledby="wordsToLearnTitle">
-    <div class="section-heading-row">
-      <div>
-        <h3 id="wordsToLearnTitle">Words to learn</h3>
-        <p class="words-to-learn-lead">Say or write each one in the language you are practicing. Get it right and it leaves the list.</p>
-      </div>
-      <div class="select-wrap unknown-words-language">
-        <select id="unknownWordsLanguage" aria-label="Language to practice"></select>
-      </div>
-    </div>
-
-    <div id="unknownWordsList" class="unknown-words-list"></div>
-
-    <div class="unknown-words-pager">
-      <button id="unknownWordsPrev" class="ghost-button" type="button">Previous</button>
-      <span id="unknownWordsPage" class="pf-hint"></span>
-      <span id="unknownWordsCount" class="pf-hint"></span>
-      <button id="unknownWordsNext" class="ghost-button" type="button">Next</button>
-    </div>
+  <section class="app-surface history-surface">
+    <div class="section-heading-row"><h3 id="homeHistoryTitle">My Previous Chats</h3><button id="seeAllChatsButton" class="text-link" type="button">See all</button></div>
+    <div id="recentChatsList" class="session-list"></div>
   </section>
 </main>
 <section id="upcomingWordsPanel" class="upcoming-words-panel hidden">
@@ -9356,7 +9421,6 @@ const profileMicToggle = document.getElementById("profileMicToggle");
 const profileMicStatus = document.getElementById("profileMicStatus");
 const setupEnableMicButton = document.getElementById("setupEnableMicButton");
 const languageNameRows = document.getElementById("languageNameRows");
-const unknownWordsLanguage = document.getElementById("unknownWordsLanguage");
 const unknownWordsList = document.getElementById("unknownWordsList");
 const unknownWordsCount = document.getElementById("unknownWordsCount");
 const unknownWordsPage = document.getElementById("unknownWordsPage");
@@ -10340,11 +10404,33 @@ async function collectUnknownWords(language) {
       .map(row => String(row.word_text || "").normalize("NFC").toLocaleLowerCase())
   );
 
-  return frequencyWords.filter(item => {
+  /*
+    Saying a word anywhere retires it, however far from the current band it
+    sits, because spoken_count is checked before the band is.
+  */
+  const unspoken = frequencyWords.filter(item => {
     if (Number(statsByKey.get(item.word_key)?.spoken_count || 0) > 0) return false;
     const text = String(item.word || item.lemma || "").normalize("NFC").toLocaleLowerCase();
     return text && !confirmed.has(text);
   });
+
+  // Words still owed repetitions come first, then the placement band.
+  const penalties = loadWordPenalties(language);
+  const owed = unspoken.filter(item => Number(penalties[item.word_key] || 0) > 0);
+
+  const target = placementTargetRank(language);
+  const window = placementRankWindow(target);
+  const inBand = unspoken.filter(item => {
+    if (Number(penalties[item.word_key] || 0) > 0) return false;
+    const rank = Number(item.frequency_rank || 0);
+    return rank >= window.min && rank <= window.max;
+  });
+
+  const remainder = unspoken.filter(item =>
+    !owed.includes(item) && !inBand.includes(item)
+  );
+
+  return [...owed, ...inBand, ...remainder];
 }
 
 async function translateUnknownWord(word, chatLanguage, fluentLanguage) {
@@ -10482,6 +10568,82 @@ function renderMemoryBridge(panel, row, result) {
   language word, by voice or by typing, is the exercise, and a correct answer
   retires the word from the list.
 */
+/* ------------------------------------------------- repetition after a slip */
+
+const REPETITIONS_AFTER_MISTAKE = 3;
+
+function wordPenaltyStorageKey(language) {
+  return `lipsmaxxed-word-penalty:${currentUser?.id || "signed-out"}:${language}`;
+}
+
+function loadWordPenalties(language) {
+  try {
+    const rows = JSON.parse(localStorage.getItem(wordPenaltyStorageKey(language)) || "{}");
+    return rows && typeof rows === "object" ? rows : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveWordPenalties(language, rows) {
+  try {
+    localStorage.setItem(wordPenaltyStorageKey(language), JSON.stringify(rows));
+  } catch {
+    // The word simply clears on the next correct answer instead.
+  }
+}
+
+/*
+  Getting it wrong, or reaching for the learner's own language instead, means
+  the word has to come back correctly three times in a row before it leaves.
+*/
+function penalizeWord(language, wordKey) {
+  if (!wordKey) return;
+  const rows = loadWordPenalties(language);
+  rows[wordKey] = REPETITIONS_AFTER_MISTAKE;
+  saveWordPenalties(language, rows);
+}
+
+function creditWordRepetition(language, wordKey) {
+  if (!wordKey) return 0;
+
+  const rows = loadWordPenalties(language);
+  const remaining = Number(rows[wordKey] || 0);
+  if (remaining <= 0) return 0;
+
+  const next = remaining - 1;
+  if (next <= 0) delete rows[wordKey];
+  else rows[wordKey] = next;
+
+  saveWordPenalties(language, rows);
+  return next;
+}
+
+function frequencyKeyForWord(language, word) {
+  const rows = frequencyListCache.get(language);
+  if (!Array.isArray(rows)) return "";
+
+  const needle = String(word || "").normalize("NFC").toLocaleLowerCase().trim();
+  if (!needle) return "";
+
+  const match = rows.find(row => {
+    const surface = String(row?.word || row?.lemma || "").normalize("NFC").toLocaleLowerCase().trim();
+    if (surface === needle) return true;
+    return (Array.isArray(row?.forms) ? row.forms : [])
+      .some(form => String(form).normalize("NFC").toLocaleLowerCase().trim() === needle);
+  });
+
+  return String(match?.word_key || "");
+}
+
+/* Reaching for the fluent language counts as a mistake on the target words. */
+function penalizeWordsFromSuggestion(language, suggestion) {
+  splitTextIntoParts(String(suggestion || ""))
+    .map(part => String(part?.text || part || "").trim())
+    .filter(Boolean)
+    .forEach(word => penalizeWord(language, frequencyKeyForWord(language, word)));
+}
+
 function unknownWordText(item) {
   return String(item?.word || item?.lemma || "").trim();
 }
@@ -10551,7 +10713,8 @@ async function recordUnknownWordSpeech(item, chatLanguage, button, onTranscript,
 
   activeWordListRecorder.addEventListener("start", () => {
     button.classList.add("recording");
-    button.setAttribute("aria-label", "Stop recording");
+    button.setAttribute("aria-label", "Stop and check");
+    button.innerHTML = `<span class="mic-symbol" aria-hidden="true">${stopIconSvg()}</span>`;
   });
 
   activeWordListRecorder.addEventListener("stop", async () => {
@@ -10559,6 +10722,7 @@ async function recordUnknownWordSpeech(item, chatLanguage, button, onTranscript,
     button.classList.remove("recording");
     button.classList.add("processing");
     button.disabled = true;
+    button.innerHTML = `<span class="mic-symbol" aria-hidden="true">${loadingIconHtml()}</span>`;
 
     try {
       const actualMimeType = activeWordListRecorder?.mimeType || mimeType || chunks[0]?.type || "audio/webm";
@@ -10574,6 +10738,7 @@ async function recordUnknownWordSpeech(item, chatLanguage, button, onTranscript,
       button.classList.remove("processing");
       button.disabled = false;
       button.setAttribute("aria-label", "Say the word");
+      button.innerHTML = '<span class="mic-symbol" aria-hidden="true">\u{1F3A4}</span>';
       activeWordListRecorder = null;
     }
   });
@@ -10616,8 +10781,11 @@ function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
     })
     .catch(() => { prompt.textContent = unknownWordText(item); });
 
+  // Whichever mode the learner picked at the top of the page, and only that.
+  const speechMode = homeSelectedMode === "speech";
+
   const answerForm = document.createElement("form");
-  answerForm.className = "unknown-word-answer-form";
+  answerForm.className = `unknown-word-answer-form${speechMode ? " is-speech" : ""}`;
 
   const input = document.createElement("input");
   input.type = "text";
@@ -10628,7 +10796,7 @@ function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
 
   const speak = document.createElement("button");
   speak.type = "button";
-  speak.className = "unknown-word-speak";
+  speak.className = "speech-record-button word-mic";
   speak.setAttribute("aria-label", "Say the word");
   speak.innerHTML = '<span class="mic-symbol" aria-hidden="true">\u{1F3A4}</span>';
 
@@ -10637,7 +10805,8 @@ function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
   submit.className = "unknown-word-submit";
   submit.textContent = "Check";
 
-  answerForm.append(input, speak, submit);
+  if (speechMode) answerForm.appendChild(speak);
+  else answerForm.append(input, submit);
 
   const feedback = document.createElement("p");
   feedback.className = "unknown-word-feedback";
@@ -10668,6 +10837,18 @@ function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
       const correct = await checkUnknownWordAnswer(item, chatLanguage, answer);
 
       if (correct) {
+        const owed = creditWordRepetition(chatLanguage, item.word_key);
+
+        if (owed > 0) {
+          void playInterfaceCue("correct");
+          showFeedback(
+            `Correct. ${owed} more time${owed === 1 ? "" : "s"} in a row and it clears.`,
+            "good"
+          );
+          input.value = "";
+          return;
+        }
+
         void playInterfaceCue("correct");
         showFeedback("Correct. Removed from your list.", "good");
         reveal.textContent = unknownWordText(item);
@@ -10677,7 +10858,11 @@ function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
       }
 
       void playInterfaceCue("incorrect");
-      showFeedback("Not that one. Try again, or open the memory hint below.", "bad");
+      penalizeWord(chatLanguage, item.word_key);
+      showFeedback(
+        `Not that one. It now needs ${REPETITIONS_AFTER_MISTAKE} correct answers in a row to clear.`,
+        "bad"
+      );
       recordPlacementOutcome(chatLanguage, Number(item.frequency_rank || 0), false);
       input.select();
     } catch (error) {
@@ -10693,6 +10878,7 @@ function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
     void attempt(input.value);
   });
 
+  // Tap to start, tap again to stop: the second tap is the answer.
   speak.addEventListener("click", () => {
     void recordUnknownWordSpeech(
       item,
@@ -10798,25 +10984,25 @@ async function loadUnknownWords(language) {
   renderUnknownWordsPage();
 }
 
-function populateUnknownWordsLanguages() {
-  if (!unknownWordsLanguage) return;
+function wordsToLearnLanguage() {
+  return homeLanguageSelect?.value || selectedChatLanguage || getCurrentChatLanguage();
+}
 
-  const languages = [...new Set([
-    getCurrentChatLanguage(),
-    ...[...(homeLanguageSelect?.options || [])].map(option => option.value)
-  ].filter(Boolean))];
+function refreshWordsToLearn(force = false) {
+  const language = wordsToLearnLanguage();
+  const lead = document.getElementById("wordsToLearnLead");
 
-  const current = unknownWordsLanguage.value;
-  unknownWordsLanguage.textContent = "";
+  if (lead) {
+    lead.textContent = homeSelectedMode === "speech"
+      ? `Tap the microphone and say each one in ${language}. Tap again when you are done.`
+      : `Write each one in ${language}.`;
+  }
 
-  languages.forEach(language => {
-    const option = document.createElement("option");
-    option.value = language;
-    option.textContent = languageOptionLabel(language);
-    unknownWordsLanguage.appendChild(option);
-  });
-
-  unknownWordsLanguage.value = languages.includes(current) ? current : getCurrentChatLanguage();
+  if (force || unknownWordsState.language !== language || !unknownWordsState.rows.length) {
+    void loadUnknownWords(language);
+  } else {
+    renderUnknownWordsPage();
+  }
 }
 
 function createClientTurnId() {
@@ -17859,6 +18045,11 @@ try {
   // Display only the highest-priority applicable review:
   // language mismatch, then literal contextual mismatch, then grammar.
   if (reviewMode === "language") {
+    penalizeWordsFromSuggestion(
+      getCurrentChatLanguage(),
+      buildChatLanguageSuggestion(parts)
+    );
+
     /*
       The problem here is the language, not the grammar, so the backend
       returns no correction and correctedText equals what was said. Diffing
@@ -20689,13 +20880,7 @@ function enterHomeScreen() {
   });
   renderMemberHome().catch(() => {});
 
-  populateUnknownWordsLanguages();
-  const wordListLanguage = unknownWordsLanguage?.value || getCurrentChatLanguage();
-  if (unknownWordsState.language !== wordListLanguage || !unknownWordsState.rows.length) {
-    void loadUnknownWords(wordListLanguage);
-  } else {
-    renderUnknownWordsPage();
-  }
+  refreshWordsToLearn();
 }
 
 function showSignedInHome() {
@@ -22072,10 +22257,6 @@ profileResetButton?.addEventListener("click", () => {
 });
 profileSignOutButton?.addEventListener("click", handleSignOut);
 
-unknownWordsLanguage?.addEventListener("change", () => {
-  void loadUnknownWords(unknownWordsLanguage.value);
-});
-
 unknownWordsPrev?.addEventListener("click", () => {
   unknownWordsState.page = Math.max(0, unknownWordsState.page - 1);
   renderUnknownWordsPage();
@@ -22215,6 +22396,7 @@ homeModeToggle?.addEventListener("click", event => {
   homeSelectedMode = button.dataset.homeMode === "speech" ? "speech" : "writing";
   homeModeToggle.querySelectorAll("button").forEach(item => item.classList.toggle("active", item === button));
   saveMemberChatDefaults(homeLanguageSelect?.value || selectedChatLanguage, homeSelectedMode);
+  refreshWordsToLearn();
 });
 homeLanguageSelect?.addEventListener("change", () => {
   selectedChatLanguage = homeLanguageSelect.value;
@@ -22223,6 +22405,7 @@ homeLanguageSelect?.addEventListener("change", () => {
   activeMasterDraftThread = null;
   renderMemberHome().catch(() => {});
   prefetchLanguageFact(selectedChatLanguage).catch(() => {});
+  refreshWordsToLearn(true);
 });
 askLipsMasterButton?.addEventListener("click", openLipsMaster);
 seeAllChatsButton?.addEventListener("click", openAllChats);
