@@ -9603,6 +9603,87 @@ html[dir="rtl"] .celebrate-shell {
   padding-top: 13px;
   background: transparent;
 }
+
+/* ------------------------------------------- a row with fixed column stops */
+
+.words-to-learn .unknown-word-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  column-gap: 10px;
+}
+
+.words-to-learn .unknown-word-pair {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.words-to-learn .unknown-word-target {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.words-to-learn .unknown-word-answer-form,
+.words-to-learn .unknown-word-answer-form.is-speech {
+  grid-column: 2;
+  justify-self: end;
+}
+
+.words-to-learn .unknown-word-help {
+  grid-column: 3;
+  justify-self: end;
+}
+
+.words-to-learn .unknown-word-feedback {
+  grid-column: 1 / -1;
+}
+
+/* ------------------------------------------- the score, as one unit with the avatar */
+
+.account-avatar-button {
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
+}
+
+/* Pinned to the avatar's own height, so the tab always meets its edge. */
+.account-points-badge {
+  position: absolute;
+  top: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* A tab flush beneath the avatar, so the two read as one control. */
+.account-points-ring {
+  min-width: 42px;
+  height: 17px;
+  padding: 0 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line-2);
+  border-top: 0;
+  border-radius: 0 0 9px 9px;
+  background: #13171e;
+  box-shadow: 0 2px 5px -3px rgba(0, 0, 0, 0.9);
+}
+
+.account-points-value {
+  color: #cdd6e2;
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.account-points-badge.is-rising .account-points-ring {
+  animation: pointsRise 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
   </style>
 </head>
 
@@ -12259,12 +12340,15 @@ function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
 
   pair.append(prompt, reveal);
 
+  // Show something immediately so nothing shifts when the meaning arrives.
+  prompt.textContent = unknownWordText(item);
+
   void translateUnknownWord(unknownWordText(item), chatLanguage, fluentLanguage)
     .then(translation => {
       item.fluentPrompt = translation || "";
-      prompt.textContent = translation || unknownWordText(item);
+      if (translation) prompt.textContent = translation;
     })
-    .catch(() => { prompt.textContent = unknownWordText(item); });
+    .catch(() => {});
 
   // Whichever mode the learner picked at the top of the page, and only that.
   const speechMode = homeSelectedMode === "speech";
@@ -13356,6 +13440,19 @@ function rescaleStoredPoints(language, total) {
    remembered in this browser too.
    ========================================================================= */
 
+function wordImageVariant(item, language) {
+  const rows = wordCacheRead("image-variant");
+  return Number(rows[wordCacheKey(unknownWordText(item), language, "v")] || 0);
+}
+
+function bumpWordImageVariant(item, language) {
+  const rows = wordCacheRead("image-variant");
+  const key = wordCacheKey(unknownWordText(item), language, "v");
+  rows[key] = Number(rows[key] || 0) + 1;
+  wordCacheWrite("image-variant", rows);
+  return rows[key];
+}
+
 async function requestWordImage(item, language, translation) {
   const key = wordCacheKey(unknownWordText(item), language, "image");
   const cached = getCachedWordValue("image", key);
@@ -13372,6 +13469,7 @@ async function requestWordImage(item, language, translation) {
       wordKey: item.word_key,
       chatLanguage: language,
       translation,
+      variant: wordImageVariant(item, language),
       userAccessToken: accessToken
     })
   });
@@ -13426,7 +13524,9 @@ function attachWordImage(bubble, image, item, language, fluentLanguage) {
     up.disabled = true;
     down.disabled = true;
 
-    // Forget it locally as well, so the replacement is actually fetched.
+    // Ask for a different treatment next time, for this person.
+    bumpWordImageVariant(item, language);
+
     const rows = wordCacheRead("image");
     delete rows[wordCacheKey(unknownWordText(item), language, "image")];
     wordCacheWrite("image", rows);
@@ -13466,6 +13566,30 @@ function paintWordImage(image, url, item) {
     image.textContent = String(item.word || "").slice(0, 1).toLocaleUpperCase();
   }, { once: true });
   image.appendChild(picture);
+}
+
+
+/*
+  The chat is told to use a word from the level the binary search has settled
+  on, the same band the word list and the bonus queue draw from.
+*/
+function rangeWordForPlacement(language, cachedProfile) {
+  const target = placementTargetRank(language);
+  const window = placementRankWindow(target);
+  const rows = frequencyListCache.get(language);
+
+  if (Array.isArray(rows) && rows.length) {
+    const inBand = rows.filter(row => {
+      const rank = Number(row.frequency_rank || 0);
+      return rank >= window.min && rank <= window.max;
+    });
+
+    const pick = inBand[Math.floor(Math.random() * inBand.length)];
+    const word = String(pick?.word || pick?.lemma || "").trim();
+    if (word) return word;
+  }
+
+  return String(cachedProfile?.primaryTargetWord || "").trim();
 }
 
 function createClientTurnId() {
@@ -19751,7 +19875,7 @@ function isSamePlayback(button, type, id) {
         ...getLanguageFactQueue(language)
       ].slice(-80),
       // One word from the learner's placement band, for the tutor to use.
-      rangeWord: String(cachedProfile?.primaryTargetWord || "").trim()
+      rangeWord: rangeWordForPlacement(language, cachedProfile)
     }, label);
     const data = await dataPromise;
     if (requestUserId !== (currentUser?.id || "")) throw new Error("Account changed while generating the reply.");
