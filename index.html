@@ -7510,6 +7510,184 @@ body.correction-lock .upcoming-words-panel {
     font-size: 0.86rem;
   }
 }
+
+/* ------------------------------------------------------- statistics strip */
+
+.home-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--s1);
+  overflow: hidden;
+}
+
+.member-home .home-stat-grid > div,
+.home-stat-grid > div {
+  min-width: 0;
+  padding: 13px 12px;
+  border: 0;
+  border-left: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+}
+
+.home-stat-grid > div:first-child {
+  border-left: 0;
+}
+
+.member-home .home-stat-grid span,
+.home-stat-grid span {
+  display: block;
+  margin: 0 0 6px;
+  color: var(--ink-3);
+  font-size: 0.7rem;
+  font-weight: 550;
+  line-height: 1.3;
+  letter-spacing: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Values stay on one line whatever the number: an hour-plus total used to
+   wrap onto a second row and break the alignment of the whole strip. */
+.member-home .home-stat-grid strong,
+.home-stat-grid strong {
+  display: block;
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 1100px) {
+  .home-stat-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .home-stat-grid > div:nth-child(3n + 1) {
+    border-left: 0;
+  }
+
+  .home-stat-grid > div:nth-child(n + 4) {
+    border-top: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 520px) {
+  .home-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-stat-grid > div:nth-child(3n + 1) {
+    border-left: 1px solid var(--line);
+  }
+
+  .home-stat-grid > div:nth-child(odd) {
+    border-left: 0;
+  }
+
+  .home-stat-grid > div:nth-child(n + 3) {
+    border-top: 1px solid var(--line);
+  }
+}
+
+/* ------------------------------------------------------------- sharing */
+
+.share-block {
+  margin-top: 26px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--s1);
+}
+
+.share-title {
+  margin: 0 0 14px;
+  color: var(--ink-2);
+  font-size: 0.9rem;
+  font-weight: 620;
+}
+
+.share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 9px;
+}
+
+.pf-card .share-actions {
+  justify-content: flex-start;
+}
+
+.share-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 15px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-pill);
+  background: var(--s2);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.share-button:hover {
+  background: var(--s3);
+  border-color: var(--line-3);
+  color: var(--ink);
+}
+
+.share-button svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.share-note {
+  margin: 14px 0 0;
+  color: var(--ink-3);
+  font-size: 0.79rem;
+  line-height: 1.5;
+}
+
+/* Right-to-left interface languages. */
+html[dir="rtl"] .auth-screen .auth-title,
+html[dir="rtl"] .auth-screen .auth-subtitle,
+html[dir="rtl"] .auth-screen .auth-label,
+html[dir="rtl"] .auth-screen .gender-note,
+html[dir="rtl"] .auth-screen .auth-message {
+  text-align: right;
+}
+
+html[dir="rtl"] .master-sidebar {
+  border-right: 0;
+  border-left: 1px solid var(--line);
+}
+
+html[dir="rtl"] .master-thread-button,
+html[dir="rtl"] .master-suggestion {
+  text-align: right;
+}
+
+html[dir="rtl"] .speech-review-card,
+html[dir="rtl"] .pf-shell,
+html[dir="rtl"] .celebrate-shell {
+  direction: rtl;
+}
   </style>
 </head>
 
@@ -7605,7 +7783,7 @@ body.correction-lock .upcoming-words-panel {
 
   <section class="member-practice app-surface">
     <div class="section-heading-row">
-      <div><div class="member-eyebrow">Practice</div><h3>Start a new chat</h3></div>
+      <div><h3>Start a new chat</h3></div>
     </div>
     <div class="practice-launch-row compact-practice-launch">
       <div id="homeModeToggle" class="horizontal-mode-toggle" role="group" aria-label="Input mode">
@@ -7632,7 +7810,7 @@ body.correction-lock .upcoming-words-panel {
     <div class="app-surface stats-surface">
       <div class="section-heading-row"><h3 id="homeStatsTitle">My Stats</h3></div>
       <div class="home-stat-grid">
-        <div><strong id="homePointsStat">0</strong><span>Points</span></div><div><strong id="homeSessionsStat">0</strong><span>Sessions</span></div><div><strong id="homeTimeStat">0m</strong><span>Total time</span></div><div><strong id="homeMessagesStat">0</strong><span>Messages</span></div><div><strong id="homeConfirmedStat">0</strong><span>Confirmed words</span></div>
+        <div><span>Points</span><strong id="homePointsStat">0</strong></div><div><span>Sessions</span><strong id="homeSessionsStat">0</strong></div><div><span>Total time</span><strong id="homeTimeStat">0m</strong></div><div><span>Messages</span><strong id="homeMessagesStat">0</strong></div><div><span>Confirmed</span><strong id="homeConfirmedStat">0</strong></div>
       </div>
       <div class="chart-heading"><span>Session time</span><span id="chartPeriodLabel">Recent sessions</span></div>
       <svg id="sessionTimeChart" class="session-time-chart" viewBox="0 0 640 180" role="img" aria-label="Session time progress"></svg>
@@ -7926,7 +8104,7 @@ body.correction-lock .upcoming-words-panel {
 
         <div id="authMessage" class="auth-message" role="status" aria-live="polite"></div>
 
-        <p class="auth-legal">By continuing you agree to practise responsibly. We only store what you learn.</p>
+        <p class="auth-legal">By continuing you agree to practice responsibly. We only store what you learn.</p>
       </div>
     </div>
   </section>
@@ -7949,7 +8127,7 @@ body.correction-lock .upcoming-words-panel {
 
     <div class="chat-setup-form">
       <div class="chat-setup-section">
-        <label class="chat-setup-label" for="chatSetupLanguageSelect">Practice language</label>
+        <label class="chat-setup-label" for="chatSetupLanguageSelect">I want to learn...</label>
         <div class="setup-language-control">
           <div class="select-wrap setup-select-wrap">
             <select id="chatSetupLanguageSelect">
@@ -8064,7 +8242,7 @@ body.correction-lock .upcoming-words-panel {
       <section class="pf-card">
         <div class="pf-card-head">
           <h2>Language</h2>
-          <p>The language translations are shown in.</p>
+          <p>Your native language. The whole app is shown in it.</p>
         </div>
 
         <div class="pf-field">
@@ -8099,13 +8277,11 @@ body.correction-lock .upcoming-words-panel {
 
           <div class="pf-photo-controls">
             <div class="pf-photo-actions">
-              <button id="profilePhotoUploadButton" class="ghost-button" type="button">Upload a photo</button>
-              <button id="profilePhotoCameraButton" class="ghost-button" type="button">Take a photo</button>
+              <button id="profilePhotoUploadButton" class="ghost-button" type="button">Choose a photo</button>
               <button id="profilePhotoRemoveButton" class="text-link" type="button">Remove</button>
             </div>
 
-            <input id="profilePhotoFileInput" class="visually-hidden" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
-            <input id="profilePhotoCameraInput" class="visually-hidden" type="file" accept="image/*" capture="user" />
+            <input id="profilePhotoFileInput" class="visually-hidden" type="file" accept="image/*" />
 
             <details class="pf-photo-link">
               <summary>Or paste a link</summary>
@@ -8134,6 +8310,23 @@ body.correction-lock .upcoming-words-panel {
         </label>
       </section>
     </div>
+
+    <section class="pf-card pf-card-wide">
+      <div class="pf-card-head">
+        <h2>Show your progress</h2>
+        <p>Post where you have reached in the language you are practicing.</p>
+      </div>
+      <div class="share-actions">
+        <button id="profileLinkedInButton" class="share-button" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9h3v10.5h-3Zm1.5-4.6a1.75 1.75 0 1 1 0 3.5 1.75 1.75 0 0 1 0-3.5ZM10 9h2.9v1.5a3.2 3.2 0 0 1 2.9-1.6c2.5 0 3.7 1.6 3.7 4.4v6.2h-3v-5.6c0-1.4-.5-2.3-1.8-2.3-1 0-1.6.7-1.8 1.4v6.5H10Z" fill="currentColor" stroke="none"/></svg>
+          Add my score to LinkedIn
+        </button>
+        <button id="profileShareImageButton" class="share-button" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="m4.5 17 4.6-4.3 3.4 3 2.6-2.2 4.4 3.9"/></svg>
+          Save score image
+        </button>
+      </div>
+    </section>
 
     <div class="pf-actionbar">
       <div id="profileMessage" class="auth-message" role="status" aria-live="polite"></div>
@@ -8164,7 +8357,7 @@ body.correction-lock .upcoming-words-panel {
       <div class="metric-tile metric-time">
         <span class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></svg></span>
         <strong id="summarySessionTime">0m</strong>
-        <span class="metric-label">Time practising</span>
+        <span class="metric-label">Time practicing</span>
       </div>
       <div class="metric-tile metric-words">
         <span class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5.5h6a2.5 2.5 0 0 1 2 1 2.5 2.5 0 0 1 2-1h6v13h-6a2.5 2.5 0 0 0-2 1 2.5 2.5 0 0 0-2-1H4Z"/><path d="M12 6.5v12"/></svg></span>
@@ -8190,6 +8383,29 @@ body.correction-lock .upcoming-words-panel {
       <p>Confirm each new word and it saves to your vocabulary for review later.</p>
       <button id="confirmWordsButton" class="primary-action" type="button">Confirm words</button>
     </div>
+
+    <section class="share-block" aria-label="Share your progress">
+      <p class="share-title">Share your progress</p>
+      <div class="share-actions">
+        <button id="shareNativeButton" class="share-button hidden" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v13M7.5 7.5 12 3l4.5 4.5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>
+          Share
+        </button>
+        <button id="shareXButton" class="share-button" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h4.5l5 6.8L18 3h3l-7.1 8.6L21.4 21H17l-5.3-7.2L5.6 21H2.6l7.6-9.1Z" fill="currentColor" stroke="none"/></svg>
+          Post on X
+        </button>
+        <button id="shareLinkedInButton" class="share-button" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9h3v10.5h-3Zm1.5-4.6a1.75 1.75 0 1 1 0 3.5 1.75 1.75 0 0 1 0-3.5ZM10 9h2.9v1.5a3.2 3.2 0 0 1 2.9-1.6c2.5 0 3.7 1.6 3.7 4.4v6.2h-3v-5.6c0-1.4-.5-2.3-1.8-2.3-1 0-1.6.7-1.8 1.4v6.5H10Z" fill="currentColor" stroke="none"/></svg>
+          Add to LinkedIn
+        </button>
+        <button id="shareImageButton" class="share-button" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="m4.5 17 4.6-4.3 3.4 3 2.6-2.2 4.4 3.9"/></svg>
+          Save image
+        </button>
+      </div>
+      <p class="share-note">Instagram has no web posting link, so save the image and add it to a story or post.</p>
+    </section>
 
     <div class="celebrate-secondary">
       <button id="reviewSessionChatButton" class="review-session-button" type="button">Review chat</button>
@@ -8252,7 +8468,7 @@ body.correction-lock .upcoming-words-panel {
     </div>
     <p class="celebrate-eyebrow">Saved to your vocabulary</p>
     <h2 id="confirmationCompleteTitle"><span id="confirmedWordTotal">0</span> words confirmed</h2>
-    <p class="celebrate-lead">They will come back for review when it is time to practise them again.</p>
+    <p class="celebrate-lead">They will come back for review when it is time to practice them again.</p>
   </div>
 </section>
 
@@ -8634,14 +8850,18 @@ const profileResetButton = document.getElementById("profileResetButton");
 const profileSignOutButton = document.getElementById("profileSignOutButton");
 
 const profilePhotoUploadButton = document.getElementById("profilePhotoUploadButton");
-const profilePhotoCameraButton = document.getElementById("profilePhotoCameraButton");
 const profilePhotoRemoveButton = document.getElementById("profilePhotoRemoveButton");
 const profilePhotoFileInput = document.getElementById("profilePhotoFileInput");
-const profilePhotoCameraInput = document.getElementById("profilePhotoCameraInput");
 const profilePhotoHint = document.getElementById("profilePhotoHint");
 const profileMicToggle = document.getElementById("profileMicToggle");
 const profileMicStatus = document.getElementById("profileMicStatus");
 const setupEnableMicButton = document.getElementById("setupEnableMicButton");
+const shareNativeButton = document.getElementById("shareNativeButton");
+const shareXButton = document.getElementById("shareXButton");
+const shareLinkedInButton = document.getElementById("shareLinkedInButton");
+const shareImageButton = document.getElementById("shareImageButton");
+const profileLinkedInButton = document.getElementById("profileLinkedInButton");
+const profileShareImageButton = document.getElementById("profileShareImageButton");
 
 const masterSearchInput = document.getElementById("masterSearchInput");
 const masterCatalogueToggle = document.getElementById("masterCatalogueToggle");
@@ -8733,97 +8953,387 @@ const languageFactQueues = new Map();
 const languageFactRequests = new Map();
 const recentLanguageFacts = new Map();
 
-/* =========================================================================
-   Asked-question ledger
 
-   The model is not asked to remember what it has already asked. Every
-   question it produces is recorded here, per learner and language, and the
-   recent list is sent with each request so the server can forbid repeats
-   outright instead of hoping the history was reviewed.
+/* =========================================================================
+   Interface language
+
+   The learner's native language drives the whole interface, not just word
+   translations. Static text is collected from the screens at runtime and
+   translated once per string per language, then cached in the browser and on
+   the server, so the cost is paid once for everyone rather than every visit.
    ========================================================================= */
 
-const ASKED_QUESTION_LIMIT = 200;
-const ASKED_QUESTION_MAX_AGE_MS = 120 * 24 * 60 * 60 * 1000;
+const SUPPORTED_UI_LANGUAGES = [
+  "English", "Hebrew", "Spanish", "French", "German", "Arabic",
+  "Russian", "Italian", "Portuguese", "Chinese", "Japanese", "Korean"
+];
 
-function chatQuestionOnly(reply) {
-  return String(reply || "")
-    .split(/[.!。！]/u)
-    .filter(part => part.trim())
-    .pop()
-    ?.trim()
-    .slice(0, 200) || "";
-}
+const BROWSER_LANGUAGE_MAP = {
+  en: "English", he: "Hebrew", iw: "Hebrew", es: "Spanish", fr: "French",
+  de: "German", ar: "Arabic", ru: "Russian", it: "Italian", pt: "Portuguese",
+  zh: "Chinese", ja: "Japanese", ko: "Korean"
+};
 
-function askedQuestionsStorageKey(language) {
-  return `lipsmaxxed-asked-questions:${currentUser?.id || "signed-out"}:${language}`;
-}
+const UI_LANGUAGE_TAGS = {
+  English: "en", Hebrew: "he", Spanish: "es", French: "fr", German: "de",
+  Arabic: "ar", Russian: "ru", Italian: "it", Portuguese: "pt",
+  Chinese: "zh", Japanese: "ja", Korean: "ko"
+};
 
-function loadAskedQuestions(language) {
-  try {
-    const rows = JSON.parse(localStorage.getItem(askedQuestionsStorageKey(language)) || "[]");
-    if (!Array.isArray(rows)) return [];
-    const cutoff = Date.now() - ASKED_QUESTION_MAX_AGE_MS;
-    return rows.filter(row => row && typeof row.q === "string" && Number(row.at || 0) >= cutoff);
-  } catch {
-    return [];
+const RTL_UI_LANGUAGES = new Set(["Hebrew", "Arabic"]);
+
+const I18N_SCOPES = [
+  ".top-bar", "#signedInHome", "#authScreen", "#profileScreen", "#chatSetupModal",
+  "#sessionSummaryPage", "#sessionReviewPage", "#wordConfirmationPage",
+  "#confirmationCompletePage", "#allChatsPage", "#statsPage", "#lipsMasterPage",
+  "#speechShell", "#composerShell", "#unconfirmedExitModal", "#grammarDetailModal"
+].join(", ");
+
+/* Anything holding the learner's own words, or a tutor reply, is left alone. */
+const I18N_SKIP = [
+  "#messageHistory", "#masterChatMessages", "#masterThreadList", "#homeSessionList",
+  "#allChatsList", "#statsWordGrid", "#summaryGrammarTips", "#confirmWordHeading",
+  "#homeProfileName", "#accountDisplayName", "#profileEmailValue",
+  "#sessionReviewMessages", "#upcomingWordsPanel", "#grammarDetailBody",
+  "[data-no-i18n]"
+].join(", ");
+
+let interfaceLanguage = "English";
+let interfaceTranslationInFlight = null;
+
+const i18nOriginalText = new WeakMap();
+const i18nOriginalAttr = new WeakMap();
+const uiTranslationMemory = new Map();
+
+function detectBrowserLanguage() {
+  const tags = Array.isArray(navigator.languages) && navigator.languages.length
+    ? navigator.languages
+    : [navigator.language];
+
+  for (const tag of tags) {
+    const base = String(tag || "").toLowerCase().split("-")[0];
+    if (BROWSER_LANGUAGE_MAP[base]) return BROWSER_LANGUAGE_MAP[base];
   }
+  return "English";
 }
 
-function saveAskedQuestions(language, rows) {
+function preferredInterfaceLanguage() {
+  const fromAccount = currentUser?.user_metadata?.fluentLanguage;
+  if (SUPPORTED_UI_LANGUAGES.includes(fromAccount)) return fromAccount;
+
+  try {
+    const stored = localStorage.getItem("lipsmaxxed-interface-language");
+    if (SUPPORTED_UI_LANGUAGES.includes(stored)) return stored;
+  } catch {
+    // Fall through to detection.
+  }
+
+  return detectBrowserLanguage();
+}
+
+function uiTranslationCache(language) {
+  if (uiTranslationMemory.has(language)) return uiTranslationMemory.get(language);
+
+  let dictionary = new Map();
+  try {
+    const raw = JSON.parse(localStorage.getItem(`lipsmaxxed-ui-i18n:${language}`) || "{}");
+    dictionary = new Map(Object.entries(raw));
+  } catch {
+    dictionary = new Map();
+  }
+
+  uiTranslationMemory.set(language, dictionary);
+  return dictionary;
+}
+
+function persistUiTranslations(language) {
   try {
     localStorage.setItem(
-      askedQuestionsStorageKey(language),
-      JSON.stringify(rows.slice(-ASKED_QUESTION_LIMIT))
+      `lipsmaxxed-ui-i18n:${language}`,
+      JSON.stringify(Object.fromEntries(uiTranslationCache(language)))
     );
   } catch {
-    // The in-memory conversation still carries this session's questions.
+    // The in-memory dictionary still serves this visit.
   }
 }
 
-function rememberAskedQuestion(reply, language = getCurrentChatLanguage()) {
-  const question = chatQuestionOnly(reply);
-  if (!question || !/[?؟？]/u.test(question)) return;
+function i18nUnitsIn(root) {
+  const units = [];
+  const elements = [root, ...root.querySelectorAll("*")];
 
-  const rows = loadAskedQuestions(language);
-  const normalized = question.toLocaleLowerCase();
-  if (rows.some(row => String(row.q || "").toLocaleLowerCase() === normalized)) return;
+  for (const element of elements) {
+    if (element instanceof SVGElement) continue;
+    if (element.tagName === "SCRIPT" || element.tagName === "STYLE") continue;
+    if (element.closest(I18N_SKIP)) continue;
 
-  rows.push({ q: question, at: Date.now() });
-  saveAskedQuestions(language, rows);
-}
+    for (const attribute of ["placeholder", "title", "aria-label"]) {
+      if (element.hasAttribute(attribute)) units.push({ element, attribute });
+    }
 
-/*
-  Past chats on this device are a second source, so a fresh visit still knows
-  what was asked before the ledger existed or after storage was cleared.
-*/
-function hydrateAskedQuestionsFromHistory(language) {
-  const rows = loadAskedQuestions(language);
-  if (rows.length) return;
-
-  const seen = new Set();
-  const recovered = [];
-
-  for (const session of getSessionHistory()) {
-    if (session?.language !== language) continue;
-    for (const item of Array.isArray(session.transcript) ? session.transcript : []) {
-      if (item?.role !== "assistant") continue;
-      const question = chatQuestionOnly(item.content);
-      if (!question || !/[?؟？]/u.test(question)) continue;
-      const key = question.toLocaleLowerCase();
-      if (seen.has(key)) continue;
-      seen.add(key);
-      recovered.push({ q: question, at: Number(session.endedAt || session.startedAt || Date.now()) });
+    for (const node of element.childNodes) {
+      if (node.nodeType === 3 && /\p{L}/u.test(node.nodeValue || "")) units.push({ node });
     }
   }
 
-  if (recovered.length) saveAskedQuestions(language, recovered);
+  return units;
 }
 
-function recentAskedQuestions(language = getCurrentChatLanguage(), limit = 70) {
-  return loadAskedQuestions(language)
-    .slice(-limit)
-    .map(row => row.q)
-    .filter(Boolean);
+function i18nOriginal(unit) {
+  if (unit.node) {
+    if (!i18nOriginalText.has(unit.node)) i18nOriginalText.set(unit.node, unit.node.nodeValue || "");
+    return i18nOriginalText.get(unit.node);
+  }
+
+  let store = i18nOriginalAttr.get(unit.element);
+  if (!store) {
+    store = {};
+    i18nOriginalAttr.set(unit.element, store);
+  }
+  if (!(unit.attribute in store)) store[unit.attribute] = unit.element.getAttribute(unit.attribute) || "";
+  return store[unit.attribute];
+}
+
+function i18nWrite(unit, value) {
+  if (unit.node) {
+    if (unit.node.nodeValue !== value) unit.node.nodeValue = value;
+    return;
+  }
+  if (unit.element.getAttribute(unit.attribute) !== value) {
+    unit.element.setAttribute(unit.attribute, value);
+  }
+}
+
+async function fetchUiTranslations(language, strings) {
+  const dictionary = uiTranslationCache(language);
+
+  for (let index = 0; index < strings.length; index += 100) {
+    const batch = strings.slice(index, index + 100);
+    try {
+      const data = await callChatFunction(
+        { action: "translate-ui", language, strings: batch },
+        "Interface translation"
+      );
+      Object.entries(data?.translations || {}).forEach(([source, value]) => {
+        if (value) dictionary.set(source, String(value));
+      });
+    } catch {
+      // A partly translated screen is worse than an English one; stop here.
+      break;
+    }
+  }
+
+  persistUiTranslations(language);
+}
+
+async function applyInterfaceLanguage(language = interfaceLanguage) {
+  interfaceLanguage = SUPPORTED_UI_LANGUAGES.includes(language) ? language : "English";
+
+  try {
+    localStorage.setItem("lipsmaxxed-interface-language", interfaceLanguage);
+  } catch {
+    // Not remembering it is harmless.
+  }
+
+  document.documentElement.lang = UI_LANGUAGE_TAGS[interfaceLanguage] || "en";
+  document.documentElement.dir = RTL_UI_LANGUAGES.has(interfaceLanguage) ? "rtl" : "ltr";
+
+  const units = [];
+  document.querySelectorAll(I18N_SCOPES).forEach(scope => units.push(...i18nUnitsIn(scope)));
+
+  if (interfaceLanguage === "English") {
+    units.forEach(unit => i18nWrite(unit, i18nOriginal(unit)));
+    return;
+  }
+
+  const dictionary = uiTranslationCache(interfaceLanguage);
+  const prepared = units.map(unit => {
+    const source = String(i18nOriginal(unit) || "");
+    return { unit, source, key: source.trim() };
+  });
+
+  const missing = [...new Set(
+    prepared.map(row => row.key).filter(key => key && !dictionary.has(key))
+  )];
+
+  if (missing.length) {
+    interfaceTranslationInFlight = fetchUiTranslations(interfaceLanguage, missing);
+    await interfaceTranslationInFlight;
+    interfaceTranslationInFlight = null;
+  }
+
+  prepared.forEach(({ unit, source, key }) => {
+    const translated = key && dictionary.get(key);
+    i18nWrite(unit, translated ? source.replace(key, translated) : source);
+  });
+}
+
+function scheduleInterfaceLanguage() {
+  window.setTimeout(() => { void applyInterfaceLanguage(); }, 0);
+}
+
+/* =========================================================================
+   Audio delivery
+
+   Speech is the product, so a failed request is retried with backoff and,
+   if the service is unreachable altogether, the browser's own voice reads
+   the line rather than the learner getting silence.
+   ========================================================================= */
+
+async function withAudioRetry(task, attempts = 3) {
+  let lastError = null;
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      return await task(attempt);
+    } catch (error) {
+      lastError = error;
+      if (attempt < attempts - 1) {
+        await new Promise(resolve => window.setTimeout(resolve, 320 * Math.pow(2, attempt)));
+      }
+    }
+  }
+
+  throw lastError;
+}
+
+function browserVoiceFor(language) {
+  const tag = UI_LANGUAGE_TAGS[language] || "";
+  const voices = window.speechSynthesis?.getVoices?.() || [];
+  if (!tag) return null;
+  return voices.find(voice => String(voice.lang || "").toLowerCase().startsWith(tag)) || null;
+}
+
+function speakWithBrowserVoice(text, language) {
+  return new Promise(resolve => {
+    if (!window.speechSynthesis || !String(text || "").trim()) {
+      resolve(false);
+      return;
+    }
+
+    try {
+      const utterance = new SpeechSynthesisUtterance(String(text));
+      const voice = browserVoiceFor(language);
+      if (voice) utterance.voice = voice;
+      utterance.lang = voice?.lang || UI_LANGUAGE_TAGS[language] || "en";
+      utterance.rate = 0.95;
+      utterance.onend = () => resolve(true);
+      utterance.onerror = () => resolve(false);
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      resolve(false);
+    }
+  });
+}
+
+/* =========================================================================
+   Shared word cache
+
+   Definitions and single-word audio are identical for every learner of a
+   language pair, so they are stored once per browser and requested from the
+   service only on a miss.
+   ========================================================================= */
+
+const WORD_CACHE_LIMIT = 1200;
+
+function wordCacheRead(kind) {
+  try {
+    const raw = JSON.parse(localStorage.getItem(`lipsmaxxed-word-cache:${kind}`) || "{}");
+    return raw && typeof raw === "object" ? raw : {};
+  } catch {
+    return {};
+  }
+}
+
+function wordCacheWrite(kind, rows) {
+  try {
+    const keys = Object.keys(rows);
+    if (keys.length > WORD_CACHE_LIMIT) {
+      keys.slice(0, keys.length - WORD_CACHE_LIMIT).forEach(key => { delete rows[key]; });
+    }
+    localStorage.setItem(`lipsmaxxed-word-cache:${kind}`, JSON.stringify(rows));
+  } catch {
+    // Storage full or blocked; requests simply go to the service.
+  }
+}
+
+function wordCacheKey(word, chatLanguage, fluentLanguage = "") {
+  return [
+    String(word || "").normalize("NFC").toLocaleLowerCase().trim(),
+    chatLanguage || "",
+    fluentLanguage || ""
+  ].join("|");
+}
+
+function getCachedWordValue(kind, key) {
+  return wordCacheRead(kind)[key] || null;
+}
+
+function setCachedWordValue(kind, key, value) {
+  if (!key || !value) return;
+  const rows = wordCacheRead(kind);
+  rows[key] = value;
+  wordCacheWrite(kind, rows);
+}
+
+/* =========================================================================
+   Sharing
+   ========================================================================= */
+
+function shareSummaryText() {
+  const language = pendingSessionSummary?.language || getCurrentChatLanguage();
+  const words = Number(pendingSessionSummary?.wordsLearned || 0);
+  const points = Number(pendingSessionSummary?.pointsGained || 0);
+
+  return `I practiced ${language} on LipsMaxxed and picked up ${words} new ${words === 1 ? "word" : "words"} for ${points} points.`;
+}
+
+async function buildScoreCardImage(headline, lines) {
+  const scale = 2;
+  const canvas = document.createElement("canvas");
+  canvas.width = 1080;
+  canvas.height = 1080;
+
+  const context = canvas.getContext("2d");
+  context.fillStyle = "#050608";
+  context.fillRect(0, 0, 1080, 1080);
+
+  const glow = context.createRadialGradient(540, 250, 40, 540, 250, 700);
+  glow.addColorStop(0, "rgba(37, 99, 235, 0.42)");
+  glow.addColorStop(1, "rgba(5, 6, 8, 0)");
+  context.fillStyle = glow;
+  context.fillRect(0, 0, 1080, 1080);
+
+  context.textAlign = "center";
+  context.fillStyle = "#f5f7fa";
+  context.font = "800 74px Inter, system-ui, sans-serif";
+  context.fillText(headline, 540, 430);
+
+  context.font = "500 40px Inter, system-ui, sans-serif";
+  context.fillStyle = "#b4bdca";
+  lines.forEach((line, index) => context.fillText(line, 540, 530 + index * 62));
+
+  context.font = "700 34px Inter, system-ui, sans-serif";
+  context.fillStyle = "#60a5fa";
+  context.fillText("LipsMaxxed", 540, 940);
+
+  void scale;
+  return new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+}
+
+function downloadBlob(blob, filename) {
+  if (!blob) return;
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+function openShareWindow(url) {
+  window.open(url, "_blank", "noopener,noreferrer,width=600,height=640");
 }
 
 function createClientTurnId() {
@@ -9770,7 +10280,7 @@ async function requestSetupSpeechPermission() {
 
   const alreadyGranted = state === "granted" || setupSpeechPermissionGranted;
   if (!alreadyGranted) {
-    setSetupPermissionMessage("Allow microphone access to practise out loud.");
+    setSetupPermissionMessage("Allow microphone access to practice out loud.");
   }
 
   try {
@@ -9858,7 +10368,6 @@ async function startConfiguredChat() {
   goTo("/chat");
 
   loadReviewScheduleState(selectedChatLanguage);
-  hydrateAskedQuestionsFromHistory(selectedChatLanguage);
 
   closeChatSetup();
 
@@ -12304,6 +12813,7 @@ function updateAuthUi(session) {
   loadLanguagePoints(getCurrentChatLanguage()).catch(() => {});
 
   renderAccountAvatar();
+  void applyInterfaceLanguage(preferredInterfaceLanguage());
 
   const route = readRoute();
   const onPublicScreen = !route || route === "/" || route === "/signin" || route === "/signup";
@@ -15014,8 +15524,7 @@ function isSamePlayback(button, type, id) {
       previousFacts: [
         ...getSeenLanguageFacts(language),
         ...getLanguageFactQueue(language)
-      ].slice(-80),
-      askedQuestions: recentAskedQuestions(language)
+      ].slice(-80)
     }, label);
     const data = await dataPromise;
     if (requestUserId !== (currentUser?.id || "")) throw new Error("Account changed while generating the reply.");
@@ -15967,7 +16476,6 @@ try {
 
   function addBotMessage(text, options = {}) {
     text = cleanInterfaceText(text);
-    rememberAskedQuestion(text, options.language || getCurrentChatLanguage());
     const id = `bot-${++messageCounter}`;
 
     const card = document.createElement("div");
@@ -17364,7 +17872,9 @@ async function saveProfileSettings() {
 
   const username = profileUsernameInput?.value.trim() || "";
   const fluentLanguage = profileFluentLanguageSelect?.value || "English";
-  const avatarUrl = profilePhotoInput?.value.trim() || "";
+  // profilePhotoValue holds the real value. A photo taken from the device is
+  // never written into the link box, so reading that box discarded it on save.
+  const avatarUrl = profilePhotoValue;
 
   if (profileMessage) {
     profileMessage.textContent = "";
@@ -17410,6 +17920,7 @@ async function saveProfileSettings() {
     }
 
     renderMemberIdentity();
+    void applyInterfaceLanguage(fluentLanguage);
     paintAvatar(profileAvatarPreview, avatarUrl, getAccountDisplayName(currentUser));
     profileBaseline = readProfileForm();
     syncProfileActionState();
@@ -19442,6 +19953,8 @@ function applyRoute() {
   } catch (error) {
     console.warn("screen setup failed", error);
   }
+
+  scheduleInterfaceLanguage();
 }
 
 window.addEventListener("hashchange", applyRoute);
@@ -19851,15 +20364,56 @@ profileResetButton?.addEventListener("click", () => {
 });
 profileSignOutButton?.addEventListener("click", handleSignOut);
 
+if (shareNativeButton && navigator.share) shareNativeButton.classList.remove("hidden");
+
+shareNativeButton?.addEventListener("click", async () => {
+  try {
+    await navigator.share({ text: shareSummaryText(), title: "LipsMaxxed" });
+  } catch {
+    // The learner dismissed the sheet.
+  }
+});
+
+shareXButton?.addEventListener("click", () => {
+  openShareWindow(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareSummaryText())}`);
+});
+
+shareLinkedInButton?.addEventListener("click", () => {
+  openShareWindow(`https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(shareSummaryText())}`);
+});
+
+shareImageButton?.addEventListener("click", async () => {
+  const language = pendingSessionSummary?.language || getCurrentChatLanguage();
+  const blob = await buildScoreCardImage(`${pendingSessionSummary?.wordsLearned || 0} new words`, [
+    `${language} practice`,
+    `${pendingSessionSummary?.pointsGained || 0} points this session`
+  ]);
+  downloadBlob(blob, `lipsmaxxed-${String(language).toLowerCase()}-session.png`);
+  showToast("Image saved", "good");
+});
+
+profileLinkedInButton?.addEventListener("click", () => {
+  const language = getCurrentChatLanguage();
+  const points = Number(currentLanguagePoints || 0);
+  const text = `I am learning ${language} on LipsMaxxed and have earned ${points} points so far.`;
+  openShareWindow(`https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`);
+});
+
+profileShareImageButton?.addEventListener("click", async () => {
+  const language = getCurrentChatLanguage();
+  const blob = await buildScoreCardImage(`${Number(currentLanguagePoints || 0)} points`, [
+    `${language} on LipsMaxxed`,
+    `${getConfirmedWordRecords().length} words confirmed`
+  ]);
+  downloadBlob(blob, `lipsmaxxed-${String(language).toLowerCase()}-score.png`);
+  showToast("Image saved", "good");
+});
+
 profilePhotoUploadButton?.addEventListener("click", () => profilePhotoFileInput?.click());
-profilePhotoCameraButton?.addEventListener("click", () => profilePhotoCameraInput?.click());
 profilePhotoRemoveButton?.addEventListener("click", () => setProfilePhotoValue(""));
 
 profilePhotoFileInput?.addEventListener("change", event => {
   void useProfilePhotoFile(event.target.files?.[0], profilePhotoFileInput);
-});
-profilePhotoCameraInput?.addEventListener("change", event => {
-  void useProfilePhotoFile(event.target.files?.[0], profilePhotoCameraInput);
 });
 
 profileMicToggle?.addEventListener("change", async () => {
@@ -19991,6 +20545,16 @@ if (headerBar) {
   restoreMicrophoneGrant();
   if (microphoneOptInStored()) setupSpeechPermissionGranted = true;
   setInputMode("speech");
+
+  // A first-time visitor is greeted in the language their device already uses.
+  const startingLanguage = preferredInterfaceLanguage();
+  if (authNativeLanguage && SUPPORTED_UI_LANGUAGES.includes(startingLanguage)) {
+    authNativeLanguage.value = startingLanguage;
+  }
+  if (fluentLanguageSelect && SUPPORTED_UI_LANGUAGES.includes(startingLanguage)) {
+    fluentLanguageSelect.value = startingLanguage;
+  }
+  void applyInterfaceLanguage(startingLanguage);
   initAuth();
 </script>
 </body>
