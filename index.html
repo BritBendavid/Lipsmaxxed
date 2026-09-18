@@ -8550,6 +8550,276 @@ html[dir="rtl"] .celebrate-shell {
   color: var(--ink-3);
   text-align: center;
 }
+
+/* ------------------------------------------------- words to learn, tidied */
+
+.words-to-learn .section-heading-row {
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.see-all-link {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* A fixed working height, so the card does not stretch to fill a neighbour. */
+.home-grid > .words-to-learn {
+  min-height: 340px;
+  max-height: 340px;
+}
+
+.words-to-learn .unknown-word-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+}
+
+.words-to-learn .unknown-word-head {
+  display: contents;
+  padding: 0;
+}
+
+.words-to-learn .unknown-word-rank {
+  min-width: 40px;
+}
+
+.words-to-learn .unknown-word-pair {
+  text-align: left;
+}
+
+.words-to-learn .unknown-word-help {
+  min-height: 30px;
+  padding: 0 11px;
+  font-size: 0.76rem;
+}
+
+.words-to-learn .unknown-word-answer-form {
+  grid-column: 1 / -1;
+  padding: 0;
+  margin-top: 2px;
+}
+
+.words-to-learn .unknown-word-answer-form.is-speech {
+  display: flex;
+  justify-content: center;
+  padding: 0;
+}
+
+/* A microphone, not a bar. */
+.words-to-learn .word-mic {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 1rem;
+}
+
+.words-to-learn .unknown-word-feedback {
+  grid-column: 1 / -1;
+  padding: 0;
+}
+
+.words-to-learn .unknown-word-memory {
+  display: none;
+}
+
+/* ------------------------------------------------------------ hint dialog */
+
+.hint-panel {
+  width: min(460px, 100%);
+  text-align: left;
+}
+
+.hint-kicker {
+  margin: 0 0 6px;
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 620;
+}
+
+.hint-panel h2 {
+  margin: 0 0 16px;
+  font-size: 1.6rem;
+  font-weight: 750;
+  letter-spacing: -0.03em;
+}
+
+.hint-body .memory-bridge {
+  margin-top: 0;
+}
+
+/* ============================================================ My Dictionary */
+
+.dictionary-heading {
+  margin-bottom: 20px;
+}
+
+.dictionary-grid {
+  grid-template-columns: repeat(auto-fill, minmax(182px, 1fr));
+  gap: 12px;
+}
+
+.word-bubble {
+  padding: 16px 14px 14px;
+  text-align: center;
+  background: var(--s1);
+}
+
+/* The state colours the type, not the panel. */
+.word-bubble::before {
+  display: none;
+}
+
+.word-bubble.is-known,
+.word-bubble.is-struggling,
+.word-bubble.is-seen,
+.word-bubble.is-new {
+  background: var(--s1);
+}
+
+.word-bubble.is-known { --bubble-ink: #4ade80; }
+.word-bubble.is-struggling { --bubble-ink: #fb923c; }
+.word-bubble.is-seen { --bubble-ink: #facc15; }
+.word-bubble.is-new { --bubble-ink: #8b95a4; }
+
+.bubble-image {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  border: 1px solid var(--line-2);
+  background: var(--s3);
+  color: var(--bubble-ink);
+  font-size: 1.7rem;
+}
+
+.bubble-rank {
+  color: var(--ink-3);
+  font-size: 0.68rem;
+}
+
+.bubble-word,
+.bubble-translation {
+  text-align: center;
+  color: var(--bubble-ink);
+  font-weight: 700;
+}
+
+.bubble-word {
+  font-size: 1.05rem;
+}
+
+.bubble-translation {
+  margin-top: 2px;
+  font-size: 0.88rem;
+  opacity: 0.85;
+}
+
+.bubble-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 11px;
+  border-top: 1px solid var(--line);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.bubble-stat {
+  display: grid;
+  gap: 3px;
+  color: var(--ink-3);
+}
+
+.bubble-stat b {
+  font-size: 1rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.word-bubble.is-new .bubble-stat,
+.word-bubble.is-new .bubble-stat b {
+  color: #8b95a4;
+}
+
+.bubble-stat.is-seen b { color: #facc15; }
+.bubble-stat.is-used b { color: #4ade80; }
+.bubble-stat.is-corrected b { color: #fb923c; }
+
+.bubble-last-used {
+  margin-top: 10px;
+  color: var(--ink-3);
+  font-size: 0.72rem;
+  font-weight: 550;
+}
+
+.word-bubble.is-new .bubble-last-used {
+  color: #8b95a4;
+  font-weight: 650;
+}
+
+/* ------------------------------------------------------------ points pill */
+
+.account-points-badge {
+  position: static;
+  order: -1;
+  flex: 0 0 auto;
+}
+
+.account-menu-wrap {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.account-points-ring {
+  width: auto;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 11px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-pill);
+  background: var(--s2);
+  filter: none;
+  place-items: center;
+}
+
+.account-points-ring::before,
+.account-points-ring::after {
+  display: none;
+}
+
+.account-points-ring::part(none) { all: unset; }
+
+.account-points-value {
+  position: static;
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.points-spark {
+  width: 13px;
+  height: 13px;
+  fill: var(--translated);
+}
+
+@media (max-width: 520px) {
+  .account-points-ring {
+    height: 28px;
+    padding: 0 9px;
+  }
+
+  .account-points-value {
+    font-size: 0.78rem;
+  }
+}
   </style>
 </head>
 
@@ -8595,6 +8865,7 @@ html[dir="rtl"] .celebrate-shell {
 
       <div id="accountPointsBadge" class="account-points-badge hidden" aria-label="Language points">
         <div class="account-points-ring">
+          <svg class="points-spark" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.5 6.1 6.5.6-4.9 4.3 1.5 6.4L12 17l-5.6 3.4 1.5-6.4L3 9.7l6.5-.6Z"/></svg>
           <span id="accountPointsValue" class="account-points-value">0</span>
         </div>
       </div>
@@ -8671,21 +8942,12 @@ html[dir="rtl"] .celebrate-shell {
   <section class="home-grid">
     <div class="app-surface words-to-learn" aria-labelledby="wordsToLearnTitle">
       <div class="section-heading-row">
-        <div>
-          <h3 id="wordsToLearnTitle">Words to learn</h3>
-          <p class="words-to-learn-lead" id="wordsToLearnLead">Say each one in the language you are practicing.</p>
-        </div>
-        <button id="seeAllWordsButton" class="text-link" type="button">See all</button>
+        <h3 id="wordsToLearnTitle">Words to learn</h3>
+        <button id="seeAllWordsButton" class="text-link see-all-link" type="button">See all</button>
       </div>
 
       <div id="unknownWordsList" class="unknown-words-list"></div>
 
-      <div class="unknown-words-pager">
-        <button id="unknownWordsPrev" class="ghost-button" type="button">Previous</button>
-        <span id="unknownWordsPage" class="pf-hint"></span>
-        <span id="unknownWordsCount" class="pf-hint"></span>
-        <button id="unknownWordsNext" class="ghost-button" type="button">Next</button>
-      </div>
     </div>
     <div class="app-surface stats-surface">
       <div class="section-heading-row"><h3 id="homeStatsTitle">My Stats</h3></div>
@@ -9106,11 +9368,9 @@ html[dir="rtl"] .celebrate-shell {
     </header>
 
     <div class="dictionary-heading">
-      <h1 id="dictionaryTitle">My dictionary</h1>
-      <p id="dictionarySubtitle">Every word in the language, in order of how often it is used.</p>
+      <h1 id="dictionaryTitle">My Dictionary</h1>
     </div>
 
-    <div id="dictionaryLegend" class="dictionary-legend"></div>
     <div id="dictionaryGrid" class="dictionary-grid"></div>
 
     <div class="unknown-words-pager dictionary-pager">
@@ -9542,6 +9802,17 @@ html[dir="rtl"] .celebrate-shell {
 
       <div id="statsDetailList" class="stats-list"></div>
     </div>
+  </div>
+</section>
+
+<section id="hintDialog" class="decision-modal hidden" role="dialog" aria-modal="true" aria-labelledby="hintDialogWord">
+  <div class="decision-panel hint-panel">
+    <button id="hintDialogClose" class="dialog-close" type="button" aria-label="Close">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <p class="hint-kicker">A way to remember</p>
+    <h2 id="hintDialogWord" dir="auto" data-no-i18n></h2>
+    <div id="hintDialogBody" class="hint-body" data-no-i18n></div>
   </div>
 </section>
 
@@ -11296,33 +11567,9 @@ function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
     );
   });
 
-  help.addEventListener("click", async () => {
-    if (!panel.classList.contains("hidden")) {
-      panel.classList.add("hidden");
-      return;
-    }
-
-    help.disabled = true;
-    panel.classList.remove("hidden");
-    panel.textContent = "";
-
-    const waiting = document.createElement("p");
-    waiting.className = "memory-bridge";
-    waiting.textContent = "Building a way to remember it...";
-    panel.appendChild(waiting);
-
-    try {
-      const result = await requestMemoryBridge(unknownWordText(item), chatLanguage, fluentLanguage);
-      renderMemoryBridge(panel, {
-        word: unknownWordText(item),
-        chatLanguage,
-        fluentLanguage
-      }, result);
-    } catch (error) {
-      waiting.textContent = getReadableError(error);
-    } finally {
-      help.disabled = false;
-    }
+  help.addEventListener("click", () => {
+    penalizeWord(chatLanguage, item.word_key);
+    openHintDialog(unknownWordText(item), chatLanguage, fluentLanguage);
   });
 
   head.append(rank, pair, help);
@@ -11528,8 +11775,8 @@ function buildWordBubble(item, language, fluentLanguage) {
 
   bubble.append(hint, image, rank, word);
 
-  // Only a word the learner has actually produced shows its meaning.
-  if (state === "is-known") {
+  // The meaning is shown where it helps: words being learned, not mastered.
+  if (state === "is-struggling" || state === "is-seen") {
     const translation = document.createElement("span");
     translation.className = "bubble-translation";
     translation.setAttribute("data-no-i18n", "");
@@ -11544,68 +11791,31 @@ function buildWordBubble(item, language, fluentLanguage) {
   const counts = document.createElement("div");
   counts.className = "bubble-stats";
   counts.setAttribute("data-no-i18n", "");
-  counts.innerHTML =
-    `<span>seen <b>${Number(stats.familiar_count || 0)}</b></span>` +
-    `<span>used <b>${Number(stats.spoken_count || 0)}</b></span>` +
-    `<span>corrected <b>${Number(stats.translated_count || 0) + Number(log.corrected || 0)}</b></span>`;
+  counts.append(
+    bubbleStatCell("Seen", Number(stats.familiar_count || 0), "seen"),
+    bubbleStatCell("Used", Number(stats.spoken_count || 0), "used"),
+    bubbleStatCell(
+      "Corrected",
+      Number(stats.translated_count || 0) + Number(log.corrected || 0),
+      "corrected"
+    )
+  );
 
   const lastUsed = document.createElement("span");
   lastUsed.className = "bubble-last-used";
   lastUsed.setAttribute("data-no-i18n", "");
-  lastUsed.textContent = relativeSince(log.lastUsedAt);
+  lastUsed.textContent = state === "is-new" ? "Never Used" : relativeSince(log.lastUsedAt);
 
   bubble.append(counts, lastUsed);
 
   /* A hint costs the same as a mistake: three correct answers in a row. */
-  hint.addEventListener("click", async () => {
-    hint.disabled = true;
-
-    const panel = document.createElement("div");
-    panel.className = "unknown-word-memory";
-    panel.setAttribute("data-no-i18n", "");
-
-    const waiting = document.createElement("p");
-    waiting.className = "memory-bridge";
-    waiting.textContent = "Building a way to remember it...";
-    panel.appendChild(waiting);
-    bubble.appendChild(panel);
-
+  hint.addEventListener("click", () => {
     penalizeWord(language, item.word_key);
     updateWordLog(language, item.word_key, { hintUsedAt: Date.now() });
-
-    try {
-      const result = await requestMemoryBridge(unknownWordText(item), language, fluentLanguage);
-      renderMemoryBridge(panel, {
-        word: unknownWordText(item),
-        chatLanguage: language,
-        fluentLanguage
-      }, result);
-    } catch (error) {
-      waiting.textContent = getReadableError(error);
-    } finally {
-      hint.disabled = false;
-    }
+    openHintDialog(unknownWordText(item), language, fluentLanguage);
   });
 
   return bubble;
-}
-
-function renderDictionaryLegend() {
-  const legend = dictionaryPage?.querySelector("#dictionaryLegend");
-  if (!legend) return;
-
-  legend.textContent = "";
-  [
-    ["is-known", "Used correctly"],
-    ["is-struggling", "Needs work"],
-    ["is-seen", "Seen, not used"],
-    ["is-new", "Not met yet"]
-  ].forEach(([cls, label]) => {
-    const item = document.createElement("span");
-    item.className = "legend-item";
-    item.innerHTML = `<span class="legend-dot ${cls}"></span>${label}`;
-    legend.appendChild(item);
-  });
 }
 
 function renderDictionaryPage() {
@@ -11705,8 +11915,6 @@ function openDictionary() {
 }
 
 function enterDictionaryScreen() {
-  renderDictionaryLegend();
-
   // Starts in whatever language the learner was in when they opened it.
   const language = populateDictionaryLanguages(wordsToLearnLanguage());
 
@@ -11715,6 +11923,41 @@ function enterDictionaryScreen() {
   } else {
     renderDictionaryPage();
   }
+}
+
+
+/* A hint is a moment of its own, so it gets a dialog rather than a drawer. */
+function openHintDialog(word, chatLanguage, fluentLanguage) {
+  const dialog = document.getElementById("hintDialog");
+  const title = document.getElementById("hintDialogWord");
+  const body = document.getElementById("hintDialogBody");
+  if (!dialog || !body) return;
+
+  if (title) title.textContent = word;
+  body.textContent = "";
+
+  const waiting = document.createElement("p");
+  waiting.className = "memory-bridge";
+  waiting.textContent = "Building a way to remember it...";
+  body.appendChild(waiting);
+
+  dialog.classList.remove("hidden");
+  document.getElementById("hintDialogClose")?.focus();
+
+  requestMemoryBridge(word, chatLanguage, fluentLanguage)
+    .then(result => renderMemoryBridge(body, { word, chatLanguage, fluentLanguage }, result))
+    .catch(error => { waiting.textContent = getReadableError(error); });
+}
+
+function closeHintDialog() {
+  document.getElementById("hintDialog")?.classList.add("hidden");
+}
+
+function bubbleStatCell(label, value, tone) {
+  const cell = document.createElement("span");
+  cell.className = `bubble-stat is-${tone}`;
+  cell.innerHTML = `${label}<b>${value}</b>`;
+  return cell;
 }
 
 function createClientTurnId() {
@@ -22972,6 +23215,10 @@ profileResetButton?.addEventListener("click", () => {
 profileSignOutButton?.addEventListener("click", handleSignOut);
 
 document.getElementById("seeAllWordsButton")?.addEventListener("click", openDictionary);
+document.getElementById("hintDialogClose")?.addEventListener("click", closeHintDialog);
+document.getElementById("hintDialog")?.addEventListener("click", event => {
+  if (event.target.id === "hintDialog") closeHintDialog();
+});
 document.getElementById("myDictionaryButton")?.addEventListener("click", event => {
   event.preventDefault();
   event.stopPropagation();
