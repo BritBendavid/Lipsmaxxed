@@ -8227,6 +8227,329 @@ html[dir="rtl"] .celebrate-shell {
     padding: 16px;
   }
 }
+
+/* ------------------------------- words to learn: compact, height-matched */
+
+.home-grid > .words-to-learn {
+  display: flex;
+  flex-direction: column;
+}
+
+.words-to-learn .unknown-words-list {
+  flex: 1;
+  min-height: 0;
+  align-content: start;
+  overflow-y: auto;
+}
+
+.words-to-learn .unknown-words-pager {
+  margin-top: 12px;
+}
+
+/* The microphone was dominating a row that is mostly one short word. */
+.words-to-learn .unknown-word-answer-form.is-speech {
+  padding: 2px 13px 11px;
+  justify-content: flex-start;
+}
+
+.words-to-learn .word-mic {
+  width: 42px;
+  height: 42px;
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-1);
+}
+
+.words-to-learn .word-mic .mic-symbol svg {
+  width: 16px;
+  height: 16px;
+}
+
+.words-to-learn .unknown-word-head {
+  padding: 11px 13px 6px;
+}
+
+.words-to-learn .unknown-word-answer-form {
+  padding: 0 13px 11px;
+}
+
+.words-to-learn .unknown-word-input {
+  min-height: 38px;
+  font-size: 0.9rem;
+}
+
+.words-to-learn .unknown-word-submit {
+  min-height: 38px;
+  font-size: 0.84rem;
+}
+
+.words-to-learn .unknown-word-feedback {
+  padding: 0 13px 10px;
+  font-size: 0.79rem;
+}
+
+.words-to-learn .memory-bridge {
+  font-size: 0.87rem;
+}
+
+/* ============================================================= dictionary */
+
+.dictionary-page {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  overflow-y: auto;
+  background:
+    radial-gradient(70% 45% at 8% 0%, rgba(37, 99, 235, 0.12), transparent 55%),
+    #07090d;
+}
+
+.dictionary-shell {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: 22px clamp(16px, 4vw, 30px) calc(40px + env(safe-area-inset-bottom));
+}
+
+.dictionary-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.dictionary-language {
+  width: min(220px, 48vw);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--s2);
+}
+
+.dictionary-language select {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 34px 0 13px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+  appearance: none;
+  cursor: pointer;
+}
+
+.dictionary-heading h1 {
+  margin: 0;
+  font-size: clamp(1.7rem, 4vw, 2.3rem);
+  font-weight: 750;
+  letter-spacing: -0.04em;
+}
+
+.dictionary-heading p {
+  margin: 7px 0 0;
+  color: var(--ink-3);
+  font-size: 0.92rem;
+}
+
+.dictionary-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 18px 0 16px;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ink-3);
+  font-size: 0.8rem;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.legend-dot.is-known { background: var(--good); }
+.legend-dot.is-struggling { background: #fb923c; }
+.legend-dot.is-seen { background: var(--translated); }
+.legend-dot.is-new { background: #6b7280; }
+
+.dictionary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 10px;
+}
+
+.word-bubble {
+  position: relative;
+  padding: 13px 13px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--s1);
+  overflow: hidden;
+}
+
+.word-bubble::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+}
+
+.word-bubble.is-known::before { background: var(--good); }
+.word-bubble.is-struggling::before { background: #fb923c; }
+.word-bubble.is-seen::before { background: var(--translated); }
+.word-bubble.is-new::before { background: #4b5563; }
+
+.word-bubble.is-known { background: linear-gradient(180deg, rgba(34, 197, 94, 0.07), transparent 60%), var(--s1); }
+.word-bubble.is-struggling { background: linear-gradient(180deg, rgba(251, 146, 60, 0.08), transparent 60%), var(--s1); }
+.word-bubble.is-seen { background: linear-gradient(180deg, rgba(250, 204, 21, 0.07), transparent 60%), var(--s1); }
+
+.bubble-hint {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  min-height: 26px;
+  padding: 0 9px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-pill);
+  background: var(--s2);
+  color: var(--ink-3);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 620;
+  cursor: pointer;
+}
+
+.bubble-hint:hover:not(:disabled) {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+  color: #bfdbfe;
+}
+
+.bubble-image {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--s3);
+  color: var(--ink-3);
+  font-size: 1.5rem;
+  font-weight: 700;
+  overflow: hidden;
+}
+
+.bubble-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bubble-rank {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--ink-3);
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.bubble-word {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bubble-translation {
+  display: block;
+  margin-top: 3px;
+  color: #86efac;
+  font-size: 0.83rem;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bubble-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 9px;
+  padding-top: 9px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-3);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.bubble-stats b {
+  color: var(--ink-2);
+  font-weight: 650;
+}
+
+.bubble-last-used {
+  display: block;
+  margin-top: 6px;
+  color: var(--ink-3);
+  font-size: 0.71rem;
+}
+
+.bubble-image-vote {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.bubble-image-vote button {
+  width: 28px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xs);
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+}
+
+.bubble-image-vote button:hover {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.bubble-image-vote button.is-chosen {
+  border-color: var(--good-line);
+  color: #86efac;
+}
+
+.bubble-image-vote svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+
+.dictionary-pager {
+  margin-top: 20px;
+}
+
+.dictionary-empty {
+  grid-column: 1 / -1;
+  padding: 30px 16px;
+  border: 1px dashed var(--line-2);
+  border-radius: var(--r-md);
+  color: var(--ink-3);
+  text-align: center;
+}
   </style>
 </head>
 
@@ -8278,6 +8601,10 @@ html[dir="rtl"] .celebrate-shell {
 
       <div id="accountDropdown" class="account-dropdown hidden">
         <div id="accountDisplayName" class="account-display-name"></div>
+
+        <button id="myDictionaryButton" class="account-menu-item" type="button">
+          My dictionary
+        </button>
 
         <button id="myProfileButton" class="account-menu-item" type="button">
           My profile
@@ -8348,6 +8675,7 @@ html[dir="rtl"] .celebrate-shell {
           <h3 id="wordsToLearnTitle">Words to learn</h3>
           <p class="words-to-learn-lead" id="wordsToLearnLead">Say each one in the language you are practicing.</p>
         </div>
+        <button id="seeAllWordsButton" class="text-link" type="button">See all</button>
       </div>
 
       <div id="unknownWordsList" class="unknown-words-list"></div>
@@ -8762,6 +9090,33 @@ html[dir="rtl"] .celebrate-shell {
           <path d="m13.2 5.2 5.4 5.4c.8.8.8 2 0 2.8l-5.4 5.4-1.4-1.4 4.4-4.4H5v-2h11.2l-4.4-4.4 1.4-1.4Z"></path>
         </svg>
       </button>
+    </div>
+  </div>
+</section>
+
+<section id="dictionaryPage" class="screen dictionary-page hidden" aria-labelledby="dictionaryTitle">
+  <div class="dictionary-shell">
+    <header class="dictionary-top">
+      <button id="dictionaryBackButton" class="back-button" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Back
+      </button>
+      <div class="select-wrap dictionary-language">
+        <select id="dictionaryLanguage" aria-label="Dictionary language"></select>
+      </div>
+    </header>
+
+    <div class="dictionary-heading">
+      <h1 id="dictionaryTitle">My dictionary</h1>
+      <p id="dictionarySubtitle">Every word in the language, in order of how often it is used.</p>
+    </div>
+
+    <div id="dictionaryLegend" class="dictionary-legend"></div>
+    <div id="dictionaryGrid" class="dictionary-grid"></div>
+
+    <div class="unknown-words-pager dictionary-pager">
+      <button id="dictionaryPrev" class="ghost-button" type="button">Previous</button>
+      <span id="dictionaryPageLabel" class="pf-hint"></span>
+      <button id="dictionaryNext" class="ghost-button" type="button">Next</button>
     </div>
   </div>
 </section>
@@ -9323,6 +9678,7 @@ const startChatButton = document.getElementById("startChatButton");
 
 const myProfileButton = document.getElementById("myProfileButton");
 const profileScreen = document.getElementById("profileScreen");
+const dictionaryPage = document.getElementById("dictionaryPage");
 const profileModal = profileScreen;
 const closeProfileButton = document.getElementById("closeProfileButton");
 const profileUsernameInput = document.getElementById("profileUsernameInput");
@@ -10376,7 +10732,7 @@ window.lipsMaxxedRepairAccount = async function lipsMaxxedRepairAccount() {
    language that sounds like the target, tied to its meaning by an image.
    ========================================================================= */
 
-const UNKNOWN_WORDS_PAGE_SIZE = 12;
+const UNKNOWN_WORDS_PAGE_SIZE = 5;
 
 let unknownWordsState = { language: "", rows: [], page: 0, loading: false };
 let activeWordListRecorder = null;
@@ -10463,6 +10819,8 @@ function memoryVoteIcon(up) {
 }
 
 async function requestMemoryBridge(word, chatLanguage, fluentLanguage, avoid = "") {
+  const accessToken = await getValidFunctionAccessToken();
+
   const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
     method: "POST",
     headers: await getFunctionHeaders(),
@@ -10471,20 +10829,28 @@ async function requestMemoryBridge(word, chatLanguage, fluentLanguage, avoid = "
       word,
       chatLanguage,
       fluentLanguage,
-      avoid
+      avoid,
+      userAccessToken: accessToken
     })
   });
 
-  return parseJsonResponse(response, "Memory bridge");
+  return parseJsonResponse(response, "Hint");
 }
 
 async function sendMemoryBridgeFeedback(id, helpful) {
   if (!id) return;
   try {
+    const accessToken = await getValidFunctionAccessToken();
+
     await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
       method: "POST",
       headers: await getFunctionHeaders(),
-      body: JSON.stringify({ action: "word-mnemonic-feedback", id, helpful })
+      body: JSON.stringify({
+        action: "word-mnemonic-feedback",
+        id,
+        helpful,
+        userAccessToken: accessToken
+      })
     });
   } catch {
     // The learner still has their bridge; only the shared cache misses out.
@@ -10604,12 +10970,24 @@ function penalizeWord(language, wordKey) {
   saveWordPenalties(language, rows);
 }
 
-function creditWordRepetition(language, wordKey) {
+/*
+  Repetitions earned from practice count once a day, so three in a row means
+  three separate days rather than three taps. Using the word in a real chat
+  is not spaced: that is the behaviour we want to encourage.
+*/
+function creditWordRepetition(language, wordKey, source = "practice") {
   if (!wordKey) return 0;
 
   const rows = loadWordPenalties(language);
   const remaining = Number(rows[wordKey] || 0);
   if (remaining <= 0) return 0;
+
+  if (source === "practice") {
+    const log = loadWordLog(language)[wordKey] || {};
+    const since = Date.now() - Number(log.lastRepetitionAt || 0);
+    if (since < REPETITION_SPACING_MS) return remaining;
+    updateWordLog(language, wordKey, { lastRepetitionAt: Date.now() });
+  }
 
   const next = remaining - 1;
   if (next <= 0) delete rows[wordKey];
@@ -10636,12 +11014,24 @@ function frequencyKeyForWord(language, word) {
   return String(match?.word_key || "");
 }
 
-/* Reaching for the fluent language counts as a mistake on the target words. */
-function penalizeWordsFromSuggestion(language, suggestion) {
-  splitTextIntoParts(String(suggestion || ""))
-    .map(part => String(part?.text || part || "").trim())
-    .filter(Boolean)
-    .forEach(word => penalizeWord(language, frequencyKeyForWord(language, word)));
+/*
+  Only the segments the learner actually said in their own language are
+  marked. The rest of the sentence was already correct, so penalizing every
+  word in the suggestion would punish words they got right.
+*/
+function penalizeForeignParts(language, parts) {
+  (Array.isArray(parts) ? parts : [])
+    .filter(part => part && part.isChatLanguage === false && part.translation)
+    .forEach(part => {
+      splitTextIntoParts(String(part.translation))
+        .map(token => String(token).trim())
+        .filter(token => /[\p{L}]/u.test(token))
+        .forEach(token => {
+        const key = frequencyKeyForWord(language, token);
+        penalizeWord(language, key);
+        markWordCorrected(language, key);
+      });
+    });
 }
 
 function unknownWordText(item) {
@@ -10815,7 +11205,7 @@ function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
   const help = document.createElement("button");
   help.type = "button";
   help.className = "unknown-word-help";
-  help.textContent = "Help me remember this word";
+  help.textContent = "Hint";
 
   const panel = document.createElement("div");
   panel.className = "unknown-word-memory hidden";
@@ -10837,7 +11227,16 @@ function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
       const correct = await checkUnknownWordAnswer(item, chatLanguage, answer);
 
       if (correct) {
-        const owed = creditWordRepetition(chatLanguage, item.word_key);
+        const before = Number(loadWordPenalties(chatLanguage)[item.word_key] || 0);
+        const owed = creditWordRepetition(chatLanguage, item.word_key, "practice");
+        markWordUsed(chatLanguage, item.word_key);
+
+        if (owed > 0 && owed === before) {
+          void playInterfaceCue("correct");
+          showFeedback("Correct. Come back tomorrow for the next repetition.", "good");
+          input.value = "";
+          return;
+        }
 
         if (owed > 0) {
           void playInterfaceCue("correct");
@@ -10859,6 +11258,7 @@ function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
 
       void playInterfaceCue("incorrect");
       penalizeWord(chatLanguage, item.word_key);
+      markWordCorrected(chatLanguage, item.word_key);
       showFeedback(
         `Not that one. It now needs ${REPETITIONS_AFTER_MISTAKE} correct answers in a row to clear.`,
         "bad"
@@ -11002,6 +11402,318 @@ function refreshWordsToLearn(force = false) {
     void loadUnknownWords(language);
   } else {
     renderUnknownWordsPage();
+  }
+}
+
+
+/* =========================================================================
+   Word log
+
+   The server stats carry counts but not when a word was last used, and not
+   how often a correction landed on it. Those live here, beside them.
+   ========================================================================= */
+
+const REPETITION_SPACING_MS = 20 * 60 * 60 * 1000;
+
+function wordLogStorageKey(language) {
+  return `lipsmaxxed-word-log:${currentUser?.id || "signed-out"}:${language}`;
+}
+
+function loadWordLog(language) {
+  try {
+    const rows = JSON.parse(localStorage.getItem(wordLogStorageKey(language)) || "{}");
+    return rows && typeof rows === "object" ? rows : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveWordLog(language, rows) {
+  try {
+    localStorage.setItem(wordLogStorageKey(language), JSON.stringify(rows));
+  } catch {
+    // The dictionary falls back to server counts alone.
+  }
+}
+
+function updateWordLog(language, wordKey, patch) {
+  if (!wordKey) return;
+  const rows = loadWordLog(language);
+  rows[wordKey] = { ...(rows[wordKey] || {}), ...patch };
+  saveWordLog(language, rows);
+}
+
+function markWordCorrected(language, wordKey) {
+  if (!wordKey) return;
+  const rows = loadWordLog(language);
+  const entry = rows[wordKey] || {};
+  entry.corrected = Number(entry.corrected || 0) + 1;
+  rows[wordKey] = entry;
+  saveWordLog(language, rows);
+}
+
+function markWordUsed(language, wordKey) {
+  updateWordLog(language, wordKey, { lastUsedAt: Date.now() });
+}
+
+function relativeSince(timestamp) {
+  const value = Number(timestamp || 0);
+  if (!value) return "never used";
+
+  const seconds = Math.max(0, Math.floor((Date.now() - value) / 1000));
+  if (seconds < 90) return "used just now";
+
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `used ${minutes}m ago`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `used ${hours}h ago`;
+
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `used ${days}d ago`;
+
+  return `used ${Math.floor(days / 30)}mo ago`;
+}
+
+/* =========================================================================
+   Dictionary
+   ========================================================================= */
+
+const DICTIONARY_PAGE_SIZE = 60;
+
+let dictionaryState = { language: "", rows: [], stats: new Map(), page: 0, loading: false };
+
+function wordBubbleState(item, stats, log, penalties) {
+  const used = Number(stats?.spoken_count || 0);
+  const seen = Number(stats?.familiar_count || 0);
+  const corrected = Number(stats?.translated_count || 0) + Number(log?.corrected || 0);
+  const owed = Number(penalties[item.word_key] || 0);
+
+  if (corrected > 0 || owed > 0) return "is-struggling";
+  if (used > 0) return "is-known";
+  if (seen > 0) return "is-seen";
+  return "is-new";
+}
+
+function buildWordBubble(item, language, fluentLanguage) {
+  const stats = dictionaryState.stats.get(item.word_key) || {};
+  const log = loadWordLog(language)[item.word_key] || {};
+  const penalties = loadWordPenalties(language);
+
+  const state = wordBubbleState(item, stats, log, penalties);
+  const bubble = document.createElement("div");
+  bubble.className = `word-bubble ${state}`;
+
+  const hint = document.createElement("button");
+  hint.type = "button";
+  hint.className = "bubble-hint";
+  hint.textContent = "Hint";
+
+  const image = document.createElement("div");
+  image.className = "bubble-image";
+  image.setAttribute("data-no-i18n", "");
+  image.textContent = state === "is-new"
+    ? "?"
+    : String(item.word || "").slice(0, 1).toLocaleUpperCase();
+
+  const rank = document.createElement("span");
+  rank.className = "bubble-rank";
+  rank.textContent = `#${Number(item.frequency_rank || 0)}`;
+
+  const word = document.createElement("span");
+  word.className = "bubble-word";
+  word.setAttribute("dir", "auto");
+  word.setAttribute("data-no-i18n", "");
+  word.textContent = unknownWordText(item);
+
+  bubble.append(hint, image, rank, word);
+
+  // Only a word the learner has actually produced shows its meaning.
+  if (state === "is-known") {
+    const translation = document.createElement("span");
+    translation.className = "bubble-translation";
+    translation.setAttribute("data-no-i18n", "");
+    translation.textContent = "...";
+    bubble.appendChild(translation);
+
+    void translateUnknownWord(unknownWordText(item), language, fluentLanguage)
+      .then(value => { translation.textContent = value || ""; })
+      .catch(() => { translation.textContent = ""; });
+  }
+
+  const counts = document.createElement("div");
+  counts.className = "bubble-stats";
+  counts.setAttribute("data-no-i18n", "");
+  counts.innerHTML =
+    `<span>seen <b>${Number(stats.familiar_count || 0)}</b></span>` +
+    `<span>used <b>${Number(stats.spoken_count || 0)}</b></span>` +
+    `<span>corrected <b>${Number(stats.translated_count || 0) + Number(log.corrected || 0)}</b></span>`;
+
+  const lastUsed = document.createElement("span");
+  lastUsed.className = "bubble-last-used";
+  lastUsed.setAttribute("data-no-i18n", "");
+  lastUsed.textContent = relativeSince(log.lastUsedAt);
+
+  bubble.append(counts, lastUsed);
+
+  /* A hint costs the same as a mistake: three correct answers in a row. */
+  hint.addEventListener("click", async () => {
+    hint.disabled = true;
+
+    const panel = document.createElement("div");
+    panel.className = "unknown-word-memory";
+    panel.setAttribute("data-no-i18n", "");
+
+    const waiting = document.createElement("p");
+    waiting.className = "memory-bridge";
+    waiting.textContent = "Building a way to remember it...";
+    panel.appendChild(waiting);
+    bubble.appendChild(panel);
+
+    penalizeWord(language, item.word_key);
+    updateWordLog(language, item.word_key, { hintUsedAt: Date.now() });
+
+    try {
+      const result = await requestMemoryBridge(unknownWordText(item), language, fluentLanguage);
+      renderMemoryBridge(panel, {
+        word: unknownWordText(item),
+        chatLanguage: language,
+        fluentLanguage
+      }, result);
+    } catch (error) {
+      waiting.textContent = getReadableError(error);
+    } finally {
+      hint.disabled = false;
+    }
+  });
+
+  return bubble;
+}
+
+function renderDictionaryLegend() {
+  const legend = dictionaryPage?.querySelector("#dictionaryLegend");
+  if (!legend) return;
+
+  legend.textContent = "";
+  [
+    ["is-known", "Used correctly"],
+    ["is-struggling", "Needs work"],
+    ["is-seen", "Seen, not used"],
+    ["is-new", "Not met yet"]
+  ].forEach(([cls, label]) => {
+    const item = document.createElement("span");
+    item.className = "legend-item";
+    item.innerHTML = `<span class="legend-dot ${cls}"></span>${label}`;
+    legend.appendChild(item);
+  });
+}
+
+function renderDictionaryPage() {
+  // Query inside the section: the page element is the stable handle.
+  const grid = dictionaryPage?.querySelector("#dictionaryGrid");
+  const pageLabel = dictionaryPage?.querySelector("#dictionaryPageLabel");
+  if (!grid) return;
+
+  grid.textContent = "";
+
+  if (dictionaryState.loading) {
+    const loading = document.createElement("div");
+    loading.className = "dictionary-empty";
+    loading.textContent = "Loading your dictionary...";
+    grid.appendChild(loading);
+    return;
+  }
+
+  const { rows, page, language } = dictionaryState;
+  const fluentLanguage = getCurrentFluentLanguage();
+
+  if (!rows.length) {
+    const empty = document.createElement("div");
+    empty.className = "dictionary-empty";
+    empty.textContent = "No word list is available for this language yet.";
+    grid.appendChild(empty);
+    return;
+  }
+
+  const start = page * DICTIONARY_PAGE_SIZE;
+  rows.slice(start, start + DICTIONARY_PAGE_SIZE).forEach(item => {
+    grid.appendChild(buildWordBubble(item, language, fluentLanguage));
+  });
+
+  const pageCount = Math.max(1, Math.ceil(rows.length / DICTIONARY_PAGE_SIZE));
+  if (pageLabel) {
+    pageLabel.textContent = `Words ${start + 1} to ${Math.min(start + DICTIONARY_PAGE_SIZE, rows.length)} of ${rows.length.toLocaleString()}`;
+  }
+
+  const prev = dictionaryPage?.querySelector("#dictionaryPrev");
+  const next = dictionaryPage?.querySelector("#dictionaryNext");
+  if (prev) prev.disabled = page <= 0;
+  if (next) next.disabled = page >= pageCount - 1;
+}
+
+async function loadDictionary(language) {
+  dictionaryState = { language, rows: [], stats: new Map(), page: 0, loading: true };
+  renderDictionaryPage();
+
+  try {
+    const [frequencyWords, statsResult] = await Promise.all([
+      getRankedFrequencyList(language),
+      getWordStatsSnapshot(language)
+    ]);
+
+    const stats = aggregateStatsByLexeme(
+      Array.isArray(statsResult?.data) ? statsResult.data : [],
+      frequencyWords
+    );
+
+    dictionaryState = { language, rows: frequencyWords, stats, page: 0, loading: false };
+  } catch (error) {
+    console.warn("dictionary load failed", error);
+    dictionaryState = { language, rows: [], stats: new Map(), page: 0, loading: false };
+  }
+
+  renderDictionaryPage();
+}
+
+function populateDictionaryLanguages(preferred) {
+  const select = dictionaryPage?.querySelector("#dictionaryLanguage");
+  if (!select) return preferred;
+
+  const languages = [...new Set([
+    preferred,
+    ...[...(homeLanguageSelect?.options || [])].map(option => option.value)
+  ].filter(Boolean))];
+
+  select.textContent = "";
+  languages.forEach(language => {
+    const option = document.createElement("option");
+    option.value = language;
+    option.textContent = languageOptionLabel(language);
+    select.appendChild(option);
+  });
+
+  select.value = languages.includes(preferred) ? preferred : languages[0];
+  return select.value;
+}
+
+function openDictionary() {
+  if (!currentUser) {
+    openAuthModal("sign-in");
+    return;
+  }
+  goTo("/dictionary");
+}
+
+function enterDictionaryScreen() {
+  renderDictionaryLegend();
+
+  // Starts in whatever language the learner was in when they opened it.
+  const language = populateDictionaryLanguages(wordsToLearnLanguage());
+
+  if (dictionaryState.language !== language || !dictionaryState.rows.length) {
+    void loadDictionary(language);
+  } else {
+    renderDictionaryPage();
   }
 }
 
@@ -12931,7 +13643,11 @@ function celebrateSpokenBonusWords(wordKeys = []) {
         action.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.2 4.2L19 7"/></svg>';
       }
       void playInterfaceCue("bonus");
-      recordPlacementForWord(getCurrentChatLanguage(), String(card.dataset.wordKey || "").split("::")[0], true);
+      const spokenLanguage = getCurrentChatLanguage();
+      const spokenKey = String(card.dataset.wordKey || "");
+      recordPlacementForWord(spokenLanguage, spokenKey.split("::")[0], true);
+      creditWordRepetition(spokenLanguage, spokenKey, "chat");
+      markWordUsed(spokenLanguage, spokenKey);
       animateBonusWordToPoints(card);
     }, index * 180);
   });
@@ -18045,10 +18761,7 @@ try {
   // Display only the highest-priority applicable review:
   // language mismatch, then literal contextual mismatch, then grammar.
   if (reviewMode === "language") {
-    penalizeWordsFromSuggestion(
-      getCurrentChatLanguage(),
-      buildChatLanguageSuggestion(parts)
-    );
+    penalizeForeignParts(getCurrentChatLanguage(), parts);
 
     /*
       The problem here is the language, not the grammar, so the backend
@@ -21720,7 +22433,7 @@ function saveGrammarConversationToMaster(context) {
 
 function overlayScreens() {
   return [
-    authScreen, profileScreen, statsPage, lipsMasterPage, allChatsPage,
+    authScreen, profileScreen, dictionaryPage, statsPage, lipsMasterPage, allChatsPage,
     sessionSummaryPage, sessionReviewPage, wordConfirmationPage,
     confirmationCompletePage
   ];
@@ -21734,6 +22447,7 @@ const ROUTES = {
   "/home": { shell: "home", requiresAccount: true, enter: enterHomeScreen },
   "/chat": { shell: "chat", requiresChat: true },
   "/profile": { overlay: () => profileScreen, requiresAccount: true, enter: enterProfileScreen },
+  "/dictionary": { overlay: () => dictionaryPage, requiresAccount: true, enter: enterDictionaryScreen },
   "/stats": { overlay: () => statsPage, requiresAccount: true, enter: enterStatsScreen },
   "/lipsmaster": { overlay: () => lipsMasterPage, requiresAccount: true, enter: enterMasterScreen },
   "/history": { overlay: () => allChatsPage, requiresAccount: true, enter: enterHistoryScreen },
@@ -22256,6 +22970,28 @@ profileResetButton?.addEventListener("click", () => {
   }
 });
 profileSignOutButton?.addEventListener("click", handleSignOut);
+
+document.getElementById("seeAllWordsButton")?.addEventListener("click", openDictionary);
+document.getElementById("myDictionaryButton")?.addEventListener("click", event => {
+  event.preventDefault();
+  event.stopPropagation();
+  openDictionary();
+});
+document.getElementById("dictionaryBackButton")?.addEventListener("click", () => goTo(parentRoute()));
+document.getElementById("dictionaryLanguage")?.addEventListener("change", event => {
+  void loadDictionary(event.target.value);
+});
+document.getElementById("dictionaryPrev")?.addEventListener("click", () => {
+  dictionaryState.page = Math.max(0, dictionaryState.page - 1);
+  renderDictionaryPage();
+  dictionaryPage?.scrollTo({ top: 0 });
+});
+document.getElementById("dictionaryNext")?.addEventListener("click", () => {
+  const pageCount = Math.ceil(dictionaryState.rows.length / DICTIONARY_PAGE_SIZE);
+  dictionaryState.page = Math.min(pageCount - 1, dictionaryState.page + 1);
+  renderDictionaryPage();
+  dictionaryPage?.scrollTo({ top: 0 });
+});
 
 unknownWordsPrev?.addEventListener("click", () => {
   unknownWordsState.page = Math.max(0, unknownWordsState.page - 1);
