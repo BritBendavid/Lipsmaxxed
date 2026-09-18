@@ -8820,6 +8820,161 @@ html[dir="rtl"] .celebrate-shell {
     font-size: 0.78rem;
   }
 }
+
+/* ------------------------------------------ words to learn: one line each */
+
+.home-grid > .words-to-learn {
+  min-height: 336px;
+  max-height: 336px;
+}
+
+.words-to-learn .unknown-word-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+}
+
+.words-to-learn .unknown-word-head {
+  display: contents;
+}
+
+.words-to-learn .unknown-word-pair {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.words-to-learn .unknown-word-target {
+  font-size: 0.94rem;
+  font-weight: 620;
+}
+
+.words-to-learn .unknown-word-answer-form,
+.words-to-learn .unknown-word-answer-form.is-speech {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  grid-column: auto;
+  width: auto;
+  padding: 0;
+  margin: 0;
+  justify-content: flex-end;
+}
+
+.words-to-learn .word-mic {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 0.9rem;
+}
+
+.words-to-learn .word-mic .mic-symbol svg {
+  width: 15px;
+  height: 15px;
+}
+
+.words-to-learn .unknown-word-input {
+  width: min(150px, 34vw);
+  min-height: 36px;
+  font-size: 0.86rem;
+}
+
+.words-to-learn .unknown-word-submit {
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 0.8rem;
+}
+
+.words-to-learn .unknown-word-help {
+  flex: 0 0 auto;
+  min-height: 30px;
+}
+
+.words-to-learn .unknown-word-feedback {
+  flex: 1 0 100%;
+  order: 9;
+  padding: 0;
+  margin-top: 4px;
+}
+
+/* -------------------------------------------------- dictionary refinements */
+
+.dictionary-top-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dictionary-account-slot .account-menu-wrap {
+  position: relative;
+}
+
+.word-bubble .bubble-word {
+  font-size: 1.02rem;
+}
+
+.word-bubble .bubble-translation {
+  margin-top: 3px;
+  font-size: 0.88rem;
+  font-weight: 650;
+  opacity: 0.8;
+}
+
+/* -------------------------------------------------------- points, redrawn */
+
+.account-points-ring {
+  height: 34px;
+  gap: 7px;
+  padding: 0 12px 0 10px;
+  border: 1px solid rgba(250, 204, 21, 0.26);
+  border-radius: var(--r-pill);
+  background: linear-gradient(180deg, rgba(250, 204, 21, 0.14), rgba(250, 204, 21, 0.05));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.points-spark {
+  width: 14px;
+  height: 14px;
+  fill: #fde68a;
+  flex: 0 0 auto;
+}
+
+.account-points-value {
+  color: #fde68a;
+  font-size: 0.88rem;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.account-points-badge.is-rising .account-points-ring {
+  animation: pointsRise 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes pointsRise {
+  0% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-3px) scale(1.06); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 520px) {
+  .account-points-ring {
+    height: 30px;
+    gap: 5px;
+    padding: 0 10px 0 8px;
+  }
+
+  .points-spark {
+    width: 12px;
+    height: 12px;
+  }
+
+  .account-points-value {
+    font-size: 0.8rem;
+  }
+}
   </style>
 </head>
 
@@ -9362,8 +9517,11 @@ html[dir="rtl"] .celebrate-shell {
       <button id="dictionaryBackButton" class="back-button" type="button">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Back
       </button>
-      <div class="select-wrap dictionary-language">
-        <select id="dictionaryLanguage" aria-label="Dictionary language"></select>
+      <div class="dictionary-top-right">
+        <div class="select-wrap dictionary-language">
+          <select id="dictionaryLanguage" aria-label="Dictionary language"></select>
+        </div>
+        <div id="dictionaryAccountSlot" class="dictionary-account-slot"></div>
       </div>
     </header>
 
@@ -11261,8 +11419,12 @@ function creditWordRepetition(language, wordKey, source = "practice") {
   }
 
   const next = remaining - 1;
-  if (next <= 0) delete rows[wordKey];
-  else rows[wordKey] = next;
+  if (next <= 0) {
+    delete rows[wordKey];
+    updateWordLog(language, wordKey, { repaired: true });
+  } else {
+    rows[wordKey] = next;
+  }
 
   saveWordPenalties(language, rows);
   return next;
@@ -11773,20 +11935,23 @@ function buildWordBubble(item, language, fluentLanguage) {
   word.setAttribute("data-no-i18n", "");
   word.textContent = unknownWordText(item);
 
-  bubble.append(hint, image, rank, word);
+  /*
+    The learner's own language leads, because that is what they scan for. The
+    word being learned only appears once they have actually produced it.
+  */
+  const meaning = document.createElement("span");
+  meaning.className = "bubble-word";
+  meaning.setAttribute("data-no-i18n", "");
+  meaning.textContent = "...";
 
-  // The meaning is shown where it helps: words being learned, not mastered.
-  if (state === "is-struggling" || state === "is-seen") {
-    const translation = document.createElement("span");
-    translation.className = "bubble-translation";
-    translation.setAttribute("data-no-i18n", "");
-    translation.textContent = "...";
-    bubble.appendChild(translation);
+  void translateUnknownWord(unknownWordText(item), language, fluentLanguage)
+    .then(value => { meaning.textContent = value || unknownWordText(item); })
+    .catch(() => { meaning.textContent = unknownWordText(item); });
 
-    void translateUnknownWord(unknownWordText(item), language, fluentLanguage)
-      .then(value => { translation.textContent = value || ""; })
-      .catch(() => { translation.textContent = ""; });
-  }
+  word.className = "bubble-translation";
+
+  bubble.append(hint, image, rank, meaning);
+  if (state === "is-known") bubble.appendChild(word);
 
   const counts = document.createElement("div");
   counts.className = "bubble-stats";
@@ -11915,6 +12080,8 @@ function openDictionary() {
 }
 
 function enterDictionaryScreen() {
+  placeAccountControlsIn("dictionaryAccountSlot");
+
   // Starts in whatever language the learner was in when they opened it.
   const language = populateDictionaryLanguages(wordsToLearnLanguage());
 
@@ -11958,6 +12125,59 @@ function bubbleStatCell(label, value, tone) {
   cell.className = `bubble-stat is-${tone}`;
   cell.innerHTML = `${label}<b>${value}</b>`;
   return cell;
+}
+
+
+/*
+  The account control is a single element, so the dictionary borrows it while
+  that screen is open and hands it back on the way out.
+*/
+function placeAccountControlsIn(slotId) {
+  const wrap = document.querySelector(".account-menu-wrap");
+  const slot = slotId ? document.getElementById(slotId) : null;
+  const home = document.querySelector(".session-controls");
+
+  if (!wrap) return;
+  if (slot && wrap.parentElement !== slot) slot.appendChild(wrap);
+  else if (!slot && home && wrap.parentElement !== home) home.appendChild(wrap);
+}
+
+/* ------------------------------------------------------------- scoring ---- */
+
+/*
+  Value follows how far into the frequency list a word sits, floored at a
+  thousand-word step so common words stay modest and rarer ones pay more.
+*/
+function wordPointBase(rank) {
+  return Math.max(1, Math.floor(Number(rank || 0) / 1000));
+}
+
+function pointsForWordUse(language, wordKey, rank) {
+  const base = wordPointBase(rank);
+  const log = loadWordLog(language)[wordKey] || {};
+  const owed = Number(loadWordPenalties(language)[wordKey] || 0);
+
+  // Still owing repetitions: nothing is paid until the word is clear.
+  if (owed > 0) return 0;
+
+  // A hint or a mistake after the first use defers the reward and caps it.
+  if (log.repaired) return base * 5;
+
+  const used = Number(log.used || 0);
+  if (used === 0) return base * 10;
+  if (used === 1) return base * 5;
+  return base;
+}
+
+function registerWordUse(language, wordKey) {
+  if (!wordKey) return;
+  const rows = loadWordLog(language);
+  const entry = rows[wordKey] || {};
+  entry.used = Number(entry.used || 0) + 1;
+  entry.lastUsedAt = Date.now();
+  delete entry.repaired;
+  rows[wordKey] = entry;
+  saveWordLog(language, rows);
 }
 
 function createClientTurnId() {
@@ -22786,6 +23006,8 @@ function applyRoute() {
 
   overlayScreens().forEach(screen => screen?.classList.add("hidden"));
   closeAccountDropdown();
+
+  if (route !== "/dictionary") placeAccountControlsIn("");
 
   const overlay = config.overlay ? config.overlay() : null;
 
