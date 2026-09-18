@@ -9488,6 +9488,121 @@ html[dir="rtl"] .celebrate-shell {
 .account-points-badge.is-rising .account-points-ring {
   animation: pointsRise 520ms cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+/* ------------------------------------- the account card is only a wrapper */
+
+.control-card.account-card {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* ------------------------------------------------------- the score bubble */
+
+.account-points-badge {
+  position: absolute;
+  top: calc(100% - 9px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.account-points-ring {
+  height: 22px;
+  min-width: 34px;
+  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--r-pill);
+  background: #1b2029;
+  box-shadow: 0 0 0 3px var(--bg), 0 2px 6px -2px rgba(0, 0, 0, 0.8);
+}
+
+.account-points-value {
+  color: #f0f3f7;
+  font-size: 0.71rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------- dictionary header row */
+
+.dictionary-top-right {
+  display: grid;
+  justify-items: end;
+  gap: 12px;
+}
+
+.dictionary-top-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dictionary-page .dictionary-search {
+  width: min(320px, 60vw);
+  max-width: none;
+  margin: 0;
+}
+
+/* -------------------------------------------------------------- level cards */
+
+.level-card {
+  padding: 20px;
+  background: var(--s1);
+  border-radius: var(--r-lg);
+}
+
+.level-card:hover {
+  transform: none;
+  background: var(--s2);
+}
+
+.level-card h3 {
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+
+.level-meter {
+  display: block;
+  height: 4px;
+  margin: 14px 0 8px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.level-meter i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--good);
+}
+
+.level-progress {
+  display: block;
+  color: var(--ink-3);
+  font-size: 0.78rem;
+  font-weight: 550;
+}
+
+.level-card .dictionary-totals {
+  margin-top: 14px;
+  padding: 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  padding-top: 13px;
+  background: transparent;
+}
   </style>
 </head>
 
@@ -10030,17 +10145,19 @@ html[dir="rtl"] .celebrate-shell {
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Back
       </button>
       <div class="dictionary-top-right">
+        <div class="dictionary-top-controls">
         <div class="select-wrap dictionary-language">
           <select id="dictionaryLanguage" aria-label="Dictionary language"></select>
         </div>
         <div id="dictionaryAccountSlot" class="dictionary-account-slot"></div>
+        </div>
+
+        <div class="dictionary-search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+          <input id="dictionarySearch" type="search" autocomplete="off" placeholder="Search a word in either language" aria-label="Search the dictionary" />
+        </div>
       </div>
     </header>
-
-    <div class="dictionary-search">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
-      <input id="dictionarySearch" type="search" autocomplete="off" placeholder="Search a word in either language" aria-label="Search the dictionary" />
-    </div>
 
     <div class="dictionary-heading-row">
       <div class="dictionary-heading">
@@ -12209,27 +12326,15 @@ function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
         const owed = creditWordRepetition(chatLanguage, item.word_key, "practice");
         markWordUsed(chatLanguage, item.word_key);
 
-        if (owed > 0 && owed === before) {
-          void playInterfaceCue("correct");
-          showFeedback("Correct. Come back tomorrow for the next repetition.", "good");
-          input.value = "";
-          return;
-        }
+        void playInterfaceCue("correct");
+        showFeedback("Correct!", "good");
 
         if (owed > 0) {
-          void playInterfaceCue("correct");
-          showFeedback(
-            `Correct. ${owed} more time${owed === 1 ? "" : "s"} in a row and it clears.`,
-            "good"
-          );
           input.value = "";
           return;
         }
 
-        void playInterfaceCue("correct");
-        showFeedback("Correct. Removed from your list.", "good");
-        reveal.textContent = unknownWordText(item);
-        reveal.classList.remove("hidden");
+        // Clear it out at once rather than holding the row while it settles.
         retireUnknownWord(item, chatLanguage, row);
         return;
       }
@@ -12237,10 +12342,7 @@ function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
       void playInterfaceCue("incorrect");
       penalizeWord(chatLanguage, item.word_key);
       markWordCorrected(chatLanguage, item.word_key);
-      showFeedback(
-        `Not that one. It now needs ${REPETITIONS_AFTER_MISTAKE} correct answers in a row to clear.`,
-        "bad"
-      );
+      showFeedback("Try again.", "bad");
       recordPlacementOutcome(chatLanguage, Number(item.frequency_rank || 0), false);
       input.select();
     } catch (error) {
@@ -12832,9 +12934,19 @@ function attachBubblePractice(bubble, image, item, language, fluentLanguage, mea
   practice.append(input, note);
   meaning.insertAdjacentElement("afterend", practice);
 
-  const setNote = (text, tone = "") => {
+  let noteTimer = null;
+
+  const setNote = (text, tone = "", clearAfter = 0) => {
+    window.clearTimeout(noteTimer);
     note.textContent = text;
     note.className = `bubble-practice-note${tone ? ` is-${tone}` : ""}`;
+
+    if (clearAfter) {
+      noteTimer = window.setTimeout(() => {
+        note.textContent = "";
+        note.className = "bubble-practice-note";
+      }, clearAfter);
+    }
   };
 
   const attempt = async answer => {
@@ -12848,14 +12960,15 @@ function attachBubblePractice(bubble, image, item, language, fluentLanguage, mea
         void playInterfaceCue("incorrect");
         penalizeWord(language, item.word_key);
         markWordCorrected(language, item.word_key);
-        setNote("Not that one.", "bad");
+        setNote("Try again.", "bad", 3000);
+        input.value = "";
         return;
       }
 
       void playInterfaceCue("correct");
       creditPracticeAnswer(item, language, unknownWordText(item));
 
-      setNote("Added to your records.", "good");
+      setNote("Correct!", "good");
 
       // Repaint this bubble from the updated counts rather than reloading.
       const fresh = buildWordBubble(item, language, fluentLanguage);
@@ -12987,11 +13100,18 @@ function renderLevelsView() {
     const title = document.createElement("h3");
     title.textContent = `Level ${level}`;
 
-    const range = document.createElement("span");
-    range.className = "level-range";
-    range.textContent = `Words ${(level - 1) * WORDS_PER_LEVEL + 1} to ${(level - 1) * WORDS_PER_LEVEL + rows.length}`;
+    const counts = levelTotals(rows);
+    const known = counts.used;
 
-    card.append(title, range, buildTotalsRow(levelTotals(rows)));
+    const meter = document.createElement("span");
+    meter.className = "level-meter";
+    meter.innerHTML = `<i style="width:${Math.round((known / Math.max(1, rows.length)) * 100)}%"></i>`;
+
+    const progress = document.createElement("span");
+    progress.className = "level-progress";
+    progress.textContent = `${known} of ${rows.length} used`;
+
+    card.append(title, meter, progress, buildTotalsRow(counts));
     card.addEventListener("click", () => openLevel(level));
     host.appendChild(card);
   }
