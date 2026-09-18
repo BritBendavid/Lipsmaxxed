@@ -12595,6 +12595,18 @@ function buildWordBubble(item, language, fluentLanguage) {
 
   word.className = "bubble-translation";
 
+  if (state === "is-known") {
+    // Fetch the shared picture, falling back to the initial if it is not ready.
+    void translateUnknownWord(unknownWordText(item), language, fluentLanguage)
+      .then(value => requestWordImage(item, language, value || ""))
+      .then(url => {
+        if (!url) return;
+        paintWordImage(image, url, item);
+        attachWordImage(bubble, image, item, language, fluentLanguage);
+      })
+      .catch(() => {});
+  }
+
   if (state !== "is-known") {
     image.classList.add("is-askable");
     image.setAttribute("role", "button");
@@ -13333,6 +13345,127 @@ function rescaleStoredPoints(language, total) {
   }
 
   return Math.max(0, Math.round(Number(total || 0) * POINTS_RESCALE_FACTOR));
+}
+
+
+/* =========================================================================
+   Dictionary images
+
+   Only a word the learner has produced earns a picture. The result is shared
+   across everyone learning that language, so it is fetched once and then
+   remembered in this browser too.
+   ========================================================================= */
+
+async function requestWordImage(item, language, translation) {
+  const key = wordCacheKey(unknownWordText(item), language, "image");
+  const cached = getCachedWordValue("image", key);
+  if (cached) return cached;
+
+  const accessToken = await getValidFunctionAccessToken();
+
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+    method: "POST",
+    headers: await getFunctionHeaders(),
+    body: JSON.stringify({
+      action: "word-image",
+      word: unknownWordText(item),
+      wordKey: item.word_key,
+      chatLanguage: language,
+      translation,
+      userAccessToken: accessToken
+    })
+  });
+
+  const data = await parseJsonResponse(response, "Word image");
+  const url = String(data?.imageUrl || "").trim();
+  if (url) setCachedWordValue("image", key, url);
+  return url;
+}
+
+async function sendWordImageFeedback(item, language, helpful) {
+  try {
+    const accessToken = await getValidFunctionAccessToken();
+    await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+      method: "POST",
+      headers: await getFunctionHeaders(),
+      body: JSON.stringify({
+        action: "word-image-feedback",
+        wordKey: item.word_key,
+        chatLanguage: language,
+        helpful,
+        userAccessToken: accessToken
+      })
+    });
+  } catch {
+    // The learner keeps their view either way.
+  }
+}
+
+function attachWordImage(bubble, image, item, language, fluentLanguage) {
+  const vote = document.createElement("div");
+  vote.className = "bubble-image-vote";
+
+  const up = document.createElement("button");
+  up.type = "button";
+  up.setAttribute("aria-label", "Good picture");
+  up.innerHTML = memoryVoteIcon(true);
+
+  const down = document.createElement("button");
+  down.type = "button";
+  down.setAttribute("aria-label", "Draw another");
+  down.innerHTML = memoryVoteIcon(false);
+
+  up.addEventListener("click", () => {
+    up.classList.add("is-chosen");
+    up.disabled = true;
+    down.disabled = true;
+    void sendWordImageFeedback(item, language, true);
+  });
+
+  down.addEventListener("click", async () => {
+    up.disabled = true;
+    down.disabled = true;
+
+    // Forget it locally as well, so the replacement is actually fetched.
+    const rows = wordCacheRead("image");
+    delete rows[wordCacheKey(unknownWordText(item), language, "image")];
+    wordCacheWrite("image", rows);
+
+    await sendWordImageFeedback(item, language, false);
+    image.classList.add("is-busy");
+    image.textContent = "...";
+
+    try {
+      const url = await requestWordImage(item, language, item.fluentPrompt || "");
+      paintWordImage(image, url, item);
+      vote.remove();
+      attachWordImage(bubble, image, item, language, fluentLanguage);
+    } catch {
+      image.classList.remove("is-busy");
+    }
+  });
+
+  vote.append(up, down);
+  bubble.appendChild(vote);
+}
+
+function paintWordImage(image, url, item) {
+  image.classList.remove("is-busy");
+
+  if (!url) {
+    image.textContent = String(item.word || "").slice(0, 1).toLocaleUpperCase();
+    return;
+  }
+
+  image.textContent = "";
+  const picture = document.createElement("img");
+  picture.src = url;
+  picture.alt = "";
+  picture.loading = "lazy";
+  picture.addEventListener("error", () => {
+    image.textContent = String(item.word || "").slice(0, 1).toLocaleUpperCase();
+  }, { once: true });
+  image.appendChild(picture);
 }
 
 function createClientTurnId() {
