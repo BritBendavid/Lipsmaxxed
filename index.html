@@ -8975,6 +8975,247 @@ html[dir="rtl"] .celebrate-shell {
     font-size: 0.8rem;
   }
 }
+
+/* ------------------------------------------------- eight words in the card */
+
+.home-grid > .words-to-learn {
+  min-height: 430px;
+  max-height: 430px;
+}
+
+/* ----------------------------------------------------- points, standalone */
+
+.session-controls {
+  gap: 10px;
+}
+
+.account-points-badge {
+  position: static;
+  order: 0;
+}
+
+.points-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--s2);
+  box-shadow: var(--shadow-1);
+}
+
+.points-chip .points-spark {
+  width: 15px;
+  height: 15px;
+  fill: var(--translated);
+}
+
+.points-chip .account-points-value {
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.points-chip .points-caption {
+  color: var(--ink-3);
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.points-chip-figure {
+  display: grid;
+  gap: 3px;
+}
+
+.points-help {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-2);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-3);
+  font: inherit;
+  font-size: 0.66rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.points-help:hover {
+  border-color: var(--accent-line);
+  color: #bfdbfe;
+}
+
+@media (max-width: 560px) {
+  .points-chip {
+    height: 36px;
+    padding: 0 10px;
+    gap: 6px;
+  }
+
+  .points-chip .points-caption {
+    display: none;
+  }
+
+  .points-chip .account-points-value {
+    font-size: 0.85rem;
+  }
+}
+
+/* ---------------------------------------------------- dictionary heading */
+
+.dictionary-heading-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.dictionary-lead {
+  margin: 8px 0 0;
+  max-width: 46ch;
+  color: var(--ink-3);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.dictionary-totals {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 18px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--s1);
+}
+
+.total-stat {
+  display: grid;
+  gap: 4px;
+  text-align: center;
+  color: var(--ink-3);
+  font-size: 0.64rem;
+  font-weight: 650;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.total-stat b {
+  font-size: 1.15rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.total-stat.is-seen b { color: #facc15; }
+.total-stat.is-used b { color: #4ade80; }
+.total-stat.is-corrected b { color: #fb923c; }
+.total-stat.is-unseen b { color: #8b95a4; }
+.total-stat.is-points b { color: var(--ink); }
+
+.total-stat-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+/* --------------------------------------------------- practice in a bubble */
+
+.bubble-image.is-askable {
+  cursor: pointer;
+  border-style: dashed;
+}
+
+.bubble-image.is-askable:hover {
+  border-color: var(--accent-line);
+  color: var(--accent);
+}
+
+.bubble-image.is-recording {
+  border-style: solid;
+  border-color: rgba(248, 113, 113, 0.55);
+  background: rgba(239, 68, 68, 0.14);
+}
+
+.bubble-image.is-busy {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+
+.bubble-practice {
+  margin-top: 9px;
+}
+
+.bubble-practice input {
+  width: 100%;
+  min-height: 32px;
+  padding: 0 9px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-xs);
+  background: var(--s2);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.82rem;
+  text-align: center;
+  outline: none;
+}
+
+.bubble-practice input:focus {
+  border-color: var(--accent);
+}
+
+.bubble-practice-note {
+  margin: 6px 0 0;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--ink-3);
+}
+
+.bubble-practice-note.is-good { color: #86efac; }
+.bubble-practice-note.is-bad { color: #fca5a5; }
+
+.points-info-body p {
+  margin: 0 0 13px;
+  color: var(--ink-2);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.points-info-list {
+  display: grid;
+  gap: 7px;
+  margin: 0 0 15px;
+  padding: 13px 15px;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--s1);
+}
+
+.points-info-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  color: var(--ink-2);
+  font-size: 0.89rem;
+}
+
+.points-info-list b {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
   </style>
 </head>
 
@@ -9019,9 +9260,13 @@ html[dir="rtl"] .celebrate-shell {
       </button>
 
       <div id="accountPointsBadge" class="account-points-badge hidden" aria-label="Language points">
-        <div class="account-points-ring">
+        <div class="account-points-ring points-chip">
           <svg class="points-spark" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.5 6.1 6.5.6-4.9 4.3 1.5 6.4L12 17l-5.6 3.4 1.5-6.4L3 9.7l6.5-.6Z"/></svg>
-          <span id="accountPointsValue" class="account-points-value">0</span>
+          <span class="points-chip-figure">
+            <span id="accountPointsValue" class="account-points-value">0</span>
+            <span class="points-caption">Points</span>
+          </span>
+          <button id="pointsHelpButton" class="points-help" type="button" aria-label="How points work">?</button>
         </div>
       </div>
 
@@ -9525,8 +9770,12 @@ html[dir="rtl"] .celebrate-shell {
       </div>
     </header>
 
-    <div class="dictionary-heading">
-      <h1 id="dictionaryTitle">My Dictionary</h1>
+    <div class="dictionary-heading-row">
+      <div class="dictionary-heading">
+        <h1 id="dictionaryTitle">My Dictionary</h1>
+        <p class="dictionary-lead">Already know a word? Tap its question mark and say or type it to update your records.</p>
+      </div>
+      <div id="dictionaryTotals" class="dictionary-totals"></div>
     </div>
 
     <div id="dictionaryGrid" class="dictionary-grid"></div>
@@ -9971,6 +10220,25 @@ html[dir="rtl"] .celebrate-shell {
     <p class="hint-kicker">A way to remember</p>
     <h2 id="hintDialogWord" dir="auto" data-no-i18n></h2>
     <div id="hintDialogBody" class="hint-body" data-no-i18n></div>
+  </div>
+</section>
+
+<section id="pointsInfoDialog" class="decision-modal hidden" role="dialog" aria-modal="true" aria-labelledby="pointsInfoTitle">
+  <div class="decision-panel hint-panel">
+    <button id="pointsInfoClose" class="dialog-close" type="button" aria-label="Close">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <h2 id="pointsInfoTitle">How points work</h2>
+    <div class="points-info-body">
+      <p>Points are only awarded after a <strong>Perfect</strong> card, so they reflect a sentence you got right, not a message you sent.</p>
+      <p>Each word is worth more the rarer it is. A word's base value is its place in the frequency list divided by a hundred, rounded up, so common words stay modest and rare ones pay properly.</p>
+      <ul class="points-info-list">
+        <li><span>First time you use it</span><b>10x base</b></li>
+        <li><span>Second time</span><b>5x base</b></li>
+        <li><span>Every time after</span><b>1x base</b></li>
+      </ul>
+      <p>A mistake, or taking a hint, means the word owes three correct answers in a row. While it owes them it pays nothing, and the answer that clears it pays 5x rather than 10x.</p>
+    </div>
   </div>
 </section>
 
@@ -11161,7 +11429,7 @@ window.lipsMaxxedRepairAccount = async function lipsMaxxedRepairAccount() {
    language that sounds like the target, tied to its meaning by an image.
    ========================================================================= */
 
-const UNKNOWN_WORDS_PAGE_SIZE = 5;
+const UNKNOWN_WORDS_PAGE_SIZE = 8;
 
 let unknownWordsState = { language: "", rows: [], page: 0, loading: false };
 let activeWordListRecorder = null;
@@ -11921,9 +12189,10 @@ function buildWordBubble(item, language, fluentLanguage) {
   const image = document.createElement("div");
   image.className = "bubble-image";
   image.setAttribute("data-no-i18n", "");
-  image.textContent = state === "is-new"
-    ? "?"
-    : String(item.word || "").slice(0, 1).toLocaleUpperCase();
+  // Only a word the learner has produced earns a picture.
+  image.textContent = state === "is-known"
+    ? String(item.word || "").slice(0, 1).toLocaleUpperCase()
+    : "?";
 
   const rank = document.createElement("span");
   rank.className = "bubble-rank";
@@ -11950,8 +12219,22 @@ function buildWordBubble(item, language, fluentLanguage) {
 
   word.className = "bubble-translation";
 
-  bubble.append(hint, image, rank, meaning);
+  if (state !== "is-known") {
+    image.classList.add("is-askable");
+    image.setAttribute("role", "button");
+    image.setAttribute("tabindex", "0");
+    image.title = "I know this word";
+  }
+
+  bubble.append(image, rank, meaning);
+
+  // A word already known needs no hint.
+  if (state !== "is-known") bubble.appendChild(hint);
   if (state === "is-known") bubble.appendChild(word);
+
+  if (state !== "is-known") {
+    attachBubblePractice(bubble, image, item, language, fluentLanguage, meaning);
+  }
 
   const counts = document.createElement("div");
   counts.className = "bubble-stats";
@@ -12024,6 +12307,8 @@ function renderDictionaryPage() {
   const next = dictionaryPage?.querySelector("#dictionaryNext");
   if (prev) prev.disabled = page <= 0;
   if (next) next.disabled = page >= pageCount - 1;
+
+  renderDictionaryTotals();
 }
 
 async function loadDictionary(language) {
@@ -12084,6 +12369,9 @@ function enterDictionaryScreen() {
 
   // Starts in whatever language the learner was in when they opened it.
   const language = populateDictionaryLanguages(wordsToLearnLanguage());
+
+  const title = dictionaryPage?.querySelector("#dictionaryTitle");
+  if (title) title.textContent = `My ${language} Dictionary`;
 
   if (dictionaryState.language !== language || !dictionaryState.rows.length) {
     void loadDictionary(language);
@@ -12149,7 +12437,7 @@ function placeAccountControlsIn(slotId) {
   thousand-word step so common words stay modest and rarer ones pay more.
 */
 function wordPointBase(rank) {
-  return Math.max(1, Math.floor(Number(rank || 0) / 1000));
+  return Math.max(1, Math.ceil(Number(rank || 0) / 100));
 }
 
 function pointsForWordUse(language, wordKey, rank) {
@@ -12178,6 +12466,163 @@ function registerWordUse(language, wordKey) {
   delete entry.repaired;
   rows[wordKey] = entry;
   saveWordLog(language, rows);
+}
+
+
+function openPointsInfo() {
+  document.getElementById("pointsInfoDialog")?.classList.remove("hidden");
+  document.getElementById("pointsInfoClose")?.focus();
+}
+
+function closePointsInfo() {
+  document.getElementById("pointsInfoDialog")?.classList.add("hidden");
+}
+
+function totalStatCell(label, value, tone, withHelp = false) {
+  const cell = document.createElement("span");
+  cell.className = `total-stat is-${tone}`;
+
+  const caption = document.createElement("span");
+  caption.className = "total-stat-label";
+  caption.textContent = label;
+
+  if (withHelp) {
+    const help = document.createElement("button");
+    help.type = "button";
+    help.className = "points-help";
+    help.textContent = "?";
+    help.setAttribute("aria-label", "How points work");
+    help.addEventListener("click", openPointsInfo);
+    caption.appendChild(help);
+  }
+
+  const figure = document.createElement("b");
+  figure.textContent = Number(value || 0).toLocaleString();
+
+  cell.append(caption, figure);
+  return cell;
+}
+
+function renderDictionaryTotals() {
+  const host = dictionaryPage?.querySelector("#dictionaryTotals");
+  if (!host) return;
+
+  const language = dictionaryState.language;
+  const log = loadWordLog(language);
+  const penalties = loadWordPenalties(language);
+
+  let seen = 0;
+  let used = 0;
+  let corrected = 0;
+
+  dictionaryState.rows.forEach(item => {
+    const stats = dictionaryState.stats.get(item.word_key) || {};
+    const state = wordBubbleState(item, stats, log[item.word_key] || {}, penalties);
+    if (state === "is-known") used += 1;
+    else if (state === "is-struggling") corrected += 1;
+    else if (state === "is-seen") seen += 1;
+  });
+
+  const unseen = Math.max(0, dictionaryState.rows.length - seen - used - corrected);
+
+  host.textContent = "";
+  host.append(
+    totalStatCell("Seen", seen, "seen"),
+    totalStatCell("Used", used, "used"),
+    totalStatCell("Corrected", corrected, "corrected"),
+    totalStatCell("Never seen", unseen, "unseen"),
+    totalStatCell("Points", Number(currentLanguagePoints || 0), "points", true)
+  );
+}
+
+/*
+  A word the learner already knows can be claimed straight from its bubble:
+  the question mark becomes a microphone, with a small box for typing.
+*/
+function attachBubblePractice(bubble, image, item, language, fluentLanguage, meaning) {
+  const practice = document.createElement("div");
+  practice.className = "bubble-practice hidden";
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.setAttribute("dir", "auto");
+  input.placeholder = `Say or type it in ${language}`;
+
+  const note = document.createElement("p");
+  note.className = "bubble-practice-note";
+
+  practice.append(input, note);
+  meaning.insertAdjacentElement("afterend", practice);
+
+  const setNote = (text, tone = "") => {
+    note.textContent = text;
+    note.className = `bubble-practice-note${tone ? ` is-${tone}` : ""}`;
+  };
+
+  const attempt = async answer => {
+    if (!String(answer || "").trim()) return;
+    setNote("Checking...");
+
+    try {
+      const correct = await checkUnknownWordAnswer(item, language, answer);
+
+      if (!correct) {
+        void playInterfaceCue("incorrect");
+        penalizeWord(language, item.word_key);
+        markWordCorrected(language, item.word_key);
+        setNote("Not that one.", "bad");
+        return;
+      }
+
+      void playInterfaceCue("correct");
+      registerWordUse(language, item.word_key);
+      recordWordStats([{
+        word_key: item.word_key,
+        word_text: unknownWordText(item),
+        language,
+        frequency_rank: Number(item.frequency_rank || 0)
+      }], "familiar", language, true, crypto.randomUUID()).catch(() => {});
+
+      setNote("Added to your records.", "good");
+      window.setTimeout(() => { void loadDictionary(language); }, 700);
+    } catch (error) {
+      setNote(getReadableError(error), "bad");
+    }
+  };
+
+  input.addEventListener("keydown", event => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    void attempt(input.value);
+  });
+
+  let armed = false;
+
+  image.addEventListener("click", () => {
+    if (!armed) {
+      armed = true;
+      image.classList.add("is-askable");
+      image.textContent = "\u{1F3A4}";
+      practice.classList.remove("hidden");
+      input.focus();
+      return;
+    }
+
+    void recordUnknownWordSpeech(
+      item,
+      language,
+      image,
+      async transcript => {
+        if (!transcript) {
+          setNote("Nothing was picked up.", "bad");
+          return;
+        }
+        input.value = transcript;
+        await attempt(transcript);
+      },
+      message => setNote(message, "bad")
+    );
+  });
 }
 
 function createClientTurnId() {
@@ -23438,6 +23883,11 @@ profileSignOutButton?.addEventListener("click", handleSignOut);
 
 document.getElementById("seeAllWordsButton")?.addEventListener("click", openDictionary);
 document.getElementById("hintDialogClose")?.addEventListener("click", closeHintDialog);
+document.getElementById("pointsHelpButton")?.addEventListener("click", openPointsInfo);
+document.getElementById("pointsInfoClose")?.addEventListener("click", closePointsInfo);
+document.getElementById("pointsInfoDialog")?.addEventListener("click", event => {
+  if (event.target.id === "pointsInfoDialog") closePointsInfo();
+});
 document.getElementById("hintDialog")?.addEventListener("click", event => {
   if (event.target.id === "hintDialog") closeHintDialog();
 });
