@@ -9216,6 +9216,233 @@ html[dir="rtl"] .celebrate-shell {
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
+
+/* ------------------------------------------------ words to learn, no rank */
+
+.words-to-learn .unknown-word-rank {
+  display: none;
+}
+
+.home-grid > .words-to-learn {
+  min-height: 486px;
+  max-height: 486px;
+}
+
+/* ---------------------------------------------- points, attached to avatar */
+
+.account-menu-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.account-points-badge {
+  position: absolute;
+  top: calc(100% - 9px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.account-points-ring {
+  height: 20px;
+  min-width: 30px;
+  padding: 0 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg);
+  border-radius: var(--r-pill);
+  background: var(--accent-deep);
+  box-shadow: var(--shadow-1);
+}
+
+.account-points-value {
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.top-bar .session-controls {
+  align-items: center;
+}
+
+/* The badge hangs below, so the bar needs room for it. */
+.top-bar {
+  padding-bottom: 20px;
+}
+
+/* ========================================================= levels of words */
+
+.dictionary-levels {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
+  gap: 14px;
+}
+
+.level-card {
+  padding: 22px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background:
+    radial-gradient(120% 130% at 0% 0%, rgba(37, 99, 235, 0.1), transparent 58%),
+    var(--s1);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  transition: transform var(--press), border-color var(--press), background var(--press);
+}
+
+.level-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-line);
+}
+
+.level-card h3 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 750;
+  letter-spacing: -0.03em;
+}
+
+.level-range {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink-3);
+  font-size: 0.79rem;
+  font-weight: 550;
+}
+
+.level-card .dictionary-totals,
+.level-section .dictionary-totals {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 11px 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.level-card .total-stat b,
+.level-section .total-stat b {
+  font-size: 1rem;
+}
+
+.level-card .total-stat,
+.level-section .total-stat {
+  font-size: 0.58rem;
+}
+
+/* Zooming in and out of a level. */
+.dictionary-words,
+.dictionary-levels {
+  animation: levelZoom 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes levelZoom {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+
+.level-bar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  padding: 10px 0 14px;
+  background: linear-gradient(180deg, #07090d 72%, transparent);
+}
+
+.level-section {
+  margin-bottom: 30px;
+}
+
+.level-section-head {
+  margin-bottom: 14px;
+}
+
+.level-section-head h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 750;
+  letter-spacing: -0.03em;
+}
+
+.level-loading {
+  padding: 22px;
+  color: var(--ink-3);
+  font-size: 0.87rem;
+  text-align: center;
+}
+
+/* --------------------------------------------------------- dictionary search */
+
+.dictionary-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  max-width: 320px;
+}
+
+.dictionary-search svg {
+  position: absolute;
+  left: 11px;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--ink-3);
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.dictionary-search input {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px 0 35px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--s2);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.dictionary-search input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.14);
+}
+
+.dictionary-search input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.dictionary-top {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.word-bubble.is-match {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18);
+}
+
+.search-note {
+  margin: 0 0 14px;
+  color: var(--ink-3);
+  font-size: 0.85rem;
+}
+
+.bubble-rank {
+  display: none;
+}
   </style>
 </head>
 
@@ -9260,13 +9487,8 @@ html[dir="rtl"] .celebrate-shell {
       </button>
 
       <div id="accountPointsBadge" class="account-points-badge hidden" aria-label="Language points">
-        <div class="account-points-ring points-chip">
-          <svg class="points-spark" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.5 6.1 6.5.6-4.9 4.3 1.5 6.4L12 17l-5.6 3.4 1.5-6.4L3 9.7l6.5-.6Z"/></svg>
-          <span class="points-chip-figure">
-            <span id="accountPointsValue" class="account-points-value">0</span>
-            <span class="points-caption">Points</span>
-          </span>
-          <button id="pointsHelpButton" class="points-help" type="button" aria-label="How points work">?</button>
+        <div class="account-points-ring">
+          <span id="accountPointsValue" class="account-points-value">0</span>
         </div>
       </div>
 
@@ -9762,6 +9984,11 @@ html[dir="rtl"] .celebrate-shell {
       <button id="dictionaryBackButton" class="back-button" type="button">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Back
       </button>
+      <div class="dictionary-search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+        <input id="dictionarySearch" type="search" autocomplete="off" placeholder="Search a word" aria-label="Search the dictionary" />
+      </div>
+
       <div class="dictionary-top-right">
         <div class="select-wrap dictionary-language">
           <select id="dictionaryLanguage" aria-label="Dictionary language"></select>
@@ -9778,7 +10005,16 @@ html[dir="rtl"] .celebrate-shell {
       <div id="dictionaryTotals" class="dictionary-totals"></div>
     </div>
 
-    <div id="dictionaryGrid" class="dictionary-grid"></div>
+    <div id="dictionaryLevels" class="dictionary-levels"></div>
+
+    <div id="dictionaryWords" class="dictionary-words hidden">
+      <div class="level-bar">
+        <button id="dictionaryZoomOut" class="back-button" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> All levels
+        </button>
+      </div>
+      <div id="dictionaryStream" class="dictionary-stream"></div>
+    </div>
 
     <div class="unknown-words-pager dictionary-pager">
       <button id="dictionaryPrev" class="ghost-button" type="button">Previous</button>
@@ -11429,7 +11665,7 @@ window.lipsMaxxedRepairAccount = async function lipsMaxxedRepairAccount() {
    language that sounds like the target, tied to its meaning by an image.
    ========================================================================= */
 
-const UNKNOWN_WORDS_PAGE_SIZE = 8;
+const UNKNOWN_WORDS_PAGE_SIZE = 10;
 
 let unknownWordsState = { language: "", rows: [], page: 0, loading: false };
 let activeWordListRecorder = null;
@@ -11762,7 +11998,7 @@ function retireUnknownWord(item, chatLanguage, row) {
   };
 
   saveConfirmedWord(record);
-  recordWordStats([record], "familiar", chatLanguage, true, crypto.randomUUID()).catch(() => {});
+  creditPracticeAnswer(item, chatLanguage, unknownWordText(item));
   recordPlacementOutcome(chatLanguage, Number(item.frequency_rank || 0), true);
 
   unknownWordsState.rows = unknownWordsState.rows.filter(entry => entry.word_key !== item.word_key);
@@ -11843,10 +12079,6 @@ function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
 
   const head = document.createElement("div");
   head.className = "unknown-word-head";
-
-  const rank = document.createElement("span");
-  rank.className = "unknown-word-rank";
-  rank.textContent = `#${Number(item.frequency_rank || 0)}`;
 
   const pair = document.createElement("div");
   pair.className = "unknown-word-pair";
@@ -12002,7 +12234,7 @@ function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
     openHintDialog(unknownWordText(item), chatLanguage, fluentLanguage);
   });
 
-  head.append(rank, pair, help);
+  head.append(pair, help);
   row.append(head, answerForm, feedback, panel);
   return row;
 }
@@ -12194,9 +12426,6 @@ function buildWordBubble(item, language, fluentLanguage) {
     ? String(item.word || "").slice(0, 1).toLocaleUpperCase()
     : "?";
 
-  const rank = document.createElement("span");
-  rank.className = "bubble-rank";
-  rank.textContent = `#${Number(item.frequency_rank || 0)}`;
 
   const word = document.createElement("span");
   word.className = "bubble-word";
@@ -12226,7 +12455,7 @@ function buildWordBubble(item, language, fluentLanguage) {
     image.title = "I know this word";
   }
 
-  bubble.append(image, rank, meaning);
+  bubble.append(image, meaning);
 
   // A word already known needs no hint.
   if (state !== "is-known") bubble.appendChild(hint);
@@ -12267,7 +12496,11 @@ function buildWordBubble(item, language, fluentLanguage) {
 }
 
 function renderDictionaryPage() {
-  // Query inside the section: the page element is the stable handle.
+  renderLevelsView();
+  renderDictionaryTotals();
+}
+
+function renderDictionaryGridLegacy() {
   const grid = dictionaryPage?.querySelector("#dictionaryGrid");
   const pageLabel = dictionaryPage?.querySelector("#dictionaryPageLabel");
   if (!grid) return;
@@ -12575,16 +12808,14 @@ function attachBubblePractice(bubble, image, item, language, fluentLanguage, mea
       }
 
       void playInterfaceCue("correct");
-      registerWordUse(language, item.word_key);
-      recordWordStats([{
-        word_key: item.word_key,
-        word_text: unknownWordText(item),
-        language,
-        frequency_rank: Number(item.frequency_rank || 0)
-      }], "familiar", language, true, crypto.randomUUID()).catch(() => {});
+      creditPracticeAnswer(item, language, unknownWordText(item));
 
       setNote("Added to your records.", "good");
-      window.setTimeout(() => { void loadDictionary(language); }, 700);
+
+      // Repaint this bubble from the updated counts rather than reloading.
+      const fresh = buildWordBubble(item, language, fluentLanguage);
+      bubble.replaceWith(fresh);
+      renderDictionaryTotals();
     } catch (error) {
       setNote(getReadableError(error), "bad");
     }
@@ -12623,6 +12854,266 @@ function attachBubblePractice(bubble, image, item, language, fluentLanguage, mea
       message => setNote(message, "bad")
     );
   });
+}
+
+
+/* =========================================================================
+   Levels
+
+   Twenty thousand bubbles at once would take the tab down, so the list is
+   cut into levels of two hundred. Only the levels on screen are built, and
+   scrolling to the end of one builds the next.
+   ========================================================================= */
+
+const WORDS_PER_LEVEL = 200;
+
+let dictionaryView = "levels";
+let renderedLevels = [];
+
+function levelCount() {
+  return Math.max(1, Math.ceil(dictionaryState.rows.length / WORDS_PER_LEVEL));
+}
+
+function levelRows(level) {
+  const start = (level - 1) * WORDS_PER_LEVEL;
+  return dictionaryState.rows.slice(start, start + WORDS_PER_LEVEL);
+}
+
+function levelTotals(rows) {
+  const language = dictionaryState.language;
+  const log = loadWordLog(language);
+  const penalties = loadWordPenalties(language);
+
+  const counts = { seen: 0, used: 0, corrected: 0, unseen: 0 };
+
+  rows.forEach(item => {
+    const stats = dictionaryState.stats.get(item.word_key) || {};
+    const state = wordBubbleState(item, stats, log[item.word_key] || {}, penalties);
+    if (state === "is-known") counts.used += 1;
+    else if (state === "is-struggling") counts.corrected += 1;
+    else if (state === "is-seen") counts.seen += 1;
+    else counts.unseen += 1;
+  });
+
+  return counts;
+}
+
+function buildTotalsRow(counts) {
+  const row = document.createElement("div");
+  row.className = "dictionary-totals";
+  row.append(
+    totalStatCell("Seen", counts.seen, "seen"),
+    totalStatCell("Used", counts.used, "used"),
+    totalStatCell("Corrected", counts.corrected, "corrected"),
+    totalStatCell("Never seen", counts.unseen, "unseen")
+  );
+  return row;
+}
+
+function renderLevelsView() {
+  const host = dictionaryPage?.querySelector("#dictionaryLevels");
+  const words = dictionaryPage?.querySelector("#dictionaryWords");
+  if (!host) return;
+
+  dictionaryView = "levels";
+  host.classList.remove("hidden");
+  words?.classList.add("hidden");
+  host.textContent = "";
+
+  // Drop the word bubbles rather than leaving hundreds of them hidden.
+  const stream = dictionaryPage?.querySelector("#dictionaryStream");
+  if (stream) stream.textContent = "";
+  renderedLevels = [];
+
+  if (dictionaryState.loading) {
+    const loading = document.createElement("div");
+    loading.className = "level-loading";
+    loading.textContent = "Loading your dictionary...";
+    host.appendChild(loading);
+    return;
+  }
+
+  for (let level = 1; level <= levelCount(); level += 1) {
+    const rows = levelRows(level);
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "level-card";
+
+    const title = document.createElement("h3");
+    title.textContent = `Level ${level}`;
+
+    const range = document.createElement("span");
+    range.className = "level-range";
+    range.textContent = `Words ${(level - 1) * WORDS_PER_LEVEL + 1} to ${(level - 1) * WORDS_PER_LEVEL + rows.length}`;
+
+    card.append(title, range, buildTotalsRow(levelTotals(rows)));
+    card.addEventListener("click", () => openLevel(level));
+    host.appendChild(card);
+  }
+}
+
+function buildLevelSection(level) {
+  const rows = levelRows(level);
+  const fluentLanguage = getCurrentFluentLanguage();
+
+  const section = document.createElement("section");
+  section.className = "level-section";
+  section.dataset.level = String(level);
+
+  const head = document.createElement("div");
+  head.className = "level-section-head";
+
+  const title = document.createElement("h2");
+  title.textContent = `Level ${level}`;
+
+  head.append(title, buildTotalsRow(levelTotals(rows)));
+
+  const grid = document.createElement("div");
+  grid.className = "dictionary-grid";
+  rows.forEach(item => grid.appendChild(buildWordBubble(item, dictionaryState.language, fluentLanguage)));
+
+  section.append(head, grid);
+  return section;
+}
+
+function openLevel(level) {
+  const host = dictionaryPage?.querySelector("#dictionaryLevels");
+  const words = dictionaryPage?.querySelector("#dictionaryWords");
+  const stream = dictionaryPage?.querySelector("#dictionaryStream");
+  if (!stream || !words) return;
+
+  dictionaryView = "words";
+  renderedLevels = [level];
+
+  host?.classList.add("hidden");
+  words.classList.remove("hidden");
+  stream.textContent = "";
+  stream.appendChild(buildLevelSection(level));
+
+  dictionaryPage.scrollTo({ top: 0 });
+}
+
+function zoomOutToLevels() {
+  renderLevelsView();
+  dictionaryPage?.scrollTo({ top: 0 });
+}
+
+/* Reaching the end of a level builds the next one rather than all of them. */
+function handleDictionaryScroll() {
+  if (dictionaryView !== "words" || !dictionaryPage) return;
+
+  const stream = dictionaryPage.querySelector("#dictionaryStream");
+  if (!stream) return;
+
+  const nearBottom =
+    dictionaryPage.scrollTop + dictionaryPage.clientHeight >= dictionaryPage.scrollHeight - 400;
+
+  if (!nearBottom) return;
+
+  const next = Math.max(...renderedLevels) + 1;
+  if (next > levelCount() || renderedLevels.includes(next)) return;
+
+  renderedLevels.push(next);
+  stream.appendChild(buildLevelSection(next));
+}
+
+
+/*
+  One place where a correct practice answer lands, so the counters, the
+  placement and the points all move together.
+*/
+function creditPracticeAnswer(item, language, wordText) {
+  const key = item.word_key;
+
+  registerWordUse(language, key);
+
+  // Move the on-screen counts straight away; the server write follows.
+  const current = dictionaryState.stats.get(key) || {};
+  dictionaryState.stats.set(key, {
+    ...current,
+    spoken_count: Number(current.spoken_count || 0) + 1,
+    familiar_count: Math.max(1, Number(current.familiar_count || 0))
+  });
+
+  recordWordStats([{
+    word_key: key,
+    word_text: wordText,
+    language,
+    frequency_rank: Number(item.frequency_rank || 0)
+  }], "spoken", language, true, crypto.randomUUID()).catch(() => {});
+
+  // Same scoring as a word used in conversation.
+  awardPointsForUserMessage(wordText, language, { animate: true }).catch(() => {});
+}
+
+/* ------------------------------------------------------------ search ------ */
+
+let dictionarySearchTerm = "";
+
+function wordMatchesSearch(item, term) {
+  if (!term) return false;
+
+  const target = unknownWordText(item).toLocaleLowerCase();
+  if (target.includes(term)) return true;
+
+  const cached = getCachedWordValue(
+    "definition",
+    wordCacheKey(unknownWordText(item), dictionaryState.language, getCurrentFluentLanguage())
+  );
+
+  return String(cached || "").toLocaleLowerCase().includes(term);
+}
+
+function runDictionarySearch(rawTerm) {
+  const term = String(rawTerm || "").trim().toLocaleLowerCase();
+  dictionarySearchTerm = term;
+
+  if (!term) {
+    renderLevelsView();
+    return;
+  }
+
+  const index = dictionaryState.rows.findIndex(item => wordMatchesSearch(item, term));
+
+  if (index < 0) {
+    const stream = dictionaryPage?.querySelector("#dictionaryStream");
+    const words = dictionaryPage?.querySelector("#dictionaryWords");
+    const host = dictionaryPage?.querySelector("#dictionaryLevels");
+    if (!stream || !words || !host) return;
+
+    dictionaryView = "words";
+    host.classList.add("hidden");
+    words.classList.remove("hidden");
+    stream.textContent = "";
+
+    const note = document.createElement("p");
+    note.className = "search-note";
+    note.textContent = `Nothing matching "${rawTerm}". Words are matched on the word itself and on meanings you have already looked up.`;
+    stream.appendChild(note);
+    return;
+  }
+
+  // Open the level the word sits in, so its neighbours are visible too.
+  const level = Math.floor(index / WORDS_PER_LEVEL) + 1;
+  openLevel(level);
+
+  const stream = dictionaryPage?.querySelector("#dictionaryStream");
+  const note = document.createElement("p");
+  note.className = "search-note";
+  note.textContent = `Found in Level ${level}, with the words around it.`;
+  stream?.prepend(note);
+
+  const matchKey = dictionaryState.rows[index].word_key;
+  const bubbles = stream?.querySelectorAll(".word-bubble") || [];
+  const position = index % WORDS_PER_LEVEL;
+  const found = bubbles[position];
+
+  if (found) {
+    found.classList.add("is-match");
+    found.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+
+  void matchKey;
 }
 
 function createClientTurnId() {
@@ -23883,7 +24374,23 @@ profileSignOutButton?.addEventListener("click", handleSignOut);
 
 document.getElementById("seeAllWordsButton")?.addEventListener("click", openDictionary);
 document.getElementById("hintDialogClose")?.addEventListener("click", closeHintDialog);
-document.getElementById("pointsHelpButton")?.addEventListener("click", openPointsInfo);
+document.getElementById("dictionaryZoomOut")?.addEventListener("click", () => {
+  const search = document.getElementById("dictionarySearch");
+  if (search) search.value = "";
+  dictionarySearchTerm = "";
+  zoomOutToLevels();
+});
+
+document.getElementById("dictionarySearch")?.addEventListener("keydown", event => {
+  if (event.key !== "Enter") return;
+  event.preventDefault();
+  runDictionarySearch(event.target.value);
+});
+
+document.getElementById("dictionarySearch")?.addEventListener("search", event => {
+  if (!event.target.value) runDictionarySearch("");
+});
+dictionaryPage?.addEventListener("scroll", handleDictionaryScroll, { passive: true });
 document.getElementById("pointsInfoClose")?.addEventListener("click", closePointsInfo);
 document.getElementById("pointsInfoDialog")?.addEventListener("click", event => {
   if (event.target.id === "pointsInfoDialog") closePointsInfo();
