@@ -7997,6 +7997,168 @@ html[dir="rtl"] .celebrate-shell {
     width: 100%;
   }
 }
+
+/* --------------------------------------------- words to learn, on the home */
+
+.words-to-learn {
+  padding: 18px;
+}
+
+.words-to-learn .section-heading-row {
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.words-to-learn-lead {
+  margin: 5px 0 0;
+  color: var(--ink-3);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.words-to-learn .unknown-words-language {
+  width: min(190px, 44vw);
+  flex: 0 0 auto;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--s2);
+}
+
+.words-to-learn .unknown-words-language select {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 32px 0 12px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.88rem;
+  appearance: none;
+  cursor: pointer;
+}
+
+.unknown-word-row.is-retired {
+  opacity: 0;
+  transform: translateX(14px);
+  transition: opacity 380ms ease, transform 380ms ease;
+}
+
+.unknown-word-answer-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  padding: 0 15px 13px;
+}
+
+.unknown-word-input {
+  min-height: 42px;
+  font-size: 0.95rem;
+}
+
+.unknown-word-speak,
+.unknown-word-submit {
+  min-height: 42px;
+  border-radius: var(--r-sm);
+  font: inherit;
+  font-weight: 620;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.unknown-word-speak {
+  width: 46px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-2);
+  background: var(--s3);
+  color: var(--ink-2);
+}
+
+.unknown-word-speak:hover:not(:disabled) {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+
+.unknown-word-speak.recording {
+  border-color: rgba(248, 113, 113, 0.55);
+  background: rgba(239, 68, 68, 0.16);
+}
+
+.unknown-word-speak.processing {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+
+.unknown-word-speak .mic-symbol {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.unknown-word-submit {
+  padding: 0 16px;
+  border: 0;
+  background: var(--accent-deep);
+  color: #fff;
+}
+
+.unknown-word-submit:hover:not(:disabled) {
+  background: var(--accent-strong);
+}
+
+.unknown-word-submit:disabled,
+.unknown-word-speak:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.unknown-word-feedback {
+  margin: 0;
+  padding: 0 15px;
+  min-height: 0;
+  color: var(--ink-3);
+  font-size: 0.83rem;
+  line-height: 1.45;
+}
+
+.unknown-word-feedback:empty {
+  display: none;
+}
+
+.unknown-word-feedback.is-good {
+  color: #86efac;
+}
+
+.unknown-word-feedback.is-bad {
+  color: #fca5a5;
+}
+
+.unknown-word-answer {
+  color: #86efac;
+  font-weight: 650;
+}
+
+.unknown-word-feedback + .unknown-word-memory {
+  margin-top: 12px;
+}
+
+@media (max-width: 620px) {
+  .words-to-learn .section-heading-row {
+    flex-direction: column;
+  }
+
+  .words-to-learn .unknown-words-language {
+    width: 100%;
+  }
+
+  .unknown-word-answer-form {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .unknown-word-submit {
+    grid-column: 1 / -1;
+  }
+}
   </style>
 </head>
 
@@ -8134,6 +8296,27 @@ html[dir="rtl"] .celebrate-shell {
 
       <div class="chart-heading"><span>Session time</span><span id="chartPeriodLabel">Recent sessions</span></div>
       <svg id="sessionTimeChart" class="session-time-chart" viewBox="0 0 640 180" role="img" aria-label="Session time progress"></svg>
+    </div>
+  </section>
+
+  <section class="app-surface words-to-learn" aria-labelledby="wordsToLearnTitle">
+    <div class="section-heading-row">
+      <div>
+        <h3 id="wordsToLearnTitle">Words to learn</h3>
+        <p class="words-to-learn-lead">Say or write each one in the language you are practicing. Get it right and it leaves the list.</p>
+      </div>
+      <div class="select-wrap unknown-words-language">
+        <select id="unknownWordsLanguage" aria-label="Language to practice"></select>
+      </div>
+    </div>
+
+    <div id="unknownWordsList" class="unknown-words-list"></div>
+
+    <div class="unknown-words-pager">
+      <button id="unknownWordsPrev" class="ghost-button" type="button">Previous</button>
+      <span id="unknownWordsPage" class="pf-hint"></span>
+      <span id="unknownWordsCount" class="pf-hint"></span>
+      <button id="unknownWordsNext" class="ghost-button" type="button">Next</button>
     </div>
   </section>
 </main>
@@ -8620,28 +8803,6 @@ html[dir="rtl"] .celebrate-shell {
 
             <p class="pf-hint" id="profilePhotoHint">Photos are resized on your device before they are saved. Leave this empty to use your initials.</p>
           </div>
-        </div>
-      </section>
-
-      <section class="pf-card pf-card-wide">
-        <div class="pf-card-head">
-          <h2>Words to learn</h2>
-          <p>The most common words in the language you are practicing that you have not used yet, closest first.</p>
-        </div>
-
-        <div class="unknown-words-toolbar">
-          <div class="select-wrap pf-select-wrap unknown-words-language">
-            <select id="unknownWordsLanguage" aria-label="Language to review"></select>
-          </div>
-          <span id="unknownWordsCount" class="pf-hint"></span>
-        </div>
-
-        <div id="unknownWordsList" class="unknown-words-list"></div>
-
-        <div class="unknown-words-pager">
-          <button id="unknownWordsPrev" class="ghost-button" type="button">Previous</button>
-          <span id="unknownWordsPage" class="pf-hint"></span>
-          <button id="unknownWordsNext" class="ghost-button" type="button">Next</button>
         </div>
       </section>
 
@@ -10091,9 +10252,10 @@ function rankForWord(language, word) {
   if (!needle) return 0;
 
   const match = rows.find(row => {
-    const text = String(row?.word_text || "").normalize("NFC").toLocaleLowerCase().trim();
-    const key = String(row?.word_key || "").split("::")[0].normalize("NFC").toLocaleLowerCase().trim();
-    return text === needle || key === needle;
+    const surface = String(row?.word || row?.lemma || "").normalize("NFC").toLocaleLowerCase().trim();
+    if (surface === needle) return true;
+    return (Array.isArray(row?.forms) ? row.forms : [])
+      .some(form => String(form).normalize("NFC").toLocaleLowerCase().trim() === needle);
   });
 
   return Number(match?.frequency_rank || 0);
@@ -10153,6 +10315,7 @@ window.lipsMaxxedRepairAccount = async function lipsMaxxedRepairAccount() {
 const UNKNOWN_WORDS_PAGE_SIZE = 12;
 
 let unknownWordsState = { language: "", rows: [], page: 0, loading: false };
+let activeWordListRecorder = null;
 
 function unknownWordsFluentLanguage() {
   return currentUser?.user_metadata?.fluentLanguage || interfaceLanguage || "English";
@@ -10179,8 +10342,8 @@ async function collectUnknownWords(language) {
 
   return frequencyWords.filter(item => {
     if (Number(statsByKey.get(item.word_key)?.spoken_count || 0) > 0) return false;
-    const text = String(item.word_text || "").normalize("NFC").toLocaleLowerCase();
-    return !confirmed.has(text);
+    const text = String(item.word || item.lemma || "").normalize("NFC").toLocaleLowerCase();
+    return text && !confirmed.has(text);
   });
 }
 
@@ -10314,6 +10477,110 @@ function renderMemoryBridge(panel, row, result) {
   panel.appendChild(feedback);
 }
 
+/*
+  The prompt is the word in the learner's own language. Producing the target
+  language word, by voice or by typing, is the exercise, and a correct answer
+  retires the word from the list.
+*/
+function unknownWordText(item) {
+  return String(item?.word || item?.lemma || "").trim();
+}
+
+async function checkUnknownWordAnswer(item, chatLanguage, answer) {
+  const data = await callChatFunction({
+    action: "confirm-word",
+    word: unknownWordText(item),
+    fluentPrompt: item.fluentPrompt || "",
+    learnerAnswer: String(answer || "").trim(),
+    chatLanguage,
+    fluentLanguage: getCurrentFluentLanguage()
+  }, "Word practice");
+
+  return data?.correct === true;
+}
+
+function retireUnknownWord(item, chatLanguage, row) {
+  const record = {
+    word_key: item.word_key,
+    word_text: unknownWordText(item),
+    language: chatLanguage,
+    fluent_prompt: item.fluentPrompt || "",
+    frequency_rank: Number(item.frequency_rank || 0)
+  };
+
+  saveConfirmedWord(record);
+  recordWordStats([record], "familiar", chatLanguage, true, crypto.randomUUID()).catch(() => {});
+  recordPlacementOutcome(chatLanguage, Number(item.frequency_rank || 0), true);
+
+  unknownWordsState.rows = unknownWordsState.rows.filter(entry => entry.word_key !== item.word_key);
+
+  row.classList.add("is-retired");
+  window.setTimeout(() => {
+    const pageCount = Math.max(1, Math.ceil(unknownWordsState.rows.length / UNKNOWN_WORDS_PAGE_SIZE));
+    unknownWordsState.page = Math.min(unknownWordsState.page, pageCount - 1);
+    renderUnknownWordsPage();
+  }, 420);
+}
+
+async function recordUnknownWordSpeech(item, chatLanguage, button, onTranscript, onError) {
+  if (activeWordListRecorder?.state === "recording") {
+    activeWordListRecorder.stop();
+    return;
+  }
+
+  if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+    onError("This browser cannot record audio. Type the word instead.");
+    return;
+  }
+
+  let stream;
+  try {
+    stream = await acquireMicrophone();
+  } catch {
+    onError("Microphone access is needed. You can type the word instead.");
+    return;
+  }
+
+  const chunks = [];
+  const mimeType = getBestRecordingMimeType();
+  activeWordListRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+
+  activeWordListRecorder.addEventListener("dataavailable", event => {
+    if (event.data?.size) chunks.push(event.data);
+  });
+
+  activeWordListRecorder.addEventListener("start", () => {
+    button.classList.add("recording");
+    button.setAttribute("aria-label", "Stop recording");
+  });
+
+  activeWordListRecorder.addEventListener("stop", async () => {
+    parkMicrophone();
+    button.classList.remove("recording");
+    button.classList.add("processing");
+    button.disabled = true;
+
+    try {
+      const actualMimeType = activeWordListRecorder?.mimeType || mimeType || chunks[0]?.type || "audio/webm";
+      const transcript = await transcribeAudioBlob(
+        new Blob(chunks, { type: actualMimeType }),
+        actualMimeType,
+        { chatLanguage, fluentLanguage: getCurrentFluentLanguage() }
+      );
+      await onTranscript(String(transcript || "").trim());
+    } catch (error) {
+      onError(getReadableError(error));
+    } finally {
+      button.classList.remove("processing");
+      button.disabled = false;
+      button.setAttribute("aria-label", "Say the word");
+      activeWordListRecorder = null;
+    }
+  });
+
+  activeWordListRecorder.start();
+}
+
 function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
   const row = document.createElement("div");
   row.className = "unknown-word-row";
@@ -10328,18 +10595,53 @@ function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
   const pair = document.createElement("div");
   pair.className = "unknown-word-pair";
 
-  const target = document.createElement("span");
-  target.className = "unknown-word-target";
-  target.setAttribute("dir", "auto");
-  target.setAttribute("data-no-i18n", "");
-  target.textContent = item.word_text || item.word_key || "";
+  // The learner sees their own language and has to produce the other one.
+  const prompt = document.createElement("span");
+  prompt.className = "unknown-word-target";
+  prompt.setAttribute("dir", "auto");
+  prompt.setAttribute("data-no-i18n", "");
+  prompt.textContent = "...";
 
-  const meaning = document.createElement("span");
-  meaning.className = "unknown-word-meaning";
-  meaning.setAttribute("data-no-i18n", "");
-  meaning.textContent = "...";
+  const reveal = document.createElement("span");
+  reveal.className = "unknown-word-meaning unknown-word-answer hidden";
+  reveal.setAttribute("dir", "auto");
+  reveal.setAttribute("data-no-i18n", "");
 
-  pair.append(target, meaning);
+  pair.append(prompt, reveal);
+
+  void translateUnknownWord(unknownWordText(item), chatLanguage, fluentLanguage)
+    .then(translation => {
+      item.fluentPrompt = translation || "";
+      prompt.textContent = translation || unknownWordText(item);
+    })
+    .catch(() => { prompt.textContent = unknownWordText(item); });
+
+  const answerForm = document.createElement("form");
+  answerForm.className = "unknown-word-answer-form";
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "pf-input unknown-word-input";
+  input.setAttribute("dir", "auto");
+  input.autocomplete = "off";
+  input.placeholder = `Write it in ${chatLanguage}`;
+
+  const speak = document.createElement("button");
+  speak.type = "button";
+  speak.className = "unknown-word-speak";
+  speak.setAttribute("aria-label", "Say the word");
+  speak.innerHTML = '<span class="mic-symbol" aria-hidden="true">\u{1F3A4}</span>';
+
+  const submit = document.createElement("button");
+  submit.type = "submit";
+  submit.className = "unknown-word-submit";
+  submit.textContent = "Check";
+
+  answerForm.append(input, speak, submit);
+
+  const feedback = document.createElement("p");
+  feedback.className = "unknown-word-feedback";
+  feedback.setAttribute("data-no-i18n", "");
 
   const help = document.createElement("button");
   help.type = "button";
@@ -10350,9 +10652,63 @@ function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
   panel.className = "unknown-word-memory hidden";
   panel.setAttribute("data-no-i18n", "");
 
-  void translateUnknownWord(item.word_text || "", chatLanguage, fluentLanguage)
-    .then(translation => { meaning.textContent = translation || ""; })
-    .catch(() => { meaning.textContent = ""; });
+  const showFeedback = (text, tone = "") => {
+    feedback.textContent = text;
+    feedback.className = `unknown-word-feedback${tone ? ` is-${tone}` : ""}`;
+  };
+
+  const attempt = async answer => {
+    if (!String(answer || "").trim()) return;
+
+    submit.disabled = true;
+    speak.disabled = true;
+    showFeedback("Checking...");
+
+    try {
+      const correct = await checkUnknownWordAnswer(item, chatLanguage, answer);
+
+      if (correct) {
+        void playInterfaceCue("correct");
+        showFeedback("Correct. Removed from your list.", "good");
+        reveal.textContent = unknownWordText(item);
+        reveal.classList.remove("hidden");
+        retireUnknownWord(item, chatLanguage, row);
+        return;
+      }
+
+      void playInterfaceCue("incorrect");
+      showFeedback("Not that one. Try again, or open the memory hint below.", "bad");
+      recordPlacementOutcome(chatLanguage, Number(item.frequency_rank || 0), false);
+      input.select();
+    } catch (error) {
+      showFeedback(getReadableError(error), "bad");
+    } finally {
+      submit.disabled = false;
+      speak.disabled = false;
+    }
+  };
+
+  answerForm.addEventListener("submit", event => {
+    event.preventDefault();
+    void attempt(input.value);
+  });
+
+  speak.addEventListener("click", () => {
+    void recordUnknownWordSpeech(
+      item,
+      chatLanguage,
+      speak,
+      async transcript => {
+        if (!transcript) {
+          showFeedback("Nothing was picked up. Try again.", "bad");
+          return;
+        }
+        input.value = transcript;
+        await attempt(transcript);
+      },
+      message => showFeedback(message, "bad")
+    );
+  });
 
   help.addEventListener("click", async () => {
     if (!panel.classList.contains("hidden")) {
@@ -10370,9 +10726,9 @@ function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
     panel.appendChild(waiting);
 
     try {
-      const result = await requestMemoryBridge(item.word_text || "", chatLanguage, fluentLanguage);
+      const result = await requestMemoryBridge(unknownWordText(item), chatLanguage, fluentLanguage);
       renderMemoryBridge(panel, {
-        word: item.word_text || "",
+        word: unknownWordText(item),
         chatLanguage,
         fluentLanguage
       }, result);
@@ -10384,7 +10740,7 @@ function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
   });
 
   head.append(rank, pair, help);
-  row.append(head, panel);
+  row.append(head, answerForm, feedback, panel);
   return row;
 }
 
@@ -10407,7 +10763,7 @@ function renderUnknownWordsPage() {
   if (!rows.length) {
     const empty = document.createElement("div");
     empty.className = "unknown-words-empty";
-    empty.textContent = "Nothing here yet. Have a chat and this fills with the words you have not reached.";
+    empty.textContent = "Nothing waiting. Have a chat and this fills with the words just beyond you.";
     unknownWordsList.appendChild(empty);
   } else {
     const start = page * UNKNOWN_WORDS_PAGE_SIZE;
@@ -19203,14 +19559,6 @@ function enterProfileScreen() {
 
   fillProfileForm();
   void renderMicrophonePreference();
-
-  populateUnknownWordsLanguages();
-  const wordListLanguage = unknownWordsLanguage?.value || getCurrentChatLanguage();
-  if (unknownWordsState.language !== wordListLanguage || !unknownWordsState.rows.length) {
-    void loadUnknownWords(wordListLanguage);
-  } else {
-    renderUnknownWordsPage();
-  }
 }
 
 async function saveProfileSettings() {
@@ -20340,6 +20688,14 @@ function enterHomeScreen() {
     button.classList.toggle("active", button.dataset.homeMode === homeSelectedMode);
   });
   renderMemberHome().catch(() => {});
+
+  populateUnknownWordsLanguages();
+  const wordListLanguage = unknownWordsLanguage?.value || getCurrentChatLanguage();
+  if (unknownWordsState.language !== wordListLanguage || !unknownWordsState.rows.length) {
+    void loadUnknownWords(wordListLanguage);
+  } else {
+    renderUnknownWordsPage();
+  }
 }
 
 function showSignedInHome() {
