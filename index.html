@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#030303" />
   <meta name="color-scheme" content="dark" />
-  <meta name="description" content="Practise a new language by talking. Read, listen, tap any word, and learn in context." />
+  <meta name="description" content="Learn a language by actually talking. Speak or write, get a reply, and tap any word to hear it and see what it means." />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="LipsMaxxed" />
@@ -7789,6 +7789,214 @@ html[dir="rtl"] .celebrate-shell {
   background: rgba(37, 99, 235, 0.22);
   color: #dbeafe;
 }
+
+/* --------------------------------------------------------- words to learn */
+
+.unknown-words-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.unknown-words-language {
+  width: min(220px, 100%);
+}
+
+.unknown-words-toolbar .pf-hint {
+  margin: 0;
+}
+
+.unknown-words-list {
+  display: grid;
+  gap: 8px;
+}
+
+.unknown-word-row {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--s2);
+  overflow: hidden;
+}
+
+.unknown-word-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 15px;
+}
+
+.unknown-word-rank {
+  min-width: 46px;
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ink-3);
+  font-size: 0.72rem;
+  font-weight: 650;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.unknown-word-pair {
+  min-width: 0;
+}
+
+.unknown-word-target {
+  display: block;
+  font-size: 1.02rem;
+  font-weight: 650;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.unknown-word-meaning {
+  display: block;
+  margin-top: 3px;
+  color: var(--ink-3);
+  font-size: 0.85rem;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.unknown-word-help {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 0.83rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.unknown-word-help:hover:not(:disabled) {
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+  color: #bfdbfe;
+}
+
+.unknown-word-help:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.unknown-word-memory {
+  padding: 0 15px 15px;
+  border-top: 1px solid var(--line);
+  margin-top: -1px;
+}
+
+.unknown-word-memory.hidden {
+  display: none !important;
+}
+
+.memory-bridge {
+  margin: 14px 0 0;
+  padding: 14px 15px;
+  border-left: 3px solid var(--accent);
+  border-radius: 4px var(--r-sm) var(--r-sm) 4px;
+  background: rgba(96, 165, 250, 0.08);
+  color: #dbe6f5;
+  font-size: 0.93rem;
+  line-height: 1.6;
+}
+
+.memory-bridge-sound {
+  display: block;
+  margin-bottom: 7px;
+  color: #93c5fd;
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.memory-feedback {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 13px;
+}
+
+.memory-feedback span {
+  color: var(--ink-3);
+  font-size: 0.83rem;
+}
+
+.memory-vote {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.memory-vote:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ink);
+}
+
+.memory-vote.is-chosen {
+  border-color: var(--good-line);
+  background: var(--good-soft);
+  color: #86efac;
+}
+
+.memory-vote svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.unknown-words-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.unknown-words-pager .ghost-button {
+  min-height: 38px;
+  padding: 0 14px;
+  font-size: 0.85rem;
+}
+
+.unknown-words-empty {
+  padding: 22px 16px;
+  border: 1px dashed var(--line-2);
+  border-radius: var(--r-md);
+  color: var(--ink-3);
+  font-size: 0.89rem;
+  line-height: 1.55;
+  text-align: center;
+}
+
+@media (max-width: 620px) {
+  .unknown-word-head {
+    grid-template-columns: auto minmax(0, 1fr);
+    row-gap: 10px;
+  }
+
+  .unknown-word-help {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
   </style>
 </head>
 
@@ -7808,7 +8016,7 @@ html[dir="rtl"] .celebrate-shell {
     <h1 class="brand-title">
       <span class="brand-title-strong">Lips</span><span class="brand-title-light">Maxxed</span>
     </h1>
-    <p>Read, listen, click words, and learn in context.</p>
+    <p>Learn a language by actually talking.</p>
   </div>
 </div>
 
@@ -7986,7 +8194,7 @@ html[dir="rtl"] .celebrate-shell {
     <div class="auth-stage">
       <aside class="auth-aside">
         <div class="auth-aside-mark"><img src="assets/language-logo.png" alt="" /></div>
-        <h2 class="auth-aside-title">Practice a language the way you will actually use it.</h2>
+        <h2 class="auth-aside-title">Learn a language by actually talking.</h2>
         <ul class="auth-aside-points">
           <li>Speak or write, and get a reply in the language you are learning.</li>
           <li>Tap any word to hear it and see what it means in context.</li>
@@ -8415,6 +8623,28 @@ html[dir="rtl"] .celebrate-shell {
         </div>
       </section>
 
+      <section class="pf-card pf-card-wide">
+        <div class="pf-card-head">
+          <h2>Words to learn</h2>
+          <p>The most common words in the language you are practicing that you have not used yet, closest first.</p>
+        </div>
+
+        <div class="unknown-words-toolbar">
+          <div class="select-wrap pf-select-wrap unknown-words-language">
+            <select id="unknownWordsLanguage" aria-label="Language to review"></select>
+          </div>
+          <span id="unknownWordsCount" class="pf-hint"></span>
+        </div>
+
+        <div id="unknownWordsList" class="unknown-words-list"></div>
+
+        <div class="unknown-words-pager">
+          <button id="unknownWordsPrev" class="ghost-button" type="button">Previous</button>
+          <span id="unknownWordsPage" class="pf-hint"></span>
+          <button id="unknownWordsNext" class="ghost-button" type="button">Next</button>
+        </div>
+      </section>
+
       <section class="pf-card">
         <div class="pf-card-head">
           <h2>Speaking</h2>
@@ -8495,6 +8725,10 @@ html[dir="rtl"] .celebrate-shell {
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v13M7.5 7.5 12 3l4.5 4.5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>
           Share
         </button>
+        <button id="shareInstagramButton" class="share-button" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>
+          Instagram
+        </button>
         <button id="shareXButton" class="share-button" type="button">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h4.5l5 6.8L18 3h3l-7.1 8.6L21.4 21H17l-5.3-7.2L5.6 21H2.6l7.6-9.1Z" fill="currentColor" stroke="none"/></svg>
           Post on X
@@ -8508,7 +8742,7 @@ html[dir="rtl"] .celebrate-shell {
           Save image
         </button>
       </div>
-      <p class="share-note">Instagram has no web posting link, so save the image and add it to a story or post.</p>
+      <p class="share-note">Instagram only accepts posts from its own app, so the Instagram button saves your card and copies the caption ready to paste.</p>
     </section>
 
     <div class="celebrate-secondary">
@@ -8961,9 +9195,16 @@ const profileMicToggle = document.getElementById("profileMicToggle");
 const profileMicStatus = document.getElementById("profileMicStatus");
 const setupEnableMicButton = document.getElementById("setupEnableMicButton");
 const languageNameRows = document.getElementById("languageNameRows");
+const unknownWordsLanguage = document.getElementById("unknownWordsLanguage");
+const unknownWordsList = document.getElementById("unknownWordsList");
+const unknownWordsCount = document.getElementById("unknownWordsCount");
+const unknownWordsPage = document.getElementById("unknownWordsPage");
+const unknownWordsPrev = document.getElementById("unknownWordsPrev");
+const unknownWordsNext = document.getElementById("unknownWordsNext");
 const addLanguageNameButton = document.getElementById("addLanguageNameButton");
 const shareNativeButton = document.getElementById("shareNativeButton");
 const shareXButton = document.getElementById("shareXButton");
+const shareInstagramButton = document.getElementById("shareInstagramButton");
 const shareLinkedInButton = document.getElementById("shareLinkedInButton");
 const shareImageButton = document.getElementById("shareImageButton");
 const profileLinkedInButton = document.getElementById("profileLinkedInButton");
@@ -9093,20 +9334,30 @@ const I18N_SCOPES = [
   ".top-bar", "#signedInHome", "#authScreen", "#profileScreen", "#chatSetupModal",
   "#sessionSummaryPage", "#sessionReviewPage", "#wordConfirmationPage",
   "#confirmationCompletePage", "#allChatsPage", "#statsPage", "#lipsMasterPage",
-  "#speechShell", "#composerShell", "#unconfirmedExitModal", "#grammarDetailModal"
+  "#speechShell", "#composerShell", "#unconfirmedExitModal", "#grammarDetailModal",
+  "#messageHistory", "#upcomingWordsPanel", "#masterChatMessages", "#appToastHost"
 ].join(", ");
 
-/* Anything holding the learner's own words, or a tutor reply, is left alone. */
+/*
+  The exclusions are now individual content elements rather than whole
+  screens, so labels, buttons and headings inside the conversation get
+  translated while the practice language and the learner's own words do not.
+*/
 const I18N_SKIP = [
-  "#messageHistory", "#masterChatMessages", "#masterThreadList", "#homeSessionList",
-  "#allChatsList", "#statsWordGrid", "#summaryGrammarTips", "#confirmWordHeading",
-  "#homeProfileName", "#accountDisplayName", "#profileEmailValue",
-  "#sessionReviewMessages", "#upcomingWordsPanel", "#grammarDetailBody",
-  "[data-no-i18n]"
+  ".bot-words", ".user-bubble", ".correction-line", ".main-word", ".translation",
+  ".master-chat-content", ".master-thread-title", ".master-session-title",
+  ".upcoming-word-main", ".upcoming-word-chat-language",
+  ".session-list-title", ".stats-word-card", ".summary-grammar-tips",
+  "#confirmWordHeading", "#homeProfileName", "#accountDisplayName",
+  "#profileEmailValue", "#grammarDetailBody", "#sessionReviewMessages",
+  "#allChatsList", "#homeSessionList", "#masterThreadList", "#statsWordGrid",
+  ".word-unit", ".correction-word-unit", "[data-no-i18n]"
 ].join(", ");
 
 let interfaceLanguage = "English";
 let interfaceTranslationInFlight = null;
+let applyingInterfaceLanguage = false;
+let interfaceLanguageWatched = false;
 
 const i18nOriginalText = new WeakMap();
 const i18nOriginalAttr = new WeakMap();
@@ -9216,10 +9467,18 @@ async function fetchUiTranslations(language, strings) {
   for (let index = 0; index < strings.length; index += 100) {
     const batch = strings.slice(index, index + 100);
     try {
-      const data = await callChatFunction(
-        { action: "translate-ui", language, strings: batch },
-        "Interface translation"
-      );
+      /*
+        A plain request on purpose. The chat helper carries retry, deadline
+        and session bookkeeping meant for conversation turns, and translating
+        labels should never be blocked by what a chat turn is doing.
+      */
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+        method: "POST",
+        headers: await getFunctionHeaders(),
+        body: JSON.stringify({ action: "translate-ui", language, strings: batch })
+      });
+
+      const data = await response.json();
       Object.entries(data?.translations || {}).forEach(([source, value]) => {
         if (value) dictionary.set(source, String(value));
       });
@@ -9248,7 +9507,9 @@ async function applyInterfaceLanguage(language = interfaceLanguage) {
   document.querySelectorAll(I18N_SCOPES).forEach(scope => units.push(...i18nUnitsIn(scope)));
 
   if (interfaceLanguage === "English") {
+    applyingInterfaceLanguage = true;
     units.forEach(unit => i18nWrite(unit, i18nOriginal(unit)));
+    applyingInterfaceLanguage = false;
     return;
   }
 
@@ -9268,14 +9529,61 @@ async function applyInterfaceLanguage(language = interfaceLanguage) {
     interfaceTranslationInFlight = null;
   }
 
+  applyingInterfaceLanguage = true;
   prepared.forEach(({ unit, source, key }) => {
     const translated = key && dictionary.get(key);
     i18nWrite(unit, translated ? source.replace(key, translated) : source);
   });
+  applyingInterfaceLanguage = false;
+
+  if (!interfaceLanguageWatched) {
+    interfaceLanguageWatched = true;
+    watchInterfaceLanguage();
+  }
 }
 
 function scheduleInterfaceLanguage() {
   window.setTimeout(() => { void applyInterfaceLanguage(); }, 0);
+}
+
+/*
+  Correction cards, progress cards and bonus words are built after the screen
+  is first translated, so the surfaces are watched and re-translated as they
+  fill. After the first fetch every string is served from cache, so this
+  costs nothing but a pass over the new nodes.
+*/
+let interfaceLanguagePending = null;
+let interfaceLanguageDeadline = 0;
+
+function watchInterfaceLanguage() {
+  if (interfaceLanguage === "English") return;
+
+  const observer = new MutationObserver(mutations => {
+    if (applyingInterfaceLanguage) return;
+
+    const addedNodes = mutations.some(mutation => mutation.addedNodes.length > 0);
+    if (!addedNodes) return;
+
+    /*
+      Audio loading mutates the conversation continuously, which would keep
+      resetting a plain debounce forever. A deadline guarantees a pass at
+      least every 700ms however busy the surface is.
+    */
+    const now = Date.now();
+    if (!interfaceLanguageDeadline) interfaceLanguageDeadline = now + 700;
+
+    window.clearTimeout(interfaceLanguagePending);
+    const wait = Math.max(0, Math.min(140, interfaceLanguageDeadline - now));
+
+    interfaceLanguagePending = window.setTimeout(() => {
+      interfaceLanguageDeadline = 0;
+      void applyInterfaceLanguage();
+    }, wait);
+  });
+
+  [messageHistory, upcomingWordsPanel, masterChatMessages, appToastHost]
+    .filter(Boolean)
+    .forEach(node => observer.observe(node, { childList: true, subtree: true }));
 }
 
 /* =========================================================================
@@ -9385,6 +9693,8 @@ function setCachedWordValue(kind, key, value) {
 /* =========================================================================
    Sharing
    ========================================================================= */
+
+const SITE_TAGLINE = "Learn a language by actually talking";
 
 function siteInviteUrl() {
   return `${window.location.origin}${window.location.pathname}`.replace(/\/index\.html$/i, "/");
@@ -9504,7 +9814,7 @@ async function buildScoreCardImage(headline, stats, subtitle = "") {
 
   context.fillStyle = "#7e8897";
   context.font = "500 25px Inter, system-ui, sans-serif";
-  context.fillText("Learn a language by actually talking", 84, 570);
+  context.fillText(SITE_TAGLINE, 84, 570);
 
   context.fillStyle = "#60a5fa";
   context.font = "600 25px Inter, system-ui, sans-serif";
@@ -9535,10 +9845,19 @@ function openShareWindow(url) {
    Names per language
    ========================================================================= */
 
-const NAME_LANGUAGE_OPTIONS = [
-  "English", "Hebrew", "Spanish", "French", "German", "Arabic",
-  "Russian", "Italian", "Portuguese", "Chinese", "Japanese", "Korean"
-];
+const LANGUAGE_FLAGS = {
+  English: "\u{1F1FA}\u{1F1F8}", Hebrew: "\u{1F1EE}\u{1F1F1}", Spanish: "\u{1F1EA}\u{1F1F8}",
+  French: "\u{1F1EB}\u{1F1F7}", German: "\u{1F1E9}\u{1F1EA}", Arabic: "\u{1F1F8}\u{1F1E6}",
+  Russian: "\u{1F1F7}\u{1F1FA}", Italian: "\u{1F1EE}\u{1F1F9}", Portuguese: "\u{1F1F5}\u{1F1F9}",
+  Chinese: "\u{1F1E8}\u{1F1F3}", Japanese: "\u{1F1EF}\u{1F1F5}", Korean: "\u{1F1F0}\u{1F1F7}"
+};
+
+const NAME_LANGUAGE_OPTIONS = Object.keys(LANGUAGE_FLAGS);
+
+function languageOptionLabel(language) {
+  const flag = LANGUAGE_FLAGS[language];
+  return flag ? `${flag} ${language}` : language;
+}
 
 function storedLanguageNames() {
   const rows = currentUser?.user_metadata?.languageNames;
@@ -9569,7 +9888,7 @@ function buildLanguageNameRow(entry = { language: "", name: "" }) {
   NAME_LANGUAGE_OPTIONS.forEach(language => {
     const option = document.createElement("option");
     option.value = language;
-    option.textContent = language;
+    option.textContent = languageOptionLabel(language);
     select.appendChild(option);
   });
   select.value = entry.language || NAME_LANGUAGE_OPTIONS[0];
@@ -9821,6 +10140,328 @@ window.lipsMaxxedRepairAccount = async function lipsMaxxedRepairAccount() {
     cleared: !sessionHasLegacyProgress(repaired)
   };
 };
+
+
+/* =========================================================================
+   Words to learn
+
+   The frequency list minus everything the learner has already produced,
+   nearest first. Each entry can ask for a memory bridge: a word in their own
+   language that sounds like the target, tied to its meaning by an image.
+   ========================================================================= */
+
+const UNKNOWN_WORDS_PAGE_SIZE = 12;
+
+let unknownWordsState = { language: "", rows: [], page: 0, loading: false };
+
+function unknownWordsFluentLanguage() {
+  return currentUser?.user_metadata?.fluentLanguage || interfaceLanguage || "English";
+}
+
+async function collectUnknownWords(language) {
+  const [frequencyWords, statsResult] = await Promise.all([
+    getRankedFrequencyList(language),
+    getWordStatsSnapshot(language)
+  ]);
+
+  if (statsResult?.error) throw statsResult.error;
+
+  const statsByKey = aggregateStatsByLexeme(
+    Array.isArray(statsResult?.data) ? statsResult.data : [],
+    frequencyWords
+  );
+
+  const confirmed = new Set(
+    getConfirmedWordRecords()
+      .filter(row => !row.language || row.language === language)
+      .map(row => String(row.word_text || "").normalize("NFC").toLocaleLowerCase())
+  );
+
+  return frequencyWords.filter(item => {
+    if (Number(statsByKey.get(item.word_key)?.spoken_count || 0) > 0) return false;
+    const text = String(item.word_text || "").normalize("NFC").toLocaleLowerCase();
+    return !confirmed.has(text);
+  });
+}
+
+async function translateUnknownWord(word, chatLanguage, fluentLanguage) {
+  const key = wordCacheKey(word, chatLanguage, fluentLanguage);
+  const cached = getCachedWordValue("definition", key);
+  if (cached) return cached;
+
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+    method: "POST",
+    headers: await getFunctionHeaders(),
+    body: JSON.stringify({
+      action: "translate-word",
+      word,
+      sentence: word,
+      chatLanguage,
+      fluentLanguage
+    })
+  });
+
+  const data = await parseJsonResponse(response, "Word meaning");
+  const translation = String(data?.translation || "").trim();
+  if (translation) setCachedWordValue("definition", key, translation);
+  return translation;
+}
+
+function memoryVoteIcon(up) {
+  return up
+    ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10.5v9H4.5v-9Zm3 9 -0 -9 3.2-6.2a1.6 1.6 0 0 1 3 .7v4.5h4.1a1.6 1.6 0 0 1 1.6 2l-1.6 6.3a1.6 1.6 0 0 1-1.6 1.2Z"/></svg>'
+    : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 13.5v-9H4.5v9Zm3-9 -0 9 3.2 6.2a1.6 1.6 0 0 0 3-.7v-4.5h4.1a1.6 1.6 0 0 0 1.6-2l-1.6-6.3a1.6 1.6 0 0 0-1.6-1.2Z"/></svg>';
+}
+
+async function requestMemoryBridge(word, chatLanguage, fluentLanguage, avoid = "") {
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+    method: "POST",
+    headers: await getFunctionHeaders(),
+    body: JSON.stringify({
+      action: "word-mnemonic",
+      word,
+      chatLanguage,
+      fluentLanguage,
+      avoid
+    })
+  });
+
+  return parseJsonResponse(response, "Memory bridge");
+}
+
+async function sendMemoryBridgeFeedback(id, helpful) {
+  if (!id) return;
+  try {
+    await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+      method: "POST",
+      headers: await getFunctionHeaders(),
+      body: JSON.stringify({ action: "word-mnemonic-feedback", id, helpful })
+    });
+  } catch {
+    // The learner still has their bridge; only the shared cache misses out.
+  }
+}
+
+function renderMemoryBridge(panel, row, result) {
+  panel.textContent = "";
+  panel.classList.remove("hidden");
+
+  const bridge = document.createElement("p");
+  bridge.className = "memory-bridge";
+
+  if (result?.soundsLike) {
+    const sound = document.createElement("span");
+    sound.className = "memory-bridge-sound";
+    sound.textContent = `Sounds like: ${result.soundsLike}`;
+    bridge.appendChild(sound);
+  }
+
+  bridge.appendChild(document.createTextNode(String(result?.bridge || "")));
+  panel.appendChild(bridge);
+
+  const feedback = document.createElement("div");
+  feedback.className = "memory-feedback";
+
+  const question = document.createElement("span");
+  question.textContent = "Is this helpful?";
+
+  const up = document.createElement("button");
+  up.type = "button";
+  up.className = "memory-vote";
+  up.setAttribute("aria-label", "This helped");
+  up.innerHTML = memoryVoteIcon(true);
+
+  const down = document.createElement("button");
+  down.type = "button";
+  down.className = "memory-vote";
+  down.setAttribute("aria-label", "Give me another");
+  down.innerHTML = memoryVoteIcon(false);
+
+  up.addEventListener("click", () => {
+    up.classList.add("is-chosen");
+    up.disabled = true;
+    down.disabled = true;
+    // Approving it puts the bridge in the shared cache for everyone else.
+    void sendMemoryBridgeFeedback(result?.id, true);
+    showToast("Saved for other learners too", "good");
+  });
+
+  down.addEventListener("click", async () => {
+    up.disabled = true;
+    down.disabled = true;
+    void sendMemoryBridgeFeedback(result?.id, false);
+    panel.textContent = "";
+
+    const waiting = document.createElement("p");
+    waiting.className = "memory-bridge";
+    waiting.textContent = "Trying a different one...";
+    panel.appendChild(waiting);
+
+    try {
+      const next = await requestMemoryBridge(
+        row.word,
+        row.chatLanguage,
+        row.fluentLanguage,
+        String(result?.bridge || "")
+      );
+      renderMemoryBridge(panel, row, next);
+    } catch (error) {
+      waiting.textContent = getReadableError(error);
+    }
+  });
+
+  feedback.append(question, up, down);
+  panel.appendChild(feedback);
+}
+
+function buildUnknownWordRow(item, chatLanguage, fluentLanguage) {
+  const row = document.createElement("div");
+  row.className = "unknown-word-row";
+
+  const head = document.createElement("div");
+  head.className = "unknown-word-head";
+
+  const rank = document.createElement("span");
+  rank.className = "unknown-word-rank";
+  rank.textContent = `#${Number(item.frequency_rank || 0)}`;
+
+  const pair = document.createElement("div");
+  pair.className = "unknown-word-pair";
+
+  const target = document.createElement("span");
+  target.className = "unknown-word-target";
+  target.setAttribute("dir", "auto");
+  target.setAttribute("data-no-i18n", "");
+  target.textContent = item.word_text || item.word_key || "";
+
+  const meaning = document.createElement("span");
+  meaning.className = "unknown-word-meaning";
+  meaning.setAttribute("data-no-i18n", "");
+  meaning.textContent = "...";
+
+  pair.append(target, meaning);
+
+  const help = document.createElement("button");
+  help.type = "button";
+  help.className = "unknown-word-help";
+  help.textContent = "Help me remember this word";
+
+  const panel = document.createElement("div");
+  panel.className = "unknown-word-memory hidden";
+  panel.setAttribute("data-no-i18n", "");
+
+  void translateUnknownWord(item.word_text || "", chatLanguage, fluentLanguage)
+    .then(translation => { meaning.textContent = translation || ""; })
+    .catch(() => { meaning.textContent = ""; });
+
+  help.addEventListener("click", async () => {
+    if (!panel.classList.contains("hidden")) {
+      panel.classList.add("hidden");
+      return;
+    }
+
+    help.disabled = true;
+    panel.classList.remove("hidden");
+    panel.textContent = "";
+
+    const waiting = document.createElement("p");
+    waiting.className = "memory-bridge";
+    waiting.textContent = "Building a way to remember it...";
+    panel.appendChild(waiting);
+
+    try {
+      const result = await requestMemoryBridge(item.word_text || "", chatLanguage, fluentLanguage);
+      renderMemoryBridge(panel, {
+        word: item.word_text || "",
+        chatLanguage,
+        fluentLanguage
+      }, result);
+    } catch (error) {
+      waiting.textContent = getReadableError(error);
+    } finally {
+      help.disabled = false;
+    }
+  });
+
+  head.append(rank, pair, help);
+  row.append(head, panel);
+  return row;
+}
+
+function renderUnknownWordsPage() {
+  if (!unknownWordsList) return;
+
+  unknownWordsList.textContent = "";
+
+  const { rows, page, language } = unknownWordsState;
+  const fluentLanguage = unknownWordsFluentLanguage();
+
+  if (unknownWordsState.loading) {
+    const loading = document.createElement("div");
+    loading.className = "unknown-words-empty";
+    loading.textContent = "Loading your word list...";
+    unknownWordsList.appendChild(loading);
+    return;
+  }
+
+  if (!rows.length) {
+    const empty = document.createElement("div");
+    empty.className = "unknown-words-empty";
+    empty.textContent = "Nothing here yet. Have a chat and this fills with the words you have not reached.";
+    unknownWordsList.appendChild(empty);
+  } else {
+    const start = page * UNKNOWN_WORDS_PAGE_SIZE;
+    rows.slice(start, start + UNKNOWN_WORDS_PAGE_SIZE).forEach(item => {
+      unknownWordsList.appendChild(buildUnknownWordRow(item, language, fluentLanguage));
+    });
+  }
+
+  const pageCount = Math.max(1, Math.ceil(rows.length / UNKNOWN_WORDS_PAGE_SIZE));
+  if (unknownWordsPage) unknownWordsPage.textContent = `Page ${page + 1} of ${pageCount}`;
+  if (unknownWordsPrev) unknownWordsPrev.disabled = page <= 0;
+  if (unknownWordsNext) unknownWordsNext.disabled = page >= pageCount - 1;
+  if (unknownWordsCount) {
+    unknownWordsCount.textContent = rows.length
+      ? `${rows.length.toLocaleString()} words ahead of you`
+      : "";
+  }
+}
+
+async function loadUnknownWords(language) {
+  unknownWordsState = { language, rows: [], page: 0, loading: true };
+  renderUnknownWordsPage();
+
+  try {
+    const rows = await collectUnknownWords(language);
+    unknownWordsState = { language, rows, page: 0, loading: false };
+  } catch (error) {
+    console.warn("unknown word list failed", error);
+    unknownWordsState = { language, rows: [], page: 0, loading: false };
+  }
+
+  renderUnknownWordsPage();
+}
+
+function populateUnknownWordsLanguages() {
+  if (!unknownWordsLanguage) return;
+
+  const languages = [...new Set([
+    getCurrentChatLanguage(),
+    ...[...(homeLanguageSelect?.options || [])].map(option => option.value)
+  ].filter(Boolean))];
+
+  const current = unknownWordsLanguage.value;
+  unknownWordsLanguage.textContent = "";
+
+  languages.forEach(language => {
+    const option = document.createElement("option");
+    option.value = language;
+    option.textContent = languageOptionLabel(language);
+    unknownWordsLanguage.appendChild(option);
+  });
+
+  unknownWordsLanguage.value = languages.includes(current) ? current : getCurrentChatLanguage();
+}
 
 function createClientTurnId() {
   const turnId = globalThis.crypto?.randomUUID
@@ -15950,7 +16591,7 @@ function isSamePlayback(button, type, id) {
     }
     card.innerHTML = `
       <div class="response-progress-copy">
-        <div class="response-progress-kicker">DID YOU KNOW...</div>
+        <div class="response-progress-kicker">Did you know...</div>
         <div class="response-progress-fact"></div>
       </div>
       <div class="response-progress-track" aria-hidden="true">
@@ -16078,7 +16719,9 @@ function isSamePlayback(button, type, id) {
       previousFacts: [
         ...getSeenLanguageFacts(language),
         ...getLanguageFactQueue(language)
-      ].slice(-80)
+      ].slice(-80),
+      // One word from the learner's placement band, for the tutor to use.
+      rangeWord: String(cachedProfile?.primaryTargetWord || "").trim()
     }, label);
     const data = await dataPromise;
     if (requestUserId !== (currentUser?.id || "")) throw new Error("Account changed while generating the reply.");
@@ -18560,6 +19203,14 @@ function enterProfileScreen() {
 
   fillProfileForm();
   void renderMicrophonePreference();
+
+  populateUnknownWordsLanguages();
+  const wordListLanguage = unknownWordsLanguage?.value || getCurrentChatLanguage();
+  if (unknownWordsState.language !== wordListLanguage || !unknownWordsState.rows.length) {
+    void loadUnknownWords(wordListLanguage);
+  } else {
+    renderUnknownWordsPage();
+  }
 }
 
 async function saveProfileSettings() {
@@ -21065,6 +21716,21 @@ profileResetButton?.addEventListener("click", () => {
 });
 profileSignOutButton?.addEventListener("click", handleSignOut);
 
+unknownWordsLanguage?.addEventListener("change", () => {
+  void loadUnknownWords(unknownWordsLanguage.value);
+});
+
+unknownWordsPrev?.addEventListener("click", () => {
+  unknownWordsState.page = Math.max(0, unknownWordsState.page - 1);
+  renderUnknownWordsPage();
+});
+
+unknownWordsNext?.addEventListener("click", () => {
+  const pageCount = Math.ceil(unknownWordsState.rows.length / UNKNOWN_WORDS_PAGE_SIZE);
+  unknownWordsState.page = Math.min(pageCount - 1, unknownWordsState.page + 1);
+  renderUnknownWordsPage();
+});
+
 addLanguageNameButton?.addEventListener("click", () => {
   languageNameRows?.appendChild(buildLanguageNameRow());
   refreshLanguageNameChoices();
@@ -21078,6 +21744,43 @@ shareNativeButton?.addEventListener("click", async () => {
     await navigator.share({ text: shareSummaryText(), title: "LipsMaxxed" });
   } catch {
     // The learner dismissed the sheet.
+  }
+});
+
+/*
+  Instagram has no web share endpoint, so the honest version is to hand the
+  learner the finished card and the caption, ready for the app.
+*/
+shareInstagramButton?.addEventListener("click", async () => {
+  const language = pendingSessionSummary?.language || getCurrentChatLanguage();
+  const minutes = Math.max(1, Math.round(Number(pendingSessionSummary?.durationMs || 0) / 60000));
+
+  const blob = await buildScoreCardImage(`${language} practice`, [
+    { label: "New words", value: pendingSessionSummary?.wordsLearned || 0 },
+    { label: "Points", value: pendingSessionSummary?.pointsGained || 0 },
+    { label: "Minutes", value: minutes }
+  ], SITE_TAGLINE);
+
+  // Where the device supports sharing a file, hand the image straight over.
+  if (blob && navigator.canShare?.({ files: [new File([blob], "card.png", { type: "image/png" })] })) {
+    try {
+      await navigator.share({
+        files: [new File([blob], `lipsmaxxed-${String(language).toLowerCase()}.png`, { type: "image/png" })],
+        text: shareSummaryText()
+      });
+      return;
+    } catch {
+      // Dismissed, or unavailable: fall through to saving it.
+    }
+  }
+
+  downloadBlob(blob, `lipsmaxxed-${String(language).toLowerCase()}-session.png`);
+
+  try {
+    await navigator.clipboard.writeText(shareSummaryText());
+    showToast("Card saved and caption copied", "good");
+  } catch {
+    showToast("Card saved", "good");
   }
 });
 
