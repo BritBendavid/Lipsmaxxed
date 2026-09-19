@@ -9684,6 +9684,158 @@ html[dir="rtl"] .celebrate-shell {
 .account-points-badge.is-rising .account-points-ring {
   animation: pointsRise 520ms cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+/* ------------------------------------------------ dictionary header, in a row */
+
+.dictionary-top-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dictionary-top-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dictionary-heading-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.dictionary-heading {
+  flex: 0 1 auto;
+}
+
+.dictionary-page .dictionary-search {
+  flex: 1 1 220px;
+  width: auto;
+  min-width: 0;
+  max-width: 340px;
+  margin: 0;
+}
+
+.dictionary-heading-row .dictionary-totals {
+  margin-left: auto;
+}
+
+/* ------------------------------------------------- the score, a pill below */
+
+.control-card.account-card {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Stacked, so the pill is genuinely under the avatar rather than over it. */
+.account-menu-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.account-points-badge {
+  position: static;
+  transform: none;
+  order: 2;
+  pointer-events: none;
+}
+
+.account-points-ring {
+  min-width: 42px;
+  height: 19px;
+  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-pill);
+  background: #13171e;
+  box-shadow: 0 1px 3px -1px rgba(0, 0, 0, 0.8);
+}
+
+.account-points-value {
+  color: #cdd6e2;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.account-dropdown {
+  top: calc(100% + 6px);
+}
+
+/* --------------------------------- words to learn: every cell pinned */
+
+.words-to-learn .unknown-word-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 4px;
+}
+
+.words-to-learn .unknown-word-pair {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.words-to-learn .unknown-word-answer-form,
+.words-to-learn .unknown-word-answer-form.is-speech {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: auto;
+  padding: 0;
+  margin: 0;
+}
+
+.words-to-learn .unknown-word-help {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: end;
+  align-self: center;
+}
+
+.words-to-learn .unknown-word-feedback {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  margin: 0;
+}
+
+/* The row must size to the microphone, which was overflowing its own box. */
+.words-to-learn .unknown-word-row {
+  min-height: 58px;
+  height: auto;
+  padding: 8px 11px;
+  align-content: center;
+}
+
+.words-to-learn .unknown-word-answer-form,
+.words-to-learn .unknown-word-answer-form.is-speech {
+  min-height: 40px;
+}
+
+.account-menu-wrap {
+  gap: 3px;
+}
   </style>
 </head>
 
@@ -10232,11 +10384,6 @@ html[dir="rtl"] .celebrate-shell {
         </div>
         <div id="dictionaryAccountSlot" class="dictionary-account-slot"></div>
         </div>
-
-        <div class="dictionary-search">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
-          <input id="dictionarySearch" type="search" autocomplete="off" placeholder="Search a word in either language" aria-label="Search the dictionary" />
-        </div>
       </div>
     </header>
 
@@ -10245,6 +10392,12 @@ html[dir="rtl"] .celebrate-shell {
         <h1 id="dictionaryTitle">My Dictionary</h1>
         <p class="dictionary-lead">Already know a word? Tap its question mark and say or type it to update your records.</p>
       </div>
+
+      <div class="dictionary-search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+        <input id="dictionarySearch" type="search" autocomplete="off" placeholder="Search a word in either language" aria-label="Search the dictionary" />
+      </div>
+
       <div id="dictionaryTotals" class="dictionary-totals"></div>
     </div>
 
@@ -11978,7 +12131,9 @@ async function translateUnknownWord(word, chatLanguage, fluentLanguage) {
       word,
       sentence: word,
       chatLanguage,
-      fluentLanguage
+      fluentLanguage,
+      // With no sentence around it, take the sense people meet most often.
+      preferCommonSense: true
     })
   });
 
@@ -12221,7 +12376,13 @@ function unknownWordText(item) {
 async function checkUnknownWordAnswer(item, chatLanguage, answer) {
   const data = await callChatFunction({
     action: "confirm-word",
+    mode: "dictionary",
     word: unknownWordText(item),
+    // Every inflected form of this lexeme counts as the word itself.
+    acceptedForms: [
+      item.lemma,
+      ...(Array.isArray(item.forms) ? item.forms : [])
+    ].filter(Boolean),
     fluentPrompt: item.fluentPrompt || "",
     learnerAnswer: String(answer || "").trim(),
     chatLanguage,
@@ -13386,14 +13547,36 @@ function runDictionarySearch(rawTerm) {
    are the deliberate exception: those are already a correct answer.
    ========================================================================= */
 
-let lastReviewWasPerfect = false;
+/*
+  Points are decided before the review card is built, so a flag set by the
+  card always described the previous turn. The award is held instead, and
+  released only if the card that follows is a Perfect one.
+*/
+let pendingPointsAward = null;
 
-// A single object argument at every call site, so the wrapper is safe.
 const baseAddSpeechReviewCard = addSpeechReviewCard;
 addSpeechReviewCard = function wrappedAddSpeechReviewCard(options = {}) {
-  lastReviewWasPerfect = !!options?.isPerfect;
-  return baseAddSpeechReviewCard(options);
+  const card = baseAddSpeechReviewCard(options);
+  const held = pendingPointsAward;
+  pendingPointsAward = null;
+
+  if (held && options?.isPerfect) {
+    void releasePointsAward(held);
+  }
+
+  return card;
 };
+
+async function releasePointsAward(held) {
+  try {
+    await awardPointsForUserMessage(held.text, held.language, {
+      ...held.options,
+      practice: true
+    });
+  } catch {
+    // A failed award never blocks the conversation.
+  }
+}
 
 function turnPointsFor(language, lexemes) {
   let total = 0;
@@ -16283,8 +16466,13 @@ async function recordUserWordsAndAwardPoints(
 async function awardPointsForUserMessage(text, languageOverride = null, options = {}) {
   const language = languageOverride || languageSelect.value;
 
-  // Anything that is not a Perfect card, and not a practice answer, pays nothing.
-  if (!options.practice && !lastReviewWasPerfect) {
+  /*
+    Hold a conversational award until the review card is known. Practice
+    answers in the word list and the dictionary are already a correct answer,
+    so they pay immediately.
+  */
+  if (!options.practice) {
+    pendingPointsAward = { text, language, options };
     return { pointsGained: 0, newTotal: currentLanguagePoints, basePoints: 0, bonusPoints: 0 };
   }
   const animate = options.animate !== false;
