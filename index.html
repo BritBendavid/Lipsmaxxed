@@ -9836,6 +9836,163 @@ html[dir="rtl"] .celebrate-shell {
 .account-menu-wrap {
   gap: 3px;
 }
+
+/* ------------------------------------------- avatar and score, corrected */
+
+.account-avatar-button {
+  border-radius: 50%;
+}
+
+.account-points-ring {
+  min-width: 44px;
+  height: 20px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-pill);
+  background: #13171e;
+  box-shadow: 0 1px 3px -1px rgba(0, 0, 0, 0.8);
+}
+
+.account-points-value {
+  display: block;
+  padding: 0 8px;
+  color: #cdd6e2;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------- dictionary: search above the figures */
+
+.dictionary-side {
+  display: grid;
+  gap: 10px;
+  justify-items: stretch;
+  margin-left: auto;
+}
+
+.dictionary-page .dictionary-side .dictionary-search {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.dictionary-heading-row .dictionary-totals {
+  margin-left: 0;
+  justify-self: stretch;
+}
+
+/* ------------------------------------------------------ practice goals */
+
+.goals-surface {
+  padding: 18px;
+}
+
+.goal-meters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.goal-meter-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 7px;
+  color: var(--ink-3);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.goal-meter-head b {
+  color: var(--ink);
+  font-size: 0.86rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.goal-track {
+  height: 7px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.goal-track i {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width var(--ease);
+}
+
+.goal-track i.is-points {
+  background: var(--translated);
+}
+
+.goal-track i.is-complete {
+  background: var(--good);
+}
+
+.goal-next {
+  margin: 0;
+  padding-top: 13px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-3);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.goal-next b {
+  color: var(--ink-2);
+  font-weight: 650;
+}
+
+.goal-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.goal-mode-toggle {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.goal-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.goal-day {
+  min-height: 38px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-xs);
+  background: var(--s2);
+  color: var(--ink-3);
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.goal-day.is-on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: #bfdbfe;
+}
+
+.goal-actions {
+  margin-top: 20px;
+}
   </style>
 </head>
 
@@ -9983,6 +10140,26 @@ html[dir="rtl"] .celebrate-shell {
       <div class="chart-heading"><span>Session time</span><span id="chartPeriodLabel">Recent sessions</span></div>
       <svg id="sessionTimeChart" class="session-time-chart" viewBox="0 0 640 180" role="img" aria-label="Session time progress"></svg>
     </div>
+  </section>
+
+  <section class="app-surface goals-surface" aria-labelledby="goalsTitle">
+    <div class="section-heading-row">
+      <h3 id="goalsTitle">Today's practice</h3>
+      <button id="editGoalsButton" class="text-link" type="button">Adjust</button>
+    </div>
+
+    <div class="goal-meters">
+      <div class="goal-meter">
+        <div class="goal-meter-head"><span>Minutes</span><b id="goalMinutesLabel">0 / 15</b></div>
+        <div class="goal-track"><i id="goalMinutesFill"></i></div>
+      </div>
+      <div class="goal-meter">
+        <div class="goal-meter-head"><span>Points</span><b id="goalPointsLabel">0 / 100</b></div>
+        <div class="goal-track"><i id="goalPointsFill" class="is-points"></i></div>
+      </div>
+    </div>
+
+    <p id="goalNextSession" class="goal-next"></p>
   </section>
 
   <section class="app-surface history-surface">
@@ -10393,12 +10570,13 @@ html[dir="rtl"] .celebrate-shell {
         <p class="dictionary-lead">Already know a word? Tap its question mark and say or type it to update your records.</p>
       </div>
 
-      <div class="dictionary-search">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
-        <input id="dictionarySearch" type="search" autocomplete="off" placeholder="Search a word in either language" aria-label="Search the dictionary" />
+      <div class="dictionary-side">
+        <div class="dictionary-search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+          <input id="dictionarySearch" type="search" autocomplete="off" placeholder="Search a word in either language" aria-label="Search the dictionary" />
+        </div>
+        <div id="dictionaryTotals" class="dictionary-totals"></div>
       </div>
-
-      <div id="dictionaryTotals" class="dictionary-totals"></div>
     </div>
 
     <div id="dictionaryLevels" class="dictionary-levels"></div>
@@ -10870,6 +11048,54 @@ html[dir="rtl"] .celebrate-shell {
         <li><span>Every time after</span><b>1x base</b></li>
       </ul>
       <p>A mistake, or taking a hint, means the word owes three correct answers in a row. While it owes them it pays nothing, and the answer that clears it pays 5x rather than 10x.</p>
+    </div>
+  </div>
+</section>
+
+<section id="goalsDialog" class="decision-modal hidden" role="dialog" aria-modal="true" aria-labelledby="goalsDialogTitle">
+  <div class="decision-panel hint-panel">
+    <button id="goalsDialogClose" class="dialog-close" type="button" aria-label="Close">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <h2 id="goalsDialogTitle">Practice goals</h2>
+
+    <div class="goal-field-row">
+      <div class="pf-field">
+        <label class="pf-label" for="goalMinutesInput">Minutes a day</label>
+        <input id="goalMinutesInput" class="pf-input" type="number" min="1" max="600" step="1" />
+      </div>
+      <div class="pf-field">
+        <label class="pf-label" for="goalPointsInput">Points a day</label>
+        <input id="goalPointsInput" class="pf-input" type="number" min="1" max="100000" step="1" />
+      </div>
+    </div>
+
+    <div class="pf-field">
+      <span class="pf-label">Scheduled sessions</span>
+      <div class="setup-gender-toggle goal-mode-toggle" role="group" aria-label="Session schedule">
+        <button class="setup-gender-option" type="button" data-goal-mode="off">None</button>
+        <button class="setup-gender-option" type="button" data-goal-mode="once">One time</button>
+        <button class="setup-gender-option" type="button" data-goal-mode="weekly">Repeating</button>
+      </div>
+    </div>
+
+    <div id="goalOnceRow" class="pf-field hidden">
+      <label class="pf-label" for="goalDateInput">Date</label>
+      <input id="goalDateInput" class="pf-input" type="date" />
+    </div>
+
+    <div id="goalWeeklyRow" class="pf-field hidden">
+      <span class="pf-label">Days</span>
+      <div id="goalDays" class="goal-days"></div>
+    </div>
+
+    <div id="goalTimeRow" class="pf-field hidden">
+      <label class="pf-label" for="goalTimeInput">Time</label>
+      <input id="goalTimeInput" class="pf-input" type="time" />
+    </div>
+
+    <div class="decision-actions goal-actions">
+      <button id="saveGoalsButton" class="primary-action" type="button">Save</button>
     </div>
   </div>
 </section>
@@ -13773,6 +13999,188 @@ function rangeWordForPlacement(language, cachedProfile) {
   }
 
   return String(cachedProfile?.primaryTargetWord || "").trim();
+}
+
+
+/* =========================================================================
+   Practice goals
+
+   A daily target for minutes and points, plus an optional standing
+   appointment. Progress is read from the sessions already recorded today,
+   so nothing new needs tracking.
+   ========================================================================= */
+
+const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DEFAULT_GOALS = { minutes: 15, points: 100, mode: "off", days: [], time: "18:00", date: "" };
+
+function goalsStorageKey() {
+  return `lipsmaxxed-goals:${currentUser?.id || "signed-out"}`;
+}
+
+function loadGoals() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(goalsStorageKey()) || "null");
+    if (stored && typeof stored === "object") return { ...DEFAULT_GOALS, ...stored };
+  } catch {
+    // Defaults are fine.
+  }
+  return { ...DEFAULT_GOALS };
+}
+
+function saveGoals(goals) {
+  try {
+    localStorage.setItem(goalsStorageKey(), JSON.stringify(goals));
+  } catch {
+    // The goal simply resets next visit.
+  }
+}
+
+function todaysPractice() {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const from = start.getTime();
+
+  let minutes = 0;
+  let points = 0;
+
+  for (const session of getSessionHistory()) {
+    const ended = Number(session?.endedAt || session?.startedAt || 0);
+    if (ended < from) continue;
+    minutes += Number(session?.durationMs || 0) / 60000;
+    points += Number(session?.pointsGained || 0);
+  }
+
+  return { minutes: Math.round(minutes), points: Math.round(points) };
+}
+
+function nextSessionAt(goals) {
+  if (goals.mode === "once" && goals.date) {
+    const when = new Date(`${goals.date}T${goals.time || "18:00"}`);
+    return Number.isNaN(when.getTime()) || when.getTime() < Date.now() ? null : when;
+  }
+
+  if (goals.mode !== "weekly" || !goals.days?.length) return null;
+
+  const [hours, minutes] = String(goals.time || "18:00").split(":").map(Number);
+
+  for (let ahead = 0; ahead < 8; ahead += 1) {
+    const candidate = new Date();
+    candidate.setDate(candidate.getDate() + ahead);
+    candidate.setHours(hours || 0, minutes || 0, 0, 0);
+    if (!goals.days.includes(candidate.getDay())) continue;
+    if (candidate.getTime() > Date.now()) return candidate;
+  }
+
+  return null;
+}
+
+function renderGoals() {
+  const goals = loadGoals();
+  const done = todaysPractice();
+
+  const setMeter = (fillId, labelId, value, target, unit) => {
+    const fill = document.getElementById(fillId);
+    const label = document.getElementById(labelId);
+    const ratio = target > 0 ? Math.min(1, value / target) : 0;
+
+    if (fill) {
+      fill.style.width = `${Math.round(ratio * 100)}%`;
+      fill.classList.toggle("is-complete", ratio >= 1);
+    }
+    if (label) label.textContent = `${value} / ${target}${unit}`;
+  };
+
+  setMeter("goalMinutesFill", "goalMinutesLabel", done.minutes, goals.minutes, "");
+  setMeter("goalPointsFill", "goalPointsLabel", done.points, goals.points, "");
+
+  const next = document.getElementById("goalNextSession");
+  if (!next) return;
+
+  const when = nextSessionAt(goals);
+
+  if (!when) {
+    next.innerHTML = goals.mode === "off"
+      ? "No session scheduled. <b>Adjust</b> to set one up."
+      : "No upcoming session. Check the days and time you picked.";
+    return;
+  }
+
+  const sameDay = when.toDateString() === new Date().toDateString();
+  const dayText = sameDay
+    ? "today"
+    : when.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
+  const timeText = when.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+
+  next.innerHTML = `Next session <b>${dayText} at ${timeText}</b>.`;
+}
+
+function syncGoalDialogRows(mode) {
+  document.getElementById("goalOnceRow")?.classList.toggle("hidden", mode !== "once");
+  document.getElementById("goalWeeklyRow")?.classList.toggle("hidden", mode !== "weekly");
+  document.getElementById("goalTimeRow")?.classList.toggle("hidden", mode === "off");
+
+  document.querySelectorAll("[data-goal-mode]").forEach(button => {
+    button.classList.toggle("selected", button.dataset.goalMode === mode);
+    button.setAttribute("aria-pressed", String(button.dataset.goalMode === mode));
+  });
+}
+
+let goalDraft = null;
+
+function openGoalsDialog() {
+  goalDraft = loadGoals();
+
+  const minutes = document.getElementById("goalMinutesInput");
+  const points = document.getElementById("goalPointsInput");
+  const date = document.getElementById("goalDateInput");
+  const time = document.getElementById("goalTimeInput");
+  const days = document.getElementById("goalDays");
+
+  if (minutes) minutes.value = String(goalDraft.minutes);
+  if (points) points.value = String(goalDraft.points);
+  if (date) date.value = goalDraft.date || "";
+  if (time) time.value = goalDraft.time || "18:00";
+
+  if (days) {
+    days.textContent = "";
+    DAY_LABELS.forEach((label, index) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `goal-day${goalDraft.days.includes(index) ? " is-on" : ""}`;
+      button.textContent = label;
+      button.addEventListener("click", () => {
+        goalDraft.days = goalDraft.days.includes(index)
+          ? goalDraft.days.filter(day => day !== index)
+          : [...goalDraft.days, index];
+        button.classList.toggle("is-on");
+      });
+      days.appendChild(button);
+    });
+  }
+
+  syncGoalDialogRows(goalDraft.mode);
+  document.getElementById("goalsDialog")?.classList.remove("hidden");
+}
+
+function closeGoalsDialog() {
+  document.getElementById("goalsDialog")?.classList.add("hidden");
+}
+
+function commitGoals() {
+  const minutes = Number(document.getElementById("goalMinutesInput")?.value || 0);
+  const points = Number(document.getElementById("goalPointsInput")?.value || 0);
+
+  saveGoals({
+    ...goalDraft,
+    minutes: Math.max(1, Math.min(600, Math.round(minutes) || DEFAULT_GOALS.minutes)),
+    points: Math.max(1, Math.min(100000, Math.round(points) || DEFAULT_GOALS.points)),
+    date: document.getElementById("goalDateInput")?.value || "",
+    time: document.getElementById("goalTimeInput")?.value || "18:00"
+  });
+
+  closeGoalsDialog();
+  renderGoals();
+  showToast("Goals saved", "good");
 }
 
 function createClientTurnId() {
@@ -23678,6 +24086,7 @@ function enterHomeScreen() {
   renderMemberHome().catch(() => {});
 
   refreshWordsToLearn();
+  renderGoals();
 }
 
 function showSignedInHome() {
@@ -25059,6 +25468,19 @@ profileSignOutButton?.addEventListener("click", handleSignOut);
 
 document.getElementById("seeAllWordsButton")?.addEventListener("click", openDictionary);
 document.getElementById("hintDialogClose")?.addEventListener("click", closeHintDialog);
+document.getElementById("editGoalsButton")?.addEventListener("click", openGoalsDialog);
+document.getElementById("goalsDialogClose")?.addEventListener("click", closeGoalsDialog);
+document.getElementById("saveGoalsButton")?.addEventListener("click", commitGoals);
+document.getElementById("goalsDialog")?.addEventListener("click", event => {
+  if (event.target.id === "goalsDialog") closeGoalsDialog();
+});
+document.querySelectorAll("[data-goal-mode]").forEach(button => {
+  button.addEventListener("click", () => {
+    if (goalDraft) goalDraft.mode = button.dataset.goalMode;
+    syncGoalDialogRows(button.dataset.goalMode);
+  });
+});
+
 document.getElementById("dictionaryZoomOut")?.addEventListener("click", () => {
   const search = document.getElementById("dictionarySearch");
   if (search) search.value = "";
