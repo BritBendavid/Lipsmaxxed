@@ -10365,13 +10365,32 @@ html[dir="rtl"] .celebrate-shell {
 
 .account-points-value {
   display: block;
+  position: static;
   height: auto;
+  max-width: none;
   line-height: 1;
   padding: 0;
+  transform: none;
+  letter-spacing: 0;
 }
 
 .home-grid-lower {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.goal-countdown-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.goal-countdown-edit.is-cancel {
+  color: #fca5a5;
+}
+
+.goal-countdown-edit.is-cancel:hover {
+  color: #fecaca;
 }
   </style>
 </head>
@@ -14664,9 +14683,18 @@ function buildGoalScheduleForm(goals) {
     renderGoalSchedule();
   });
 
+  const dismiss = document.createElement("button");
+  dismiss.type = "button";
+  dismiss.className = "goal-countdown-edit";
+  dismiss.textContent = "Never mind";
+  dismiss.addEventListener("click", () => {
+    goalScheduleEditing = false;
+    renderGoalSchedule();
+  });
+
   timeRow.append(timeInput, confirm);
   renderDays();
-  form.append(repeat, days, dateRow, timeRow);
+  form.append(repeat, days, dateRow, timeRow, dismiss);
   return form;
 }
 
@@ -14689,14 +14717,32 @@ function buildGoalCountdown(when) {
     return unit.querySelector("b");
   });
 
+  const actions = document.createElement("div");
+  actions.className = "goal-countdown-actions";
+
   const edit = document.createElement("button");
   edit.type = "button";
   edit.className = "goal-countdown-edit";
-  edit.textContent = "Change this session";
+  edit.textContent = "Change";
   edit.addEventListener("click", () => {
     goalScheduleEditing = true;
     renderGoalSchedule();
   });
+
+  const cancel = document.createElement("button");
+  cancel.type = "button";
+  cancel.className = "goal-countdown-edit is-cancel";
+  cancel.textContent = "Cancel session";
+  cancel.addEventListener("click", () => {
+    const cleared = { ...loadGoals(), mode: "off", days: [], date: "" };
+    saveGoals(cleared);
+    void persistGoals(cleared);
+    goalScheduleEditing = false;
+    renderGoalSchedule();
+    showToast("Session cancelled");
+  });
+
+  actions.append(edit, cancel);
 
   const tick = () => {
     const remaining = Math.max(0, when.getTime() - Date.now());
@@ -14716,7 +14762,7 @@ function buildGoalCountdown(when) {
   tick();
   goalCountdownTimer = window.setInterval(tick, 1000);
 
-  wrap.append(label, clock, edit);
+  wrap.append(label, clock, actions);
   return wrap;
 }
 
